@@ -151,15 +151,15 @@ define([
 
                     tmpSample = buckets[bucket][d];
 
-                    if (tmpSample["min"]){
+                    if (tmpSample["min"] !== null){
                         minValues.push(tmpSample["min"]);
                         originalMin.push(tmpSample.original["min"]);
                     }
-                    if (tmpSample["avg"]){
+                    if (tmpSample["avg"] !== null){
                         avgValues.push(tmpSample["avg"]);
                         originalAvg.push(tmpSample.original["avg"]);
                     }
-                    if (tmpSample["max"]){
+                    if (tmpSample["max"] !== null){
                         maxValues.push(tmpSample["max"]);
                         originalMax.push(tmpSample.original["max"]);
                     }
@@ -222,6 +222,7 @@ define([
                 (originalMax.reduce(function(a, b) {
                     return a + b;
                 }) / originalMax.length) : null;
+
 
 
 
@@ -289,18 +290,18 @@ define([
 
                 packetLoss = [];
 
-                for (var d=0,length=newSamples.length; d < length; d++) { //for all the samples in the bucket
+                for (var d=0,length=newSamples.length; d<length; d++) { //for all the samples in the bucket
 
                     tmpSample = newSamples[d];
-                    if (tmpSample["min"]){
+                    if (tmpSample["min"] !== null){
                         minValues.push(tmpSample["min"]);
                         originalMin.push(tmpSample.original["min"]);
                     }
-                    if (tmpSample["avg"]){
+                    if (tmpSample["avg"] !== null){
                         avgValues.push(tmpSample["avg"]);
                         originalAvg.push(tmpSample.original["avg"]);
                     }
-                    if (tmpSample["max"]){
+                    if (tmpSample["max"] !== null){
                         maxValues.push(tmpSample["max"]);
                         originalMax.push(tmpSample.original["max"]);
                     }
@@ -427,7 +428,7 @@ define([
                 .enter()
                 .append("circle")
                 .filter(function(dataPoint){
-                    return dataPoint[key] > 0;
+                    return dataPoint[key] !== null;
                 })
                 .attr("class", function(dataPoint){
                     return "dot fill-normal-dot " + key  + " p" + $this.group.id;
@@ -943,9 +944,9 @@ define([
                 .enter()
                 .append("circle")
                 .filter(function(dataPoint){
-                    return dataPoint[key] > 0;
+                    return dataPoint[key] !== null;
                 })
-                .attr("class", function(dataPoint){
+                .attr("class", function(){
                     return "dot fill-normal-dot " + key + " p" + $this.group.id;
                 })
                 .attr("cx", line.x())
@@ -970,7 +971,7 @@ define([
         this.computeLine = function (data, key) {
             return d3.svg.line()
                 .defined(function (dataPoint) {
-                    return dataPoint[key] != null;
+                    return dataPoint[key] !== null;
                 })
                 .x(function (dataPoint) {
                     dataPoint.drawnX = x(dataPoint.date);
@@ -1001,15 +1002,16 @@ define([
 
                 description = [];
                 description.push("Date: " + utils.dateToString(dataPoint.date));
-                if (dataPoint.min){
-                    description.push('<span class="info-label min">Min: ' + dataPoint.original.min.toFixed(2) + 'ms</span>');
-                }
-                if (dataPoint.avg){
-                    description.push('<span class="info-label avg">Med: ' + dataPoint.original.avg.toFixed(2) + 'ms</span>');
-                }
-                if (dataPoint.max){
+                if (dataPoint.original.max !== null){
                     description.push('<span class="info-label max">Max: ' + dataPoint.original.max.toFixed(2) + 'ms</span>');
                 }
+                if (dataPoint.original.avg !== null){
+                    description.push('<span class="info-label avg">Med: ' + dataPoint.original.avg.toFixed(2) + 'ms</span>');
+                }
+                if (dataPoint.original.min !== null){
+                    description.push('<span class="info-label min">Min: ' + dataPoint.original.min.toFixed(2) + 'ms</span>');
+                }
+
                 description.push("PacketLoss: " + (dataPoint.packetLoss.toFixed(2) * 100) + "%");
                 //description.push("" + dataPoint.sent + " packet sent, "+ dataPoint.received + " received");
 

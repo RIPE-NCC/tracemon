@@ -240,7 +240,7 @@ define([
                 .enter()
                 .append("circle")
                 .filter(function(dataPoint){
-                    return dataPoint[key] > 0;
+                    return dataPoint[key] !== null;
                 })
                 .attr("r", 15)
                 .transition()
@@ -694,7 +694,7 @@ define([
             enterSet
                 .append("circle")
                 .filter(function(dataPoint){
-                    return dataPoint[key] > 0;
+                    return dataPoint[key] !== null;
                 })
                 .attr("class", function(dataPoint){
                     if (!dataPoint.cut[key]){
@@ -709,22 +709,6 @@ define([
                     d.rendered = true;
                     return dotsRadius;
                 });
-
-            //enterSet
-            //    .append("line")
-            //    .filter(function(dataSample){
-            //        return dataSample.packetLoss > 0;
-            //    })
-            //    .attr("class", "packet-loss-line")
-            //    .attr("stroke-dasharray", 10.5)
-            //    .style("opacity", function(dataSample){
-            //        return dataSample.packetLoss;
-            //    })
-            //    .attr("x1", line.x())
-            //    .attr("y1", 0)
-            //    .attr("x2", line.x())
-            //    .attr("y2", height + "px");
-
 
             return enterSet;
         };
@@ -805,15 +789,16 @@ define([
 
                 description = [];
                 description.push("Date: " + utils.dateToString(dataPoint.date));
-                if (dataPoint.min){
-                    description.push('<span class="info-label min">Min: ' + dataPoint.original.min.toFixed(2) + 'ms</span>');
+                if (dataPoint.max) {
+                    description.push('<span class="info-label max">Max: ' + dataPoint.original.max.toFixed(2) + 'ms</span>');
                 }
                 if (dataPoint.avg) {
                     description.push('<span class="info-label avg">Med: ' + dataPoint.original.avg.toFixed(2) + 'ms</span>');
                 }
-                if (dataPoint.max) {
-                    description.push('<span class="info-label max">Max: ' + dataPoint.original.max.toFixed(2) + 'ms</span>');
+                if (dataPoint.min){
+                    description.push('<span class="info-label min">Min: ' + dataPoint.original.min.toFixed(2) + 'ms</span>');
                 }
+
                 description.push("Packet loss: " + (dataPoint.packetLoss.toFixed(2) * 100) + "%");
                 description.push("" + dataPoint.sent + " packet sent, "+ dataPoint.received + " received");
 

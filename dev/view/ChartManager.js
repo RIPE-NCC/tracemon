@@ -110,7 +110,7 @@ define([
 
                 for (chartKey in $this.charts) {
                     groupView = $this.charts[chartKey];
-                    for (n = 0, length = groupView.group.probes.length; n < length; n++) {
+                    for (n=0, length=groupView.group.probes.length; n<length; n++) {
                         probe = groupView.group.probes[n];
                         probe.filteredData = $this._imposeCut(probe.filteredData, xDomain, lowerbound, upperbound);
                     }
@@ -196,8 +196,13 @@ define([
             var manipulateSamples = function(data){
                 for (var n = 0, length = data.length; n < length; n++) {
                     item = data[n];
-                    maxYvalue = Math.max(maxYvalue, item.min, item.avg, item.max);
-                    minYvalue = Math.min(minYvalue, item.min, item.avg, item.max);
+
+                    if (item.min > 0 || item.avg > 0 || item.max > 0) {
+                        maxYvalue = Math.max(maxYvalue, item.min, item.avg, item.max);
+                    }
+                    if (item.min !== null){
+                        minYvalue = Math.min(minYvalue, item.min);
+                    }
                 }
             };
 
@@ -216,6 +221,13 @@ define([
                 }
             }
 
+            if (minYvalue === null){
+                minYvalue = lowerbound;
+            }
+
+            if (maxYvalue === null){
+                maxYvalue = upperbound;
+            }
             return {domain: [minYvalue, maxYvalue], unit: this.yUnit};
         };
 
@@ -390,15 +402,15 @@ define([
                 item = data[n];
 
                 if (item.date > xDomain[0]){
-                    roundedMin = (item.min) ? parseFloat(item.min.toFixed(2)) : null;
-                    roundedMax = (item.max) ? parseFloat(item.max.toFixed(2)) : null;
+                    roundedMin = (item.min !== null) ? parseFloat(item.min.toFixed(2)) : null;
+                    roundedMax = (item.max !== null) ? parseFloat(item.max.toFixed(2)) : null;
 
                     dataPoint = utils.lightClone(item);
 
 
-                    dataPoint.min = (item.min != null) ? Math.max(lowerbound, Math.min(upperbound, roundedMin)) : null;
-                    dataPoint.avg = (item.avg != null) ? Math.max(lowerbound, Math.min(upperbound, item.avg.toFixed(2))) : null;
-                    dataPoint.max = (item.max != null) ? Math.max(lowerbound, Math.min(upperbound, roundedMax)) : null;
+                    dataPoint.min = (item.min !== null) ? Math.max(lowerbound, Math.min(upperbound, roundedMin)) : null;
+                    dataPoint.avg = (item.avg !== null) ? Math.max(lowerbound, Math.min(upperbound, item.avg.toFixed(2))) : null;
+                    dataPoint.max = (item.max !== null) ? Math.max(lowerbound, Math.min(upperbound, roundedMax)) : null;
 
                     dataPoint.cut = {
                         min: dataPoint.min != roundedMin,

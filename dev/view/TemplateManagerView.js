@@ -272,7 +272,14 @@ define([
                         sortable: true,
                         search: true,
                         checkedBooleanField: "checked",
+                        onCheckAll: function(){
+                            var groupName;
 
+                            groupName = env.parentDom.find(".group-name>input");
+                            if (groupName.is(":visible")){
+                                groupName.val(env.parentDom.find(".search > input").val());
+                            }
+                        },
                         columns: [
                             {
                                 field: 'select',

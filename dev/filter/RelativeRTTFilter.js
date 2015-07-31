@@ -13,7 +13,7 @@ define([
 
             for (n = 0, length = data.length; n < length; n++) {
                 item = data[n];
-                if (item.min) {
+                if (item.min !== null) {
                     minOfArray = Math.min(item.min, minOfArray);
                 }
             }
@@ -27,9 +27,9 @@ define([
                     max: item.max
                 };
 
-                item.min = (item.min) ? ((item.min / minOfArray) * 100) - 100 : null;
-                item.avg = (item.avg) ? ((item.avg / minOfArray) * 100) - 100 : null;
-                item.max = (item.max) ? ((item.max / minOfArray) * 100) - 100 : null;
+                item.min = (item.min !== null) ? ((item.min / minOfArray) * 100) - 100 : null;
+                item.avg = (item.avg !== null) ? ((item.avg / minOfArray) * 100) - 100 : null;
+                item.max = (item.max !== null) ? ((item.max / minOfArray) * 100) - 100 : null;
                 dataOut.push(item);
             }
 
