@@ -21,8 +21,6 @@ define([
 
         this.charts = {};
 
-        //test
-
         this.addChart = function(group){
             var chartViewObject;
 
