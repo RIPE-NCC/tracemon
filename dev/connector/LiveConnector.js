@@ -86,7 +86,6 @@ define([
 
         this.unsubscribe = function (measurementId, probeId) {
             var key;
-            //console.log("unsubscribe", probeId);
 
             key = this._getSubscriptionId(measurementId, probeId);
             if (this.subscriptions[key]) {
