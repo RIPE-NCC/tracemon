@@ -18,7 +18,7 @@ define([
                 }
             }
 
-            for (n = 0, length = data.length; n < length; n++) {
+            for (n=0,length=data.length; n<length; n++) {
                 item = utils.lightClone(data[n]);
 
                 item.original = {

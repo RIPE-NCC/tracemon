@@ -110,7 +110,7 @@ define([
         this.update = function (xDomain, yDomain, yRange, yUnit) {
             var data;
 
-            data = probe.filteredData;
+            data = this.samples;
             this.lastUpdateParams.xDomain = xDomain;
             this.lastUpdateParams.yDomain = yDomain;
             this.lastUpdateParams.yRange = yRange;
@@ -261,6 +261,9 @@ define([
 
         };
 
+        this.getGraphicalSamples = function(xDomain){
+            return probe.filteredData;
+        };
 
         this.updateLine = function (data, key) {
             lines[key]
@@ -281,7 +284,7 @@ define([
         this.draw = function (xDomain, yDomain, yRange, yUnit) {
             var data;
 
-            data = probe.filteredData;
+            data = this.samples;
             this.lastUpdateParams.xDomain = xDomain;
             this.lastUpdateParams.yDomain = yDomain;
             this.lastUpdateParams.yRange = yRange;
@@ -514,7 +517,7 @@ define([
                 .select(this.group.dom[0])
                 .append("svg");
 
-             svgElement
+            svgElement
                 .append("rect")
                 .attr("class", "selection-rect");
 
@@ -789,17 +792,21 @@ define([
 
                 description = [];
                 description.push("Date: " + utils.dateToString(dataPoint.date));
-                if (dataPoint.max) {
-                    description.push('<span class="info-label max">Max: ' + dataPoint.original.max.toFixed(2) + 'ms</span>');
-                }
-                if (dataPoint.avg) {
-                    description.push('<span class="info-label avg">Med: ' + dataPoint.original.avg.toFixed(2) + 'ms</span>');
-                }
-                if (dataPoint.min){
-                    description.push('<span class="info-label min">Min: ' + dataPoint.original.min.toFixed(2) + 'ms</span>');
-                }
 
-                description.push("Packet loss: " + (dataPoint.packetLoss.toFixed(2) * 100) + "%");
+                if (dataPoint.original) {
+                    if (dataPoint.original.max != null && dataPoint.max != null) {
+                        description.push('<span class="info-label max">Max: ' + dataPoint.original.max.toFixed(2) + 'ms (' + dataPoint.max.toFixed(2) + '%)</span>');
+                    }
+                    if (dataPoint.original.avg != null && dataPoint.max != null) {
+                        description.push('<span class="info-label avg">Med: ' + dataPoint.original.avg.toFixed(2) + 'ms (' + dataPoint.avg.toFixed(2) + '%)</span>');
+                    }
+                    if (dataPoint.original.min != null && dataPoint.max != null) {
+                        description.push('<span class="info-label min">Min: ' + dataPoint.original.min.toFixed(2) + 'ms (' + dataPoint.min.toFixed(2) + '%)</span>');
+                    }
+                }
+                if (dataPoint.packetLoss != null) {
+                    description.push("Packet loss: " + (dataPoint.packetLoss.toFixed(2) * 100) + "%");
+                }
                 description.push("" + dataPoint.sent + " packet sent, "+ dataPoint.received + " received");
 
 

@@ -374,28 +374,28 @@ define([
         },
 
         getUrlParameters: function (domName) { // Get a map composed of ALL the parameters
-            var map, suffix, parts, subElements, atLeastOne;
+            var map, suffix, subElements, atLeastOne;
 
             map = {};
             atLeastOne = false;
             suffix = this.getInstanceSuffix(domName) + '.';
 
-            parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
+            window.location.search
+                .replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
 
-                key = key.toString().replace(suffix, ''); // Creates the map removing the suffix
-
-                if (key.indexOf('.') != -1) {
-                    subElements = key.split('.');
-                    if (!map[subElements[0]]) {
-                        map[subElements[0]] = {};
+                    key = key.toString().replace(suffix, ''); // Creates the map removing the suffix
+                    if (key.indexOf('.') != -1) {
+                        subElements = key.split('.');
+                        if (!map[subElements[0]]) {
+                            map[subElements[0]] = {};
+                        }
+                        map[subElements[0]][subElements[1]] = value;
+                    } else {
+                        map[key] = value;
                     }
-                    map[subElements[0]][subElements[1]] = value;
-                } else {
-                    map[key] = value;
-                }
 
-                atLeastOne = true;
-            });
+                    atLeastOne = true;
+                });
 
             return (atLeastOne) ? map : null;
         },

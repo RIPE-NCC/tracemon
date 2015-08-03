@@ -72,15 +72,21 @@ define([
         /*
          * THIS IS THE SELECTION START AND END DATE, NOT THE GLOBAL START AND END DATE OF A MEASUREMENT
          */
-        env.startDate = new Date(now.getTime() - (config.predefinedTimeWindows[config.defaiultTimeWindow] * 1000)); // Default values
-        env.endDate = now; // Default values
-        env.timeWindowSize = env.endDate - env.startDate;
+        //env.startDate = new Date(now.getTime() - (config.predefinedTimeWindows[config.defaiultTimeWindow] * 1000)); // Default values
+        //env.endDate = now; // Default values
+        //env.timeWindowSize = env.endDate - env.startDate;
+
         env.updateIfPossible = config.syncWithRealTimeData;
 
         console.log("Use 'main.addMeasurement(id)' to load a measurement");
 
         this._isUpdatable = function(){
-            var out = env.endDate.getTime() >= (utils.getUTCDate().getTime() - config.updateIfYoungerThanMilliseconds);
+            var out;
+            if (!env.endDate){
+                out = false;
+            } else {
+                out = env.endDate.getTime() >= (utils.getUTCDate().getTime() - config.updateIfYoungerThanMilliseconds);
+            }
 
             if (out){
                 env.template.streamingLed.on();
@@ -90,7 +96,8 @@ define([
 
             return out;
         };
-        env.isUpdatable = this._isUpdatable();
+
+        //env.isUpdatable = this._isUpdatable();
 
         this.keepUpdated = function(update){
             env.updateIfPossible = update;
@@ -169,7 +176,7 @@ define([
             }
 
             return env.connector.getMeasurementInfo(measurementId, function (measurement) {
-                var n, length, probe, targets;
+                var n, length, probe, targets, interval, selectedTimeWindow;
 
                 targets = [];
                 measurement.resolutionMap = this._computeResolutionMapForThisMeasurement(measurement);
@@ -182,14 +189,29 @@ define([
                 console.log("setTimeRange(startDate, endDate)");
 
                 if (env.timeDomain) {
-                    env.timeDomain = [new Date(Math.min(measurement["start_time"], env.timeDomain[0].getTime() / 1000) * 1000), new Date(Math.max(measurement["stop_time"], env.timeDomain[1].getTime() / 1000) * 1000)];
+                    env.timeDomain = [
+                        utils.timestampToUTCDate(Math.min(measurement["start_time"], env.timeDomain[0].getTime() / 1000)),
+                        utils.timestampToUTCDate(Math.max(measurement["stop_time"], env.timeDomain[1].getTime() / 1000))
+                    ];
                 } else {
                     env.timeDomain = [
-                        new Date(measurement["start_time"] * 1000),
-                        ((measurement["stop_time"]) ? (new Date(measurement["stop_time"] * 1000)) : new Date())
+                        utils.timestampToUTCDate(measurement["start_time"]),
+                        ((measurement["stop_time"]) ? (utils.timestampToUTCDate(measurement["stop_time"])) : utils.getUTCDate())
                     ];
-
                 }
+
+                interval = measurement["native_sampling"];
+                selectedTimeWindow = (interval * config.maxNumberOfSamplesPerRow * 1000);
+
+                // If not defined, set the default selected time window
+                if (!env.timeWindowSize){
+                    env.startDate = new Date(Math.max(env.timeDomain[1].getTime() - selectedTimeWindow, env.timeDomain[0].getTime()));
+                    env.endDate = env.timeDomain[1];
+                    env.timeWindowSize = env.endDate - env.startDate;
+                    env.isUpdatable = this._isUpdatable();
+                }
+
+
                 env.measurements[measurementId] = measurement;
                 env.originalMeasurements[measurementId] = measurement;
 
@@ -222,13 +244,19 @@ define([
         };
 
         this.enrichProbes = function (msmID, probes, callback, context) {
-            var measurementTmp, probesTmp, calls, allProbes, periodForResolution;
+            var measurementTmp, probesTmp, calls, allProbes;
 
             env.timeWindowSize = env.endDate - env.startDate;
 
             calls = [];
             if (!env.measurements[msmID].merged) {
-                calls.push(env.connector.getHistoricalProbesData(msmID, probes, env.startDate, env.endDate, callback, context));
+                env.chartManager.dom.loadingImage.show();
+                calls.push(env.connector.getHistoricalProbesData(msmID, probes, env.startDate, env.endDate, function(data){
+                    env.chartManager.dom.loadingImage.hide();
+                    if (callback){
+                        callback.call(context, data);
+                    }
+                }, this));
             } else {
 
                 allProbes = [];
@@ -243,16 +271,18 @@ define([
                     }
 
                     if (probesTmp.length > 0){
+                        env.chartManager.dom.loadingImage.show();
                         calls.push(env.connector.getHistoricalProbesData(measurementId, probesTmp, env.startDate, env.endDate));
                     }
                 }
 
-                if (callback) {
-                    $.when.apply(this, calls)
-                        .done(function () {
+                $.when.apply(this, calls)
+                    .done(function () {
+                        env.chartManager.dom.loadingImage.hide();
+                        if (callback) {
                             callback.call(context, allProbes);
-                        });
-                }
+                        }
+                    });
             }
 
             return calls;
@@ -298,6 +328,8 @@ define([
                     return probeObj;
                 });
 
+                //env.chartManager.dom.loadingImage.show();
+
                 this.enrichProbes(msmID, probes, function () {
                     var group;
 
@@ -312,6 +344,8 @@ define([
                     }
 
                     env.chartManager.addChart(group);
+                    //env.chartManager.dom.loadingImage.hide();
+
                 }, this);
 
                 console.log("Use removeProbe(measurementID, probeID)/removeGroup(label) to remove a probe/group chart");
@@ -528,6 +562,7 @@ define([
                 if (!env.timeDomain){
                     env.startDate = utils.timestampToUTCDate(conf.startTimestamp);
                     env.endDate = utils.timestampToUTCDate(conf.stopTimestamp);
+                    env.timeWindowSize = env.endDate - env.startDate;
                     env.isUpdatable = this._isUpdatable();
                 } else {
                     $this.setTimeRange(utils.timestampToUTCDate(conf.startTimestamp), utils.timestampToUTCDate(conf.stopTimestamp));
@@ -544,7 +579,6 @@ define([
                         measurementCounter++;
                     }, this, false));
                 }
-
 
                 $.when.apply(this, callsAddMeasurements)
                     .done(function () {

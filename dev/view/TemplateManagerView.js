@@ -277,7 +277,7 @@ define([
 
                             groupName = env.parentDom.find(".group-name>input");
                             if (groupName.is(":visible")){
-                                groupName.val(env.parentDom.find(".search > input").val());
+                                groupName.val(env.parentDom.find(".search > input").val()).trigger("keyup");
                             }
                         },
                         columns: [

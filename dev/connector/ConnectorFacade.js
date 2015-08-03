@@ -21,7 +21,6 @@ define([
         numberOfSamples = config.maxNumberOfSamplesPerRow;
 
         this.getHistoricalProbesData = function (measurementId, probes, startDate, endDate, callback, context) {
-            env.chartManager.dom.loadingImage.show();
 
             endDate = endDate || utils.getUTCDate();
             return historyConnector.getHistoricalProbesData(
@@ -51,8 +50,6 @@ define([
 
                         env.lastHistoricSample = Math.max(results[results.length - 1].timestamp, (env.lastHistoricSample || 0));
                     }
-
-                    env.chartManager.dom.loadingImage.hide();
 
                     if (callback){
                         callback.call(context, probes);
@@ -181,10 +178,8 @@ define([
         };
 
         this.getMeasurementInfo = function (probe, callback, context) {
-            env.chartManager.dom.loadingImage.show();
 
             return historyConnector.getMeasurementInfo(probe, function(data){
-                env.chartManager.dom.loadingImage.hide();
                 callback.call(context, data);
             }, this);
         };

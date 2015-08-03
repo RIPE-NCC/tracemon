@@ -37,6 +37,7 @@ define([
                 case "comparison":
                     chartViewObject = new ChartComparisonView(env, group);
                     break;
+
             }
 
             this.charts["" + group.id] = chartViewObject; // Force cast to string
@@ -79,41 +80,69 @@ define([
 
 
         this._renderOrUpdateAll = function(){
-            var lowerbound, upperbound, bounds, xDomain, yDomain, yRange, yEnvelop, yUnit, groupView, chartKey, probe;
+            var lowerbound, upperbound, bounds, xDomain, yDomain, yRange, yEnvelop, yUnit, groupView, chartKey, probe,
+                atLeastOne;
 
-            if (!$.isEmptyObject($this.charts)) {
+            function relative(data){
+                var dataOut, minOfArray, item, n, length;
 
-                for (chartKey in $this.charts) {
-                    groupView = $this.charts[chartKey];
+                dataOut = [];
+                minOfArray = Infinity;
 
-                    for (var n = 0, length = groupView.group.probes.length; n < length; n++) {
-                        probe = groupView.group.probes[n];
-
-                        if (!probe.data) {
-                            probe.data = [];
-                            //throw "The API replied with an empty dataset for the probe " + probe.id;
-                        }
-                        probe.filteredData = env.dataFilter.manipulate(probe.data);
+                for (n = 0, length = data.length; n < length; n++) {
+                    item = data[n];
+                    if (item.min != null) {
+                        minOfArray = Math.min(item.min, minOfArray);
                     }
                 }
 
+                for (n=0, length=data.length; n < length; n++) {
+                    item = utils.lightClone(data[n]);
+                    item.min = (item.min != null) ? ((item.min / minOfArray) * 100) - 100 : null;
+                    item.avg = (item.avg != null) ? ((item.avg / minOfArray) * 100) - 100 : null;
+                    item.max = (item.max != null) ? ((item.max / minOfArray) * 100) - 100 : null;
+                    dataOut.push(item);
+                }
+
+                return dataOut;
+            }
+
+            for (chartKey in $this.charts) { // Apply the data filter to all the probe results
+                atLeastOne = true;
+                groupView = $this.charts[chartKey];
+
+                for (var n=0,length=groupView.group.probes.length; n<length; n++) {
+                    probe = groupView.group.probes[n];
+                    if (!probe.data) {
+                        probe.data = [];
+                    }
+                    probe.filteredData = probe.data;
+                    //probe.filteredData = relative(probe.data);
+                }
+            }
+
+            if (atLeastOne) {
                 xDomain = $this._getXDomain();
                 env.startDate = xDomain[0];
                 env.endDate = xDomain[1];
                 if (env.endDate) {
                     env.timeDomain = [env.timeDomain[0], new Date(Math.max(env.timeDomain[1], env.endDate))];
                 }
-                bounds = $this._getBounds(xDomain);
+
+                for (chartKey in $this.charts) { // Impose the boundaries to all the groups
+                    groupView = $this.charts[chartKey];
+                    groupView.samples = env.dataFilter.manipulate(groupView.getGraphicalSamples(xDomain));
+                }
+
+                bounds = $this._getBounds(xDomain); // Search che y boundaries to apply to all the groups
                 lowerbound = bounds[0];
                 upperbound = bounds[1];
 
-                for (chartKey in $this.charts) {
+                for (chartKey in $this.charts) { // Impose the boundaries to all the groups
                     groupView = $this.charts[chartKey];
-                    for (n=0, length=groupView.group.probes.length; n<length; n++) {
-                        probe = groupView.group.probes[n];
-                        probe.filteredData = $this._imposeCut(probe.filteredData, xDomain, lowerbound, upperbound);
-                    }
+                    groupView.samples = $this._imposeCut(groupView.samples, xDomain, lowerbound, upperbound);
                 }
+
 
                 yEnvelop = $this._getYDomainAndRange(lowerbound, upperbound, xDomain);
                 yDomain = yEnvelop.domain;
@@ -133,7 +162,6 @@ define([
                 }
 
                 env.timeOverview.update(env.timeDomain, [env.startDate, env.endDate]);
-                $this.dom.loadingImage.remove();
                 env.urlManager.updateUrl();
                 $this.applyUpdateCondition();
             }
@@ -196,10 +224,10 @@ define([
                 for (var n = 0, length = data.length; n < length; n++) {
                     item = data[n];
 
-                    if (item.min > 0 || item.avg > 0 || item.max > 0) {
+                    if (item.min != null || item.avg != null || item.max != null) {
                         maxYvalue = Math.max(maxYvalue, item.min, item.avg, item.max);
                     }
-                    if (item.min !== null){
+                    if (item.min != null){
                         minYvalue = Math.min(minYvalue, item.min);
                     }
                 }
@@ -207,26 +235,9 @@ define([
 
             for (chartKey in $this.charts){
                 groupView = $this.charts[chartKey];
-
-                data = (groupView.getGraphicalSamples) ? groupView.getGraphicalSamples(xDomain) : [];
-
-                if (data && data.length > 0){
-                    manipulateSamples(data);
-                } else {
-                    for (var n= 0,length=groupView.group.probes.length; n<length ;n++){
-                        probe = groupView.group.probes[n];
-                        manipulateSamples(probe.filteredData);
-                    }
-                }
+                    manipulateSamples(groupView.samples);
             }
 
-            if (minYvalue === null){
-                minYvalue = lowerbound;
-            }
-
-            if (maxYvalue === null){
-                maxYvalue = upperbound;
-            }
             return {domain: [minYvalue, maxYvalue], unit: this.yUnit};
         };
 
@@ -333,26 +344,24 @@ define([
 
 
         this._getBounds = function (xDomain) {
-            var maximumElements, forthPercentile, secondPercentile, minimumElement, item, chartKey, groupView, probe;
+            var maximumElements, forthPercentile, secondPercentile, minimumElement, item, chartKey, groupView, probe,
+                smaples;
 
             maximumElements = [];
             minimumElement = [];
 
             for (chartKey in $this.charts){
                 groupView = $this.charts[chartKey];
+                smaples = groupView.samples;
+                    for (var n = 0,length=smaples.length; n<length; n++){
+                        item = smaples[n];
 
-                for (var i= 0,lengthi=groupView.group.probes.length; i<lengthi; i++){
-                    probe = groupView.group.probes[i];
-
-                    for (var n = 0,length=probe.filteredData.length; n<length; n++){
-                        item = probe.filteredData[n];
-
-                        if (item.date >= xDomain[0]) {
-                            minimumElement.push(item.min || item.avg || item.max);
+                        if (item.date >= xDomain[0] && item.min != null) {
+                            minimumElement.push(item.min);
                             maximumElements.push(item.max || item.avg || item.min);
                         }
                     }
-                }
+
             }
 
             minimumElement = minimumElement.sort(function (a, b) {
@@ -363,8 +372,8 @@ define([
                 return a - b;
             });
 
-            secondPercentile = Math.floor((minimumElement.length / 100) * 5);
-            forthPercentile = Math.floor((maximumElements.length / 100) * 80);
+            secondPercentile = Math.floor((minimumElement.length / 100) * 5); //5
+            forthPercentile = Math.floor((maximumElements.length / 100) * 80) - 1; //80
 
             return [minimumElement[secondPercentile], maximumElements[forthPercentile]];
         };
@@ -374,17 +383,23 @@ define([
             if (this._isUpdatable()) {
                 var biggestDate, groupView, chartKey, probe;
 
+                biggestDate = null;
                 for (chartKey in $this.charts) {
                     groupView = $this.charts[chartKey];
 
                     for (var i=0,lengthi = groupView.group.probes.length; i < lengthi; i++) {
                         probe = groupView.group.probes[i];
                         for (var n = 0, length = probe.filteredData.length; n < length; n++) {
-                            biggestDate = (!biggestDate || biggestDate < probe.filteredData[n].date) ? probe.filteredData[n].date : biggestDate;
+                            if (!biggestDate || biggestDate < probe.filteredData[n].date){
+                                biggestDate = probe.filteredData[n].date;
+                            }
                         }
                     }
                 }
 
+                if (biggestDate === null){
+                    return [env.startDate, env.endDate]
+                }
                 return [new Date(biggestDate - (env.timeWindowSize)), biggestDate];
             } else {
                 return [env.startDate, env.endDate]
@@ -393,7 +408,7 @@ define([
 
 
         this._imposeCut = function (data, xDomain, lowerbound, upperbound) {
-            var item, dataOut, dataPoint, roundedMin, roundedMax;
+            var item, dataOut, dataPoint, roundedMin, roundedMax, roundedAvg;
 
             dataOut = [];
 
@@ -401,18 +416,19 @@ define([
                 item = data[n];
 
                 if (item.date > xDomain[0]){
-                    roundedMin = (item.min !== null) ? parseFloat(item.min.toFixed(2)) : null;
-                    roundedMax = (item.max !== null) ? parseFloat(item.max.toFixed(2)) : null;
+                    roundedMin = (item.min != null) ? parseFloat(item.min.toFixed(2)) : null;
+                    roundedAvg = (item.max != null) ? parseFloat(item.avg.toFixed(2)) : null;
+                    roundedMax = (item.max != null) ? parseFloat(item.max.toFixed(2)) : null;
 
                     dataPoint = utils.lightClone(item);
 
-
                     dataPoint.min = (item.min !== null) ? Math.max(lowerbound, Math.min(upperbound, roundedMin)) : null;
-                    dataPoint.avg = (item.avg !== null) ? Math.max(lowerbound, Math.min(upperbound, item.avg.toFixed(2))) : null;
+                    dataPoint.avg = (item.avg !== null) ? Math.max(lowerbound, Math.min(upperbound, roundedAvg)) : null;
                     dataPoint.max = (item.max !== null) ? Math.max(lowerbound, Math.min(upperbound, roundedMax)) : null;
 
                     dataPoint.cut = {
                         min: dataPoint.min != roundedMin,
+                        avg: dataPoint.avg != roundedAvg,
                         max: dataPoint.max != roundedMax
                     };
 
@@ -437,7 +453,7 @@ define([
             if (env.parentDom.find(config.domClasses.chartDomClass).length == 0) {
                 this.dom.controllerDiv = $('<div class="controller"></div>');
                 this.dom.chartDiv = $('<div class="chart"></div>').hide();
-                this.dom.loadingImage = $('<img src="' + env.widgetUrl + 'view/img/loading.gif" class="loading-image">');
+                this.dom.loadingImage = $(env.template.loadingImage);
 
                 env.parentDom
                     .append(env.template.controlPanel)

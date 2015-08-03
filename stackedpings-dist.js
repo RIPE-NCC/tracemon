@@ -515,28 +515,28 @@ define('env.utils',[
         },
 
         getUrlParameters: function (domName) { // Get a map composed of ALL the parameters
-            var map, suffix, parts, subElements, atLeastOne;
+            var map, suffix, subElements, atLeastOne;
 
             map = {};
             atLeastOne = false;
             suffix = this.getInstanceSuffix(domName) + '.';
 
-            parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
+            window.location.search
+                .replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
 
-                key = key.toString().replace(suffix, ''); // Creates the map removing the suffix
-
-                if (key.indexOf('.') != -1) {
-                    subElements = key.split('.');
-                    if (!map[subElements[0]]) {
-                        map[subElements[0]] = {};
+                    key = key.toString().replace(suffix, ''); // Creates the map removing the suffix
+                    if (key.indexOf('.') != -1) {
+                        subElements = key.split('.');
+                        if (!map[subElements[0]]) {
+                            map[subElements[0]] = {};
+                        }
+                        map[subElements[0]][subElements[1]] = value;
+                    } else {
+                        map[key] = value;
                     }
-                    map[subElements[0]][subElements[1]] = value;
-                } else {
-                    map[key] = value;
-                }
 
-                atLeastOne = true;
-            });
+                    atLeastOne = true;
+                });
 
             return (atLeastOne) ? map : null;
         },
@@ -857,7 +857,7 @@ define('env.config',[], function(){
         hoverPopUpMargin: 5, // px
         probeDescriptionDomWidth: 170,
         maxNumberOfSamplesPerRow: 80, //60
-        samplesPerRow: 80,
+        //samplesPerRow: 80,
         bucketsTollerance: 0.2,
         minimumPixelSelectable: 5,
         syncWithRealTimeData: true,
@@ -7335,7 +7335,6 @@ define('connector.live',[
 
         this.unsubscribe = function (measurementId, probeId) {
             var key;
-            //console.log("unsubscribe", probeId);
 
             key = this._getSubscriptionId(measurementId, probeId);
             if (this.subscriptions[key]) {
@@ -7377,7 +7376,6 @@ define('connector.facade',[
         numberOfSamples = config.maxNumberOfSamplesPerRow;
 
         this.getHistoricalProbesData = function (measurementId, probes, startDate, endDate, callback, context) {
-            env.chartManager.dom.loadingImage.show();
 
             endDate = endDate || utils.getUTCDate();
             return historyConnector.getHistoricalProbesData(
@@ -7407,8 +7405,6 @@ define('connector.facade',[
 
                         env.lastHistoricSample = Math.max(results[results.length - 1].timestamp, (env.lastHistoricSample || 0));
                     }
-
-                    env.chartManager.dom.loadingImage.hide();
 
                     if (callback){
                         callback.call(context, probes);
@@ -7537,10 +7533,8 @@ define('connector.facade',[
         };
 
         this.getMeasurementInfo = function (probe, callback, context) {
-            env.chartManager.dom.loadingImage.show();
 
             return historyConnector.getMeasurementInfo(probe, function(data){
-                env.chartManager.dom.loadingImage.hide();
                 callback.call(context, data);
             }, this);
         };
@@ -17338,7 +17332,7 @@ define('view.chart.singleProbe',[
                 .enter()
                 .append("circle")
                 .filter(function(dataPoint){
-                    return dataPoint[key] > 0;
+                    return dataPoint[key] !== null;
                 })
                 .attr("r", 15)
                 .transition()
@@ -17612,7 +17606,7 @@ define('view.chart.singleProbe',[
                 .select(this.group.dom[0])
                 .append("svg");
 
-             svgElement
+            svgElement
                 .append("rect")
                 .attr("class", "selection-rect");
 
@@ -17792,7 +17786,7 @@ define('view.chart.singleProbe',[
             enterSet
                 .append("circle")
                 .filter(function(dataPoint){
-                    return dataPoint[key] > 0;
+                    return dataPoint[key] !== null;
                 })
                 .attr("class", function(dataPoint){
                     if (!dataPoint.cut[key]){
@@ -17807,22 +17801,6 @@ define('view.chart.singleProbe',[
                     d.rendered = true;
                     return dotsRadius;
                 });
-
-            //enterSet
-            //    .append("line")
-            //    .filter(function(dataSample){
-            //        return dataSample.packetLoss > 0;
-            //    })
-            //    .attr("class", "packet-loss-line")
-            //    .attr("stroke-dasharray", 10.5)
-            //    .style("opacity", function(dataSample){
-            //        return dataSample.packetLoss;
-            //    })
-            //    .attr("x1", line.x())
-            //    .attr("y1", 0)
-            //    .attr("x2", line.x())
-            //    .attr("y2", height + "px");
-
 
             return enterSet;
         };
@@ -17903,16 +17881,21 @@ define('view.chart.singleProbe',[
 
                 description = [];
                 description.push("Date: " + utils.dateToString(dataPoint.date));
-                if (dataPoint.min){
-                    description.push('<span class="info-label min">Min: ' + dataPoint.original.min.toFixed(2) + 'ms</span>');
+
+                if (dataPoint.original) {
+                    if (dataPoint.original.max != null && dataPoint.max != null) {
+                        description.push('<span class="info-label max">Max: ' + dataPoint.original.max.toFixed(2) + 'ms (' + dataPoint.max.toFixed(2) + '%)</span>');
+                    }
+                    if (dataPoint.original.avg != null && dataPoint.max != null) {
+                        description.push('<span class="info-label avg">Med: ' + dataPoint.original.avg.toFixed(2) + 'ms (' + dataPoint.avg.toFixed(2) + '%)</span>');
+                    }
+                    if (dataPoint.original.min != null && dataPoint.max != null) {
+                        description.push('<span class="info-label min">Min: ' + dataPoint.original.min.toFixed(2) + 'ms (' + dataPoint.min.toFixed(2) + '%)</span>');
+                    }
                 }
-                if (dataPoint.avg) {
-                    description.push('<span class="info-label avg">Med: ' + dataPoint.original.avg.toFixed(2) + 'ms</span>');
+                if (dataPoint.packetLoss != null) {
+                    description.push("Packet loss: " + (dataPoint.packetLoss.toFixed(2) * 100) + "%");
                 }
-                if (dataPoint.max) {
-                    description.push('<span class="info-label max">Max: ' + dataPoint.original.max.toFixed(2) + 'ms</span>');
-                }
-                description.push("Packet loss: " + (dataPoint.packetLoss.toFixed(2) * 100) + "%");
                 description.push("" + dataPoint.sent + " packet sent, "+ dataPoint.received + " received");
 
 
@@ -17940,8 +17923,8 @@ define('view.chart.multiProbe',[
 
     var ChartMultiProbeView = function (env, group) {
         var margin, width, height, x, y, xAxis, yAxis, svg, areas, lines, dots, lineSkeletons, areaSkeletons, $this,
-            marginBottomLastItem, marginBottomNormalItem, chartHeight, dotsRadius, popUpDiv, popUpTimer, lastDots, extraHeight,
-            timePointer, whiteLeftBackground, averageSeriesCache, oldXDomain, currentBucketSize, currentSamplesArray,
+            marginBottomLastItem, marginBottomNormalItem, chartHeight, dotsRadius, popUpDiv, popUpTimer, extraHeight,
+            timePointer, whiteLeftBackground, averageSeriesCache, lastTimeWindow,
             lastDomainRedrawn, currentSeries;
 
         this.group = group;
@@ -18004,7 +17987,7 @@ define('view.chart.multiProbe',[
 
         this._averageSeries = function(xDomain){
             var bucketLength, allSamples, buckets, sample, dataOut, startTime, tmpSample, sampleTime, bucketsKeys,
-                computedDate, fakeSample, minValues, avgValues, maxValues, packetLoss, originalMin, originalAvg,
+                computedDate, computedSample, minValues, avgValues, maxValues, packetLoss, originalMin, originalAvg,
                 originalMax, endTime, bucketKey, maxBucket, subStartTime, subEndTime, halfBucket, bucketOffset,
                 bucketKeys, bucket;
 
@@ -18031,7 +18014,7 @@ define('view.chart.multiProbe',[
                 buckets[subEndTime] = [];
             }
 
-            while (maxBucket < subEndTime){ // Creating all the bucket
+            while (maxBucket < subEndTime){ // Creating all the buckets
                 buckets[maxBucket] = [];
                 maxBucket += bucketLength;
             }
@@ -18084,15 +18067,15 @@ define('view.chart.multiProbe',[
 
                     tmpSample = buckets[bucket][d];
 
-                    if (tmpSample["min"]){
+                    if (tmpSample["min"] !== null){
                         minValues.push(tmpSample["min"]);
                         originalMin.push(tmpSample.original["min"]);
                     }
-                    if (tmpSample["avg"]){
+                    if (tmpSample["avg"] !== null){
                         avgValues.push(tmpSample["avg"]);
                         originalAvg.push(tmpSample.original["avg"]);
                     }
-                    if (tmpSample["max"]){
+                    if (tmpSample["max"] !== null){
                         maxValues.push(tmpSample["max"]);
                         originalMax.push(tmpSample.original["max"]);
                     }
@@ -18100,24 +18083,31 @@ define('view.chart.multiProbe',[
                     packetLoss.push(tmpSample.packetLoss);
 
                 }
-                if (false && buckets[bucket].length == 0){
-                    dataOut.push({ // Add a fake point
+
+                if ( buckets[bucket].length == 0) {
+
+                    computedSample = {
                         date: computedDate,
+                        rcvd: 0,
                         sent: 0,
-                        received: 0,
                         min: null,
                         max: null,
                         avg: null
-                    });
+                    };
+
+                    dataOut.push(computedSample);
+
                 } else {
-                    fakeSample = this._computeAvgSample(minValues, avgValues, maxValues, originalMin, originalAvg, originalMax, computedDate, packetLoss);
-                    if (fakeSample.min || fakeSample.avg || fakeSample.max || fakeSample.packetLoss == 1) {
-                        dataOut.push(fakeSample);
+
+                    computedSample = this._computeAvgSample(minValues, avgValues, maxValues, originalMin, originalAvg, originalMax, computedDate, packetLoss);
+                    if (computedSample.min !== null || computedSample.avg !== null || computedSample.max !== null || computedSample.packetLoss == 1) {
+                        dataOut.push(computedSample);
                     }
+
                 }
             }
 
-            return {data: dataOut, bucketLength: bucketLength, allSamples: allSamples};
+            return {data: dataOut, bucketLength: bucketLength, allSamples: allSamples, lastBucketKey: bucketKeys[bucketKeys.length - 1]};
         };
 
 
@@ -18158,6 +18148,7 @@ define('view.chart.multiProbe',[
 
 
 
+
             packetLoss = (packetLossArray.length > 0) ?
                 (packetLossArray.reduce(function(a, b) {
                     return a + b;
@@ -18185,7 +18176,7 @@ define('view.chart.multiProbe',[
 
 
         this._isXDomainChanged = function(xDomain){
-            return Math.abs(lastDomainRedrawn[1].getTime() - xDomain[1].getTime()) >= (currentSeries.bucketLength * 1000)/2;
+            return Math.abs(lastDomainRedrawn[1].getTime() - xDomain[1].getTime()) >= (currentSeries.bucketLength / 2) * 1000;
         };
 
 
@@ -18193,17 +18184,105 @@ define('view.chart.multiProbe',[
             return this._stableAverageSeries(xDomain);
         };
 
+
+        //this._stableAverageSeries = function(xDomain){
+        //    var computedSample, tmpSample, minValues, avgValues, maxValues, lastBucketStartDate, newSamples,
+        //        allSamples, packetLoss, originalMin, originalAvg, originalMax, bucketKey, sampleTmp, sampleTime,
+        //        biggestSample;
+        //
+        //
+        //    if (!currentSeries || lastTimeWindow != env.timeWindowSize){
+        //        lastDomainRedrawn = xDomain;
+        //        lastTimeWindow = env.timeWindowSize;
+        //        currentSeries = this._averageSeries(xDomain);
+        //
+        //    } else {
+        //
+        //        allSamples = this._getAllDataPointsMixed();
+        //        if (allSamples.length == 0){
+        //            return [];
+        //        }
+        //
+        //        for (var n=0,length=allSamples.length; n<length; n++){
+        //            sampleTmp = allSamples[n];
+        //            if (!biggestSample || allSamples[n].date.getTime() > biggestSample.date.getTime()){
+        //                biggestSample = allSamples[n]
+        //            }
+        //        }
+        //
+        //        sampleTime = parseInt(biggestSample.date.getTime() / 1000);
+        //        bucketKey = parseInt(sampleTime - (sampleTime % currentSeries.bucketLength));
+        //
+        //        if (bucketKey > currentSeries.lastBucketKey) {
+        //            console.log("ora");
+        //            lastDomainRedrawn = xDomain;
+        //            lastTimeWindow = env.timeWindowSize;
+        //            currentSeries = this._averageSeries(xDomain);
+        //
+        //        } else {
+        //            console.log("wrong");
+        //            currentSeries.data.pop();
+        //            lastBucketStartDate = currentSeries.lastBucketKey * 1000;
+        //
+        //            newSamples = [];
+        //            for (var n=0,length=allSamples.length; n<length; n++){
+        //                if (allSamples[n].date.getTime() >= lastBucketStartDate){
+        //                    newSamples.push(allSamples[n]);
+        //                }
+        //            }
+        //
+        //            minValues = [];
+        //            avgValues = [];
+        //            maxValues = [];
+        //
+        //            originalMin = [];
+        //            originalAvg = [];
+        //            originalMax = [];
+        //
+        //            packetLoss = [];
+        //
+        //            for (var d = 0, length = newSamples.length; d < length; d++) { //for all the samples in the bucket
+        //
+        //                tmpSample = newSamples[d];
+        //                if (tmpSample["min"] !== null) {
+        //                    minValues.push(tmpSample["min"]);
+        //                    originalMin.push(tmpSample.original["min"]);
+        //                }
+        //                if (tmpSample["avg"] !== null) {
+        //                    avgValues.push(tmpSample["avg"]);
+        //                    originalAvg.push(tmpSample.original["avg"]);
+        //                }
+        //                if (tmpSample["max"] !== null) {
+        //                    maxValues.push(tmpSample["max"]);
+        //                    originalMax.push(tmpSample.original["max"]);
+        //                }
+        //
+        //                packetLoss.push(tmpSample.packetLoss);
+        //            }
+        //
+        //            computedSample = this._computeAvgSample(minValues, avgValues, maxValues, originalMin, originalAvg, originalMax, new Date(lastBucketStartDate), packetLoss);
+        //            if (computedSample.min !== null || computedSample.avg !== null || computedSample.max !== null || computedSample.packetLoss == 1) {
+        //                currentSeries.data.push(computedSample);
+        //            }
+        //
+        //        }
+        //    }
+        //
+        //    return currentSeries.data;
+        //};
+        //
+
+
         this._stableAverageSeries = function(xDomain){
             var fakeSample, biggestSample, tmpSample, minValues, avgValues, maxValues, lastBucketStartDate, newSamples,
                 previousBucket, packetLoss, originalMin, originalAvg, originalMax;
 
             if (!currentSeries || currentSeries.data.length <= 3 || this._isXDomainChanged(xDomain) || !env.chartManager._isUpdatable()){
                 lastDomainRedrawn = xDomain;
-                //console.log("complete");
+                lastTimeWindow = env.timeWindowSize;
                 currentSeries = this._averageSeries(xDomain);
-
             } else {
-                //console.log("partial");
+
                 previousBucket = currentSeries.data[currentSeries.data.length - 2];
                 currentSeries.data.pop();
                 lastBucketStartDate = previousBucket.date.getTime() + ((parseInt(currentSeries.bucketLength) / 2) * 1000);
@@ -18222,18 +18301,18 @@ define('view.chart.multiProbe',[
 
                 packetLoss = [];
 
-                for (var d=0,length=newSamples.length; d < length; d++) { //for all the samples in the bucket
+                for (var d=0,length=newSamples.length; d<length; d++) { //for all the samples in the bucket
 
                     tmpSample = newSamples[d];
-                    if (tmpSample["min"]){
+                    if (tmpSample["min"] !== null){
                         minValues.push(tmpSample["min"]);
                         originalMin.push(tmpSample.original["min"]);
                     }
-                    if (tmpSample["avg"]){
+                    if (tmpSample["avg"] !== null){
                         avgValues.push(tmpSample["avg"]);
                         originalAvg.push(tmpSample.original["avg"]);
                     }
-                    if (tmpSample["max"]){
+                    if (tmpSample["max"] !== null){
                         maxValues.push(tmpSample["max"]);
                         originalMax.push(tmpSample.original["max"]);
                     }
@@ -18241,8 +18320,8 @@ define('view.chart.multiProbe',[
                     packetLoss.push(tmpSample.packetLoss);
                 }
 
-                fakeSample = this._computeAvgSample(minValues, avgValues, maxValues, originalMin, originalAvg, originalMax, new Date(biggestSample), packetLoss);
-                if (fakeSample.min || fakeSample.avg || fakeSample.max) {
+                fakeSample = this._computeAvgSample(minValues, avgValues, maxValues, originalMin, originalAvg, originalMax, biggestSample, packetLoss);
+                if (fakeSample.min !== null || fakeSample.avg !== null || fakeSample.max !== null) {
                     currentSeries.data.push(fakeSample);
                 }
             }
@@ -18321,6 +18400,9 @@ define('view.chart.multiProbe',[
             this.lastUpdateParams.yUnit = yUnit;
 
             this.updateChart(data, xDomain, yDomain, yRange, yUnit);
+            this._computePacketLossSpots(data);
+            //data = this._addUndefinedPoints(data);
+
 
             this.updateLine(data, "min");
             this.updateLine(data, "avg");
@@ -18343,6 +18425,26 @@ define('view.chart.multiProbe',[
         };
 
 
+        this._computePacketLossSpots = function(data){
+            var sample1, sample2, interval;
+            $this.emptySpot = [];
+            for (var n= 0,length=data.length; n<length - 1; n++){
+                sample1 = data[n];
+                sample2 = data[n + 1];
+
+                interval = this.getGroupInterval();
+
+                if (sample1.packetLoss == 1){
+                    $this.emptySpot.push({pre: sample1.date, post: new Date(sample1.date.getTime() + (interval * 1000))});
+                }
+
+                if (sample2.packetLoss == 1){
+                    $this.emptySpot.push({pre: new Date(sample2.date.getTime() - (interval * 1000)), post: sample2.date});
+                }
+            }
+        };
+
+
         this.updateDots = function (data, key) {
             var dots;
 
@@ -18360,7 +18462,7 @@ define('view.chart.multiProbe',[
                 .enter()
                 .append("circle")
                 .filter(function(dataPoint){
-                    return dataPoint[key] > 0;
+                    return dataPoint[key] !== null;
                 })
                 .attr("class", function(dataPoint){
                     return "dot fill-normal-dot " + key  + " p" + $this.group.id;
@@ -18375,7 +18477,7 @@ define('view.chart.multiProbe',[
             dots
                 .attr("cx", lineSkeletons[key].x())
                 .attr("cy", lineSkeletons[key].y());
-            
+
         };
 
 
@@ -18406,6 +18508,9 @@ define('view.chart.multiProbe',[
             this.lastUpdateParams.yUnit = yUnit;
 
             this.initChart(data, xDomain, yDomain, yRange, yUnit);
+            this._computePacketLossSpots(data);
+            //data = this._addUndefinedPoints(data);
+
 
             lineSkeletons = {
                 min: this.computeLine(data, "min"),
@@ -18460,28 +18565,41 @@ define('view.chart.multiProbe',[
         };
 
 
-        this.drawPacketLoss = function(data){
-            var line, allLines, allAreas, emptySpot, sample1, sample2, interval;
+        this._addUndefinedPoints = function(data){
+            var currentPoint, nextPoint, newDataSet, fakePoint, measurement, resolutionPeriod;
 
-            emptySpot = [];
-            for (var n= 0,length=data.length; n<length - 1; n++){
-                sample1 = data[n];
-                sample2 = data[n + 1];
+            newDataSet = [];
+            resolutionPeriod = this.getGroupInterval();
 
-                interval = this.getGroupInterval();
+            for (var n=0,length=data.length; n<length-1; n++){
+                currentPoint = data[n];
+                nextPoint = data[n + 1];
 
-                if (sample1.packetLoss == 1){
-                    emptySpot.push({pre: sample1.date, post: new Date(sample1.date.getTime() + (interval * 1000))});
+                newDataSet.push(currentPoint);
+                if ((nextPoint.date.getTime() - currentPoint.date.getTime()) > ((resolutionPeriod * 3)/2 * 1000)){
+                    fakePoint = {
+                        date: new Date(currentPoint.date.getTime() + 10000),
+                        rcvd: 0,
+                        sent: 0,
+                        min: null,
+                        max: null,
+                        avg: null
+                    };
+                    newDataSet.push(fakePoint)
                 }
-
-                if (sample2.packetLoss == 1){
-                    emptySpot.push({pre: new Date(sample2.date.getTime() - (interval * 1000)), post: sample2.date});
-                }
+                newDataSet.push(nextPoint);
             }
+
+            return newDataSet;
+        };
+
+
+        this.drawPacketLoss = function(data){
+            var line, allLines, allAreas;
 
             allAreas = svg
                 .selectAll(".packet-loss-area")
-                .data(emptySpot);
+                .data($this.emptySpot);
 
             allAreas
                 .exit()
@@ -18876,9 +18994,9 @@ define('view.chart.multiProbe',[
                 .enter()
                 .append("circle")
                 .filter(function(dataPoint){
-                    return dataPoint[key] > 0;
+                    return dataPoint[key] !== null;
                 })
-                .attr("class", function(dataPoint){
+                .attr("class", function(){
                     return "dot fill-normal-dot " + key + " p" + $this.group.id;
                 })
                 .attr("cx", line.x())
@@ -18903,7 +19021,7 @@ define('view.chart.multiProbe',[
         this.computeLine = function (data, key) {
             return d3.svg.line()
                 .defined(function (dataPoint) {
-                    return dataPoint[key] != null;
+                    return dataPoint[key] !== null;
                 })
                 .x(function (dataPoint) {
                     dataPoint.drawnX = x(dataPoint.date);
@@ -18934,16 +19052,20 @@ define('view.chart.multiProbe',[
 
                 description = [];
                 description.push("Date: " + utils.dateToString(dataPoint.date));
-                if (dataPoint.min){
-                    description.push('<span class="info-label min">Min: ' + dataPoint.original.min.toFixed(2) + 'ms</span>');
+                if (dataPoint.original != null) {
+                    if (dataPoint.original.max != null && dataPoint.max != null) {
+                        description.push('<span class="info-label max">Max: ' + dataPoint.original.max.toFixed(2) + 'ms (' + dataPoint.max.toFixed(2) + '%)</span>');
+                    }
+                    if (dataPoint.original.avg != null && dataPoint.avg != null) {
+                        description.push('<span class="info-label avg">Med: ' + dataPoint.original.avg.toFixed(2) + 'ms (' + dataPoint.avg.toFixed(2) + '%)</span>');
+                    }
+                    if (dataPoint.original.min != null && dataPoint.min != null) {
+                        description.push('<span class="info-label min">Min: ' + dataPoint.original.min.toFixed(2) + 'ms (' + dataPoint.min.toFixed(2) + '%)</span>');
+                    }
                 }
-                if (dataPoint.avg){
-                    description.push('<span class="info-label avg">Med: ' + dataPoint.original.avg.toFixed(2) + 'ms</span>');
+                if (dataPoint.packetLoss != null) {
+                    description.push("PacketLoss: " + (dataPoint.packetLoss.toFixed(2) * 100) + "%");
                 }
-                if (dataPoint.max){
-                    description.push('<span class="info-label max">Max: ' + dataPoint.original.max.toFixed(2) + 'ms</span>');
-                }
-                description.push("PacketLoss: " + (dataPoint.packetLoss.toFixed(2) * 100) + "%");
                 //description.push("" + dataPoint.sent + " packet sent, "+ dataPoint.received + " received");
 
 
@@ -19904,7 +20026,7 @@ define('filter.relative-rtt',[
 
             for (n = 0, length = data.length; n < length; n++) {
                 item = data[n];
-                if (item.min) {
+                if (item.min !== null) {
                     minOfArray = Math.min(item.min, minOfArray);
                 }
             }
@@ -19918,9 +20040,9 @@ define('filter.relative-rtt',[
                     max: item.max
                 };
 
-                item.min = (item.min) ? ((item.min / minOfArray) * 100) - 100 : null;
-                item.avg = (item.avg) ? ((item.avg / minOfArray) * 100) - 100 : null;
-                item.max = (item.max) ? ((item.max / minOfArray) * 100) - 100 : null;
+                item.min = (item.min !== null) ? ((item.min / minOfArray) * 100) - 100 : null;
+                item.avg = (item.avg !== null) ? ((item.avg / minOfArray) * 100) - 100 : null;
+                item.max = (item.max !== null) ? ((item.max / minOfArray) * 100) - 100 : null;
                 dataOut.push(item);
             }
 
@@ -19984,7 +20106,6 @@ define('view.chartManager',[
 
         this.charts = {};
 
-
         this.addChart = function(group){
             var chartViewObject;
 
@@ -20001,6 +20122,9 @@ define('view.chartManager',[
                 case "comparison":
                     chartViewObject = new ChartComparisonView(env, group);
                     break;
+
+                default:
+                    console.log(group.type);
             }
 
             this.charts["" + group.id] = chartViewObject; // Force cast to string
@@ -20073,7 +20197,7 @@ define('view.chartManager',[
 
                 for (chartKey in $this.charts) {
                     groupView = $this.charts[chartKey];
-                    for (n = 0, length = groupView.group.probes.length; n < length; n++) {
+                    for (n=0, length=groupView.group.probes.length; n<length; n++) {
                         probe = groupView.group.probes[n];
                         probe.filteredData = $this._imposeCut(probe.filteredData, xDomain, lowerbound, upperbound);
                     }
@@ -20097,7 +20221,6 @@ define('view.chartManager',[
                 }
 
                 env.timeOverview.update(env.timeDomain, [env.startDate, env.endDate]);
-                $this.dom.loadingImage.remove();
                 env.urlManager.updateUrl();
                 $this.applyUpdateCondition();
             }
@@ -20159,8 +20282,13 @@ define('view.chartManager',[
             var manipulateSamples = function(data){
                 for (var n = 0, length = data.length; n < length; n++) {
                     item = data[n];
-                    maxYvalue = Math.max(maxYvalue, item.min, item.avg, item.max);
-                    minYvalue = Math.min(minYvalue, item.min, item.avg, item.max);
+
+                    if (item.min > 0 || item.avg > 0 || item.max > 0) {
+                        maxYvalue = Math.max(maxYvalue, item.min, item.avg, item.max);
+                    }
+                    if (item.min !== null){
+                        minYvalue = Math.min(minYvalue, item.min);
+                    }
                 }
             };
 
@@ -20179,6 +20307,13 @@ define('view.chartManager',[
                 }
             }
 
+            if (minYvalue === null){
+                minYvalue = lowerbound;
+            }
+
+            if (maxYvalue === null){
+                maxYvalue = upperbound;
+            }
             return {domain: [minYvalue, maxYvalue], unit: this.yUnit};
         };
 
@@ -20326,17 +20461,23 @@ define('view.chartManager',[
             if (this._isUpdatable()) {
                 var biggestDate, groupView, chartKey, probe;
 
+                biggestDate = null;
                 for (chartKey in $this.charts) {
                     groupView = $this.charts[chartKey];
 
                     for (var i=0,lengthi = groupView.group.probes.length; i < lengthi; i++) {
                         probe = groupView.group.probes[i];
                         for (var n = 0, length = probe.filteredData.length; n < length; n++) {
-                            biggestDate = (!biggestDate || biggestDate < probe.filteredData[n].date) ? probe.filteredData[n].date : biggestDate;
+                            if (!biggestDate || biggestDate < probe.filteredData[n].date){
+                                biggestDate = probe.filteredData[n].date;
+                            }
                         }
                     }
                 }
 
+                if (biggestDate === null){
+                    return [env.startDate, env.endDate]
+                }
                 return [new Date(biggestDate - (env.timeWindowSize)), biggestDate];
             } else {
                 return [env.startDate, env.endDate]
@@ -20353,15 +20494,15 @@ define('view.chartManager',[
                 item = data[n];
 
                 if (item.date > xDomain[0]){
-                    roundedMin = (item.min) ? parseFloat(item.min.toFixed(2)) : null;
-                    roundedMax = (item.max) ? parseFloat(item.max.toFixed(2)) : null;
+                    roundedMin = (item.min !== null) ? parseFloat(item.min.toFixed(2)) : null;
+                    roundedMax = (item.max !== null) ? parseFloat(item.max.toFixed(2)) : null;
 
                     dataPoint = utils.lightClone(item);
 
 
-                    dataPoint.min = (item.min != null) ? Math.max(lowerbound, Math.min(upperbound, roundedMin)) : null;
-                    dataPoint.avg = (item.avg != null) ? Math.max(lowerbound, Math.min(upperbound, item.avg.toFixed(2))) : null;
-                    dataPoint.max = (item.max != null) ? Math.max(lowerbound, Math.min(upperbound, roundedMax)) : null;
+                    dataPoint.min = (item.min !== null) ? Math.max(lowerbound, Math.min(upperbound, roundedMin)) : null;
+                    dataPoint.avg = (item.avg !== null) ? Math.max(lowerbound, Math.min(upperbound, item.avg.toFixed(2))) : null;
+                    dataPoint.max = (item.max !== null) ? Math.max(lowerbound, Math.min(upperbound, roundedMax)) : null;
 
                     dataPoint.cut = {
                         min: dataPoint.min != roundedMin,
@@ -20389,7 +20530,7 @@ define('view.chartManager',[
             if (env.parentDom.find(config.domClasses.chartDomClass).length == 0) {
                 this.dom.controllerDiv = $('<div class="controller"></div>');
                 this.dom.chartDiv = $('<div class="chart"></div>').hide();
-                this.dom.loadingImage = $('<img src="' + env.widgetUrl + 'view/img/loading.gif" class="loading-image">');
+                this.dom.loadingImage = $(env.template.loadingImage);
 
                 env.parentDom
                     .append(env.template.controlPanel)
@@ -20771,7 +20912,14 @@ define('view.templateManager',[
                         sortable: true,
                         search: true,
                         checkedBooleanField: "checked",
+                        onCheckAll: function(){
+                            var groupName;
 
+                            groupName = env.parentDom.find(".group-name>input");
+                            if (groupName.is(":visible")){
+                                groupName.val(env.parentDom.find(".search > input").val());
+                            }
+                        },
                         columns: [
                             {
                                 field: 'select',
@@ -21623,15 +21771,21 @@ define('controller.main',[
         /*
          * THIS IS THE SELECTION START AND END DATE, NOT THE GLOBAL START AND END DATE OF A MEASUREMENT
          */
-        env.startDate = new Date(now.getTime() - (config.predefinedTimeWindows[config.defaiultTimeWindow] * 1000)); // Default values
-        env.endDate = now; // Default values
-        env.timeWindowSize = env.endDate - env.startDate;
+        //env.startDate = new Date(now.getTime() - (config.predefinedTimeWindows[config.defaiultTimeWindow] * 1000)); // Default values
+        //env.endDate = now; // Default values
+        //env.timeWindowSize = env.endDate - env.startDate;
+
         env.updateIfPossible = config.syncWithRealTimeData;
 
         console.log("Use 'main.addMeasurement(id)' to load a measurement");
 
         this._isUpdatable = function(){
-            var out = env.endDate.getTime() >= (utils.getUTCDate().getTime() - config.updateIfYoungerThanMilliseconds);
+            var out;
+            if (!env.endDate){
+                out = false;
+            } else {
+                out = env.endDate.getTime() >= (utils.getUTCDate().getTime() - config.updateIfYoungerThanMilliseconds);
+            }
 
             if (out){
                 env.template.streamingLed.on();
@@ -21641,7 +21795,8 @@ define('controller.main',[
 
             return out;
         };
-        env.isUpdatable = this._isUpdatable();
+
+        //env.isUpdatable = this._isUpdatable();
 
         this.keepUpdated = function(update){
             env.updateIfPossible = update;
@@ -21720,7 +21875,7 @@ define('controller.main',[
             }
 
             return env.connector.getMeasurementInfo(measurementId, function (measurement) {
-                var n, length, probe, targets;
+                var n, length, probe, targets, interval, selectedTimeWindow;
 
                 targets = [];
                 measurement.resolutionMap = this._computeResolutionMapForThisMeasurement(measurement);
@@ -21733,14 +21888,29 @@ define('controller.main',[
                 console.log("setTimeRange(startDate, endDate)");
 
                 if (env.timeDomain) {
-                    env.timeDomain = [new Date(Math.min(measurement["start_time"], env.timeDomain[0].getTime() / 1000) * 1000), new Date(Math.max(measurement["stop_time"], env.timeDomain[1].getTime() / 1000) * 1000)];
+                    env.timeDomain = [
+                        utils.timestampToUTCDate(Math.min(measurement["start_time"], env.timeDomain[0].getTime() / 1000)),
+                        utils.timestampToUTCDate(Math.max(measurement["stop_time"], env.timeDomain[1].getTime() / 1000))
+                    ];
                 } else {
                     env.timeDomain = [
-                        new Date(measurement["start_time"] * 1000),
-                        ((measurement["stop_time"]) ? (new Date(measurement["stop_time"] * 1000)) : new Date())
+                        utils.timestampToUTCDate(measurement["start_time"]),
+                        ((measurement["stop_time"]) ? (utils.timestampToUTCDate(measurement["stop_time"])) : utils.getUTCDate())
                     ];
-
                 }
+
+                interval = measurement["native_sampling"];
+                selectedTimeWindow = (interval * config.maxNumberOfSamplesPerRow * 1000);
+
+                // If not defined, set the default selected time window
+                if (!env.timeWindowSize){
+                    env.startDate = new Date(Math.max(env.timeDomain[1].getTime() - selectedTimeWindow, env.timeDomain[0].getTime()));
+                    env.endDate = env.timeDomain[1];
+                    env.timeWindowSize = env.endDate - env.startDate;
+                    env.isUpdatable = this._isUpdatable();
+                }
+
+
                 env.measurements[measurementId] = measurement;
                 env.originalMeasurements[measurementId] = measurement;
 
@@ -21773,13 +21943,19 @@ define('controller.main',[
         };
 
         this.enrichProbes = function (msmID, probes, callback, context) {
-            var measurementTmp, probesTmp, calls, allProbes, periodForResolution;
+            var measurementTmp, probesTmp, calls, allProbes;
 
             env.timeWindowSize = env.endDate - env.startDate;
 
             calls = [];
             if (!env.measurements[msmID].merged) {
-                calls.push(env.connector.getHistoricalProbesData(msmID, probes, env.startDate, env.endDate, callback, context));
+                env.chartManager.dom.loadingImage.show();
+                calls.push(env.connector.getHistoricalProbesData(msmID, probes, env.startDate, env.endDate, function(data){
+                    env.chartManager.dom.loadingImage.hide();
+                    if (callback){
+                        callback.call(context, data);
+                    }
+                }, this));
             } else {
 
                 allProbes = [];
@@ -21794,16 +21970,18 @@ define('controller.main',[
                     }
 
                     if (probesTmp.length > 0){
+                        env.chartManager.dom.loadingImage.show();
                         calls.push(env.connector.getHistoricalProbesData(measurementId, probesTmp, env.startDate, env.endDate));
                     }
                 }
 
-                if (callback) {
-                    $.when.apply(this, calls)
-                        .done(function () {
+                $.when.apply(this, calls)
+                    .done(function () {
+                        env.chartManager.dom.loadingImage.hide();
+                        if (callback) {
                             callback.call(context, allProbes);
-                        });
-                }
+                        }
+                    });
             }
 
             return calls;
@@ -21849,6 +22027,8 @@ define('controller.main',[
                     return probeObj;
                 });
 
+                //env.chartManager.dom.loadingImage.show();
+
                 this.enrichProbes(msmID, probes, function () {
                     var group;
 
@@ -21863,6 +22043,8 @@ define('controller.main',[
                     }
 
                     env.chartManager.addChart(group);
+                    //env.chartManager.dom.loadingImage.hide();
+
                 }, this);
 
                 console.log("Use removeProbe(measurementID, probeID)/removeGroup(label) to remove a probe/group chart");
@@ -22079,6 +22261,7 @@ define('controller.main',[
                 if (!env.timeDomain){
                     env.startDate = utils.timestampToUTCDate(conf.startTimestamp);
                     env.endDate = utils.timestampToUTCDate(conf.stopTimestamp);
+                    env.timeWindowSize = env.endDate - env.startDate;
                     env.isUpdatable = this._isUpdatable();
                 } else {
                     $this.setTimeRange(utils.timestampToUTCDate(conf.startTimestamp), utils.timestampToUTCDate(conf.stopTimestamp));
@@ -22095,7 +22278,6 @@ define('controller.main',[
                         measurementCounter++;
                     }, this, false));
                 }
-
 
                 $.when.apply(this, callsAddMeasurements)
                     .done(function () {
@@ -22353,7 +22535,7 @@ define('stackedpings-loader',[
          * Init Dependency Injection Vector
          */
         env = {
-            "version": "15.6.17",
+            "version": "29.7.15",
             "widgetUrl": STACKEDPINGS_WIDGET_URL + "dev/",
             "autoStart": (instanceParams.autoStart != undefined) ? instanceParams.autoStart : true,
             "dataApiResults": instanceParams.dataApiResults || config.dataAPIs.results,
