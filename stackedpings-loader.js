@@ -180,11 +180,15 @@ define([
 
             env.main = new main(env);
 
-            for (n=0,length=env.main.exposedMethods.length; n<length; n++){
-                methodName = env.main.exposedMethods[n];
-                objectToBeEnriched[methodName] = function(){
+            function enrichMethod(methodName) {
+                objectToBeEnriched[methodName] = function () {
                     env.main[methodName].apply(env.main, arguments);
                 }
+            }
+
+            for (n=0,length=env.main.exposedMethods.length; n<length; n++){
+                methodName = env.main.exposedMethods[n];
+                enrichMethod(methodName);
             }
         });
 
