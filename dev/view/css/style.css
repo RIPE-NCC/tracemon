@@ -476,6 +476,19 @@
     font-size: 10px!important;
 }
 
+.loading-image{
+    display: none;
+    position: absolute;
+    padding: 2px;
+    margin-top: 5px;
+    margin-left: 5px;
+    border: 1px solid #C0C0C0 !important;
+    background-color: #FFFFFF;
+    overflow: hidden;
+    border-radius: 20px;
+    z-index: 1000000;
+}
+
 /* Bootstrap Hacks */
 .pagination li{
     display: inline !important;

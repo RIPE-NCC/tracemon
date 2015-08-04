@@ -18,13 +18,13 @@ define([
      */
 
     var TemplateManagerView = function(env){
-        var widgetUrl, slidingMenuOpened, insideSubMenu, $this;
+        var widgetUrl, slidingMenuOpened, insideSubMenu, $this, loadingImageCounter, loadingImageTimer;
 
         widgetUrl = env.widgetUrl;
         $this = this;
+        loadingImageCounter = 0;
 
-
-        this.loadingImage = '<img src="' + widgetUrl + 'view/img/loading.gif" class="loading-image"/> ';
+        this.loadingImage = '<img src="' + widgetUrl + 'view/img/loading2.gif" class="loading-image"/> ';
 
         this.timeMargins = '<div class="time-margins"><div style="position: absolute; left: 0;"></div> <div style="position: absolute; right: 0;"></div></div>';
 
@@ -166,6 +166,47 @@ define([
 
         env.parentDom.addClass("latencymon-container");
         this.dom.main = $("<div></div>").addClass("latencymon-content").appendTo(env.parentDom);
+
+        this.dom.loadingImage = $(this.loadingImage).appendTo(this.dom.main);
+
+
+        this._moveLoadingImage = function(evt){
+            $this.dom.loadingImage
+                .css({
+                    "left": evt.pageX - $(this).offset().left,
+                    "top": evt.pageY - $(this).offset().top
+                });
+        };
+
+
+
+        this.showLoadingImage = function(show){
+            if (show) {
+                if (loadingImageCounter == 0) {
+                    $($this.dom.main)
+                        .on("mousemove", $this._moveLoadingImage);
+                    $this.dom.loadingImage
+                        .css({
+                            "left": "50%",
+                            "top": "50%"
+                        })
+                        .show();
+
+                    setTimeout(function(){ // Stop with the loading Image, it was a timeout
+                        $this.dom.loadingImage.hide();
+                        loadingImageCounter = 0;
+                    }, 20000);
+                }
+                loadingImageCounter++;
+            } else {
+                loadingImageCounter--;
+                if (loadingImageCounter == 0) {
+                    $this.dom.loadingImage.hide();
+                    $($this.dom.main)
+                        .off("mousemove", $this._moveLoadingImage);
+                }
+            }
+        };
 
 
         this.bindSlidingMenu = function(callerButton, menuItemsHtml, height, cssClass, callback){

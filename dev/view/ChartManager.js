@@ -442,13 +442,13 @@ define([
             if (env.parentDom.find(config.domClasses.chartDomClass).length == 0) {
                 this.dom.controllerDiv = $('<div class="controller"></div>');
                 this.dom.chartDiv = $('<div class="chart"></div>').hide();
-                this.dom.loadingImage = $(env.template.loadingImage);
+
 
                 env.template.dom.main
                     .append(env.template.controlPanel)
                     .append(this.dom.chartDiv)
-                    .append(this.dom.loadingImage.hide())
                     .append(env.template.timeOverview);
+
 
                 var forwardButton = env.parentDom
                     .find(".forward")

@@ -175,6 +175,7 @@ define([
                 throw "The measurement is already loaded";
             }
 
+            env.template.showLoadingImage(true);
             return env.connector.getMeasurementInfo(measurementId, function (measurement) {
                 var n, length, probe, targets, interval, selectedTimeWindow;
 
@@ -220,6 +221,8 @@ define([
                     $this.availableProbes[measurementId][probe.id] = probe;
                 }
 
+                env.template.showLoadingImage(false);
+
                 if (callback){
                     callback.call(context);
                 }
@@ -247,12 +250,11 @@ define([
             var measurementTmp, probesTmp, calls, allProbes;
 
             env.timeWindowSize = env.endDate - env.startDate;
-
+            env.template.showLoadingImage(true);
             calls = [];
             if (!env.measurements[msmID].merged) {
-                env.chartManager.dom.loadingImage.show();
                 calls.push(env.connector.getHistoricalProbesData(msmID, probes, env.startDate, env.endDate, function(data){
-                    env.chartManager.dom.loadingImage.hide();
+                    env.template.showLoadingImage(false);
                     if (callback){
                         callback.call(context, data);
                     }
@@ -271,14 +273,13 @@ define([
                     }
 
                     if (probesTmp.length > 0){
-                        env.chartManager.dom.loadingImage.show();
                         calls.push(env.connector.getHistoricalProbesData(measurementId, probesTmp, env.startDate, env.endDate));
                     }
                 }
 
                 $.when.apply(this, calls)
                     .done(function () {
-                        env.chartManager.dom.loadingImage.hide();
+                        env.template.showLoadingImage(false);
                         if (callback) {
                             callback.call(context, allProbes);
                         }
