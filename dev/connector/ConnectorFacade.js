@@ -36,13 +36,13 @@ define([
                     env.originalMeasurements[measurementId]["currentResolution"] = blob.resolution;
                     env.originalMeasurements[measurementId]["currentInterval"] = blob.interval;
 
-                    if (results.length > 0) {
+                    for (n=0, length=probes.length; n<length; n++) {
+                        indexedProbes[probes[n].id] = probes[n];
+                        probes[n].data = [];
+                        //probes[n].filteredData = [];
+                    }
 
-                        for (n = 0, length = probes.length; n < length; n++) {
-                            indexedProbes[probes[n].id] = probes[n];
-                            probes[n].data = [];
-                            probes[n].filteredData = [];
-                        }
+                    if (results.length > 0) {
 
                         for (n=0,length = results.length; n < length; n++) {
                             $this.addNewDataItem(indexedProbes[results[n].prb_id], results[n]);
@@ -153,7 +153,7 @@ define([
             if (group && probe) {
                 lastSampleAt = probe.data[probe.data.length - 1].added;
 
-                if (config.addSamplesWithEmulation && utils.getUTCDate().getTime() > (lastSampleAt.getTime() + 1000)) {
+                if (!config.addSamplesWithEmulation || utils.getUTCDate().getTime() > (lastSampleAt.getTime() + 1000)) {
 
                     probe.updateEmulationTiming = 0;
                     $this.addNewDataItem(probe, data);
@@ -209,21 +209,38 @@ define([
 
         window.once = true;
         this.addNewDataItem = function (probe, data) {
-
-            var plc = true || (Math.random() > 0.8);  // to fake packet loss for test purposes
+            var sample, item;
+            //var plc = true || (Math.random() > 0.8);  // to fake packet loss for test purposes
 
             probe.data = probe.data || [];
             data.rendered = false;
             data.added = new Date();
             data.probe = probe.id;
-            if (plc) {
-                probe.data.push(this._convertDataFormatExternalToInternal(data));
 
-                // At maximum "numberOfSamples" of data points in the queue
-                probe.data = probe.data.slice(-numberOfSamples);
-            } else{
-                console.log("skipped", this._convertDataFormatExternalToInternal(data));
+            sample = this._convertDataFormatExternalToInternal(data);
+
+            // use atlas_backlog_sent to stop checking
+            for (var n=probe.data.length - 1; n>=0; n--){
+                item = probe.data[n];
+                if (item.date == sample.date) {
+                    console.log("sample skipped");
+                    return;
+                }
+
             }
+
+            //if (plc) {
+            probe.data.push(sample);
+
+            // At maximum "numberOfSamples" of data points in the queue
+            probe.data = probe.data.slice(-numberOfSamples);
+            probe.data.sort(function(a, b){
+               return a.date - b.date;
+            });
+
+            //} else{
+            //    console.log("skipped", this._convertDataFormatExternalToInternal(data));
+            //}
         };
     };
 

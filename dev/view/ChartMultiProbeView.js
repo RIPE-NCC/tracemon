@@ -34,7 +34,7 @@ define([
 
             for (var i= 0,lengthi=this.group.probes.length; i<lengthi; i++){
                 probe = this.group.probes[i];
-                allSamples = allSamples.concat(probe.filteredData);
+                allSamples = allSamples.concat(probe.data);
             }
 
             return allSamples;
@@ -88,19 +88,23 @@ define([
 
 
             maxBucket = subStartTime;
-            buckets[startTime] = [];
+            //buckets[startTime] = [];
+            bucketKeys = [];
 
             if (startTime != subStartTime){ // Creating start bucket
                 buckets[startTime] = [];
-            }
-
-            if (endTime != subEndTime){ // Creating end bucket
-                buckets[subEndTime] = [];
+                bucketKeys.push(startTime);
             }
 
             while (maxBucket < subEndTime){ // Creating all the buckets
                 buckets[maxBucket] = [];
+                bucketKeys.push(maxBucket);
                 maxBucket += bucketLength;
+            }
+
+            if (endTime != subEndTime){ // Creating end bucket
+                buckets[subEndTime] = [];
+                bucketKeys.push(subEndTime);
             }
 
             for (var d=0,length=allSamples.length; d<length; d++){ //for all the samples
@@ -122,7 +126,7 @@ define([
             }
 
             halfBucket = (bucketLength / 2);
-            bucketKeys = Object.keys(buckets).sort();
+            //bucketKeys = Object.keys(buckets).sort();
 
             for (var l=0,lengthl=bucketKeys.length; l<lengthl; l++){ // Compute the average for each bucket
 
@@ -151,15 +155,15 @@ define([
 
                     tmpSample = buckets[bucket][d];
 
-                    if (tmpSample["min"] !== null){
+                    if (tmpSample["min"] != null){
                         minValues.push(tmpSample["min"]);
                         //originalMin.push(tmpSample.original["min"]);
                     }
-                    if (tmpSample["avg"] !== null){
+                    if (tmpSample["avg"] != null){
                         avgValues.push(tmpSample["avg"]);
                         //originalAvg.push(tmpSample.original["avg"]);
                     }
-                    if (tmpSample["max"] !== null){
+                    if (tmpSample["max"] != null){
                         maxValues.push(tmpSample["max"]);
                         //originalMax.push(tmpSample.original["max"]);
                     }
@@ -168,27 +172,27 @@ define([
 
                 }
 
-                if ( buckets[bucket].length == 0) {
+                //if ( buckets[bucket].length == 0) {
+                //
+                //    computedSample = {
+                //        date: computedDate,
+                //        rcvd: 0,
+                //        sent: 0,
+                //        min: null,
+                //        max: null,
+                //        avg: null
+                //    };
+                //
+                //    dataOut.push(computedSample);
+                //
+                //} else {
 
-                    computedSample = {
-                        date: computedDate,
-                        rcvd: 0,
-                        sent: 0,
-                        min: null,
-                        max: null,
-                        avg: null
-                    };
-
+                computedSample = this._computeAvgSample(minValues, avgValues, maxValues, originalMin, originalAvg, originalMax, computedDate, packetLoss);
+                if (computedSample.min !== null || computedSample.avg !== null || computedSample.max !== null || computedSample.packetLoss == 1) {
                     dataOut.push(computedSample);
-
-                } else {
-
-                    computedSample = this._computeAvgSample(minValues, avgValues, maxValues, originalMin, originalAvg, originalMax, computedDate, packetLoss);
-                    if (computedSample.min !== null || computedSample.avg !== null || computedSample.max !== null || computedSample.packetLoss == 1) {
-                        dataOut.push(computedSample);
-                    }
-
                 }
+
+                //}
             }
 
             return {data: dataOut, bucketLength: bucketLength, allSamples: allSamples, lastBucketKey: bucketKeys[bucketKeys.length - 1]};
@@ -265,7 +269,8 @@ define([
 
 
         this.getGraphicalSamples = function(xDomain){
-            return this._stableAverageSeries(xDomain);
+            currentSeries = this._averageSeries(xDomain);
+            return currentSeries.data;
         };
 
 
@@ -330,21 +335,21 @@ define([
         //                tmpSample = newSamples[d];
         //                if (tmpSample["min"] !== null) {
         //                    minValues.push(tmpSample["min"]);
-        //                    originalMin.push(tmpSample.original["min"]);
+        //                    //originalMin.push(tmpSample.original["min"]);
         //                }
         //                if (tmpSample["avg"] !== null) {
         //                    avgValues.push(tmpSample["avg"]);
-        //                    originalAvg.push(tmpSample.original["avg"]);
+        //                    //originalAvg.push(tmpSample.original["avg"]);
         //                }
         //                if (tmpSample["max"] !== null) {
         //                    maxValues.push(tmpSample["max"]);
-        //                    originalMax.push(tmpSample.original["max"]);
+        //                    //originalMax.push(tmpSample.original["max"]);
         //                }
         //
         //                packetLoss.push(tmpSample.packetLoss);
         //            }
         //
-        //            computedSample = this._computeAvgSample(minValues, avgValues, maxValues, originalMin, originalAvg, originalMax, new Date(lastBucketStartDate), packetLoss);
+        //            computedSample = this._computeAvgSample(minValues, avgValues, maxValues, originalMin, originalAvg, originalMax, utils.timestampToUTCDate(lastBucketStartDate), packetLoss);
         //            if (computedSample.min !== null || computedSample.avg !== null || computedSample.max !== null || computedSample.packetLoss == 1) {
         //                currentSeries.data.push(computedSample);
         //            }
@@ -354,64 +359,64 @@ define([
         //
         //    return currentSeries.data;
         //};
+
+
+
+        //this._stableAverageSeries = function(xDomain){
+        //    var fakeSample, biggestSample, tmpSample, minValues, avgValues, maxValues, lastBucketStartDate, newSamples,
+        //        previousBucket, packetLoss, originalMin, originalAvg, originalMax;
         //
-
-
-        this._stableAverageSeries = function(xDomain){
-            var fakeSample, biggestSample, tmpSample, minValues, avgValues, maxValues, lastBucketStartDate, newSamples,
-                previousBucket, packetLoss, originalMin, originalAvg, originalMax;
-
-            if (!currentSeries || currentSeries.data.length <= 3 || this._isXDomainChanged(xDomain) || !env.chartManager._isUpdatable()){
-                lastDomainRedrawn = xDomain;
-                lastTimeWindow = env.timeWindowSize;
-                currentSeries = this._averageSeries(xDomain);
-            } else {
-
-                previousBucket = currentSeries.data[currentSeries.data.length - 2];
-                currentSeries.data.pop();
-                lastBucketStartDate = previousBucket.date.getTime() + ((parseInt(currentSeries.bucketLength) / 2) * 1000);
-                newSamples = this._getAllDataPointsMixed().filter(function(sample){
-                    biggestSample = (biggestSample && biggestSample > sample.date) ? biggestSample : sample.date;
-                    return sample.date.getTime() > lastBucketStartDate;
-                });
-
-                minValues = [];
-                avgValues = [];
-                maxValues = [];
-
-                originalMin = [];
-                originalAvg = [];
-                originalMax = [];
-
-                packetLoss = [];
-
-                for (var d=0,length=newSamples.length; d<length; d++) { //for all the samples in the bucket
-
-                    tmpSample = newSamples[d];
-                    if (tmpSample["min"] !== null){
-                        minValues.push(tmpSample["min"]);
-                        //originalMin.push(tmpSample.original["min"]);
-                    }
-                    if (tmpSample["avg"] !== null){
-                        avgValues.push(tmpSample["avg"]);
-                        //originalAvg.push(tmpSample.original["avg"]);
-                    }
-                    if (tmpSample["max"] !== null){
-                        maxValues.push(tmpSample["max"]);
-                        //originalMax.push(tmpSample.original["max"]);
-                    }
-
-                    packetLoss.push(tmpSample.packetLoss);
-                }
-
-                fakeSample = this._computeAvgSample(minValues, avgValues, maxValues, originalMin, originalAvg, originalMax, biggestSample, packetLoss);
-                if (fakeSample.min !== null || fakeSample.avg !== null || fakeSample.max !== null) {
-                    currentSeries.data.push(fakeSample);
-                }
-            }
-
-            return currentSeries.data;
-        };
+        //    if (!currentSeries || currentSeries.data.length <= 3 || this._isXDomainChanged(xDomain) || !env.chartManager._isUpdatable()){
+        //        lastDomainRedrawn = xDomain;
+        //        lastTimeWindow = env.timeWindowSize;
+        //        currentSeries = this._averageSeries(xDomain);
+        //    } else {
+        //
+        //        previousBucket = currentSeries.data[currentSeries.data.length - 2];
+        //        currentSeries.data.pop();
+        //        lastBucketStartDate = previousBucket.date.getTime() + ((parseInt(currentSeries.bucketLength) / 2) * 1000);
+        //        newSamples = this._getAllDataPointsMixed().filter(function(sample){
+        //            biggestSample = (biggestSample && biggestSample > sample.date) ? biggestSample : sample.date;
+        //            return sample.date.getTime() > lastBucketStartDate;
+        //        });
+        //
+        //        minValues = [];
+        //        avgValues = [];
+        //        maxValues = [];
+        //
+        //        originalMin = [];
+        //        originalAvg = [];
+        //        originalMax = [];
+        //
+        //        packetLoss = [];
+        //
+        //        for (var d=0,length=newSamples.length; d<length; d++) { //for all the samples in the bucket
+        //
+        //            tmpSample = newSamples[d];
+        //            if (tmpSample["min"] !== null){
+        //                minValues.push(tmpSample["min"]);
+        //                //originalMin.push(tmpSample.original["min"]);
+        //            }
+        //            if (tmpSample["avg"] !== null){
+        //                avgValues.push(tmpSample["avg"]);
+        //                //originalAvg.push(tmpSample.original["avg"]);
+        //            }
+        //            if (tmpSample["max"] !== null){
+        //                maxValues.push(tmpSample["max"]);
+        //                //originalMax.push(tmpSample.original["max"]);
+        //            }
+        //
+        //            packetLoss.push(tmpSample.packetLoss);
+        //        }
+        //
+        //        fakeSample = this._computeAvgSample(minValues, avgValues, maxValues, originalMin, originalAvg, originalMax, biggestSample, packetLoss);
+        //        if (fakeSample.min !== null || fakeSample.avg !== null || fakeSample.max !== null) {
+        //            currentSeries.data.push(fakeSample);
+        //        }
+        //    }
+        //
+        //    return currentSeries.data;
+        //};
 
 
         this.setHeight = function(height){
@@ -485,7 +490,7 @@ define([
 
             this.updateChart(data, xDomain, yDomain, yRange, yUnit);
             this._computePacketLossSpots(data);
-            //data = this._addUndefinedPoints(data);
+            data = this._addUndefinedPoints(data);
 
 
             this.updateLine(data, "min");
@@ -530,7 +535,7 @@ define([
 
 
         this.updateDots = function (data, key) {
-            var dots;
+            var dots, enteringDots;
 
             dots = svg
                 .selectAll(".dot." + key)
@@ -542,7 +547,7 @@ define([
                 .exit()
                 .remove();
 
-            dots
+            enteringDots = dots
                 .enter()
                 .append("circle")
                 .filter(function(dataPoint){
@@ -550,6 +555,12 @@ define([
                 })
                 .attr("cx", lineSkeletons[key].x())
                 .attr("cy", lineSkeletons[key].y())
+                .attr("r", 3);
+
+            enteringDots
+                .filter(function(dataPoint){
+                    return dataPoint.date >= new Date(currentSeries.lastBucketKey * 1000);
+                })
                 .attr("r", 15)
                 .transition()
                 .duration(2000)
@@ -597,7 +608,7 @@ define([
 
             this.initChart(data, xDomain, yDomain, yRange, yUnit);
             this._computePacketLossSpots(data);
-            //data = this._addUndefinedPoints(data);
+            data = this._addUndefinedPoints(data);
 
 
             lineSkeletons = {
@@ -683,10 +694,10 @@ define([
 
 
         this.drawPacketLoss = function(data){
-            var line, allLines, allAreas;
+            var line, allLines, allAreas, filteredData, item;
 
             allAreas = svg
-                .selectAll(".packet-loss-area")
+                .selectAll("rect.packet-loss-area")
                 .data($this.emptySpot);
 
             allAreas
@@ -712,15 +723,23 @@ define([
 
 
             line = lineSkeletons["min"];
-            //svg
-            //    .selectAll(".packet-loss-line")
-            //    .remove();
+
+            filteredData = [];
+            for (var n=0,length=data.length; n<length; n++){
+                item = data[n];
+                if (item.packetLoss > config.notShownPacketLossThreshold){
+                    filteredData.push(data[n]);
+                }
+            }
 
             allLines = svg
-                .selectAll(".packet-loss-line")
-                .data(data, function(dataPoint){
-                    return dataPoint.date;
+                .selectAll("line.packet-loss-line")
+                .data(filteredData, function(dataPoint){
+                    return dataPoint.date.getTime();
                 });
+                //.filter(function(dataSample){
+                //    return dataSample.packetLoss > 0.1;
+                //});
 
             allLines
                 .exit()
@@ -729,9 +748,6 @@ define([
             allLines
                 .enter()
                 .append("line")
-                .filter(function(dataSample){
-                    return dataSample.packetLoss > 0.1;
-                })
                 .attr("class", "packet-loss-line")
                 .attr("stroke-dasharray", 5.10)
                 .style("opacity", function(dataSample){
@@ -1127,7 +1143,7 @@ define([
 
 
         this.showPopUp = function(x, dataPoint){
-            var position, margin;
+            var position, margin, rounding;
 
             margin = config.hoverPopUpMargin;
             position = (x > this.group.dom.width()/2) ? (x - (popUpDiv.outerWidth() + margin)): x + margin;
@@ -1146,13 +1162,16 @@ define([
                 description.push("Date: " + utils.dateToString(dataPoint.date));
                 if (dataPoint.original != null) {
                     if (dataPoint.original.max != null && dataPoint.max != null) {
-                        description.push('<span class="info-label max">Max: ' + dataPoint.original.max.toFixed(2) + 'ms (' + ((dataPoint.cut.max) ? "> " : "") + dataPoint.max.toFixed(2) + '%)</span>');
+                        rounding = (dataPoint.cut.max) ? ((dataPoint.max < dataPoint.cut.pmax)? ">" : "<") : false;
+                        description.push('<span class="info-label max">Max: ' + dataPoint.original.max.toFixed(2) + 'ms (' + ((rounding) ? rounding : "") + dataPoint.max.toFixed(2) + '%)</span>');
                     }
                     if (dataPoint.original.avg != null && dataPoint.avg != null) {
-                        description.push('<span class="info-label avg">Med: ' + dataPoint.original.avg.toFixed(2) + 'ms (' + ((dataPoint.cut.avg) ? "> " : "") + dataPoint.avg.toFixed(2) + '%)</span>');
+                        rounding = (dataPoint.cut.avg) ? ((dataPoint.avg < dataPoint.cut.pavg)? ">" : "<") : false;
+                        description.push('<span class="info-label avg">Med: ' + dataPoint.original.avg.toFixed(2) + 'ms (' + ((rounding) ? rounding : "") + dataPoint.avg.toFixed(2) + '%)</span>');
                     }
                     if (dataPoint.original.min != null && dataPoint.min != null) {
-                        description.push('<span class="info-label min">Min: ' + dataPoint.original.min.toFixed(2) + 'ms (' + ((dataPoint.cut.min) ? "> " : "") + dataPoint.min.toFixed(2) + '%)</span>');
+                        rounding = (dataPoint.cut.min) ? ((dataPoint.min < dataPoint.cut.pmin)? ">" : "<") : false;
+                        description.push('<span class="info-label min">Min: ' + dataPoint.original.min.toFixed(2) + 'ms (' + ((rounding) ? rounding : "") + dataPoint.min.toFixed(2) + '%)</span>');
                     }
                 }
                 if (dataPoint.packetLoss != null) {

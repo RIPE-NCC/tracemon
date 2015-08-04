@@ -164,10 +164,9 @@ define([
 
         this.dom = {};
 
-        this.dom.main = env.parentDom;
+        this.dom.main = $("<div></div>").addClass("latencymon-container").appendTo(env.parentDom);
 
         this.dom.main
-            .addClass("latencymon-container")
             .css({
                 "min-height": "600px",
                 //"overflow-y": "auto",
@@ -182,7 +181,7 @@ define([
             var timerHide;
 
             if (insideSubMenu == null){
-                env.parentDom.append($this.slidingMenu); // Append the sub menu dom
+                this.dom.main.append($this.slidingMenu); // Append the sub menu dom
                 slidingMenuOpened = false;
                 insideSubMenu = false;
 
@@ -326,7 +325,7 @@ define([
             var probe, data, drawn;
 
             if (!this.addLinePanelAppended) {
-                env.parentDom
+                this.dom.main
                     .append(this.addLinePanel.hide().fadeIn());
                 this.addLinePanelAppended = true;
 
@@ -461,7 +460,7 @@ define([
         this.openAddMeasurementPanel = function(){
             $this.addLinePanel.hide();
             if (!this.addMeasurementPanelAppended) {
-                env.parentDom
+                $this.dom.main
                     .append(this.addMeasurementPanel.hide().fadeIn());
                 this.addMeasurementPanelAppended = true;
 

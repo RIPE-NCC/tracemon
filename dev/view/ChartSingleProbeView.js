@@ -262,7 +262,7 @@ define([
         };
 
         this.getGraphicalSamples = function(xDomain){
-            return probe.filteredData;
+            return probe.data;
         };
 
         this.updateLine = function (data, key) {
@@ -775,7 +775,7 @@ define([
 
 
         this.showPopUp = function(x, dataPoint){
-            var position, margin;
+            var position, margin, rounding;
 
             margin = config.hoverPopUpMargin;
             position = (x > this.group.dom.width()/2) ? (x - (popUpDiv.outerWidth() + margin)): x + margin;
@@ -795,13 +795,16 @@ define([
 
                 if (dataPoint.original) {
                     if (dataPoint.original.max != null && dataPoint.max != null) {
-                        description.push('<span class="info-label max">Max: ' + dataPoint.original.max.toFixed(2) + 'ms (' + dataPoint.max.toFixed(2) + '%)</span>');
+                        rounding = (dataPoint.cut.max) ? ((dataPoint.max < dataPoint.cut.pmax)? ">" : "<") : false;
+                        description.push('<span class="info-label max">Max: ' + dataPoint.original.max.toFixed(2) + 'ms (' +  ((rounding) ? rounding : "") + dataPoint.max.toFixed(2) + '%)</span>');
                     }
-                    if (dataPoint.original.avg != null && dataPoint.max != null) {
-                        description.push('<span class="info-label avg">Med: ' + dataPoint.original.avg.toFixed(2) + 'ms (' + dataPoint.avg.toFixed(2) + '%)</span>');
+                    if (dataPoint.original.avg != null && dataPoint.avg != null) {
+                        rounding = (dataPoint.cut.avg) ? ((dataPoint.avg < dataPoint.cut.pavg)? ">" : "<") : false;
+                        description.push('<span class="info-label avg">Med: ' + dataPoint.original.avg.toFixed(2) + 'ms (' +  ((rounding) ? rounding : "") + dataPoint.avg.toFixed(2) + '%)</span>');
                     }
-                    if (dataPoint.original.min != null && dataPoint.max != null) {
-                        description.push('<span class="info-label min">Min: ' + dataPoint.original.min.toFixed(2) + 'ms (' + dataPoint.min.toFixed(2) + '%)</span>');
+                    if (dataPoint.original.min != null && dataPoint.min != null) {
+                        rounding = (dataPoint.cut.min) ? ((dataPoint.min < dataPoint.cut.pmin)? ">" : "<") : false;
+                        description.push('<span class="info-label min">Min: ' + dataPoint.original.min.toFixed(2) + 'ms (' +  ((rounding) ? rounding : "") + dataPoint.min.toFixed(2) + '%)</span>');
                     }
                 }
                 if (dataPoint.packetLoss != null) {

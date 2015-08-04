@@ -6,8 +6,9 @@
 
 define([
     "env.config",
-    "lib.socket-io"
-], function(config, io) {
+    "lib.socket-io",
+    "connector.translate-to-ping"
+], function(config, io, translateToPing) {
 
 
     var LiveConnector = function (env) {
@@ -24,14 +25,24 @@ define([
         };
 
 
-        this._dispatcher = function(data){
-            var jsonData, subscription;
+        this._dispatcher = function(jsonData){
+            var subscription;
 
-            jsonData = data;
+            jsonData = translateToPing.translate(jsonData);
+
             subscription = $this.subscriptions[$this._getSubscriptionId(jsonData.msm_id, jsonData.prb_id)];
 
             if (subscription){
                 subscription.callback.call(subscription.context, jsonData);
+            }
+        };
+
+
+        this._getSubscriptionRequest = function(msmId, probeId){
+            return {
+                msm: msmId,
+                prb: probeId,
+                sendBacklog: config.sendBacklogStreaming
             }
         };
 
@@ -44,19 +55,10 @@ define([
                 this.connect(options); // socket in config
                 socket.on('atlas_result', $this._dispatcher);
 
-
                 socket.on('connect', function () {
                     $this.handShakeCompleted = true;
                     for (var sub in $this.subscriptions){
-                        socket.emit("atlas_subscribe", {
-                                msm: $this.subscriptions[sub].msmId,
-                                prb: $this.subscriptions[sub].probeId,
-                                sendBacklog: config.sendBacklogStreaming,
-                                greaterThan: {
-                                    timestamp: env.lastHistoricSample
-                                }
-                            }
-                        );
+                        socket.emit("atlas_subscribe", $this._getSubscriptionRequest($this.subscriptions[sub].msmId, $this.subscriptions[sub].probeId));
                     }
                 });
             }
@@ -77,7 +79,7 @@ define([
                 this.subscriptions[key] = subscription;
 
                 if ($this.handShakeCompleted) {
-                    socket.emit("atlas_subscribe", {msm: msmId, prb: probeId});
+                    socket.emit("atlas_subscribe", $this._getSubscriptionRequest(msmId, probeId));
                 }
 
             }
@@ -89,7 +91,7 @@ define([
 
             key = this._getSubscriptionId(measurementId, probeId);
             if (this.subscriptions[key]) {
-                socket.emit("atlas_unsubscribe", {msm: measurementId, prb: probeId});
+                socket.emit("atlas_unsubscribe", $this._getSubscriptionRequest(measurementId, probeId));
                 delete this.subscriptions[key];
             }
 

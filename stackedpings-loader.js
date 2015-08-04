@@ -66,6 +66,8 @@ requirejs.config({
         "connector.history": STACKEDPINGS_CONNECTOR_URL + "HistoryConnector",
         "connector.history-auto": STACKEDPINGS_CONNECTOR_URL + "HistoryConnectorAutoResolution",
         "connector.live": STACKEDPINGS_CONNECTOR_URL + "LiveConnector",
+        "connector.translate-to-ping": STACKEDPINGS_CONNECTOR_URL + "TranslateToPing",
+
 
         /* session */
         "session.facade": STACKEDPINGS_SESSION_URL + "SessionManager"

@@ -48,7 +48,8 @@ define([], function(){
         autoStartGrouping: true,
         addSamplesWithEmulation: false,
         sendBacklogStreaming: true,
-
+        antiFloodRedrawCharts: 3000,
+        notShownPacketLossThreshold: 0.1,
         domClasses:{
             chartDomClass: 'chart',
             bottomInfoNoticeClass: 'footer-info'

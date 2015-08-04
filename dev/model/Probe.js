@@ -1,5 +1,5 @@
 var Probe = function(id){
-  this.id = id;
-  this.samples = [];
-  this.filteredData = [];
+    this.id = id;
+    this.samples = [];
+    this.data = [];
 };
