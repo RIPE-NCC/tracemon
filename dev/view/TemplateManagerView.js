@@ -164,17 +164,8 @@ define([
 
         this.dom = {};
 
-        this.dom.main = $("<div></div>").addClass("latencymon-container").appendTo(env.parentDom);
-
-        this.dom.main
-            .css({
-                "min-height": "600px",
-                //"overflow-y": "auto",
-                "font-size": "10px",
-                "font-family": "sans-serif",
-                "position": "relative",
-                "line-height": "normal"
-            });
+        env.parentDom.addClass("latencymon-container");
+        this.dom.main = $("<div></div>").addClass("latencymon-content").appendTo(env.parentDom);
 
 
         this.bindSlidingMenu = function(callerButton, menuItemsHtml, height, cssClass, callback){

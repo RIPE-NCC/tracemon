@@ -1,3 +1,18 @@
+.latencymon-content{
+    margin: auto;
+    padding-top: 4px;
+    min-height: 300px;
+    font-size: 10px;
+    font-family: sans-serif;
+    position: relative;
+    border: 1px solid #C0C0C0;
+    background: #FFFFFF;
+    line-height: normal!important;
+    border-radius: 4px;
+    box-sizing: content-box!important;
+    min-width: 860px!important;
+}
+
 .axis path, .axis line {
     fill: none;
     stroke: #000;
