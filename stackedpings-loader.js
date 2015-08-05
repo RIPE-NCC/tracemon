@@ -63,7 +63,7 @@ requirejs.config({
 
         /* connector */
         "connector.facade": STACKEDPINGS_CONNECTOR_URL + "ConnectorFacade",
-        "connector.history": STACKEDPINGS_CONNECTOR_URL + "HistoryConnector",
+        //"connector.history": STACKEDPINGS_CONNECTOR_URL + "HistoryConnector",
         "connector.history-auto": STACKEDPINGS_CONNECTOR_URL + "HistoryConnectorAutoResolution",
         "connector.live": STACKEDPINGS_CONNECTOR_URL + "LiveConnector",
         "connector.translate-to-ping": STACKEDPINGS_CONNECTOR_URL + "TranslateToPing",
@@ -106,10 +106,7 @@ define([
     "env.config",
     "env.languages.en",
     "lib.jquery-amd",
-    "controller.main",
-    "connector.history",
-    "connector.live"
-
+    "controller.main"
 ], function(utils, config, language, $, main){
 
     var StackedPings = function(instance){
@@ -147,10 +144,6 @@ define([
         /*
          * Initialize Point of Access to Packages
          */
-
-        //env.mainView = new MainView(env); //Representation Facade
-        //env.historyConnector = new HistoryConnector(env);
-        //env.liveConnector = new LiveConnector(env);
 
 
         /*
