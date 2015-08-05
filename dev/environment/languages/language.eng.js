@@ -18,6 +18,16 @@ define([], function(){
         addMeasurementHeader: "To add a measurement, write the related ID in the field below",
         selectLineHeaderText: "Select the probes you want to display",
         selectGroupHeaderText: "Select the probes you want to add to the group. NOTE: you can use only probes not participating in other charts",
-        streamingInfo: "Samples coming from the probes in real time"
+        streamingInfo: "Samples coming from the probes in real time",
+        leftHeaderDefaultInfo: "Use the icons on the top left to add a measurement",
+
+        leftHeader: {
+            noMeasurement: "Add a measurement to start",
+            noGroups: "Add probes/groups to see something",
+            show: "RIPE Atlas %y measurement #%m to %t",
+            multi: "RIPE Atlas measurements to %t"
+        },
+
+        rightHeader: "From %s to %e"
     }
 });

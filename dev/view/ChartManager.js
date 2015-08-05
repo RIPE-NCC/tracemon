@@ -142,6 +142,7 @@ define([
                 }
 
                 env.timeOverview.update(env.timeDomain, [env.startDate, env.endDate]);
+                    env.template.updateInfo();
                 env.urlManager.updateUrl();
                 $this.applyUpdateCondition();
             }
@@ -446,6 +447,7 @@ define([
 
                 env.template.dom.main
                     .append(env.template.controlPanel)
+                    .append(env.template.infoHeader.container)
                     .append(this.dom.chartDiv)
                     .append(env.template.timeOverview);
 

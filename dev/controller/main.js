@@ -251,6 +251,7 @@ define([
                     }
                 }
 
+                env.template.updateInfo();
                 env.urlManager.updateUrl();
             }, this);
 
@@ -557,9 +558,10 @@ define([
         };
 
 
-        this.updateUrl = function(){
-            env.urlManager.updateUrl();
-        };
+        //this.updateUrl = function(){
+        //    env.template.updateInfo();
+        //    env.urlManager.updateUrl();
+        //};
 
         this.applyUrl = function(){
             this.applyConfiguration(env.urlManager.getConfigurationFromUrl());

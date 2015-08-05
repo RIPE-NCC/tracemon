@@ -504,6 +504,31 @@
     line-height: 28px;
 }
 
+.info-header{
+    height: 18px;
+    width: 100%;
+    margin-bottom: -8px;
+    background: transparent;
+    font-size: 12px;
+    text-shadow: 1px 1px 3px #C0C0C0;
+    color: #7a7a7a;
+    padding-top: 2px;
+}
+
+.info-header .left-info{
+    width: 400px;
+    float: left;
+    margin-left: 25px;
+    text-align: left;
+
+}
+
+.info-header .right-info{
+    width: 240px;
+    float: right;
+    margin-right: 25px;
+    text-align: right;
+}
 
 /* Bootstrap Hacks */
 .pagination li{

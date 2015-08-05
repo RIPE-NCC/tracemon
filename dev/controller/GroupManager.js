@@ -97,6 +97,7 @@ define([
                 this.groupByFirstProbes(config.numberOfSpareProbes);
             }
 
+            env.template.updateInfo();
             env.urlManager.updateUrl();
         }
     };

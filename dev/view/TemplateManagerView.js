@@ -28,6 +28,15 @@ define([
 
         this.overlayMessage = '<div class="error-message"></div>';
 
+        this.infoHeader = {
+            container: $('<div class="info-header"></div>'),
+            left: $('<div class="left-info"></div>'),
+            right: $('<div class="right-info"></div>')
+        };
+
+        this.infoHeader.container
+            .append(this.infoHeader.left)
+            .append(this.infoHeader.right);
 
         this.streamingLed = {
             label: $('<div class="streaming-label" title="' + lang.streamingInfo + '"></div>'),
@@ -170,6 +179,7 @@ define([
         this.dom.message = $(this.overlayMessage).appendTo(this.dom.main);
 
 
+
         this._moveLoadingImage = function(evt){
             $this.dom.loadingImage
                 .css({
@@ -178,6 +188,38 @@ define([
                 });
         };
 
+
+        this.updateInfo = function(){
+            var leftHeaderContent, groupsNumber, measurementsNumber;
+
+            leftHeaderContent = lang.leftHeader.noMeasurement;
+            measurementsNumber = (env.measurements) ? Object.keys(env.measurements).length : 0;
+            groupsNumber = (env.main.groups) ? Object.keys(env.main.groups).length : 0;
+
+            if (groupsNumber == 0){
+                leftHeaderContent = lang.leftHeader.noGroups;
+            }
+
+            if (measurementsNumber == 1 && groupsNumber > 0){
+
+                for (var msmId in env.measurements){
+                    leftHeaderContent = lang.leftHeader.show
+                        .replace("%y", env.measurements[msmId].type)
+                        .replace("%m", msmId)
+                        .replace("%t", env.measurements[msmId].target);
+                    break;
+                }
+            }
+
+            if (measurementsNumber > 1 && groupsNumber > 0){
+                for (var msmId in env.measurements){
+                    targets.push(env.measurements[msmId].target);
+                }
+            }
+
+            this.infoHeader.left.text(leftHeaderContent);
+            this.infoHeader.right.text(lang.rightHeader.replace("%s", utils.dateToStringShort(utils.UTCDateToLocalDate(env.startDate))).replace("%e", utils.dateToStringShort(utils.UTCDateToLocalDate(env.endDate))));
+        };
 
 
         this.showLoadingImage = function(show){
@@ -192,7 +234,10 @@ define([
                         })
                         .show();
 
-                    setTimeout(function(){ // Stop with the loading Image, it was a timeout
+                    if (loadingImageTimer){
+                        clearTimeout(loadingImageTimer);
+                    }
+                    loadingImageTimer = setTimeout(function(){ // Stop with the loading Image, it was a timeout
                         $this.dom.loadingImage.hide();
                         loadingImageCounter = 0;
                     }, 20000);
@@ -201,6 +246,9 @@ define([
             } else {
                 loadingImageCounter--;
                 if (loadingImageCounter == 0) {
+                    if (loadingImageTimer){
+                        clearTimeout(loadingImageTimer);
+                    }
                     $this.dom.loadingImage.hide();
                     $($this.dom.main)
                         .off("mousemove", $this._moveLoadingImage);
@@ -516,9 +564,6 @@ define([
             env.parentDom.find(".measurement-id").val("");
 
         };
-
-        window.openAddLineMenu = this.openAddLineMenu;
-        window.openAddGroupMenu = this.openAddGroupMenu;
 
 
     };
