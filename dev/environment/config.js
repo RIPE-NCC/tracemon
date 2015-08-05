@@ -33,6 +33,7 @@ define([], function(){
         probeDescriptionDomWidth: 170,
         aSampleEveryPixels: 6,
         maxNumberOfSamplesPerRow: 80, //60
+        minNumberOfSamplePerRow: 10,
         bucketsTollerance: 0.2,
         minimumPixelSelectable: 5,
         syncWithRealTimeData: true,

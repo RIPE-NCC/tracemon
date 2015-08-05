@@ -60,6 +60,26 @@ define([
             return false;
         };
 
+        this.getSmallerResolution = function(){
+            var nativeInterval;
+            nativeInterval = Infinity;
+            for (var measurementId in env.originalMeasurements) {
+                nativeInterval = Math.min(env.originalMeasurements[measurementId]["native_sampling"], nativeInterval);
+            }
+
+            return nativeInterval;
+        };
+
+        this.getGreaterResolution = function(){
+            var nativeInterval;
+            nativeInterval = 0;
+            for (var measurementId in env.originalMeasurements) {
+                nativeInterval = Math.max(env.originalMeasurements[measurementId]["native_sampling"], nativeInterval);
+            }
+
+            return nativeInterval;
+        };
+
 
         this._isUpdatable = function(){
             if (!this.updatableCache){

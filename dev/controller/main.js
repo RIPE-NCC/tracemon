@@ -146,6 +146,10 @@ define([
                     startDate = env.timeDomain[0];
                 }
 
+                if ((config.minNumberOfSamplePerRow * env.chartManager.getSmallerResolution() * 1000) > endDate - startDate){
+                    env.main.error("Time window too small for this resolution", "error");
+                }
+
                 env.startDate = startDate;
                 env.endDate = endDate;
                 env.isUpdatable = this._isUpdatable();
@@ -512,38 +516,6 @@ define([
         };
 
 
-        //this.getInitialSetOfProbes = function (probes) {
-        //    var fitNumber;
-        //
-        //    fitNumber = Math.floor(env.parentDom.height() / config.singleChartHeight) - 1;
-        //    return probes.slice(0, Math.min(probes.length, config.maxProbes, fitNumber));
-        //    //return probes.slice(0, 2);
-        //
-        //};
-        //
-        //
-        //
-        ///*
-        // * If with the resolution received in input, the number of samples
-        // * is < config.maxNumberOfSamplesPerRow, don't do anything.
-        // * Otherwise compute the maximum time period extent possible
-        // */
-        //this._boundTimePeriod = function(startDate, endDate, rate){
-        //    var timeRange, timeWindow;
-        //
-        //    timeRange = (endDate.getTime() - startDate.getTime()) / 1000;
-        //
-        //    if (timeRange/rate > config.maxNumberOfSamplesPerRow){
-        //        console.log("Time Window adapted to the sampling rate");
-        //
-        //        timeWindow = rate * config.maxNumberOfSamplesPerRow;
-        //        startDate = new Date(endDate.getTime() - (timeWindow * 1000));
-        //    }
-        //
-        //    return [startDate, endDate];
-        //};
-
-
         this._computeResolutionMapForThisMeasurement = function(measurement){
             var aggregations;
 
@@ -557,11 +529,6 @@ define([
             return aggregations;
         };
 
-
-        //this.updateUrl = function(){
-        //    env.template.updateInfo();
-        //    env.urlManager.updateUrl();
-        //};
 
         this.applyUrl = function(){
             this.applyConfiguration(env.urlManager.getConfigurationFromUrl());
