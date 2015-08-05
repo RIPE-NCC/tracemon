@@ -30,7 +30,7 @@ define([
         notUsedColors = [];
 
         if (this.group.probes.length > maxProbesPossible){
-            throw "It is not useful to show more than " + maxProbesPossible + " probes on the same chart, use more charts or another chart type"
+            env.main.error("It is not useful to show more than " + maxProbesPossible + " probes on the same chart, use more charts or another chart type", "error");
         }
 
 
@@ -378,7 +378,7 @@ define([
             var isLast, computedYRange;
 
             if (this.group.probes.length > 20){
-                throw "It is not useful to show more than 20 probes on the same chart, use more charts or another chart type"
+                env.main.error("It is not useful to show more than 20 probes on the same chart, use more charts or another chart type", "error");
             }
 
             this._resetColors();

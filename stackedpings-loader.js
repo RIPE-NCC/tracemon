@@ -180,6 +180,10 @@ define([
 
             env.main = new main(env);
 
+            if (env.autoStart){
+                env.main.init();
+            }
+
             function enrichMethod(methodName) {
                 objectToBeEnriched[methodName] = function () {
                     env.main[methodName].apply(env.main, arguments);

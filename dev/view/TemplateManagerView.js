@@ -26,7 +26,8 @@ define([
 
         this.loadingImage = '<img src="' + widgetUrl + 'view/img/loading2.gif" class="loading-image"/> ';
 
-        this.timeMargins = '<div class="time-margins"><div style="position: absolute; left: 0;"></div> <div style="position: absolute; right: 0;"></div></div>';
+        this.overlayMessage = '<div class="error-message"></div>';
+
 
         this.streamingLed = {
             label: $('<div class="streaming-label" title="' + lang.streamingInfo + '"></div>'),
@@ -132,9 +133,6 @@ define([
             '<div style="float: right;">' + lang.endDateLabel + ' <br/><input type="text" class="timepicker-stop date-field" /></div>';
 
 
-        this.fullScreenThrobber = '<img class="full-screen-throbber" src="' + widgetUrl + 'view/img/full_screen_loader.gif"/>';
-
-        this.overlayMessage = '<div class="dnsmon-message"></div>';
 
         this.timeOverview = $('<div class="time-overview-dom"></div>');
 
@@ -168,6 +166,8 @@ define([
         this.dom.main = $("<div></div>").addClass("latencymon-content").appendTo(env.parentDom);
 
         this.dom.loadingImage = $(this.loadingImage).appendTo(this.dom.main);
+
+        this.dom.message = $(this.overlayMessage).appendTo(this.dom.main);
 
 
         this._moveLoadingImage = function(evt){

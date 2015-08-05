@@ -50,6 +50,9 @@ define([], function(){
         sendBacklogStreaming: true,
         antiFloodRedrawCharts: 3000,
         notShownPacketLossThreshold: 0.1,
+        messageOverlayDurationSeconds: 3,
+        slowServerIntervalMilliseconds: 4000,
+
         domClasses:{
             chartDomClass: 'chart',
             bottomInfoNoticeClass: 'footer-info'

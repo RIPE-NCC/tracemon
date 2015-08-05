@@ -67,16 +67,7 @@ define([
         timeOverviewInitialised = false;
         env.measurements = {};
         env.originalMeasurements = {};
-
         env.maxSamplesPerRow = Math.min(config.maxNumberOfSamplesPerRow, Math.floor(env.parentDom.innerWidth() / config.aSampleEveryPixels));
-
-        /*
-         * THIS IS THE SELECTION START AND END DATE, NOT THE GLOBAL START AND END DATE OF A MEASUREMENT
-         */
-        //env.startDate = new Date(now.getTime() - (config.predefinedTimeWindows[config.defaiultTimeWindow] * 1000)); // Default values
-        //env.endDate = now; // Default values
-        //env.timeWindowSize = env.endDate - env.startDate;
-
         env.updateIfPossible = config.syncWithRealTimeData;
 
         console.log("Use 'main.addMeasurement(id)' to load a measurement");
@@ -98,13 +89,31 @@ define([
             return out;
         };
 
-        //env.isUpdatable = this._isUpdatable();
 
-        this.keepUpdated = function(update){
-            env.updateIfPossible = update;
-            env.chartManager.applyUpdateCondition();
+
+        this.error = function(message, type){
+
+            env.template.dom.message
+                .html(message)
+                .show()
+                .delay(config.messageOverlayDurationSeconds * 1000)
+                .fadeOut();
+
+            switch(type){
+
+                case "connection-fail":
+                    console.log(message);
+                    break;
+
+                case "error":
+                    throw message;
+                    break;
+
+                case "info":
+                    console.log(message);
+                    break;
+            }
         };
-
 
         this.setStringTimeRange = function(string){
             var timeOffset, now;
@@ -114,7 +123,7 @@ define([
             if (timeOffset){
                 env.main.setTimeRange(new Date(now.getTime() - (timeOffset * 1000)), now);
             } else {
-                throw "Time range not valid"
+                env.main.error("Time range not valid", "error");
             }
         };
 
@@ -122,7 +131,7 @@ define([
             var groupTmp, calls, now;
 
             if (!startDate || endDate && startDate >= endDate){
-                throw "Invalid time period";
+                env.main.error("Invalid time period", "error");
 
             } else {
 
@@ -173,7 +182,7 @@ define([
             if (!env.measurements[measurementId]) {
                 $this.availableProbes[measurementId] = {};
             } else {
-                throw "The measurement is already loaded";
+                env.main.error("The measurement is already loaded", "error");
             }
 
             env.template.showLoadingImage(true);
@@ -306,7 +315,7 @@ define([
 
         this.addGroup = function(msmID, probeIds, groupLabel, type){
             if (!env.measurements[msmID]){
-                throw "The selected measurement has not been loaded yet, use 'addMeasurement' first";
+                env.main.error("The selected measurement has not been loaded yet, use 'addMeasurement' first", "error");
             }
 
             if (!this.groups[groupLabel]) {
@@ -318,12 +327,12 @@ define([
                     probeObj = $this.availableProbes[msmID][id];
 
                     if (!probeObj){
-                        throw "Probe ID not available in this measurement";
+                        env.main.error("Probe ID not available in this measurement", "error");
                     }
 
                     for (var group in $this.groups){
                         if ($this.groups[group].measurementId == msmID && $this.groups[group].contains(probeObj)){
-                            throw "The probe " + probeObj.id + " is already involved in another chart for the same measurement";
+                            env.main.error("The probe " + probeObj.id + " is already involved in another chart for the same measurement", "error");
                         }
                     }
 
@@ -352,7 +361,7 @@ define([
 
                 console.log("Use removeProbe(measurementID, probeID)/removeGroup(label) to remove a probe/group chart");
             } else {
-                throw "The group name already exists";
+                env.main.error("The group name already exists", "error");
             }
 
         };
@@ -371,7 +380,7 @@ define([
                 env.chartManager.removeChart(group);
                 delete this.groups[groupLabel];
             } else {
-                throw "The selected group doesn't exist";
+                env.main.error("The selected group doesn't exist", "error");
             }
 
         };
@@ -426,11 +435,11 @@ define([
                 measurementTmp = env.originalMeasurements[msmId];
 
                 if (!measurementTmp){
-                    throw "You have to load the measurement " + msmId + " first";
+                    env.main.error("You have to load the measurement " + msmId + " first", "error");
                 }
 
                 if (target && measurementTmp.target != target){
-                    throw "You cannot merge measurements pointing to different targets";
+                    env.main.error("You cannot merge measurements pointing to different targets", "error");
                 } else {
                     target = target || measurementTmp.target;
                     if (!measurementFinal){
@@ -460,7 +469,7 @@ define([
 
                     } else if (!mergeSamples){ // Don't merge samples
 
-                        throw "It is not possible to merge measurements having probes in common. Try mergeSamples=true";
+                        env.main.error("It is not possible to merge measurements having probes in common. Try mergeSamples=true", "error");
 
                     }
                 }
@@ -492,7 +501,7 @@ define([
                 delete $this.availableProbes[measurementId];
                 delete env.measurements[measurementId];
             } else {
-                throw "The selected measurement has not been loaded yet."
+                env.main.error("The selected measurement has not been loaded yet.", "error");
             }
         };
 
@@ -631,10 +640,6 @@ define([
         this.init = function(){
             this._startProcedure();
         };
-
-        if (env.autoStart){
-            this._startProcedure();
-        }
 
     };
 

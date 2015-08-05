@@ -28,7 +28,7 @@ define([
                     break;
 
                 default:
-                    throw "Not supported streamed sample type"
+                    env.main.error("Not supported streamed sample type", "error");
             }
         };
 

@@ -10,17 +10,25 @@ define([
 ], function(config, $) {
 
     var HistoryConnectorAutoResolution = function (env) {
-        var $this;
+        var $this, slowAnswerTimer;
 
         $this = this;
 
         this.getHistoricalProbesData = function (measurementId, probes, startTimestamp, stopTimestamp, callback, context) {
 
+            if (slowAnswerTimer) {
+                clearTimeout(slowAnswerTimer);
+            }
+
+            slowAnswerTimer = setTimeout(function(){
+                env.main.error("Server is responding slowly", "info");
+            }, config.slowServerIntervalMilliseconds);
+
+
             return $.ajax({
                 dataType: "jsonp",
                 cache: false,
                 url: env.dataApiResults.replace("0000", measurementId),
-                //url: 'https://local.ripe.net:8000/api/internal/routequake-results/' + measurementId + '/',
                 data: {
                     "resolution": "auto",
                     "show-header": true,
@@ -32,7 +40,12 @@ define([
                     prb_id: $.map(probes, function(probe){return probe.id}).join(",")
                 },
                 success: function(data){
+                    clearTimeout(slowAnswerTimer);
                     callback.call(context, data);
+                },
+                error: function(){
+                    clearTimeout(slowAnswerTimer);
+                    env.main.error("It is not possible to download data from the API", "connection-fail");
                 }
             });
 
@@ -41,6 +54,15 @@ define([
 
 
         this.getMeasurementInfo = function (measurementId, callback, context) {
+
+            if (slowAnswerTimer) {
+                clearTimeout(slowAnswerTimer);
+            }
+
+            slowAnswerTimer = setTimeout(function(){
+                env.main.error("Server is responding slowly", "info");
+            }, config.slowServerIntervalMilliseconds);
+
 
             return $.ajax({
                 dataType: "jsonp",
@@ -51,10 +73,12 @@ define([
                 },
                 //url: 'https://local.ripe.net:8000/api/internal/routequake/' + measurementId + '/',
                 success: function (data) {
+                    clearTimeout(slowAnswerTimer);
                     callback.call(context, data);
                 },
                 error: function () {
-                    throw "It is not possible to retrieve measurement information for this ID";
+                    clearTimeout(slowAnswerTimer);
+                    env.main.error("It is not possible to retrieve measurement information for this ID", "connection-fail");
                 }
             });
         };

@@ -30,7 +30,7 @@ define([
                 stringDescription = this._computeToString(); // Update the description
 
             } else {
-                throw "A group must have at least a probe"
+                env.main.error("A group must have at least a probe", "error");
             }
 
         };
