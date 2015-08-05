@@ -15,7 +15,7 @@ define([
                     return this._fromDnsToPing(sample);
                     break;
 
-                case "ssl":
+                case "sslcert":
                     return this._fromSslToPing(sample);
                     break;
 
@@ -57,7 +57,7 @@ define([
             finalHopAttempts.sort();
 
             pingSample = {
-                "type": "ping",
+                "type": "traceroute",
                 "prb_id": sample["prb_id"],
                 "msm_id": sample["msm_id"],
                 "timestamp": sample["timestamp"],
@@ -89,7 +89,7 @@ define([
             var pingSample;
 
             pingSample = {
-                "type": "ping",
+                "type": "sslcert",
                 "msm_id":    sample["msm_id"],
                 "prb_id":    sample["prb_id"],
                 "rcvd":      ((sample["rt"] != undefined) ? 1 : 0),
@@ -115,7 +115,7 @@ define([
             var pingSample;
 
             pingSample = {
-                "type": "ping",
+                "type": "dns",
                 "prb_id": sample["prb_id"],
                 "msm_id": sample["msm_id"],
                 "src_addr": sample["src_addr"],
@@ -144,7 +144,7 @@ define([
             latencies = [];
             errors = [];
             pingSample = {
-                "type": "ping",
+                "type": "http",
                 "prb_id": sample["prb_id"],
                 "msm_id": sample["msm_id"],
                 "src_addr": sample["src_addr"],
