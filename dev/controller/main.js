@@ -68,6 +68,7 @@ define([
         env.measurements = {};
         env.originalMeasurements = {};
 
+        env.maxSamplesPerRow = Math.min(config.maxNumberOfSamplesPerRow, Math.floor(env.parentDom.innerWidth() / config.aSampleEveryPixels));
 
         /*
          * THIS IS THE SELECTION START AND END DATE, NOT THE GLOBAL START AND END DATE OF A MEASUREMENT
@@ -202,7 +203,7 @@ define([
                 }
 
                 interval = measurement["native_sampling"];
-                selectedTimeWindow = (interval * config.maxNumberOfSamplesPerRow * 1000);
+                selectedTimeWindow = (interval * env.maxSamplesPerRow * 1000);
 
                 // If not defined, set the default selected time window
                 if (!env.timeWindowSize){

@@ -31,8 +31,8 @@ define([], function(){
         hoverPopUpDelay: 1000, // ms
         hoverPopUpMargin: 5, // px
         probeDescriptionDomWidth: 170,
+        aSampleEveryPixels: 6,
         maxNumberOfSamplesPerRow: 80, //60
-        //samplesPerRow: 80,
         bucketsTollerance: 0.2,
         minimumPixelSelectable: 5,
         syncWithRealTimeData: true,

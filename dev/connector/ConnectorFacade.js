@@ -13,12 +13,11 @@ define([
 
 
     var ConnectorFacade = function (env) {
-        var numberOfSamples, historyConnector, liveConnector, $this;
+        var historyConnector, liveConnector, $this;
 
         $this = this;
         historyConnector = new HistoryConnector(env);
         liveConnector = new LiveConnector(env);
-        numberOfSamples = config.maxNumberOfSamplesPerRow;
 
         this.getHistoricalProbesData = function (measurementId, probes, startDate, endDate, callback, context) {
 
@@ -233,7 +232,7 @@ define([
             probe.data.push(sample);
 
             // At maximum "numberOfSamples" of data points in the queue
-            probe.data = probe.data.slice(-numberOfSamples);
+            probe.data = probe.data.slice(-env.maxSamplesPerRow);
             probe.data.sort(function(a, b){
                return a.date - b.date;
             });

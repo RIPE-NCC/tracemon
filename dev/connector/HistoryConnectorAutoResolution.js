@@ -25,7 +25,7 @@ define([
                     "resolution": "auto",
                     "show-header": true,
                     "type": "jsonp",
-                    "max-samples": config.maxNumberOfSamplesPerRow,
+                    "max-samples": env.maxSamplesPerRow,
                     start: startTimestamp,
                     stop: stopTimestamp,
                     compact: true,
