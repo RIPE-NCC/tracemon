@@ -162,7 +162,7 @@ define([
                 }
 
                 env.timeOverview.update(env.timeDomain, [env.startDate, env.endDate]);
-                    env.template.updateInfo();
+                env.template.updateInfo();
                 env.urlManager.updateUrl();
                 $this.applyUpdateCondition();
             }
@@ -200,7 +200,9 @@ define([
                 case "natural":
                     filterClass = NaturalRTTFilter;
                     this.yUnit = "ms";
-                    this._getYDomainAndRange = this._getYDomainAndRangeOrdinal;
+                    this._getYDomainAndRange = this._getYDomainAndRangeLinear;
+
+                    //this._getYDomainAndRange = this._getYDomainAndRangeOrdinal;
                     break;
                 case "relative":
                     filterClass = RelativeRTTFilter;
@@ -243,92 +245,192 @@ define([
         };
 
 
-        this._getYDomainAndRangeOrdinal = function (lowerbound, upperbound, xDomain) {
-            var logValue, values, manipulateSamples, value, percentileDomain, roundedLogValue, computedRange, accuracy,
-                groupView, data, chartKey, probe;
+        //this._getYDomainAndRangeOrdinal = function (lowerbound, upperbound, xDomain) {
+        //    var logValue, values, manipulateSamples, value, percentileDomain, roundedLogValue, computedRange, accuracy,
+        //        groupView, data, chartKey, probe;
+        //
+        //    values = [];
+        //    percentileDomain = [];
+        //
+        //    manipulateSamples = function(data){
+        //        var item;
+        //        for (var n=0,length=data.length; n<length; n++) {
+        //            item = data[n];
+        //            if (item.min != null){
+        //                values.push(item.min);
+        //            }
+        //
+        //            if (item.avg != null){
+        //                values.push(item.avg);
+        //            }
+        //
+        //            if (item.max != null){
+        //                values.push(item.max);
+        //            }
+        //        }
+        //    };
+        //
+        //    for (chartKey in $this.charts){
+        //        groupView = $this.charts[chartKey];
+        //        data = groupView.getGraphicalSamples(xDomain);
+        //
+        //        if (data && data.length > 0){
+        //            manipulateSamples(data);
+        //        }
+        //
+        //    }
+        //
+        //    values = values.sort();
+        //
+        //    function computeRange(accuracy) {
+        //        var position, elementWeight, noDuplicates, logarithmicScale, logarithmicCeiledScale;
+        //
+        //        noDuplicates = [];
+        //        logarithmicScale = [];
+        //        logarithmicCeiledScale = [];
+        //        elementWeight = [];
+        //
+        //        for (var n = 0, length = values.length; n < length; n++) {
+        //            value = Math.round(values[n] * accuracy) / accuracy;
+        //            logValue = parseFloat(Math.log(value).toFixed(2));
+        //            roundedLogValue = Math.ceil(logValue);
+        //            //roundedLogValue = logValue;
+        //            position = -1;
+        //            for (var i=0; i<=5 && position==-1; i++){
+        //                position = logarithmicScale.indexOf(roundedLogValue - i);
+        //            }
+        //
+        //            if (position == -1 && noDuplicates.indexOf(value) == -1) {
+        //                noDuplicates.push(value);
+        //                logarithmicCeiledScale.push(roundedLogValue);
+        //                logarithmicScale.push(logValue);
+        //            } else {
+        //                elementWeight[position] = (!elementWeight[position]) ? 0 : elementWeight[position] + 1;
+        //            }
+        //        }
+        //
+        //        logarithmicScale = logarithmicScale.sort(function (a, b) {
+        //            return a - b;
+        //        });
+        //
+        //        noDuplicates = noDuplicates.sort(function (a, b) {
+        //            return a - b;
+        //        });
+        //
+        //        return [noDuplicates, logarithmicCeiledScale, logarithmicScale, elementWeight]
+        //    }
+        //
+        //    accuracy = 10000;
+        //    computedRange = computeRange(accuracy);
+        //
+        //    while (computedRange[2].length > 10){
+        //        accuracy = accuracy / 2;
+        //        computedRange = computeRange(accuracy);
+        //    }
+        //
+        //    for (var n=computedRange[2].length-1; n>= 0; n--) {
+        //        percentileDomain.push(computedRange[3][n] || n);
+        //    }
+        //
+        //    return {domain: computedRange[0], range: percentileDomain, unit: this.yUnit};
+        //};
 
-            values = [];
-            percentileDomain = [];
 
-            manipulateSamples = function(data){
-                var item;
-                for (var n = 0, length = data.length; n < length; n++) {
-                    item = data[n];
-                    values.push(item.min);
-                    values.push(item.max);
+
+
+        this._getYDomainAndRangeOrdinal = function(lowerbound, upperbound, xDomain){
+            var chartKey, groupView, range, indexedElements, item, roundedElements, roundedItem, roundedElementsNew,
+                chartHeight, sumRange, unit, minrange;
+
+            range = [];
+            indexedElements = [];
+            roundedElements = [];
+
+            function getWeight(key){
+                var count = 0;
+                for (var n=0,length=indexedElements.length;n<length;n++){
+                    if (indexedElements[n] == key){
+                        count++;
+                    }
                 }
-            };
+
+                return count;
+            }
+
+            function doStuff(item){
+                if (item >= 10 && item < 100){
+                    roundedItem = Math.round(item / 10) * 10;
+                } else if (item < 10){
+                    roundedItem = Math.round(item);
+                } else {
+                    roundedItem = Math.round(item / 100) * 100;
+                }
+
+                indexedElements.push(roundedItem);
+                if (roundedElements.indexOf(roundedItem) == -1){
+                    roundedElements.push(roundedItem);
+                }
+            }
 
             for (chartKey in $this.charts){
                 groupView = $this.charts[chartKey];
-                data = (groupView.getGraphicalSamples) ? groupView.getGraphicalSamples(xDomain) : [];
 
-                if (data && data.length > 0){
-                    manipulateSamples(data);
-                } else {
-                    for (var n= 0,length=groupView.group.probes.length; n<length ;n++){
-                        probe = groupView.group.probes[n];
-                        manipulateSamples(probe.data);
-                    }
+                for (var n=0,length=groupView.samples.length;n<length;n++){
+                    item = groupView.samples[n];
+                    if (item["min"] != null) doStuff(item["min"]);
+                    if (item["avg"] != null) doStuff(item["avg"]);
+                    if (item["max"] != null) doStuff(item["max"]);
+
                 }
-
             }
 
-            values = values.sort();
+            roundedElements.sort(function(a, b){
+                return a-b;
+            });
 
-            function computeRange(accuracy) {
-                var position, elementWeight, noDuplicates, logarithmicScale, logarithmicCeiledScale;
+            roundedElementsNew = [];
 
-                noDuplicates = [];
-                logarithmicScale = [];
-                logarithmicCeiledScale = [];
-                elementWeight = [];
-
-                for (var n = 0, length = values.length; n < length; n++) {
-                    value = Math.round(values[n] * accuracy) / accuracy;
-                    logValue = parseFloat(Math.log(value).toFixed(2));
-                    roundedLogValue = Math.ceil(logValue);
-                    position = -1;
-                    for (var i=0; i<=5 && position==-1; i++){
-                        position = logarithmicScale.indexOf(roundedLogValue - i);
-                    }
-
-                    if (position == -1 && noDuplicates.indexOf(value) == -1) {
-                        noDuplicates.push(value);
-                        logarithmicCeiledScale.push(roundedLogValue);
-                        logarithmicScale.push(logValue);
-                    } else {
-                        elementWeight[position] = (!elementWeight[position]) ? 0 : elementWeight[position] + 1;
-                    }
+            // Prune
+            for (var n=0,length=roundedElements.length;n<length;n++){
+                if (getWeight(roundedElements[n]) > 2){
+                    roundedElementsNew.push(roundedElements[n]);
+                    range.push(getWeight(roundedElements[n]));
                 }
-
-                logarithmicScale = logarithmicScale.sort(function (a, b) {
-                    return a - b;
-                });
-
-                noDuplicates = noDuplicates.sort(function (a, b) {
-                    return a - b;
-                });
-
-                return [noDuplicates, logarithmicCeiledScale, logarithmicScale, elementWeight]
             }
 
-            accuracy = 100;
-            computedRange = computeRange(accuracy);
+            //minrange = Math.min.apply(null, range);
 
-            while (computedRange[2].length > 10){
-                accuracy = accuracy / 2;
-                computedRange = computeRange(accuracy);
+            //for (var n=1,length=range.length; n<length; n++){
+            //    range[n] -= minrange;
+            //}
+            range[0] = 0;
+
+            sumRange = range.reduce(function(a, b){
+                return a + b;
+            }, 0);
+
+            chartHeight = 100;
+            unit = chartHeight / sumRange;
+
+            for (var n=0,length=range.length; n<length; n++){
+                range[n] *= unit;
             }
 
-            for (var n=computedRange[2].length-1; n>= 0; n--) {
-                percentileDomain.push(computedRange[3][n] || n);
+            range.sort();
+
+            for (var n=1,length=range.length; n<length; n++){
+                range[n] += range[n-1];
             }
 
-            return {domain: computedRange[0], range: percentileDomain, unit: this.yUnit};
+            range.reverse();
+
+            return {
+                domain: roundedElementsNew,
+                range: range,
+                unit: this.yUnit
+            };
+
         };
-
-
 
         this._getYDomainAndRange = this._getYDomainAndRangeLinear; // y Axis by default
 

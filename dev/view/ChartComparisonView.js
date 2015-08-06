@@ -466,7 +466,8 @@ define([
             width = this.group.dom.innerWidth() - margin.left - margin.right - config.probeDescriptionDomWidth;
             height = chartHeight + extraHeight - margin.top - margin.bottom;
 
-            computedYRange = (yRange) ? $.map(yRange, function(n){return (height/(yRange.length - 1)) * n}) : [height, 0];
+            //computedYRange = (yRange) ? $.map(yRange, function(n){return (height/(yRange.length - 1)) * n}) : [height, 0];
+            computedYRange = (yRange) ? yRange : [height, 0];
 
             x = d3.time.scale.utc()
                 .domain(xDomain)
