@@ -18,7 +18,7 @@ define([
         };
 
 
-        this.groupByCountry = function(minimumProbesPerGroup, minimumGroupNumber, maximumNumberOfGroups){
+        this.groupByCountry = function(minimumProbesPerGroup, maximumProbesPerGroup, minimumGroupNumber, maximumNumberOfGroups){
             var groups, countryCode, probe, cleanGroups;
 
             groups = {};
@@ -61,7 +61,11 @@ define([
                     if (maximumNumberOfGroups <= 0){
                         break;
                     }
-                    env.main.addGroup(Object.keys(env.measurements)[0], $.map(cleanGroups[countryCode], function(item){return item.id}), countryCode, "multi-probes");
+                    env.main.addGroup(
+                        Object.keys(env.measurements)[0],
+                        $.map(cleanGroups[countryCode], function(item){return item.id}).slice(0, maximumProbesPerGroup),
+                        countryCode,
+                        "multi-probes");
                     maximumNumberOfGroups--;
                 }
 
@@ -91,7 +95,7 @@ define([
 
         this.group = function(){
             try {
-                this.groupByCountry(config.minimumProbesPerGroup, config.minimumGroupNumber, config.maximumNumberOfGroups);
+                this.groupByCountry(config.minimumProbesPerGroup, config.maximumProbesPerGroup, config.minimumGroupNumber, config.maximumNumberOfGroups);
             } catch(error) {
                 console.log(error);
                 this.groupByFirstProbes(config.numberOfSpareProbes);
