@@ -67,8 +67,8 @@
         "connector.facade": "dev/connector/ConnectorFacade",
         "connector.history": "dev/connector/HistoryConnector",
         "connector.history-auto": "dev/connector/HistoryConnectorAutoResolution",
-        "connector.live": "dev/connector/LiveConnector"
-        "connector.translate-to-ping": "dev/TranslateToPing",
+        "connector.live": "dev/connector/LiveConnector",
+        "connector.translate-to-ping": "dev/connector/TranslateToPing",
 
 
         /* session */
@@ -91,7 +91,7 @@
 
     },
 
-    optimize: "none",//uglify2
+    optimize: "uglify2",//uglify2
     wrapShim: true,
     generateSourceMaps: true,
 
