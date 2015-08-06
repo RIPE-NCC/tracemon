@@ -154,7 +154,7 @@ define([
             '<button type="button" class="btn btn-default add-line-panel-close">Cancel</button>' +
             '<button type="button" class="btn btn-success add-line"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add</button>' +
             '<button type="button" class="btn btn-success add-group"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Group</button>' +
-            '<button type="button" class="btn btn-success add-comparison"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Compare</button>' +
+            //'<button type="button" class="btn btn-success add-comparison"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Compare</button>' +
             '</div>' +
             '</div>');
 
