@@ -104,7 +104,7 @@ define([
             '<img src="' + widgetUrl + 'view/img/left_icon.png"/>' +
             '</div>' +
 
-            '<div class="button chart-mode" title="' + lang.chartModeTitle.relative + '">' +
+            '<div class="button chart-mode relative" title="' + lang.chartModeTitle.relative + '">' +
             '<img src="' + widgetUrl + 'view/img/chart_mode.png"/>' +
             '</div>' +
 
