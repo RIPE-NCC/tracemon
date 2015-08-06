@@ -24,6 +24,8 @@ define([], function(){
             absolute: "Absolute values",
             relative: "Relative values"
         },
+        absoluteValuesInfo: "The charts now show absolute values",
+        relativeValuesInfo: "The charts now show relative values",
 
         leftHeader: {
             noMeasurement: "Add a measurement to start",

@@ -631,9 +631,12 @@ define([
                         if (element.is(".relative")){
                             element.removeClass("relative").addClass("natural").attr("title", lang.chartModeTitle.absolute);
                             env.main.setDataFilter("natural");
+                            env.main.error(lang.absoluteValuesInfo, "info");
                         } else {
                             element.removeClass("natural").addClass("relative").attr("title", lang.chartModeTitle.relative);
                             env.main.setDataFilter("relative");
+                            env.main.error(lang.relativeValuesInfo, "info");
+
                         }
                     });
 
