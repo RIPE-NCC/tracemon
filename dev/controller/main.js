@@ -392,6 +392,7 @@ define([
 
 
         this.setDataFilter = function(filterName){
+            env.dataFilterName = filterName;
             env.chartManager.setFilter(filterName);
         };
 

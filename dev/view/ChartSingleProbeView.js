@@ -793,19 +793,33 @@ define([
                 description = [];
                 description.push("Date: " + utils.dateToString(dataPoint.date));
 
+                function pushDescription(key){
+                    if (dataPoint.original[key] != null && dataPoint[key] != null) {
+                        rounding = (dataPoint.cut[key]) ? ((dataPoint[key] < dataPoint.cut["p" + key])? ">" : "<") : false;
+                        if (env.dataFilterName == "natural"){
+                            description.push('<span class="info-label ' + key + '">Max: ' + dataPoint.original[key].toFixed(2) + 'ms</span>');
+                        } else {
+                            description.push('<span class="info-label ' + key + '">Max: ' + dataPoint.original[key].toFixed(2) + 'ms (' + ((rounding) ? rounding : "") + dataPoint[key].toFixed(2) + '%)</span>');
+                        }
+                    }
+                }
+
                 if (dataPoint.original) {
-                    if (dataPoint.original.max != null && dataPoint.max != null) {
-                        rounding = (dataPoint.cut.max) ? ((dataPoint.max < dataPoint.cut.pmax)? ">" : "<") : false;
-                        description.push('<span class="info-label max">Max: ' + dataPoint.original.max.toFixed(2) + 'ms (' +  ((rounding) ? rounding : "") + dataPoint.max.toFixed(2) + '%)</span>');
-                    }
-                    if (dataPoint.original.avg != null && dataPoint.avg != null) {
-                        rounding = (dataPoint.cut.avg) ? ((dataPoint.avg < dataPoint.cut.pavg)? ">" : "<") : false;
-                        description.push('<span class="info-label avg">Med: ' + dataPoint.original.avg.toFixed(2) + 'ms (' +  ((rounding) ? rounding : "") + dataPoint.avg.toFixed(2) + '%)</span>');
-                    }
-                    if (dataPoint.original.min != null && dataPoint.min != null) {
-                        rounding = (dataPoint.cut.min) ? ((dataPoint.min < dataPoint.cut.pmin)? ">" : "<") : false;
-                        description.push('<span class="info-label min">Min: ' + dataPoint.original.min.toFixed(2) + 'ms (' +  ((rounding) ? rounding : "") + dataPoint.min.toFixed(2) + '%)</span>');
-                    }
+                    //if (dataPoint.original.max != null && dataPoint.max != null) {
+                    //    rounding = (dataPoint.cut.max) ? ((dataPoint.max < dataPoint.cut.pmax)? ">" : "<") : false;
+                    //    description.push('<span class="info-label max">Max: ' + dataPoint.original.max.toFixed(2) + 'ms (' +  ((rounding) ? rounding : "") + dataPoint.max.toFixed(2) + '%)</span>');
+                    //}
+                    //if (dataPoint.original.avg != null && dataPoint.avg != null) {
+                    //    rounding = (dataPoint.cut.avg) ? ((dataPoint.avg < dataPoint.cut.pavg)? ">" : "<") : false;
+                    //    description.push('<span class="info-label avg">Med: ' + dataPoint.original.avg.toFixed(2) + 'ms (' +  ((rounding) ? rounding : "") + dataPoint.avg.toFixed(2) + '%)</span>');
+                    //}
+                    //if (dataPoint.original.min != null && dataPoint.min != null) {
+                    //    rounding = (dataPoint.cut.min) ? ((dataPoint.min < dataPoint.cut.pmin)? ">" : "<") : false;
+                    //    description.push('<span class="info-label min">Min: ' + dataPoint.original.min.toFixed(2) + 'ms (' +  ((rounding) ? rounding : "") + dataPoint.min.toFixed(2) + '%)</span>');
+                    //}
+                    pushDescription("max");
+                    pushDescription("avg");
+                    pushDescription("min");
                 }
                 if (dataPoint.packetLoss != null) {
                     description.push("Packet loss: " + (dataPoint.packetLoss.toFixed(2) * 100) + "%");

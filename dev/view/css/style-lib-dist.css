@@ -5148,6 +5148,19 @@
     opacity: .2;
     filter: Alpha(Opacity=20);
     border-radius: 5px; }
+  .latencymon-container .latencymon-content {
+    margin: auto;
+    padding-top: 4px;
+    min-height: 300px;
+    font-size: 10px;
+    font-family: sans-serif;
+    position: relative;
+    border: 1px solid #C0C0C0;
+    background: #FFFFFF;
+    line-height: normal !important;
+    border-radius: 4px;
+    box-sizing: content-box !important;
+    min-width: 860px !important; }
   .latencymon-container .axis path, .latencymon-container .axis line {
     fill: none;
     stroke: #000;
@@ -5463,6 +5476,49 @@
   .latencymon-container .pagination {
     display: inline !important;
     font-size: 10px !important; }
+  .latencymon-container .loading-image {
+    display: none;
+    position: absolute;
+    padding: 2px;
+    margin-top: 5px;
+    margin-left: 5px;
+    border: 1px solid #C0C0C0 !important;
+    background-color: #FFFFFF;
+    overflow: hidden;
+    border-radius: 20px;
+    z-index: 1000000; }
+  .latencymon-container .error-message {
+    text-align: center;
+    z-index: 1000000000;
+    position: absolute;
+    top: 100px;
+    left: 42%;
+    opacity: 0.7;
+    text-shadow: 1px 1px 3px #C0C0C0;
+    font-size: 26px;
+    width: 200px;
+    height: 40px;
+    display: none;
+    line-height: 28px; }
+  .latencymon-container .info-header {
+    height: 18px;
+    width: 100%;
+    margin-bottom: -8px;
+    background: transparent;
+    font-size: 12px;
+    text-shadow: 1px 1px 3px #C0C0C0;
+    color: #7a7a7a;
+    padding-top: 2px; }
+  .latencymon-container .info-header .left-info {
+    width: 400px;
+    float: left;
+    margin-left: 25px;
+    text-align: left; }
+  .latencymon-container .info-header .right-info {
+    width: 240px;
+    float: right;
+    margin-right: 25px;
+    text-align: right; }
   .latencymon-container .pagination li {
     display: inline !important; }
 
