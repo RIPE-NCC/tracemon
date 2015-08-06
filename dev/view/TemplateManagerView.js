@@ -84,28 +84,28 @@ define([
 
             '<div class="control-panel right-bar">' +
 
-            '<div class="button forward" title="' + lang.forwardTitle+ '">' +
+            '<div class="button forward" title="' + lang.forwardTitle + '">' +
             '<img src="' + widgetUrl + 'view/img/dnsmon_forward_icon.png"/>' +
             '</div>' +
 
-            '<div class="button right" title="' + lang.shiftRightTitle+ '">' +
+            '<div class="button right" title="' + lang.shiftRightTitle + '">' +
             '<img src="' + widgetUrl + 'view/img/right_icon.png"/>' +
             '</div>' +
 
-            '<div class="button zoom-in" title="' + lang.zoomInTitle+ '">' +
+            '<div class="button zoom-in" title="' + lang.zoomInTitle + '">' +
             '<img src="' + widgetUrl + 'view/img/zoomin_icon.png"/>' +
             '</div>' +
 
-            '<div class="button zoom-out" title="' + lang.zoomOutTitle+ '">' +
+            '<div class="button zoom-out" title="' + lang.zoomOutTitle + '">' +
             '<img src="' + widgetUrl + 'view/img/zoomout_icon.png"/>' +
             '</div>' +
 
-                //'<div class="button allrows">' +
-                //'<img src="' + widgetUrl + 'view/img/allrows_icon.png"/>' +
-                //'</div>' +
-
             '<div class="button left" title="' + lang.shiftLeftTitle+ '">' +
             '<img src="' + widgetUrl + 'view/img/left_icon.png"/>' +
+            '</div>' +
+
+            '<div class="button chart-mode" title="' + lang.chartModeTitle.relative + '">' +
+            '<img src="' + widgetUrl + 'view/img/chart_mode.png"/>' +
             '</div>' +
 
                 //'<div class="button timepicker">' +

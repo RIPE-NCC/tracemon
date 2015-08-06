@@ -20,6 +20,10 @@ define([], function(){
         selectGroupHeaderText: "Select the probes you want to add to the group. NOTE: you can use only probes not participating in other charts",
         streamingInfo: "Samples coming from the probes in real time",
         leftHeaderDefaultInfo: "Use the icons on the top left to add a measurement",
+        chartModeTitle: {
+            absolute: "Absolute values",
+            relative: "Relative values"
+        },
 
         leftHeader: {
             noMeasurement: "Add a measurement to start",

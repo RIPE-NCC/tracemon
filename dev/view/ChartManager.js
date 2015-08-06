@@ -623,6 +623,20 @@ define([
 
                     });
 
+                env.parentDom
+                    .find(".chart-mode")
+                    .on("click", function(){
+                        var element = $(this);
+
+                        if (element.is(".relative")){
+                            element.removeClass("relative").addClass("natural").attr("title", lang.chartModeTitle.absolute);
+                            env.main.setDataFilter("natural");
+                        } else {
+                            element.removeClass("natural").addClass("relative").attr("title", lang.chartModeTitle.relative);
+                            env.main.setDataFilter("relative");
+                        }
+                    });
+
                 env.parentDom.find(".open-add-line-panel")
                     .on("click", function(){
                         env.template.openAddLineMenu();
