@@ -13,6 +13,11 @@
     min-width: 860px!important;
 }
 
+.chart-item{
+    /*background-repeat: ;*/
+    background: url('../img/latencymon_watermark.png') no-repeat 60px 10px;
+}
+
 .axis path, .axis line {
     fill: none;
     stroke: #000;
@@ -117,7 +122,6 @@
     margin-top: 10px;
     border: 1px solid #C0C0C0;
     border-radius: 5px;
-    background: #FFFFFF;
     box-shadow: 1px 1px 1px 2px rgba(179, 179, 179, 0.37);
 }
 
@@ -128,7 +132,6 @@
     margin-top: 10px;
     border: 1px solid #C0C0C0;
     border-radius: 5px;
-    background: #FFFFFF;
     box-shadow: 1px 1px 1px 2px rgba(179, 179, 179, 0.37);
 }
 

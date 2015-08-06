@@ -969,6 +969,7 @@ define([
                     }
                 });
 
+            //env.parentDom.find(".chart-item").css("background", "url(" + widgetUrl + "view/img/latencymon_watermark.png)");
             svg = svgElement
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
