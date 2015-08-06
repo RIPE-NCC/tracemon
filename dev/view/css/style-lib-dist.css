@@ -5161,6 +5161,9 @@
     border-radius: 4px;
     box-sizing: content-box !important;
     min-width: 860px !important; }
+  .latencymon-container .chart-item {
+    /*background-repeat: ;*/
+    background: url("../img/latencymon_watermark.png") no-repeat 60px 10px; }
   .latencymon-container .axis path, .latencymon-container .axis line {
     fill: none;
     stroke: #000;
@@ -5219,7 +5222,6 @@
     margin-top: 10px;
     border: 1px solid #C0C0C0;
     border-radius: 5px;
-    background: #FFFFFF;
     box-shadow: 1px 1px 1px 2px rgba(179, 179, 179, 0.37); }
   .latencymon-container .probe-multi-chart {
     width: 98%;
@@ -5228,7 +5230,6 @@
     margin-top: 10px;
     border: 1px solid #C0C0C0;
     border-radius: 5px;
-    background: #FFFFFF;
     box-shadow: 1px 1px 1px 2px rgba(179, 179, 179, 0.37); }
   .latencymon-container .probe-single-info {
     font-size: 10px;
@@ -5338,7 +5339,7 @@
   .latencymon-container .dropdown-panel {
     width: 950px;
     position: absolute;
-    top: 25px;
+    top: 29px;
     left: 40px;
     background: #fdfdfd;
     z-index: 3000000000 !important;
