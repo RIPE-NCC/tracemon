@@ -477,9 +477,10 @@ define([
                 .find(".header-dropdown-panel")
                 .html(((isGroup) ? lang.selectGroupHeaderText : lang.selectLineHeaderText));
 
-            function isDisplayed(probe){
+            function isDisplayed(measurementId, probe){
                 for (var group in env.main.groups){
-                    if (env.main.groups[group].contains(probe)){
+
+                    if (env.main.groups[group].measurementId == measurementId && env.main.groups[group].contains(probe)){
                         return true;
                     }
                 }
@@ -492,7 +493,7 @@ define([
                 for (var probeId in env.main.availableProbes[measurementId]){
 
                     probe = env.main.availableProbes[measurementId][probeId];
-                    drawn = isDisplayed(probe);
+                    drawn = isDisplayed(measurementId, probe);
 
                     if (!isGroup || !drawn){
                         data.push({
