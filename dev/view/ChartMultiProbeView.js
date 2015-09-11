@@ -1162,13 +1162,13 @@ define([
                     top: (chartHeight - popUpDiv.outerHeight()) / 2
                 }).show();
 
-                function pushDescription(key){
+                function pushDescription(key, label){
                     if (dataPoint.original[key] != null && dataPoint[key] != null) {
                         rounding = (dataPoint.cut[key]) ? ((dataPoint[key] < dataPoint.cut["p" + key])? ">" : "<") : false;
                         if (env.dataFilterName == "natural"){
-                            description.push('<span class="info-label ' + key + '">Max: ' + dataPoint.original[key].toFixed(2) + 'ms</span>');
+                            description.push('<span class="info-label ' + key + '">' + label + ': ' + dataPoint.original[key].toFixed(2) + 'ms</span>');
                         } else {
-                            description.push('<span class="info-label ' + key + '">Max: ' + dataPoint.original[key].toFixed(2) + 'ms (' + ((rounding) ? rounding : "") + dataPoint[key].toFixed(2) + '%)</span>');
+                            description.push('<span class="info-label ' + key + '">' + label + ': ' + dataPoint.original[key].toFixed(2) + 'ms (' + ((rounding) ? rounding : "") + dataPoint[key].toFixed(2) + '%)</span>');
                         }
                     }
                 }
@@ -1176,9 +1176,9 @@ define([
                 description = [];
                 description.push("Date: " + utils.dateToString(dataPoint.date));
                 if (dataPoint.original != null) {
-                    pushDescription("max");
-                    pushDescription("avg");
-                    pushDescription("min");
+                    pushDescription("max", "Max");
+                    pushDescription("avg", "Avg");
+                    pushDescription("min", "Min");
                 }
                 if (dataPoint.packetLoss != null) {
                     description.push("PacketLoss: " + (dataPoint.packetLoss.toFixed(2) * 100) + "%");
