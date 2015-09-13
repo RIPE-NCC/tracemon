@@ -27,6 +27,10 @@ define([], function(){
         absoluteValuesInfo: "The charts now show absolute values",
         relativeValuesInfo: "The charts now show relative values",
 
+        documentation: "Documentation",
+        embedCode: "Embed in your page",
+        about:"About Latencymon",
+
         leftHeader: {
             noMeasurement: "Add a measurement to start",
             noGroups: "Add probes/groups to see something",

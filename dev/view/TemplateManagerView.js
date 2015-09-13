@@ -144,7 +144,17 @@ define([
 
 
         this.timeOverview = $('<div class="time-overview-dom"></div>');
+        this.footer = $('<div class="latencymon-footer"></div>');
 
+
+        this.footer.append('<div class="latencymon-about footer-item"><a href="' + config.aboutUrl + '" title="' + lang.about + '">' + lang.about + '</a></div>');
+        this.footer.append('<div class="latencymon-embed footer-item"><a href="' + config.embedCodeUrl + '" title="' + lang.embedCode + '">' + lang.embedCode + '</a></div>');
+        this.footer.append('<div class="latencymon-documentatio footer-item"><a href="' + config.documentationUrl + '" title="' + lang.documentation + '">' + lang.documentation + '</a></div>');
+
+        if (utils.getUrlParam("info") == "true") {
+            this.footer.append('<div class="latencymon-version footer-item">Version:' + env.version + '</div>');
+            this.footer.append(atob("PGRpdiBjbGFzcz0ibGF0ZW5jeW1vbi1jb3B5cmlnaHQgZm9vdGVyLWl0ZW0iPkF1dGhvcjogPGEgaHJlZj0iaHR0cDovL21hc3NpbW9jYW5kZWxhLmNvbSI+TWFzc2ltbyBDYW5kZWxhPC9hPjwvZGl2Pg=="));
+        }
         this.addLinePanel = $('<div class="add-line-panel dropdown-panel" style="height: 400px;">' +
             '<div class="header-dropdown-panel" style="width: 70%;"></div>' +
             '<div class="content-dropdown-panel"><table class="probe-list"></table></div>' +

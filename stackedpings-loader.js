@@ -130,7 +130,7 @@ define([
          * Init Dependency Injection Vector
          */
         env = {
-            "version": "15.8.6.2",
+            "version": "15.9.14.2",
             "widgetUrl": STACKEDPINGS_WIDGET_URL + "dev/",
             "autoStart": (instanceParams.autoStart != undefined) ? instanceParams.autoStart : true,
             "dataApiResults": instanceParams.dataApiResults || config.dataAPIs.results,

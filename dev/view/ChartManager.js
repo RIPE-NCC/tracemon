@@ -571,7 +571,8 @@ define([
                     .append(env.template.controlPanel)
                     .append(env.template.infoHeader.container)
                     .append(this.dom.chartDiv)
-                    .append(env.template.timeOverview);
+                    .append(env.template.timeOverview)
+                    .append(env.template.footer);
 
 
                 var forwardButton = env.parentDom
