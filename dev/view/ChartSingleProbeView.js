@@ -27,7 +27,7 @@ define([
         dots = {};
 
         this.getChartDom = function () {
-            var probeDom, infoDom, asnRendered, dragIcon, deleteIcon;
+            var probeDom, infoDom, asnRendered, dragIcon, deleteIcon, shortLabel;
 
             asnRendered = false;
             probeDom = $('<div class="chart-item probe-single-chart" id="chart-probe-' + this.group.id + '"></div>');
@@ -35,8 +35,8 @@ define([
                 .height(chartHeight)
                 .width(config.probeDescriptionDomWidth);
 
-            dragIcon = $('<img src="' + env.widgetUrl +'view/img/drag_arrow.png" class="drag-icon"/>');
-            deleteIcon = $('<img src="' + env.widgetUrl +'view/img/delete_chart_icon.png" class="delete-icon"/>');
+            dragIcon = $('<img src="' + env.widgetUrl +'view/img/wbr_drag.png" class="drag-icon"/>');
+            deleteIcon = $('<img src="' + env.widgetUrl +'view/img/wbr_bin.png" class="delete-icon"/>');
 
             infoDom.append('<div class="probe-info-line first-line">Probe ' +  probe.id + ' (' + probe.country_code + ')</div>');
             //infoDom.append('<div class="probe-info-line">Country: ' +  probe.country_code + '</div>');
@@ -46,7 +46,9 @@ define([
             }
 
             if (probe.address_v6){
-                infoDom.append('<div class="probe-info-line">IP v6: ' +  probe.address_v6 + '</div>');
+                shortLabel = probe.address_v6.substring(0, 30);
+                shortLabel = (shortLabel == probe.address_v6) ? shortLabel : shortLabel + "...";
+                infoDom.append('<div class="probe-info-line" title="' +  probe.address_v6 + '">IP v6: ' +  shortLabel + '</div>');
             }
 
             if (probe.asn_v4 == probe.asn_v6 || (!probe.asn_v6 && probe.asn_v4) || (probe.asn_v6 && !probe.asn_v4)){
@@ -59,7 +61,8 @@ define([
             }
 
             if (probe.prefix_v6){
-                infoDom.append('<div class="probe-info-line">Prefix v6: ' +  probe.prefix_v6 + ((!asnRendered) ? ' on AS' + probe.asn_v6 : '') + '</div>');
+                shortLabel = probe.prefix_v6.substring(0, 25);
+                infoDom.append('<div class="probe-info-line" title="' + probe.prefix_v6 + '">Prefix v6: ' +  shortLabel + ((!asnRendered) ? ' on AS' + probe.asn_v6 : '') + '</div>');
             }
             infoDom.append('<div class="probe-info-line">Target: ' + env.measurements[this.group.measurementId].target + '</div>');
 

@@ -445,8 +445,8 @@ define([
                 .height(chartHeight)
                 .width(config.probeDescriptionDomWidth);
 
-            dragIcon = $('<img src="' + env.widgetUrl +'view/img/drag_arrow.png" class="drag-icon"/>');
-            deleteIcon = $('<img src="' + env.widgetUrl +'view/img/delete_chart_icon.png" class="delete-icon"/>');
+            dragIcon = $('<img src="' + env.widgetUrl +'view/img/wbr_drag.png" class="drag-icon"/>');
+            deleteIcon = $('<img src="' + env.widgetUrl +'view/img/wbr_bin.png" class="delete-icon"/>');
 
             infoDom.append('<div class="probe-info-line first-line">' +  group.id + ' (' + group.probes.length + ' probes)' + '</div>');
             infoDom.append('<div class="probe-info-line" title="' + groupDescription + '">Probes: ' +  ((groupDescription.length >= 120) ? groupDescription.substring(0, 120) + "..." : groupDescription) + '</div>');
