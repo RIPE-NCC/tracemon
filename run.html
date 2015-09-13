@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stacked Pings</title>
+    <meta charset="utf-8">
+    <script src="stackedpings-widget-main.js"></script>
+
+</head>
+<body>
+
+<div id="metti-qui" style="width: 90%; margin: auto;">
+</div>
+
+
+<script>
+    var stackedPings = initStackedPings(
+            '#metti-qui',
+            {
+//                dataApiResults:"https://weir-dev.atlas.ripe.net/api/v2/measurements/0000/routequake/results.jsonp",
+//                dataApiResults:"https://local.ripe.net:8000/api/v2/measurements/0000/routequake/results.jsonp",
+                dataApiResults:"https://atlas.ripe.net/api/v2/measurements/0000/routequake/results.jsonp",
+//                dataApiMeta: "https://weir-dev.ripe.net/api/v2/measurements/0000/routequake/meta.jsonp",
+//                dataApiMeta: "https://local.ripe.net:8000/api/v2/measurements/0000/routequake/meta.jsonp",
+                dataApiMeta: "https://atlas.ripe.net/api/v2/measurements/0000/routequake/meta.jsonp",
+                dev: true,
+                autoStart: true
+
+            }, {
+                measurements:[2282522,2282523,2282524,2303615]//1791207
+            });
+
+
+
+</script>
+
+
+</body>
+</html>
