@@ -190,8 +190,9 @@ define([
 
 
         this.updateInfo = function(){
-            var leftHeaderContent, groupsNumber, measurementsNumber;
+            var leftHeaderContent, groupsNumber, measurementsNumber, targets;
 
+            targets = [];
             leftHeaderContent = lang.leftHeader.noMeasurement;
             measurementsNumber = (env.measurements) ? Object.keys(env.measurements).length : 0;
             groupsNumber = (env.main.groups) ? Object.keys(env.main.groups).length : 0;
@@ -212,8 +213,8 @@ define([
             }
 
             if (measurementsNumber > 1 && groupsNumber > 0){
-                for (var msmId in env.measurements){
-                    targets.push(env.measurements[msmId].target);
+                for (var msmId in env.originalMeasurements){
+                    targets.push(env.originalMeasurements[msmId].target);
                 }
             }
 
