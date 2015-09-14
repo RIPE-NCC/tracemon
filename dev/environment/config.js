@@ -37,6 +37,7 @@ define([], function(){
         bucketsTollerance: 0.2,
         minimumPixelSelectable: 5,
         syncWithRealTimeData: true,
+        autoStart: true,
         predefinedTimeWindows: {"1h": 60*60, "2d": 60*60*24*2, "2w": 60*60*24*14, "1m": 60*60*24*30},
         defaiultTimeWindow: "1h",
         minimumPeriod: 60*60,
@@ -55,9 +56,9 @@ define([], function(){
         messageOverlayDurationSeconds: 3,
         slowServerIntervalMilliseconds: 4000,
 
-        aboutUrl: "about",
-        embedCodeUrl: "embed",
-        documentationUrl: "doc",
+        aboutUrl: "https://labs.ripe.net/Members/massimo_candela/latencymon-integrated-in-ripe-atlas",
+        embedCodeUrl: "https://weir-dev.atlas.ripe.net/docs/tools-latencymon/#embed",
+        documentationUrl: "https://weir-dev.atlas.ripe.net/docs/tools-latencymon/",
 
         domClasses:{
             chartDomClass: 'chart',

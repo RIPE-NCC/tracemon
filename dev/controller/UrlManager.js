@@ -55,7 +55,7 @@ define([
             configuration.startTimestamp = parametersUrl.start;
             configuration.stopTimestamp = parametersUrl.stop;
             if (!configuration.startTimestamp || !configuration.stopTimestamp) {
-                env.main.error("Not valid configuration: start and stop time are missing", "error");
+                throw "Not valid configuration: start and stop time are missing"; // Normal error, not communicated to user
             }
             configuration.timeWindow = null; // It can be 1h, 1w bla bla, just to remember this option
             configuration.measurements = parametersUrl.measurements.split(",");

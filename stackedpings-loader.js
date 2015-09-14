@@ -132,10 +132,12 @@ define([
         env = {
             "version": "15.9.14.2",
             "widgetUrl": STACKEDPINGS_WIDGET_URL + "dev/",
-            "autoStart": (instanceParams.autoStart != undefined) ? instanceParams.autoStart : true,
+            "autoStart": (instanceParams.autoStart != undefined) ? instanceParams.autoStart : config.autoStart,
             "dataApiResults": instanceParams.dataApiResults || config.dataAPIs.results,
             "dataApiMeta": instanceParams.dataApiMeta || config.dataAPIs.meta,
             "streamingUrl": instanceParams.streamingHost || config.streamingUrl,
+            "syncWithRealTimeData": (instanceParams.syncWithRealTimeData != undefined) ? instanceParams.syncWithRealTimeData : config.syncWithRealTimeData,
+            "autoStartGrouping": (instanceParams.autoStartGrouping != undefined) ? instanceParams.autoStartGrouping : config.autoStartGrouping,
             "parentDom": $(parentDom),
             "queryParams": queryParams
         };

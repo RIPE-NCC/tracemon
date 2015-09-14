@@ -49,7 +49,7 @@ define([
 
 
         this._getUpdatableValue = function(){
-            if (env.updateIfPossible && env.isUpdatable) {
+            if (env.isUpdatable) {
                 for (var measurementId in env.originalMeasurements) {
                     if (env.originalMeasurements[measurementId]["currentResolution"] != config.naturalResolution) {
                         return false;

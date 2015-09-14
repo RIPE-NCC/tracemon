@@ -30,28 +30,32 @@ define([
                 function(blob){
                     var indexedProbes, length, n, results;
 
-                    results = blob.data;
-                    indexedProbes = [];
-                    env.originalMeasurements[measurementId]["currentResolution"] = blob.resolution;
-                    env.originalMeasurements[measurementId]["currentInterval"] = blob.interval;
+                    if (blob){
+                        results = blob.data;
+                        indexedProbes = [];
+                        env.originalMeasurements[measurementId]["currentResolution"] = blob.resolution;
+                        env.originalMeasurements[measurementId]["currentInterval"] = blob.interval;
 
-                    for (n=0, length=probes.length; n<length; n++) {
-                        indexedProbes[probes[n].id] = probes[n];
-                        probes[n].data = [];
-                        //probes[n].filteredData = [];
-                    }
-
-                    if (results.length > 0) {
-
-                        for (n=0,length = results.length; n < length; n++) {
-                            $this.addNewDataItem(indexedProbes[results[n].prb_id], results[n]);
+                        for (n=0, length=probes.length; n<length; n++) {
+                            indexedProbes[probes[n].id] = probes[n];
+                            probes[n].data = [];
+                            //probes[n].filteredData = [];
                         }
 
-                        env.lastHistoricSample = Math.max(results[results.length - 1].timestamp, (env.lastHistoricSample || 0));
-                    }
+                        if (results.length > 0) {
 
-                    if (callback){
-                        callback.call(context, probes);
+                            for (n=0,length = results.length; n < length; n++) {
+                                $this.addNewDataItem(indexedProbes[results[n].prb_id], results[n]);
+                            }
+
+                            env.lastHistoricSample = Math.max(results[results.length - 1].timestamp, (env.lastHistoricSample || 0));
+                        }
+
+                        if (callback){
+                            callback.call(context, probes);
+                        }
+                    } else {
+                        env.main.error("The server is not responding");
                     }
 
                 }, this);
@@ -234,7 +238,7 @@ define([
             // At maximum "numberOfSamples" of data points in the queue
             probe.data = probe.data.slice(-env.maxSamplesPerRow);
             probe.data.sort(function(a, b){
-               return a.date - b.date;
+                return a.date - b.date;
             });
 
             //} else{

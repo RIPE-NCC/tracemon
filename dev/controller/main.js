@@ -68,12 +68,15 @@ define([
         env.measurements = {};
         env.originalMeasurements = {};
         env.maxSamplesPerRow = Math.min(config.maxNumberOfSamplesPerRow, Math.floor(env.parentDom.innerWidth() / config.aSampleEveryPixels));
-        env.updateIfPossible = config.syncWithRealTimeData;
 
         console.log("Use 'main.addMeasurement(id)' to load a measurement");
 
         this._isUpdatable = function(){
             var out;
+            if (!env.syncWithRealTimeDate){
+                env.template.streamingLed.off();
+                return false;
+            }
             if (!env.endDate){
                 out = false;
             } else {
@@ -576,7 +579,7 @@ define([
                             }
                         }
 
-                        if (!conf.mergedMeasurements && !conf.groups && config.autoStartGrouping){
+                        if (!conf.mergedMeasurements && !conf.groups && env.autoStartGrouping){
                             $this.autoGroupMeasurements();
                         }
                     });
