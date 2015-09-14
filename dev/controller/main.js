@@ -73,7 +73,7 @@ define([
 
         this._isUpdatable = function(){
             var out;
-            if (!env.syncWithRealTimeDate){
+            if (!env.syncWithRealTimeData){
                 env.template.streamingLed.off();
                 return false;
             }
