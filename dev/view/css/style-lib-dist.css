@@ -5236,7 +5236,8 @@
     position: absolute;
     border-left: 1px dashed #C0C0C0;
     right: 0;
-    top: 8px; }
+    top: 8px;
+    text-shadow: 1px 1px 3px #C0C0C0; }
   .latencymon-container .probe-single-info .probe-info-line {
     width: 98%;
     margin-left: 3px;
@@ -5246,7 +5247,8 @@
     position: absolute;
     border-left: 1px dashed #C0C0C0;
     right: 0;
-    top: 8px; }
+    top: 8px;
+    text-shadow: 1px 1px 3px #C0C0C0; }
   .latencymon-container .probe-multi-info .probe-info-line {
     width: 98%;
     margin-left: 3px;
@@ -5516,10 +5518,21 @@
     margin-left: 25px;
     text-align: left; }
   .latencymon-container .info-header .right-info {
-    width: 240px;
+    width: 260px;
     float: right;
     margin-right: 25px;
     text-align: right; }
+  .latencymon-container .latencymon-footer {
+    width: 100%;
+    height: 16px;
+    text-align: right;
+    padding-left: 5px;
+    padding-right: 5px;
+    font-size: 13px; }
+  .latencymon-container .footer-item {
+    float: right;
+    margin-left: 8px;
+    margin-right: 8px; }
   .latencymon-container .pagination li {
     display: inline !important; }
 

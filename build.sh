@@ -3,7 +3,7 @@
 # Set your directories here:
 css_location='dev/view/css/'
 css_dist_location='dev/view/css/'
-deployment_dir='/Volumes/PersonalDisk/work/git-workspace/atlas-ui/measurements/static/measurements/widgets/latencymon/'
+deployment_dir='/Volumes/PersonalDisk/work/weir-dev-atlas/'
 
 if [ "$1" == "-css" ]; then
 rm ${css_dist_location}style-lib-dist.min.css
