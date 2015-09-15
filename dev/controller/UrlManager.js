@@ -72,8 +72,8 @@ define([
 
             if (parametersUrl.groups) {
                 groups = [];
-                groupsNames = parametersUrl.groups.split(",");
-                groupsType = parametersUrl["groups-type"].split(",");
+                groupsNames = parametersUrl.groups.replace(/%2C/g, ",").split(",");
+                groupsType = parametersUrl["groups-type"].replace(/%2C/g, ",").split(",");
                 groupsComponent = parametersUrl["groups-component"].split("L");
 
                 for (var n = 0, length = groupsNames.length; n < length; n++) {
@@ -81,7 +81,7 @@ define([
 
                     components = groupsComponent[n].split("M");
                     measurementId = components[0];
-                    probes = components[1].split(",");
+                    probes = components[1].replace(/%2C/g, ",").split(",");
                     groups.push({
                         id: groupsNames[n],
                         type: groupsType[n],

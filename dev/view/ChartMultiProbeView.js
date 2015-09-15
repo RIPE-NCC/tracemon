@@ -534,8 +534,17 @@ define([
         };
 
 
-        this.updateDots = function (data, key) {
-            var dots, enteringDots;
+        this.updateDots = function (originalData, key) {
+            var dots, enteringDots, data, item;
+
+            data = [];
+
+            for (var n=0,length=originalData.length; n<length; n++){
+                item = originalData[n];
+                if (item != null && item[key] != null && item["packetLoss"] < 1){
+                    data.push(item);
+                }
+            }
 
             dots = svg
                 .selectAll(".dot." + key)
@@ -550,9 +559,6 @@ define([
             enteringDots = dots
                 .enter()
                 .append("circle")
-                .filter(function(dataPoint){
-                    return dataPoint[key] !== null;
-                })
                 .attr("cx", lineSkeletons[key].x())
                 .attr("cy", lineSkeletons[key].y())
                 .attr("r", 3);
@@ -896,7 +902,6 @@ define([
             //computedYRange = (yRange) ? $.map(yRange, function(n){return (height/(yRange.length - 1)) * n}) : [height, 0];
             computedYRange = (yRange) ? yRange : [height, 0];
 
-            console.log(yRange);
             x = d3.time.scale()
                 .domain(xDomain)
                 .rangeRound([0, width]);
@@ -1092,7 +1097,18 @@ define([
         };
 
 
-        this.drawDots = function (data, key, line) {
+        this.drawDots = function (originalData, key, line) {
+
+            var data, item;
+
+            data = [];
+
+            for (var n=0,length=originalData.length; n<length; n++){
+                item = originalData[n];
+                if (item != null && item[key] != null && item["packetLoss"] < 1){
+                    data.push(item);
+                }
+            }
 
             return svg
                 .selectAll(".dot." + key)
@@ -1101,9 +1117,6 @@ define([
                 })
                 .enter()
                 .append("circle")
-                .filter(function(dataPoint){
-                    return dataPoint[key] !== null;
-                })
                 .attr("class", function(dataPoint){
                     if (!dataPoint.cut || !dataPoint.cut[key]){
                         return "dot fill-normal-dot " + key + " p" + $this.group.id;

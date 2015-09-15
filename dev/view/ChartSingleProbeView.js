@@ -226,8 +226,17 @@ define([
 
         };
 
-        this.updateDots = function (data, key) {
-            var allDots;
+        this.updateDots = function (originalData, key) {
+            var allDots, data, item;
+
+            data = [];
+
+            for (var n=0,length=originalData.length; n<length; n++){
+                item = originalData[n];
+                if (item != null && item[key] != null && item["packetLoss"] < 1){
+                    data.push(item);
+                }
+            }
 
             allDots = svg
                 .selectAll(".dot." + key)
@@ -242,9 +251,6 @@ define([
             lastDots = allDots
                 .enter()
                 .append("circle")
-                .filter(function(dataPoint){
-                    return dataPoint[key] !== null;
-                })
                 .attr("r", 15)
                 .transition()
                 .duration(2000)
@@ -687,9 +693,19 @@ define([
         };
 
 
-        this.drawDots = function (data, key, line) {
+        this.drawDots = function (originalData, key, line) {
+            var enterSet, data, item;
 
-            var enterSet = svg
+            data = [];
+
+            for (var n=0,length=originalData.length; n<length; n++){
+                item = originalData[n];
+                if (item != null && item[key] != null && item["packetLoss"] < 1){
+                    data.push(item);
+                }
+            }
+
+            enterSet = svg
                 .selectAll(".dot." + key)
                 .data(data, function(dataPoint){
                     return dataPoint.date;
@@ -699,9 +715,6 @@ define([
 
             enterSet
                 .append("circle")
-                .filter(function(dataPoint){
-                    return dataPoint[key] !== null;
-                })
                 .attr("class", function(dataPoint){
                     if (!dataPoint.cut[key]){
                         return "dot fill-normal-dot " + key + " p" + dataPoint.probe;

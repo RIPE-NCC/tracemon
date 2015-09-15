@@ -3,7 +3,7 @@
     findNestedDependencies: true,
     preserveLicenseComments: false,
 
-    name: 'stackedpings-loader',
+    name: 'latencymon-loader',
 
     paths:{
         /* environment */
@@ -72,7 +72,7 @@
 
 
         /* session */
-        //"session.facade": STACKEDPINGS_SESSION_URL + "SessionManager"
+        //"session.facade": LATENCYMON_SESSION_URL + "SessionManager"
     },
     shim:{
 
@@ -95,7 +95,7 @@
     wrapShim: true,
     generateSourceMaps: true,
 
-    out: "stackedpings-dist.js"
+    out: "latencymon-dist.js"
 
 
 })

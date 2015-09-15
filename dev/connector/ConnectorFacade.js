@@ -30,7 +30,7 @@ define([
                 function(blob){
                     var indexedProbes, length, n, results;
 
-                    if (blob){
+                    if (blob && blob.data){
                         results = blob.data;
                         indexedProbes = [];
                         env.originalMeasurements[measurementId]["currentResolution"] = blob.resolution;
@@ -55,7 +55,7 @@ define([
                             callback.call(context, probes);
                         }
                     } else {
-                        env.main.error("The server is not responding");
+                        env.main.error("The server responded with an empty data set for the probes " + probes.join(", ") + ". Try again later.");
                     }
 
                 }, this);
@@ -226,7 +226,6 @@ define([
             for (var n=probe.data.length - 1; n>=0; n--){
                 item = probe.data[n];
                 if (item.date == sample.date) {
-                    console.log("sample skipped");
                     return;
                 }
 

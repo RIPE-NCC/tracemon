@@ -57,8 +57,8 @@ define([], function(){
         slowServerIntervalMilliseconds: 4000,
 
         aboutUrl: "https://labs.ripe.net/Members/massimo_candela/latencymon-integrated-in-ripe-atlas",
-        embedCodeUrl: "https://weir-dev.atlas.ripe.net/docs/tools-latencymon/#embed",
-        documentationUrl: "https://weir-dev.atlas.ripe.net/docs/tools-latencymon/",
+        embedCodeUrl: "https://atlas.ripe.net/docs/tools-latencymon/#embed",
+        documentationUrl: "https://atlas.ripe.net/docs/tools-latencymon/",
 
         domClasses:{
             chartDomClass: 'chart',
