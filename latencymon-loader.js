@@ -148,6 +148,13 @@ define([
          * Initialize Point of Access to Packages
          */
 
+        /*
+         * Check if parent dom exists
+         */
+        if (!env.parentDom || env.parentDom.length == 0){
+            throw "It was not possible to find the DOM element to populate";
+        }
+
 
         /*
          * Check if stylesheets are loaded

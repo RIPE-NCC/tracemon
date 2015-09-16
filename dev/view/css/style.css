@@ -521,11 +521,12 @@
 }
 
 .info-header .left-info{
-    width: 400px;
+    width: 500px;
     float: left;
     margin-left: 25px;
     text-align: left;
-
+    height: 15px;
+    overflow: hidden;
 }
 
 .info-header .right-info{

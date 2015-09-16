@@ -5513,10 +5513,12 @@
     color: #7a7a7a;
     padding-top: 2px; }
   .latencymon-container .info-header .left-info {
-    width: 400px;
+    width: 500px;
     float: left;
     margin-left: 25px;
-    text-align: left; }
+    text-align: left;
+    height: 15px;
+    overflow: hidden; }
   .latencymon-container .info-header .right-info {
     width: 260px;
     float: right;
