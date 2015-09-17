@@ -16,6 +16,7 @@ requirejs.config({
 
         /* libs */
         "latencymon.lib.d3": LATENCYMON_LIB_URL + "d3/js/d3.v3.new",
+
         "latencymon.lib.jquery": LATENCYMON_LIB_URL + "jquery/jquery-1.11.1.min",
         "latencymon.lib.jquery-ui": LATENCYMON_LIB_URL + "jquery/jquery-ui.min",
         "latencymon.lib.tree-map": LATENCYMON_LIB_URL + "TreeMap",
@@ -25,6 +26,10 @@ requirejs.config({
         "latencymon.lib.bootstrap-table": LATENCYMON_LIB_URL + "bootstrap-table/bootstrap-table.min",
         "latencymon.lib.jquery-amd": LATENCYMON_LIB_URL + "jquery-libs-amd",
         "latencymon.lib.jquery-libs": LATENCYMON_LIB_URL + "jquery-libs",
+
+
+        "latencymon.lib.d3-amd": LATENCYMON_LIB_URL + "d3-libs-amd",
+        "latencymon.lib.d3-libs": LATENCYMON_LIB_URL + "d3-libs",
 
 
         "latencymon.lib.d3-magnetic-cursor": LATENCYMON_LIB_URL + "d3-magnetic-cursor",
@@ -106,8 +111,7 @@ define([
     "latencymon.env.config",
     "latencymon.env.languages.en",
     "latencymon.lib.jquery-amd",
-    "latencymon.controller.main",
-    "latencymon.lib.d3"
+    "latencymon.controller.main"
 ], function(utils, config, language, $, main){
 
     var Latencymon = function(instance){

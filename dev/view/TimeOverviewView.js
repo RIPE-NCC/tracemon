@@ -7,7 +7,8 @@
  */
 
 define([
-    "latencymon.lib.d3" // Load d3 - put your path here
+    //"latencymon.lib.d3" // Load d3 - put your path here
+    "latencymon.lib.d3-amd" // Load d3 - put your path here
 ], function(d3){
 
     /**

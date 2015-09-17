@@ -1,5 +1,6 @@
 define([
-    "latencymon.lib.d3",
+    //"latencymon.lib.d3",
+    "latencymon.lib.d3-amd",
     "latencymon.env.config",
     "latencymon.env.utils",
     "latencymon.lib.jquery-amd"
