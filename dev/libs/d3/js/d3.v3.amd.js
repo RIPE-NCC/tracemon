@@ -9499,6 +9499,5 @@ define([], function () {
         return request.responseXML;
     });
 
-    console.log(d3);
     return d3;
 });
