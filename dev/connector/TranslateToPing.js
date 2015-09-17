@@ -129,7 +129,7 @@ define([
             };
 
             if (pingSample["rcvd"] > 0) {
-                pingSample["min"] = (sample["result"]["rt"] != undefined) ? sample["result"]["rt"] : null;
+                pingSample["min"] = (sample["result"] && sample["result"]["rt"] != undefined) ? sample["result"]["rt"] : null;
             }
 
             return pingSample;
