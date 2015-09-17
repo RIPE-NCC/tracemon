@@ -11,8 +11,8 @@
     include: ["latencymon.lib.d3", "latencymon.lib.d3-magnetic-cursor"],
 
     paths:{
-        "latencymon.lib.d3": "dev/libs/d3/d3.v3.new",
-        "latencymon.lib.d3-magnetic-cursor": "dev/libs/d3-magnetic-cursor",
+        "latencymon.lib.d3": "dev/libs/d3/js/d3.v3.new",
+        "latencymon.lib.d3-magnetic-cursor": "dev/libs/d3-magnetic-cursor"
     },
 
     optimize: "uglify2",
