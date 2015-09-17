@@ -807,7 +807,7 @@ define([
                 }).show();
 
                 description = [];
-                description.push("Date: " + utils.dateToString(dataPoint.date));
+                description.push("Date: " + utils.dateToString(utils.UTCDateToLocalDate(dataPoint.date)));
 
                 function pushDescription(key, label){
                     if (dataPoint.original[key] != null && dataPoint[key] != null) {

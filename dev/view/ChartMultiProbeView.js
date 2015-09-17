@@ -1187,7 +1187,7 @@ define([
                 }
 
                 description = [];
-                description.push("Date: " + utils.dateToString(dataPoint.date));
+                description.push("Date: " + utils.dateToString(utils.UTCDateToLocalDate(dataPoint.date)));
                 if (dataPoint.original != null) {
                     pushDescription("max", "Max");
                     pushDescription("avg", "Avg");
