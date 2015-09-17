@@ -5,9 +5,9 @@
  */
 
 define([
-    "env.config",
-    "lib.socket-io",
-    "connector.translate-to-ping"
+    "latencymon.env.config",
+    "latencymon.lib.socket-io",
+    "latencymon.connector.translate-to-ping"
 ], function(config, io, translateToPing) {
 
 

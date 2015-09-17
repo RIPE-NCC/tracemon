@@ -4,6 +4,6 @@
  * Time: 16:30
  */
 
-define(["lib.jquery-libs"], function () {
+define(["latencymon.lib.jquery-libs"], function () {
     return jQuery.noConflict(true);
 });

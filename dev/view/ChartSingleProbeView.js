@@ -1,8 +1,8 @@
 define([
-    "lib.d3",
-    "env.config",
-    "env.utils",
-    "lib.jquery-amd"
+    "latencymon.lib.d3",
+    "latencymon.env.config",
+    "latencymon.env.utils",
+    "latencymon.lib.jquery-amd"
 ], function(d3, config, utils, $) {
 
     var ChartSingleProbeView = function (env, group) {

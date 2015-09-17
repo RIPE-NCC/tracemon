@@ -1,5 +1,5 @@
 define([
-    "lib.jquery-amd"
+    "latencymon.lib.jquery-amd"
 ], function($) {
 
     var Group = function (measurementID, id) {

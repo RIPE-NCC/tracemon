@@ -8,13 +8,13 @@
         end: "});"
     },
 
-    include: ["lib.jquery", "lib.jquery-ui", "lib.bootstrap", "lib.bootstrap-table"],
+    include: ["latencymon.lib.jquery", "latencymon.lib.jquery-ui", "latencymon.lib.bootstrap", "latencymon.lib.bootstrap-table"],
 
     paths:{
-        "lib.jquery": "dev/libs/jquery/jquery-1.11.1.min",
-        "lib.jquery-ui": "dev/libs/jquery/jquery-ui.min",
-        "lib.bootstrap": "dev/libs/bootstrap/js/bootstrap.min",
-        "lib.bootstrap-table": "dev/libs/bootstrap-table/bootstrap-table.min"
+        "latencymon.lib.jquery": "dev/libs/jquery/jquery-1.11.1.min",
+        "latencymon.lib.jquery-ui": "dev/libs/jquery/jquery-ui.min",
+        "latencymon.lib.bootstrap": "dev/libs/bootstrap/js/bootstrap.min",
+        "latencymon.lib.bootstrap-table": "dev/libs/bootstrap-table/bootstrap-table.min"
     },
 
     optimize: "uglify2",

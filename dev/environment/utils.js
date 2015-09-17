@@ -1,5 +1,5 @@
 define([
-    "lib.date-format"
+    "latencymon.lib.date-format"
 ], function(){
     var locale, timeZoneOffset;
 

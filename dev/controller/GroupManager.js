@@ -1,7 +1,7 @@
 
 define([
-    "env.config",
-    "lib.jquery-amd"
+    "latencymon.env.config",
+    "latencymon.lib.jquery-amd"
 ], function(config, $){
 
     var GroupManager = function(env){

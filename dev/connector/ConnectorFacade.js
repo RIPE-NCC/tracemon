@@ -5,10 +5,10 @@
  */
 
 define([
-    "env.config",
-    "env.utils",
-    "connector.history-auto",
-    "connector.live"
+    "latencymon.env.config",
+    "latencymon.env.utils",
+    "latencymon.connector.history-auto",
+    "latencymon.connector.live"
 ], function(config, utils, HistoryConnector, LiveConnector) {
 
 

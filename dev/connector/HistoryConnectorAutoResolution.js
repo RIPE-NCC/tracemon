@@ -5,8 +5,8 @@
  */
 
 define([
-    "env.config",
-    "lib.jquery-amd"
+    "latencymon.env.config",
+    "latencymon.lib.jquery-amd"
 ], function(config, $) {
 
     var HistoryConnectorAutoResolution = function (env) {

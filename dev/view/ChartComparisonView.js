@@ -1,7 +1,7 @@
 define([
-    "lib.d3-magnetic-cursor",
-    "env.config",
-    "env.utils"
+    "latencymon.lib.d3-magnetic-cursor",
+    "latencymon.env.config",
+    "latencymon.env.utils"
 ], function(d3, config, utils) {
 
     var ChartComparisonView = function (env, group) {

@@ -1,8 +1,8 @@
 
 define([
-    "env.config",
-    "env.utils",
-    "lib.jquery-amd"
+    "latencymon.env.config",
+    "latencymon.env.utils",
+    "latencymon.lib.jquery-amd"
 ], function(config, utils, $){
 
 

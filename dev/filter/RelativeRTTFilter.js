@@ -1,6 +1,6 @@
 
 define([
-    "env.utils"
+    "latencymon.env.utils"
 ], function(utils) {
 
     var RelativeRTTFilter = function (env) {

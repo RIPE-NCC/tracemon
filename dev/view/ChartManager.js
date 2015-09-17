@@ -1,13 +1,13 @@
 define([
-    "env.config",
-    "env.utils",
-    "env.languages.en",
-    "lib.jquery-amd",
-    "view.chart.singleProbe",
-    "view.chart.multiProbe",
-    "view.chart.comparison",
-    "filter.relative-rtt",
-    "filter.natural-rtt"
+    "latencymon.env.config",
+    "latencymon.env.utils",
+    "latencymon.env.languages.en",
+    "latencymon.lib.jquery-amd",
+    "latencymon.view.chart.singleProbe",
+    "latencymon.view.chart.multiProbe",
+    "latencymon.view.chart.comparison",
+    "latencymon.filter.relative-rtt",
+    "latencymon.filter.natural-rtt"
 ], function(config, utils, lang, $, ChartSingleProbeView, ChartMultiProbeView, ChartComparisonView, RelativeRTTFilter, NaturalRTTFilter) {
 
 

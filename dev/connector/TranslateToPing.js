@@ -1,6 +1,6 @@
 define([
-    "env.config",
-    "env.utils"
+    "latencymon.env.config",
+    "latencymon.env.utils"
 ], function(config, utils) {
 
     var TranslateToPing = function() {

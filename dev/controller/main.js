@@ -1,15 +1,15 @@
 define([
-    "env.config",
-    "env.utils",
-    "lib.jquery-amd",
-    "model.group",
-    "connector.facade",
-    "view.chartManager",
-    "view.templateManager",
-    "view.timeOverview",
-    "controller.group-manager",
-    "controller.url-manager",
-    "lib.jquery-libs"
+    "latencymon.env.config",
+    "latencymon.env.utils",
+    "latencymon.lib.jquery-amd",
+    "latencymon.model.group",
+    "latencymon.connector.facade",
+    "latencymon.view.chartManager",
+    "latencymon.view.templateManager",
+    "latencymon.view.timeOverview",
+    "latencymon.controller.group-manager",
+    "latencymon.controller.url-manager",
+    "latencymon.lib.jquery-libs"
 ], function(config, utils, $, Group, ConnectorFacade, ChartManager, TemplateManagerView, TimeOverviewView, GroupManager, UrlManager) {
 
     var main = function (env) {

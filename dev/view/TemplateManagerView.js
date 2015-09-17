@@ -3,10 +3,10 @@
  */
 
 define([
-    "env.utils",
-    "env.config",
-    "env.languages.en",
-    "lib.jquery-amd"
+    "latencymon.env.utils",
+    "latencymon.env.config",
+    "latencymon.env.languages.en",
+    "latencymon.lib.jquery-amd"
 ], function(utils, config, lang, $){
 
     /**
