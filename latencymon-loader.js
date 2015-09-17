@@ -15,7 +15,7 @@ requirejs.config({
 
 
         /* libs */
-        "latencymon.lib.d3": LATENCYMON_LIB_URL + "d3/js/d3.v3.new",
+        //"latencymon.lib.d3": LATENCYMON_LIB_URL + "d3/js/d3.v3.amd",
 
         "latencymon.lib.jquery": LATENCYMON_LIB_URL + "jquery/jquery-1.11.1.min",
         "latencymon.lib.jquery-ui": LATENCYMON_LIB_URL + "jquery/jquery-ui.min",
@@ -28,10 +28,7 @@ requirejs.config({
         "latencymon.lib.jquery-libs": LATENCYMON_LIB_URL + "jquery-libs",
 
 
-        "latencymon.lib.d3-amd": LATENCYMON_LIB_URL + "d3-libs-amd",
-        "latencymon.lib.d3-libs": LATENCYMON_LIB_URL + "d3-libs",
-
-
+        "latencymon.lib.d3-amd": LATENCYMON_LIB_URL + "d3/js/d3.v3.amd",
         "latencymon.lib.d3-magnetic-cursor": LATENCYMON_LIB_URL + "d3-magnetic-cursor",
 
 
@@ -80,13 +77,8 @@ requirejs.config({
     },
     shim:{
 
-        //"latencymon.lib.d3": {
-        //    exports: "d3"
-        //},
-
         "latencymon.lib.d3-magnetic-cursor": {
-            deps: ["latencymon.lib.d3"],
-            //exports: "d3"
+            deps: ["latencymon.lib.d3-amd"]
         },
 
 

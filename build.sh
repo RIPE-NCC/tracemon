@@ -18,10 +18,8 @@ minify -o ${css_dist_location}style-lib-dist.min.css ${css_dist_location}style-l
 fi
 
 
-//r.js -o app.build.1.js
-
-r.js -o app.build.22.js
-//r.js -o app.build.2.js
+#r.js -o app.build.1.js
+r.js -o app.build.2.js
 
 cp -fR * ${deployment_dir}
 rm ${deployment_dir}*html

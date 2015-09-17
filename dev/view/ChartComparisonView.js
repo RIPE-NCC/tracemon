@@ -1,6 +1,5 @@
 define([
-    //"latencymon.lib.d3-magnetic-cursor",
-    "latencymon.lib.d3-amd",
+    "latencymon.lib.d3-magnetic-cursor",
     "latencymon.env.config",
     "latencymon.env.utils"
 ], function(d3, config, utils) {

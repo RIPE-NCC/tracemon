@@ -4,6 +4,8 @@
  * Time: 16:30
  */
 
-define(["latencymon.lib.d3-libs"], function () {
+define(["latencymon.lib.d3-libs"], function (d3) {
+    console.log(d3);
+    //delete window.d3;
     return d3;
 });

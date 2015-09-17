@@ -16,7 +16,7 @@
 
 
         /* libs */
-        "latencymon.lib.d3": "dev/libs/d3/js/d3.v3.new",
+        "latencymon.lib.d3-amd": "dev/libs/d3/js/d3.v3.amd",
         "latencymon.lib.jquery": "dev/libs/jquery/jquery-1.11.1.min",
         "latencymon.lib.jquery-ui": "dev/libs/jquery/jquery-ui.min",
         "latencymon.lib.tree-map": "dev/libs/TreeMap",
@@ -26,7 +26,6 @@
         "latencymon.lib.bootstrap-table": "dev/libs/bootstrap-table/bootstrap-table.min",
         "latencymon.lib.jquery-amd": "dev/libs/jquery-libs-amd",
         "latencymon.lib.jquery-libs": "dev/libs/jquery-libs",
-
 
         "latencymon.lib.d3-magnetic-cursor": "dev/libs/d3-magnetic-cursor",
 
@@ -76,17 +75,13 @@
     },
     shim:{
 
-        "latencymon.lib.d3": {
-            exports: "latencymon_d3"
-        },
 
         "latencymon.lib.d3-magnetic-cursor": {
-            deps: ["latencymon.lib.d3"],
-            exports: "latencymon_d3"
+            deps: ["latencymon.lib.d3-amd"],
         },
 
         "latencymon.lib.socket-io": {
-            exports: "latencymon_io"
+            exports: "io"
         }
 
     },
