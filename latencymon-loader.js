@@ -75,13 +75,13 @@ requirejs.config({
     },
     shim:{
 
-        "latencymon.lib.d3": {
-            exports: "d3"
-        },
+        //"latencymon.lib.d3": {
+        //    exports: "d3"
+        //},
 
         "latencymon.lib.d3-magnetic-cursor": {
             deps: ["latencymon.lib.d3"],
-            exports: "d3"
+            //exports: "d3"
         },
 
 
@@ -102,12 +102,12 @@ requirejs.config({
 
 
 define([
-
     "latencymon.env.utils",
     "latencymon.env.config",
     "latencymon.env.languages.en",
     "latencymon.lib.jquery-amd",
-    "latencymon.controller.main"
+    "latencymon.controller.main",
+    "latencymon.lib.d3"
 ], function(utils, config, language, $, main){
 
     var Latencymon = function(instance){

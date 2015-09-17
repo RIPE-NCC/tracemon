@@ -77,16 +77,16 @@
     shim:{
 
         "latencymon.lib.d3": {
-            exports: "d3"
+            exports: "latencymon_d3"
         },
 
         "latencymon.lib.d3-magnetic-cursor": {
             deps: ["latencymon.lib.d3"],
-            exports: "d3"
+            exports: "latencymon_d3"
         },
 
         "latencymon.lib.socket-io": {
-            exports: "io"
+            exports: "latencymon_io"
         }
 
     },

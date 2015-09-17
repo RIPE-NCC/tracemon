@@ -7,6 +7,7 @@
 define([
     "latencymon.lib.d3"
 ], function(d3) {
+    console.log(d3);
     d3.magneticPaths = {
         closestPathPoint: function (pathNode, point) { // Thanks to http://bl.ocks.org/mbostock/8027637
             var pathLength, precision, best, bestLength, bestDistance, distance2;
