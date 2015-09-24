@@ -822,7 +822,7 @@ define([
 
                 if (dataPoint.original) {
                     pushDescription("max", "Max");
-                    pushDescription("avg", "Avg");
+                    pushDescription("avg", "Med");
                     pushDescription("min", "Min");
                 }
                 if (dataPoint.packetLoss != null) {

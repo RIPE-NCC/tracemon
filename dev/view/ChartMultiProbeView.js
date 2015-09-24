@@ -1190,7 +1190,7 @@ define([
                 description.push("Date: " + utils.dateToString(utils.UTCDateToLocalDate(dataPoint.date)));
                 if (dataPoint.original != null) {
                     pushDescription("max", "Max");
-                    pushDescription("avg", "Avg");
+                    pushDescription("avg", "Med");
                     pushDescription("min", "Min");
                 }
                 if (dataPoint.packetLoss != null) {
