@@ -56,7 +56,7 @@ define([], function(){
         messageOverlayDurationSeconds: 3,
         slowServerIntervalMilliseconds: 4000,
 
-        aboutUrl: "https://labs.ripe.net/Members/massimo_candela/latencymon-integrated-in-ripe-atlas",
+        aboutUrl: "https://labs.ripe.net/Members/massimo_candela/new-ripe-atlas-tool-latencymon",
         embedCodeUrl: "https://atlas.ripe.net/docs/tools-latencymon/#embed",
         documentationUrl: "https://atlas.ripe.net/docs/tools-latencymon/",
 
