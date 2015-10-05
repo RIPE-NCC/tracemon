@@ -228,6 +228,10 @@ define([
                     env.main.error("The selected measurement will start in the future. Nothing to show for now", "error");
                 }
 
+                if (env.timeDomain[1] > mostRecentDate) {
+                    env.timeDomain[1] = mostRecentDate;
+                }
+
                 interval = measurement["native_sampling"];
                 selectedTimeWindow = (interval * env.maxSamplesPerRow * 1000);
                 maximumPossibleData = new Date(Math.min(env.timeDomain[1], mostRecentDate));
