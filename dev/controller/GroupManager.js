@@ -6,26 +6,27 @@ define([
 
     var GroupManager = function(env){
 
-        this._onlyOneTarget = function(){
+        this._getTargets = function(){
             var targets = [];
             for (var msmID in env.measurements) {
                 var target = env.measurements[msmID].target;
-                if (targets.indexOf(target) == -1 && targets.length) {
-                    return false;
+                if (targets.indexOf(target) == -1) {
+                    targets.push(target);
                 }
             }
-            return true;
+
+            return targets;
         };
 
 
-        this.groupByCountry = function(minimumProbesPerGroup, maximumProbesPerGroup, minimumGroupNumber, maximumNumberOfGroups){
+        this.groupByCountry = function(targets, minimumProbesPerGroup, maximumProbesPerGroup, minimumGroupNumber, maximumNumberOfGroups){
             var groups, countryCode, probe, cleanGroups;
 
             groups = {};
             cleanGroups = {};
 
 
-            if (this._onlyOneTarget()){ // Grouping is applicable
+            if (targets.length == 1){ // Grouping is applicable
 
                 for (var msmID in env.measurements) {
                     for (var n=0,length=env.measurements[msmID].probes.length; n<length; n++){
@@ -93,11 +94,54 @@ define([
         };
 
 
+        this.groupByTarget = function(targets, maximumNumberOfGroups, maximumProbesPerGroup){
+            var target, probe, measurement, group;
+
+            if (targets.length > 1){ // Grouping is applicable
+
+                for (var msmID in env.measurements) {
+                    measurement = env.measurements[msmID];
+                    target = measurement.target;
+                    group = [];
+
+                    for (var n=0,length=measurement.probes.length; n<length; n++){
+                        probe = measurement.probes[n];
+                        group.push(probe);
+                    }
+
+                    if (maximumNumberOfGroups <= 0){
+                        break;
+                    }
+
+                    env.main.addGroup(
+                        msmID,
+                        $.map(group, function(item){return item.id}).slice(0, maximumProbesPerGroup),
+                        target,
+                        "multi-probes");
+
+                    maximumNumberOfGroups--;
+                }
+
+
+
+            } else {
+                throw "Grouping by target is not possible";
+            }
+        };
+
         this.group = function(){
+            var targets;
+
+            targets = this._getTargets();
             try {
-                this.groupByCountry(config.minimumProbesPerGroup, config.maximumProbesPerGroup, config.minimumGroupNumber, config.maximumNumberOfGroups);
+
+                try {
+                    this.groupByTarget(targets, config.maximumNumberOfGroups, config.maximumProbesPerGroup);
+                } catch(error) {
+                    this.groupByCountry(targets, config.minimumProbesPerGroup, config.maximumProbesPerGroup, config.minimumGroupNumber, config.maximumNumberOfGroups);
+                }
+
             } catch(error) {
-                console.log(error);
                 this.groupByFirstProbes(config.numberOfSpareProbes);
             }
 

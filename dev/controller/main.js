@@ -149,6 +149,10 @@ define([
                     startDate = env.timeDomain[0];
                 }
 
+                if (endDate && env.timeDomain[1] && endDate > env.timeDomain[1]){
+                    endDate = env.timeDomain[1];
+                }
+
                 if ((config.minNumberOfSamplePerRow * env.chartManager.getSmallerResolution() * 1000) > endDate - startDate){
                     env.main.error("Time window too small for this resolution", "error");
                 }
@@ -194,7 +198,7 @@ define([
 
             env.template.showLoadingImage(true);
             return env.connector.getMeasurementInfo(measurementId, function (measurement) {
-                var n, length, probe, targets, interval, selectedTimeWindow;
+                var n, length, probe, targets, interval, selectedTimeWindow, maximumPossibleData, mostRecentDate;
 
                 targets = [];
                 measurement.resolutionMap = this._computeResolutionMapForThisMeasurement(measurement);
@@ -205,6 +209,8 @@ define([
                 console.log("setDataFilter('neutral'|'relative')");
                 console.log("removeMeasurement(measurementId)/mergeMeasurements([measurementIds], mergeSamples)");
                 console.log("setTimeRange(startDate, endDate)");
+
+                mostRecentDate = utils.getUTCDate();
 
                 if (env.timeDomain) {
                     env.timeDomain = [
@@ -218,13 +224,18 @@ define([
                     ];
                 }
 
+                if (env.timeDomain[0] > mostRecentDate){
+                    env.main.error("The selected measurement will start in the future. Nothing to show for now", "error");
+                }
+
                 interval = measurement["native_sampling"];
                 selectedTimeWindow = (interval * env.maxSamplesPerRow * 1000);
+                maximumPossibleData = new Date(Math.min(env.timeDomain[1], mostRecentDate));
 
                 // If not defined, set the default selected time window
                 if (!env.timeWindowSize){
-                    env.startDate = new Date(Math.max(env.timeDomain[1].getTime() - selectedTimeWindow, env.timeDomain[0].getTime()));
-                    env.endDate = env.timeDomain[1];
+                    env.startDate = new Date(Math.max(maximumPossibleData.getTime() - selectedTimeWindow, env.timeDomain[0].getTime()));
+                    env.endDate = maximumPossibleData;
                     env.timeWindowSize = env.endDate - env.startDate;
                     env.isUpdatable = this._isUpdatable();
                 }
@@ -553,6 +564,8 @@ define([
                 }
             } else if (conf.timeWindow){
                 $this.setStringTimeRange(conf.timeWindow);
+            } else { // No string time window, not time defined, use a reasonable time range
+
             }
 
             if (conf.measurements) {

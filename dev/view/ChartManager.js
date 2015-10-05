@@ -110,22 +110,13 @@ define([
             for (chartKey in $this.charts) { // Apply the data filter to all the probe results
                 atLeastOne = true;
                 break;
-                //
-                //groupView = $this.charts[chartKey];
-                //
-                //for (var n=0,length=groupView.group.probes.length; n<length; n++) {
-                //    probe = groupView.group.probes[n];
-                //    if (!probe.data) {
-                //        probe.data = [];
-                //    }
-                //    probe.data = env.dataFilter.manipulate2(probe.data);
-                //}
             }
 
             if (atLeastOne) {
                 xDomain = $this._getXDomain();
                 env.startDate = xDomain[0];
                 env.endDate = xDomain[1];
+
                 if (env.endDate) {
                     env.timeDomain = [env.timeDomain[0], new Date(Math.max(env.timeDomain[1], env.endDate))];
                 }

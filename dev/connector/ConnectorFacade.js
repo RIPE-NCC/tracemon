@@ -137,13 +137,10 @@ define([
                                     $this, socketOptions);
                             }
                         }
-
                     }
                 }
-
                 group.subscribed = true;
             }
-
         };
 
 
@@ -180,6 +177,7 @@ define([
 
         };
 
+        
         this.getMeasurementInfo = function (probe, callback, context) {
 
             return historyConnector.getMeasurementInfo(probe, function(data){
@@ -189,11 +187,6 @@ define([
 
 
         this._convertDataFormatExternalToInternal = function (data) {
-            //var plc = (Math.random() < 0.4);
-            //var min = (data.min) ? data.min : null;
-            //var avg = (!plc) ? data.avg : null;
-            //var max = (!plc) ? data.max : null;
-
             return {
                 min: (data.min != undefined && !isNaN(data.min)) ? data.min : null,
                 avg: (data.avg != undefined && !isNaN(data.avg)) ? data.avg : null,
@@ -205,15 +198,12 @@ define([
                 received: data.rcvd,
                 sent: data.sent,
                 packetLoss: (data.sent - data.rcvd) / data.sent
-                //packetLoss: (plc) ? 1 : 0
             };
         };
 
 
-        window.once = true;
         this.addNewDataItem = function (probe, data) {
             var sample, item;
-            //var plc = true || (Math.random() > 0.8);  // to fake packet loss for test purposes
 
             probe.data = probe.data || [];
             data.rendered = false;
@@ -222,7 +212,6 @@ define([
 
             sample = this._convertDataFormatExternalToInternal(data);
 
-            // use atlas_backlog_sent to stop checking
             for (var n=probe.data.length - 1; n>=0; n--){
                 item = probe.data[n];
                 if (item.date == sample.date) {
@@ -231,7 +220,6 @@ define([
 
             }
 
-            //if (plc) {
             probe.data.push(sample);
 
             // At maximum "numberOfSamples" of data points in the queue
@@ -239,10 +227,6 @@ define([
             probe.data.sort(function(a, b){
                 return a.date - b.date;
             });
-
-            //} else{
-            //    console.log("skipped", this._convertDataFormatExternalToInternal(data));
-            //}
         };
     };
 

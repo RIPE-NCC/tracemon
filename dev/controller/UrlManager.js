@@ -98,7 +98,7 @@ define([
 
 
         this.getCurrentUrl = function(){
-            var actualUrl, replaceParameters
+            var actualUrl, replaceParameters;
 
             replaceParameters = this._getParameterList();
             actualUrl = utils.getCurrentUrl();
@@ -111,7 +111,9 @@ define([
 
 
         this.updateUrl = function(){
-            window.history.replaceState({}, 'latencymon_state', $this.getCurrentUrl());
+            if (config.permalinkEnabled) {
+                window.history.replaceState({}, 'latencymon_state', $this.getCurrentUrl());
+            }
         };
 
     };
