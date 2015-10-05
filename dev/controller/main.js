@@ -118,19 +118,19 @@ define([
             }
         };
 
-        this.setStringTimeRange = function(string){
+        this.setStringTimeRange = function(string, suppressError){
             var timeOffset, now;
 
             now = utils.getUTCDate();
             timeOffset = config.predefinedTimeWindows[string];
             if (timeOffset){
-                env.main.setTimeRange(new Date(now.getTime() - (timeOffset * 1000)), now);
+                env.main.setTimeRange(new Date(now.getTime() - (timeOffset * 1000)), now, suppressError);
             } else {
                 env.main.error("Time range not valid", "error");
             }
         };
 
-        this.setTimeRange = function(startDate, endDate){
+        this.setTimeRange = function(startDate, endDate, suppressError){
             var groupTmp, calls, now;
 
             if (!startDate || endDate && startDate >= endDate){
@@ -154,7 +154,11 @@ define([
                 }
 
                 if ((config.minNumberOfSamplePerRow * env.chartManager.getSmallerResolution() * 1000) > endDate - startDate){
-                    env.main.error("Time window too small for this resolution", "error");
+                    if (!suppressError){
+                        env.main.error("Time window too small for this resolution", "error");
+                    } else {
+                        throw "Time window too small for this resolution"
+                    }
                 }
 
                 env.startDate = startDate;
@@ -171,6 +175,7 @@ define([
                     .done(function () {
                         env.chartManager.applyNewTimeRange();
                     });
+
             }
 
         };

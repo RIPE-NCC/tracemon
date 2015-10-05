@@ -569,7 +569,32 @@ define([
                 var forwardButton = env.parentDom
                     .find(".forward")
                     .on("click", function(){
-                        env.main.setStringTimeRange(config.defaiultTimeWindow);
+                        var atLeastAValidResolution = false;
+
+                        try {
+                            env.main.setStringTimeRange(config.defaiultTimeWindow, true);
+                            atLeastAValidResolution = true;
+                        } catch(error){
+                            for (var interval in config.predefinedTimeWindows){
+
+                                try {
+                                    if (interval != config.defaiultTimeWindow) {
+                                        env.main.setStringTimeRange(interval, true);
+                                        atLeastAValidResolution = true;
+                                        break;
+                                    }
+
+                                } catch(error){
+                                    // ignore
+                                }
+                            }
+
+                        }
+
+                        if (!atLeastAValidResolution){
+                            env.main.error("Time window too small for this resolution", "error");
+                        }
+
                     });
 
                 env.template.bindSlidingMenu(forwardButton, env.template.getLastData, 90, 'get-last-data-sliding-panel', function(evt){
