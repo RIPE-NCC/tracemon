@@ -1,9 +1,8 @@
-<!DOCTYPE html>
 <html>
 <head>
     <title>Stacked Pings</title>
     <meta charset="utf-8">
-    <script src="stackedpings-widget-main.js"></script>
+    <script src="latencymon-widget-main.js"></script>
 
 </head>
 <body>
@@ -13,20 +12,13 @@
 
 
 <script>
-    var stackedPings = initStackedPings(
+    var latencymon = initLatencymon(
             '#metti-qui',
             {
-//                dataApiResults:"https://weir-dev.atlas.ripe.net/api/v2/measurements/0000/routequake/results.jsonp",
-//                dataApiResults:"https://local.ripe.net:8000/api/v2/measurements/0000/routequake/results.jsonp",
-                dataApiResults:"https://atlas.ripe.net/api/v2/measurements/0000/routequake/results.jsonp",
-//                dataApiMeta: "https://weir-dev.ripe.net/api/v2/measurements/0000/routequake/meta.jsonp",
-//                dataApiMeta: "https://local.ripe.net:8000/api/v2/measurements/0000/routequake/meta.jsonp",
-                dataApiMeta: "https://atlas.ripe.net/api/v2/measurements/0000/routequake/meta.jsonp",
-                dev: true,
-                autoStart: true
-
+                autoStart: true,
+                autoStartGrouping: true
             }, {
-                measurements:[2282522,2282523,2282524,2303615]//1791207
+                measurements:[1791207]
             });
 
 
