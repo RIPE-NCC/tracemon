@@ -116,18 +116,11 @@ define([
         queryParams = instance.queryParams;
         parentDom = instance.domElement;
 
-
-
-        /*
-         * Convert params
-         */
-
-
         /*
          * Init Dependency Injection Vector
          */
         env = {
-            "version": "15.9.21.2",
+            "version": "15.10.13.2",
             "widgetUrl": LATENCYMON_WIDGET_URL + "dev/",
             "autoStart": (instanceParams.autoStart != undefined) ? instanceParams.autoStart : config.autoStart,
             "dataApiResults": instanceParams.dataApiResults || config.dataAPIs.results,
@@ -138,11 +131,6 @@ define([
             "parentDom": $(parentDom),
             "queryParams": queryParams
         };
-
-
-        /*
-         * Initialize Point of Access to Packages
-         */
 
         /*
          * Check if parent dom exists
@@ -174,6 +162,7 @@ define([
 
 
         var objectToBeEnriched = {};
+
         utils.loadStylesheets(styleDownloads, function(){
             var n, length, methodName;
 
