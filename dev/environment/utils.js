@@ -460,9 +460,6 @@ define([
             return Math.ceil(date.getTime() / 1000 - (timeZoneOffset * 60));
         },
 
-
-
-
         callCallbacks: function (list, parameters) {
             var item;
 
@@ -691,7 +688,30 @@ define([
             } else {
                 return (values[half-1] + values[half]) / 2.0;
             }
+        },
+
+        htmlEncode: function(html){
+            if (html === undefined || html === null){
+                return html;
+            } else {
+                return html
+                    .replace(/&/g, '&amp;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
+            }
+        },
+
+        htmlDecode: function(string){
+            return string
+                .replace(/&quot;/g, '"')
+                .replace(/&#39;/g, "'")
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&amp;/g, '&');
         }
+
 
     }
 });

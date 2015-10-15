@@ -215,9 +215,9 @@ define([
 
                 for (var msmId in env.measurements){
                     leftHeaderContent = lang.leftHeader.show
-                        .replace("%y", env.measurements[msmId].type)
-                        .replace("%m", msmId)
-                        .replace("%t", env.measurements[msmId].target);
+                        .replace("%y", utils.htmlEncode(env.measurements[msmId].type))
+                        .replace("%m", utils.htmlEncode(msmId))
+                        .replace("%t", utils.htmlEncode(env.measurements[msmId].target));
                     break;
                 }
             }

@@ -206,6 +206,7 @@ define([
                 var n, length, probe, targets, interval, selectedTimeWindow, maximumPossibleData, mostRecentDate;
 
                 targets = [];
+                measurement.target = utils.htmlEncode(measurement.target); // Security check
                 measurement.resolutionMap = this._computeResolutionMapForThisMeasurement(measurement);
                 console.log("Measurement ID: " + measurementId + " Target: " + measurement.target);
                 console.log("You can use the following " + measurement.probes.length + " probes: ", $.map(measurement.probes, function(probe){return probe.id}));
