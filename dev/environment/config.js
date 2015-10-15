@@ -55,7 +55,7 @@ define([], function(){
         notShownPacketLossThreshold: 0.1,
         messageOverlayDurationSeconds: 3,
         slowServerIntervalMilliseconds: 4000,
-        permalinkEnabled: false,
+        permalinkEnabled: true,
 
         aboutUrl: "https://labs.ripe.net/Members/massimo_candela/new-ripe-atlas-tool-latencymon",
         embedCodeUrl: "https://atlas.ripe.net/docs/tools-latencymon/#embed",
