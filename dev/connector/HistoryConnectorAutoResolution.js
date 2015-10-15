@@ -34,10 +34,10 @@ define([
                     "show-header": true,
                     "type": "jsonp",
                     "max-samples": env.maxSamplesPerRow,
-                    start: startTimestamp,
-                    stop: stopTimestamp,
-                    compact: true,
-                    prb_id: $.map(probes, function(probe){return probe.id}).join(",")
+                    "start": startTimestamp,
+                    "stop": stopTimestamp,
+                    "compact": true,
+                    "probe_ids": $.map(probes, function(probe){return probe.id}).join(",")
                 },
                 success: function(data){
                     clearTimeout(slowAnswerTimer);
