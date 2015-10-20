@@ -197,7 +197,7 @@ define([
                 probe: data.probe,
                 received: data.rcvd,
                 sent: data.sent,
-                packetLoss: (data.sent - data.rcvd) / data.sent
+                packetLoss: ((data.sent) ? ((data.sent - data.rcvd) / data.sent) : null)
             };
         };
 

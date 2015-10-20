@@ -88,7 +88,6 @@ define([
 
 
             maxBucket = subStartTime;
-            //buckets[startTime] = [];
             bucketKeys = [];
 
             if (startTime != subStartTime){ // Creating start bucket
@@ -126,7 +125,6 @@ define([
             }
 
             halfBucket = (bucketLength / 2);
-            //bucketKeys = Object.keys(buckets).sort();
 
             for (var l=0,lengthl=bucketKeys.length; l<lengthl; l++){ // Compute the average for each bucket
 
@@ -168,31 +166,16 @@ define([
                         //originalMax.push(tmpSample.original["max"]);
                     }
 
-                    packetLoss.push(tmpSample.packetLoss);
+                    if (tmpSample.packetLoss != null){
+                        packetLoss.push(tmpSample.packetLoss);
+                    }
 
                 }
-
-                //if ( buckets[bucket].length == 0) {
-                //
-                //    computedSample = {
-                //        date: computedDate,
-                //        rcvd: 0,
-                //        sent: 0,
-                //        min: null,
-                //        max: null,
-                //        avg: null
-                //    };
-                //
-                //    dataOut.push(computedSample);
-                //
-                //} else {
 
                 computedSample = this._computeAvgSample(minValues, avgValues, maxValues, originalMin, originalAvg, originalMax, computedDate, packetLoss);
                 if (computedSample.min !== null || computedSample.avg !== null || computedSample.max !== null || computedSample.packetLoss == 1) {
                     dataOut.push(computedSample);
                 }
-
-                //}
             }
 
             return {data: dataOut, bucketLength: bucketLength, allSamples: allSamples, lastBucketKey: bucketKeys[bucketKeys.length - 1]};
