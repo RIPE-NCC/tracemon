@@ -5267,6 +5267,11 @@
     right: 22px;
     top: 3px;
     cursor: pointer; }
+  .latencymon-container .explode-icon {
+    position: absolute;
+    right: 40px;
+    top: 3px;
+    cursor: pointer; }
   .latencymon-container .chart-placeholder {
     width: 96%;
     height: 100px;

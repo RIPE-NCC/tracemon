@@ -2,8 +2,9 @@ define([
     "latencymon.lib.d3-amd",
     "latencymon.env.config",
     "latencymon.env.utils",
-    "latencymon.lib.jquery-amd"
-], function(d3, config, utils, $) {
+    "latencymon.lib.jquery-amd",
+    "latencymon.env.languages.en"
+], function(d3, config, utils, $, lang) {
 
     var ChartMultiProbeView = function (env, group) {
         var margin, width, height, x, y, xAxis, yAxis, svg, areas, lines, dots, lineSkeletons, areaSkeletons, $this,
@@ -420,7 +421,7 @@ define([
 
 
         this.getChartDom = function () {
-            var probeDom, infoDom, groupDescription, dragIcon, deleteIcon;
+            var probeDom, infoDom, groupDescription, dragIcon, deleteIcon, explodeIcon;
 
             groupDescription = group.toString();
             probeDom = $('<div class="chart-item probe-multi-chart" id="chart-probe-' + group.id + '"></div>');
@@ -428,17 +429,32 @@ define([
                 .height(chartHeight)
                 .width(config.probeDescriptionDomWidth);
 
-            dragIcon = $('<img src="' + env.widgetUrl +'view/img/wbr_drag.png" class="drag-icon"/>');
-            deleteIcon = $('<img src="' + env.widgetUrl +'view/img/wbr_bin.png" class="delete-icon"/>');
+            dragIcon = $('<img src="' + env.widgetUrl +'view/img/wbr_drag.png" class="drag-icon" title="' + lang.dragIcon + '"/>');
+            deleteIcon = $('<img src="' + env.widgetUrl +'view/img/wbr_bin.png" class="delete-icon" title="' + lang.deleteIcon + '"/>');
+            explodeIcon = $('<img src="' + env.widgetUrl +'view/img/wbr_explode.png" class="explode-icon" title="' + lang.explodeIcon + '"/>');
 
             infoDom.append('<div class="probe-info-line first-line">' +  group.id + ' (' + group.probes.length + ' probes)' + '</div>');
             infoDom.append('<div class="probe-info-line" title="' + groupDescription + '">Probes: ' +  ((groupDescription.length >= 120) ? groupDescription.substring(0, 120) + "..." : groupDescription) + '</div>');
             infoDom.append('<div class="probe-info-line">Target: ' + env.measurements[this.group.measurementId].target + '</div>');
             popUpDiv = $('<div class="probe-hover-popup"></div>');
-            probeDom.append(infoDom).append(dragIcon).append(deleteIcon).append(popUpDiv);
+            probeDom.append(infoDom).append(dragIcon).append(deleteIcon).append(explodeIcon).append(popUpDiv);
 
             deleteIcon.on("click", function(){
                 env.main.removeGroup($this.group.id);
+            });
+
+            explodeIcon.on("click", function(){
+                var probes, msmId;
+
+                probes = $this.group.probes;
+
+                env.main.removeGroup($this.group.id);
+                msmId = $this.group.measurementId;
+                for (var i= 0,lengthi=probes.length; i<lengthi; i++){
+                    env.main.addProbe(msmId, probes[i].id);
+                }
+
+
             });
 
             probeDom.resizable({

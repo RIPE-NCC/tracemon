@@ -2,7 +2,7 @@
  * Some path configurations
  */
 
-LATENCYMON_WIDGET_URL = ((typeof LATENCYMON_EXTERNAL_WIDGET_URL == 'undefined') ? "" : LATENCYMON_EXTERNAL_WIDGET_URL) ;
+LATENCYMON_WIDGET_URL = ((typeof LATENCYMON_EXTERNAL_WIDGET_URL == 'undefined') ? "https://www-static.ripe.net/static/rnd-ui/atlas/static/measurements/widgets/latencymon/" : LATENCYMON_EXTERNAL_WIDGET_URL) ;
 
 LATENCYMON_ENVIRONMENT_URL = LATENCYMON_WIDGET_URL + "dev/environment/";
 

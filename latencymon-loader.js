@@ -120,7 +120,7 @@ define([
          * Init Dependency Injection Vector
          */
         env = {
-            "version": "15.10.20.2",
+            "version": "15.10.29.2",
             "widgetUrl": LATENCYMON_WIDGET_URL + "dev/",
             "autoStart": (instanceParams.autoStart != undefined) ? instanceParams.autoStart : config.autoStart,
             "dataApiResults": instanceParams.dataApiResults || config.dataAPIs.results,

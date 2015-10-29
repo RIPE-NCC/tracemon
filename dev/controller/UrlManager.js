@@ -111,8 +111,16 @@ define([
 
 
         this.updateUrl = function(){
-            if (config.permalinkEnabled) {
-                window.history.replaceState({}, 'latencymon_state', $this.getCurrentUrl());
+            var currentUrl;
+
+            currentUrl = $this.getCurrentUrl();
+
+            try{
+                if (config.permalinkEnabled && window.history && window.history.replaceState && currentUrl) {
+                    window.history.replaceState({}, 'latencymon_state', currentUrl);
+                }
+            }catch(e){
+                // nothing
             }
         };
 

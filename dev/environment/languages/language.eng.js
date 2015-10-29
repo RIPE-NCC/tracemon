@@ -38,6 +38,10 @@ define([], function(){
             multi: "RIPE Atlas measurements to %t"
         },
 
+        deleteIcon: "Delete",
+        explodeIcon: "Explode",
+        dragIcon: "Drag",
+
         rightHeader: "From %s to %e"
     }
 });

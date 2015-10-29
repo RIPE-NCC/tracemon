@@ -185,6 +185,14 @@
     cursor: pointer;
 }
 
+.explode-icon{
+    position: absolute;
+    right: 40px;
+    top: 3px;
+    cursor: pointer;
+}
+
+
 
 .chart-placeholder {
     width: 96%;
