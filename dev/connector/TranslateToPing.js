@@ -48,14 +48,15 @@ define([
                 }
             }
 
-            for (var n=0,length=finalHop["result"].length; n<length; n++){
-                item = finalHop["result"][n];
-                if (!item["x"] && item["rtt"]){
-                    finalHopAttempts.push(item["rtt"]);
+            if (finalHop["result"]) {
+                for (var n = 0, length = finalHop["result"].length; n < length; n++) {
+                    item = finalHop["result"][n];
+                    if (!item["x"] && item["rtt"]) {
+                        finalHopAttempts.push(item["rtt"]);
+                    }
                 }
+                finalHopAttempts.sort();
             }
-            finalHopAttempts.sort();
-
             pingSample = {
                 "type": "traceroute",
                 "prb_id": sample["prb_id"],
@@ -63,7 +64,7 @@ define([
                 "timestamp": sample["timestamp"],
                 "src_addr": sample["src_addr"],
                 "dst_addr": sample["dst_addr"],
-                "sent": finalHop["result"].length,
+                "sent": ((finalHop["result"]) ? finalHop["result"].length : 1),
                 "rcvd": finalHopAttempts.length,
                 "min": null,
                 "avg": null,
