@@ -19,7 +19,7 @@ define([], function(){
         singleChartHeight: 120,
         naturalResolution: "time",
         updateIfYoungerThanMilliseconds: 1000 * 60 * 15,
-        timeOverviewMargins:  {top: 0, right: 26, bottom: 60, left: 2},
+        timeOverviewMargins:  {top: 0, right: 26, bottom: 70, left: 2},
         brusherBucketLevelsMinutes: {
             "day": 43200 * 0.5, //0.5 month
             "week": 43200 * 6, //5 months
