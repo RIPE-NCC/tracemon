@@ -149,7 +149,7 @@ define([
 
         this.footer.append('<div class="latencymon-about footer-item"><a href="' + config.aboutUrl + '" title="' + lang.about + '">' + lang.about + '</a></div>');
         this.footer.append('<div class="latencymon-embed footer-item"><a href="' + config.embedCodeUrl + '" title="' + lang.embedCode + '">' + lang.embedCode + '</a></div>');
-        this.footer.append('<div class="latencymon-documentatio footer-item"><a href="' + config.documentationUrl + '" title="' + lang.documentation + '">' + lang.documentation + '</a></div>');
+        this.footer.append('<div class="latencymon-documentation footer-item"><a href="' + config.documentationUrl + '" title="' + lang.documentation + '">' + lang.documentation + '</a></div>');
 
         if (utils.getUrlParam("info") == "true") {
             this.footer.append('<div class="latencymon-version footer-item">Version:' + env.version + '</div>');

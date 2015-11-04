@@ -29,7 +29,7 @@ define([], function(){
 
         documentation: "Documentation",
         embedCode: "Embed in your page",
-        about:"About Latencymon",
+        about:"About LatencyMON",
 
         leftHeader: {
             noMeasurement: "Add a measurement to start",
