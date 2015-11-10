@@ -25,7 +25,7 @@ define([], function(){
             "week": 43200 * 6, //5 months
             "month": (43200 * 12 * 3) //1 year
         },
-        timeOverviewHeight: 86,
+        timeOverviewHeight: 96,
         hideTimeOverviewWhenLessThanSeconds: 0,
         drawDotsOnComparisonCharts: false,
         hoverPopUpDelay: 1000, // ms
@@ -43,10 +43,10 @@ define([], function(){
         minimumPeriod: 60*60,
         maximumPeriod: 60*60*24*30*2,
         zoomFactor: 10,
-        minimumProbesPerGroup: 2,
-        maximumProbesPerGroup: 6,
+        minimumProbesPerGroup: 2, //2
+        maximumProbesPerGroup: 6, //6
         minimumGroupNumber: 3,
-        maximumNumberOfGroups: 5,
+        maximumNumberOfGroups: 5, // 5
         numberOfSpareProbes: 5,
         autoStartGrouping: true,
         addSamplesWithEmulation: false,

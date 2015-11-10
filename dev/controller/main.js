@@ -563,6 +563,10 @@ define([
         this.applyConfiguration = function(conf){
             var measurementCounter, callsAddMeasurements;
 
+            if (conf.dataFilter){
+                this.setDataFilter(conf.dataFilter);
+            }
+
             if (conf.startTimestamp && conf.stopTimestamp){
                 if (!env.timeDomain){
                     env.startDate = utils.timestampToUTCDate(conf.startTimestamp);
