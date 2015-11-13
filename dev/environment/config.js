@@ -51,11 +51,13 @@ define([], function(){
         autoStartGrouping: true,
         addSamplesWithEmulation: false,
         sendBacklogStreaming: true,
-        antiFloodRedrawCharts: 3000,
+        antiFloodRedrawCharts: 3000, // Time interval for antiFlood
+        skipAntiFloodTime: 500, // A (minimum) time for flood error prevention, but basically this is used when skipAntiFlood = true
         notShownPacketLossThreshold: 0.1,
         messageOverlayDurationSeconds: 3,
         slowServerIntervalMilliseconds: 4000,
         permalinkEnabled: true,
+        maxNumberOfDisplayedProbesOnChartInfo: 16,
 
         aboutUrl: "https://labs.ripe.net/Members/massimo_candela/new-ripe-atlas-tool-latencymon",
         embedCodeUrl: "https://atlas.ripe.net/docs/tools-latencymon/#embed",

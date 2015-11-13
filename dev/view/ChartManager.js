@@ -90,17 +90,15 @@ define([
 
 
         this.renderOrUpdateAll = function(skipAntiFlood){
-            if (skipAntiFlood) {
+            var antiFloodTime;
 
-                this._renderOrUpdateAll();
+            antiFloodTime = (skipAntiFlood == true) ? config.skipAntiFloodTime : config.antiFloodRedrawCharts;
 
-            } else {
-
-                if (renderTimeoutAntiFlood){
-                    clearTimeout(renderTimeoutAntiFlood);
-                }
-                renderTimeoutAntiFlood = setTimeout($this._renderOrUpdateAll, config.antiFloodRedrawCharts);
+            if (renderTimeoutAntiFlood){
+                clearTimeout(renderTimeoutAntiFlood);
             }
+            renderTimeoutAntiFlood = setTimeout($this._renderOrUpdateAll, antiFloodTime);
+
         };
 
         this._renderOrUpdateAll = function(){
@@ -389,11 +387,6 @@ define([
                 }
             }
 
-            //minrange = Math.min.apply(null, range);
-
-            //for (var n=1,length=range.length; n<length; n++){
-            //    range[n] -= minrange;
-            //}
             range[0] = 0;
 
             sumRange = range.reduce(function(a, b){
@@ -548,7 +541,7 @@ define([
             group.dom.remove();
             env.connector.unsubscribeToStreamingData(group.measurementId, group, $this.renderOrUpdateAll, $this);
             this.updateOrder();
-            this.renderOrUpdateAll(true);
+            this.renderOrUpdateAll(false);
         };
 
 
