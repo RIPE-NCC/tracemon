@@ -43,7 +43,7 @@ define([
         };
 
         this.contains = function(probe){
-            for (var n=0, length=this.probes.length; n<length;n++){
+            for (var n=0, length=this.probes.length; n<length; n++){
                 if (this.probes[n].id == probe.id){
                     return true;
                 }

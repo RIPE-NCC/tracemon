@@ -74,7 +74,7 @@ define([
             var bucketLength, allSamples, buckets, sample, dataOut, startTime, tmpSample, sampleTime, bucketsKeys,
                 computedDate, computedSample, minValues, avgValues, maxValues, packetLoss, originalMin, originalAvg,
                 originalMax, endTime, bucketKey, maxBucket, subStartTime, subEndTime, halfBucket, bucketOffset,
-                bucketKeys, bucket;
+                bucketKeys, bucket, packetSent, packetReceived, whoReplied;
 
             dataOut = [];
             startTime = parseInt(xDomain[0].getTime()/1000);
@@ -149,10 +149,15 @@ define([
                 originalMax = [];
 
                 packetLoss = [];
+                packetSent = [];
+                packetReceived = [];
+                whoReplied = [];
 
                 for (var d= 0,length=buckets[bucket].length; d < length; d++) { //for all the samples in the bucket
 
                     tmpSample = buckets[bucket][d];
+
+                    whoReplied.push(tmpSample.probe);
 
                     if (tmpSample["min"] != null){
                         minValues.push(tmpSample["min"]);
@@ -167,13 +172,17 @@ define([
                         //originalMax.push(tmpSample.original["max"]);
                     }
 
-                    if (tmpSample.packetLoss != null){
-                        packetLoss.push(tmpSample.packetLoss);
+                    if (tmpSample.received != null){
+                        packetReceived.push(tmpSample.received);
+                    }
+
+                    if (tmpSample.sent != null){
+                        packetSent.push(tmpSample.sent);
                     }
 
                 }
 
-                computedSample = this._computeAvgSample(minValues, avgValues, maxValues, originalMin, originalAvg, originalMax, computedDate, packetLoss);
+                computedSample = this._computeAvgSample(minValues, avgValues, maxValues, originalMin, originalAvg, originalMax, computedDate, packetSent, packetReceived, whoReplied);
                 if (computedSample.min !== null || computedSample.avg !== null || computedSample.max !== null || computedSample.packetLoss == 1) {
                     dataOut.push(computedSample);
                 }
@@ -183,9 +192,9 @@ define([
         };
 
 
-        this._computeAvgSample = function(minValues, avgValues, maxValues, originalMin, originalAvg, originalMax, computedDate, packetLossArray){
-            var computedMin, computedAvg, computedMax, fakeSample, packetLoss, computedOriginalMin,
-                computedOriginalAvg, computedOriginalMax;
+        this._computeAvgSample = function(minValues, avgValues, maxValues, originalMin, originalAvg, originalMax, computedDate, packetSentArray, packetReceivedArray, whoReplied){
+            var computedMin, computedAvg, computedMax, fakeSample, packetLoss, computedOriginalMin, packetReceived,
+                computedOriginalAvg, computedOriginalMax, packetSent;
 
             computedMin = (minValues.length > 0) ?
                 (minValues.reduce(function(a, b) {
@@ -218,14 +227,13 @@ define([
                     return a + b;
                 }) / originalMax.length) : null;
 
+            packetSent = (packetReceivedArray.length > 0) ? packetSentArray.reduce(function(a, b) {
+                return a + b;
+            }) : 0;
 
-
-
-            packetLoss = (packetLossArray.length > 0) ?
-                (packetLossArray.reduce(function(a, b) {
-                    return a + b;
-                }) / packetLossArray.length) : null;
-
+            packetReceived = (packetReceivedArray.length > 0) ? packetReceivedArray.reduce(function(a, b) {
+                return a + b;
+            }) : 0;
 
             fakeSample = {
                 date: computedDate,
@@ -235,12 +243,15 @@ define([
                 minSet: minValues,
                 avgSet: avgValues,
                 maxSet: maxValues,
+                sent: packetSent,
+                probes: whoReplied,
+                received: packetReceived,
                 original:{
                     min: computedOriginalMin,
                     avg: computedOriginalAvg,
                     max: computedOriginalMax
                 },
-                packetLoss: packetLoss
+                packetLoss: ((packetSent) ? ((packetSent - packetReceived) / packetSent) : null)
             };
 
             return fakeSample;
@@ -421,9 +432,26 @@ define([
 
 
         this.getChartDom = function () {
-            var probeDom, infoDom, groupDescription, dragIcon, deleteIcon, explodeIcon;
+            var probeDom, infoDom, groupDescriptionText, groupDescriptionDom, dragIcon, deleteIcon, explodeIcon,
+                numberDisplayedProbes, displayedProbeListTruncated;
 
-            groupDescription = group.toString();
+            groupDescriptionText = group.toString();
+            groupDescriptionDom = [];
+            numberDisplayedProbes = 0;
+            displayedProbeListTruncated = false;
+
+            group.forEach(function(probe){
+                var probeId;
+
+                numberDisplayedProbes++;
+                if (numberDisplayedProbes <= config.maxNumberOfDisplayedProbesOnChartInfo) {
+                    probeId = probe.id;
+                    groupDescriptionDom.push(' <span class="probe-listed probe-label-' + probeId + '" title="' + probeId + ' (no data)">' + probeId + '</span>');
+                } else {
+                    displayedProbeListTruncated = true;
+                }
+            });
+
             probeDom = $('<div class="chart-item probe-multi-chart" id="chart-probe-' + group.id + '"></div>');
             infoDom = $('<div class="probe-multi-info"></div>')
                 .height(chartHeight)
@@ -434,7 +462,7 @@ define([
             explodeIcon = $('<img src="' + env.widgetUrl +'view/img/wbr_explode.png" class="explode-icon" title="' + lang.explodeIcon + '"/>');
 
             infoDom.append('<div class="probe-info-line first-line">' +  group.id + ' (' + group.probes.length + ' probes)' + '</div>');
-            infoDom.append('<div class="probe-info-line" title="' + groupDescription + '">Probes: ' +  ((groupDescription.length >= 120) ? groupDescription.substring(0, 120) + "..." : groupDescription) + '</div>');
+            infoDom.append('<div class="probe-info-line" title="' + groupDescriptionText + '">Probes: ' +  ((displayedProbeListTruncated) ? groupDescriptionDom + "..." : groupDescriptionDom) + '</div>');
             infoDom.append('<div class="probe-info-line">Target: ' + env.measurements[this.group.measurementId].target + '</div>');
             popUpDiv = $('<div class="probe-hover-popup"></div>');
             probeDom.append(infoDom).append(dragIcon).append(deleteIcon).append(explodeIcon).append(popUpDiv);
@@ -478,8 +506,7 @@ define([
 
 
         this.update = function (xDomain, yDomain, yRange, yUnit) {
-            var data;
-
+            var data, answeringProbes;
             data = this.samples;
 
             this.lastUpdateParams.xDomain = xDomain;
@@ -509,7 +536,20 @@ define([
                 .attr("y1", 0).attr("y2", height + margin.top);
 
             whiteLeftBackground
-                .attr("height", height + margin.top)
+                .attr("height", height + margin.top);
+
+            answeringProbes = {};
+            for (var n1= 0,length1=data.length; n1<length1; n1++){
+                if (data[n1].probes){
+                    for (var n2= 0,length2=data[n1].probes.length; n2<length2; n2++){
+                        answeringProbes[data[n1].probes[n2]] = true;
+                    }
+                }
+            }
+            this.group.dom.find('.probe-listed').addClass("nodata");
+            for (var probe in answeringProbes){
+                this.group.dom.find('.probe-label-' + probe).removeClass("nodata");
+            }
         };
 
 
@@ -602,7 +642,7 @@ define([
 
 
         this.draw = function (xDomain, yDomain, yRange, yUnit) {
-            var data;
+            var data, answeringProbes;
 
             data = this.samples;
 
@@ -666,6 +706,19 @@ define([
             svg.append("g")
                 .attr("class", "y axis")
                 .call(yAxis);
+
+            answeringProbes = {};
+            for (var n1= 0,length1=data.length; n1<length1; n1++){
+                if (data[n1].probes){
+                    for (var n2= 0,length2=data[n1].probes.length; n2<length2; n2++){
+                        answeringProbes[data[n1].probes[n2]] = true;
+                    }
+                }
+            }
+            this.group.dom.find('.probe-listed').addClass("nodata");
+            for (var probe in answeringProbes){
+                this.group.dom.find('.probe-label-' + probe).removeClass("nodata");
+            }
         };
 
 
@@ -725,8 +778,6 @@ define([
                 })
                 .attr("height", height + "px");
 
-
-
             line = lineSkeletons["min"];
 
             filteredData = [];
@@ -742,9 +793,6 @@ define([
                 .data(filteredData, function(dataPoint){
                     return dataPoint.date.getTime();
                 });
-                //.filter(function(dataSample){
-                //    return dataSample.packetLoss > 0.1;
-                //});
 
             allLines
                 .exit()
@@ -813,7 +861,6 @@ define([
             width = this.group.dom.innerWidth() - margin.left - margin.right - config.probeDescriptionDomWidth;
             height = chartHeight + extraHeight - margin.top - margin.bottom;
 
-            //computedYRange = (yRange) ? $.map(yRange, function(n){return (height/(yRange.length - 1)) * n}) : [height, 0];
             computedYRange = (yRange) ? yRange : [height, 0];
 
             x = d3.time.scale()
@@ -1097,7 +1144,6 @@ define([
 
 
         this.drawDots = function (originalData, key, line) {
-
             var data, item;
 
             data = [];
@@ -1157,9 +1203,8 @@ define([
         };
 
 
-
         this.showPopUp = function(x, dataPoint){
-            var position, margin, rounding;
+            var position, margin, rounding, noPacketsReceivedFromProbes;
 
             margin = config.hoverPopUpMargin;
             position = (x > this.group.dom.width()/2) ? (x - (popUpDiv.outerWidth() + margin)): x + margin;
@@ -1195,8 +1240,13 @@ define([
                 if (dataPoint.packetLoss != null) {
                     description.push("PacketLoss: " + (dataPoint.packetLoss.toFixed(2) * 100) + "%");
                 }
-                //description.push("" + dataPoint.sent + " packet sent, "+ dataPoint.received + " received");
 
+                description.push("" + dataPoint.sent + " packet sent, "+ dataPoint.received + " received");
+
+                noPacketsReceivedFromProbes = utils.removeSubArray($.map($this.group.probes, function(probe){return probe.id;}), dataPoint.probes);
+                if (noPacketsReceivedFromProbes.length > 0){
+                    description.push("No packets received from: " + noPacketsReceivedFromProbes);
+                }
 
                 popUpDiv.html(description.join("<br>"));
             }, config.hoverPopUpDelay);

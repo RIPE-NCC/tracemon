@@ -213,7 +213,7 @@
 
 .probe-hover-popup{
     width: 220px;
-    height: 130px;
+    height: 180px;
     background-color: #FFFFFF;
     border-radius: 6px;
     opacity: 0.95;
@@ -558,6 +558,10 @@
     float: right;
     margin-left: 8px;
     margin-right: 8px;
+}
+
+.nodata{
+    text-decoration: line-through;
 }
 
 /* Bootstrap Hacks */

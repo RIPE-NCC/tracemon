@@ -291,13 +291,16 @@ define([
             env.timeWindowSize = env.endDate - env.startDate;
             env.template.showLoadingImage(true);
             calls = [];
+
             if (!env.measurements[msmID].merged) {
                 calls.push(env.connector.getHistoricalProbesData(msmID, probes, env.startDate, env.endDate, function(data){
                     env.template.showLoadingImage(false);
+
                     if (callback){
                         callback.call(context, data);
                     }
                 }, this));
+
             } else {
 
                 allProbes = [];
@@ -368,11 +371,8 @@ define([
                     return probeObj;
                 });
 
-                //env.chartManager.dom.loadingImage.show();
-
-                this.enrichProbes(msmID, probes, function () {
+                this.enrichProbes(msmID, probes, function (data) {
                     var group;
-
                     group = new Group(msmID, groupLabel);
                     group.probes = probes;
                     group.type = type;
@@ -384,7 +384,6 @@ define([
                     }
 
                     env.chartManager.addChart(group);
-                    //env.chartManager.dom.loadingImage.hide();
 
                 }, this);
 

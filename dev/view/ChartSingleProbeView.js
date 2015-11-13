@@ -830,7 +830,6 @@ define([
                 }
                 description.push("" + dataPoint.sent + " packet sent, "+ dataPoint.received + " received");
 
-
                 popUpDiv.html(description.join("<br>"));
             }, config.hoverPopUpDelay);
 
