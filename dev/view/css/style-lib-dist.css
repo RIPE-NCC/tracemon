@@ -5287,13 +5287,13 @@
     opacity: 0.2; }
   .latencymon-container .probe-hover-popup {
     width: 220px;
-    height: 130px;
+    height: 180px;
     background-color: #FFFFFF;
     border-radius: 6px;
     opacity: 0.95;
     box-shadow: 1px 1px 1px 2px rgba(179, 179, 179, 0.37);
     position: absolute;
-    z-index: 10000000;
+    z-index: 100000;
     padding: 5px;
     line-height: 1.5;
     font-size: 13px;
@@ -5349,7 +5349,7 @@
     top: 29px;
     left: 40px;
     background: #fdfdfd;
-    z-index: 3000000000 !important;
+    z-index: 1000000 !important;
     border-bottom-right-radius: 5px;
     border-bottom-left-radius: 5px;
     border: 1px solid #CCC;
@@ -5369,7 +5369,7 @@
     position: relative; }
   .latencymon-container .header-dropdown-panel {
     font-size: 18px;
-    margin: 15px;
+    margin: 10px;
     margin-bottom: 2px;
     margin-top: 8px;
     width: 90%;
@@ -5377,7 +5377,8 @@
     text-shadow: 1px 1px 1px #C0C0C0; }
   .latencymon-container .content-dropdown-panel {
     margin: 10px;
-    margin-top: 0; }
+    margin-top: 0;
+    line-height: 2; }
   .latencymon-container .probe-list {
     font-size: 14px; }
   .latencymon-container .group-name {
@@ -5446,6 +5447,10 @@
     border-radius: 3px;
     background-color: #FFFFFF;
     z-index: 1000; }
+  .latencymon-container .probe-info-dialog {
+    left: 50% !important;
+    margin-left: -475px;
+    font-size: 16px; }
   .latencymon-container .measurement-id {
     clear: both; }
 @keyframes blinkGreen {
@@ -5540,6 +5545,15 @@
     float: right;
     margin-left: 8px;
     margin-right: 8px; }
+  .latencymon-container .nodata {
+    text-decoration: line-through; }
+  .latencymon-container .probe-listed {
+    cursor: pointer; }
+  .latencymon-container .table-info-probe {
+    margin: auto !important;
+    /*width: 800px!important;*/
+    margin-top: 20px !important;
+    margin-bottom: 10px !important; }
   .latencymon-container .pagination li {
     display: inline !important; }
 

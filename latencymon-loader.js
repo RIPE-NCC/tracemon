@@ -28,6 +28,7 @@ requirejs.config({
         "latencymon.lib.jquery-libs": LATENCYMON_LIB_URL + "jquery-libs",
 
 
+
         "latencymon.lib.d3-amd": LATENCYMON_LIB_URL + "d3/js/d3.v3.amd",
         "latencymon.lib.d3-magnetic-cursor": LATENCYMON_LIB_URL + "d3-magnetic-cursor",
 
@@ -120,7 +121,7 @@ define([
          * Init Dependency Injection Vector
          */
         env = {
-            "version": "15.10.29.2",
+            "version": "15.11.15.2",
             "widgetUrl": LATENCYMON_WIDGET_URL + "dev/",
             "autoStart": (instanceParams.autoStart != undefined) ? instanceParams.autoStart : config.autoStart,
             "dataApiResults": instanceParams.dataApiResults || config.dataAPIs.results,
@@ -155,7 +156,8 @@ define([
                 LATENCYMON_LIB_URL + "jquery/jquery-ui.min.css",
                 LATENCYMON_LIB_URL + "bootstrap/css/bootstrap.min.css",
                 LATENCYMON_LIB_URL + "bootstrap/css/bootstrap-theme.min.css",
-                LATENCYMON_LIB_URL + "bootstrap-table/bootstrap-table.min.css"
+                LATENCYMON_LIB_URL + "bootstrap-table/bootstrap-table.min.css",
+                LATENCYMON_LIB_URL + "bootstrap-dialog/bootstrap-dialog.min.css"
             ];
 
         }

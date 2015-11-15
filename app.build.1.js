@@ -8,7 +8,12 @@
         end: "});"
     },
 
-    include: ["latencymon.lib.jquery", "latencymon.lib.jquery-ui", "latencymon.lib.bootstrap", "latencymon.lib.bootstrap-table"],
+    include: [
+        "latencymon.lib.jquery",
+        "latencymon.lib.jquery-ui",
+        "latencymon.lib.bootstrap",
+        "latencymon.lib.bootstrap-table"
+    ],
 
     paths:{
         "latencymon.lib.jquery": "dev/libs/jquery/jquery-1.11.1.min",
