@@ -156,8 +156,7 @@ define([
                 LATENCYMON_LIB_URL + "jquery/jquery-ui.min.css",
                 LATENCYMON_LIB_URL + "bootstrap/css/bootstrap.min.css",
                 LATENCYMON_LIB_URL + "bootstrap/css/bootstrap-theme.min.css",
-                LATENCYMON_LIB_URL + "bootstrap-table/bootstrap-table.min.css",
-                LATENCYMON_LIB_URL + "bootstrap-dialog/bootstrap-dialog.min.css"
+                LATENCYMON_LIB_URL + "bootstrap-table/bootstrap-table.min.css"
             ];
 
         }
