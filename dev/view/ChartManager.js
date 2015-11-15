@@ -633,6 +633,12 @@ define([
                     });
 
                 env.parentDom
+                    .find(".timepicker")
+                    .on("click", function(){
+                        env.template.openTimeRangeCalendarDialog();
+                    });
+
+                env.parentDom
                     .find(".chart-mode")
                     .on("click", function(){
                         var element = $(this);
@@ -690,7 +696,7 @@ define([
                     probeIds = utils.removeSubArray($.map(probes, function(probe){return probe.id}), [probeId]);
                     env.main.addGroup(group.measurementId, probeIds, groupId, group.type);
                     env.main.addProbe(group.measurementId, probeId);
-                    env.template.probeInfoDialog.fadeOut();
+                    env.template.dialog.fadeOut();
                 });
 
 

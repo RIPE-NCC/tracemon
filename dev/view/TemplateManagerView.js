@@ -18,7 +18,8 @@ define([
      */
 
     var TemplateManagerView = function(env){
-        var widgetUrl, slidingMenuOpened, insideSubMenu, $this, loadingImageCounter, loadingImageTimer;
+        var widgetUrl, slidingMenuOpened, insideSubMenu, $this, loadingImageCounter, loadingImageTimer, startDatepicker,
+            stopDatepicker;
 
         widgetUrl = env.widgetUrl;
         $this = this;
@@ -104,13 +105,13 @@ define([
             '<img src="' + widgetUrl + 'view/img/left_icon.png"/>' +
             '</div>' +
 
+            '<div class="button timepicker">' +
+            '<img src="' + widgetUrl + 'view/img/calendar_icon.png"/>' +
+            '</div>' +
+
             '<div class="button chart-mode relative" title="' + lang.chartModeTitle.relative + '">' +
             '<img src="' + widgetUrl + 'view/img/chart_mode.png"/>' +
             '</div>' +
-
-                //'<div class="button timepicker">' +
-                //'<img src="' + widgetUrl + 'view/img/calendar_icon.png"/>' +
-                //'</div>' +
 
                 //'<div class="button filters">' +
                 //'<img src="' + widgetUrl + 'view/img/filter_icon.png"/>' +
@@ -156,11 +157,13 @@ define([
             this.footer.append(atob("PGRpdiBjbGFzcz0ibGF0ZW5jeW1vbi1jb3B5cmlnaHQgZm9vdGVyLWl0ZW0iPkF1dGhvcjogPGEgaHJlZj0iaHR0cDovL21hc3NpbW9jYW5kZWxhLmNvbSI+TWFzc2ltbyBDYW5kZWxhPC9hPjwvZGl2Pg=="));
         }
 
-        this.probeInfoDialog = $('<div class="probe-info-dialog dropdown-panel" style="height: 400px;">' +
-            '<div class="header-dropdown-panel" style="width: 70%;">Info about this probe</div>' +
+        this.dialog = $('<div class="probe-info-dialog dropdown-panel" style="height: 400px;">' +
+            '<div class="header-dropdown-panel" style="width: 70%;"></div>' +
             '<div class="content-dropdown-panel"></div>' +
             '<div class="footer-dropdown-panel">' +
-            '<button type="button" class="btn btn-default probe-dialog-close">Ok</button>' +
+            '<button type="button" class="btn btn-default probe-dialog-close">Close</button>' +
+            '<button type="button" class="btn btn-success probe-dialog-ok">Ok</button>' +
+
             '</div>' +
             '</div>');
 
@@ -421,20 +424,43 @@ define([
         };
 
 
-        this._openDialog = function(content){
+        this._openDialog = function(title, content, width, height, showOk, action){
             if (!this.dialogAppended) {
                 this.dom.main
-                    .append(this.probeInfoDialog.hide().fadeIn());
+                    .append(this.dialog.hide().fadeIn());
                 this.dialogAppended = true;
-
-                this.probeInfoDialog.find(".content-dropdown-panel").html(content);
-                this.probeInfoDialog.find(".probe-dialog-close").on("mouseup", function(){
-                    $this.probeInfoDialog.fadeOut()
+                this.dialog.find(".probe-dialog-close").on("mouseup", function(){
+                    $this.dialog.fadeOut()
                 });
 
             } else {
-                this.probeInfoDialog.fadeIn();
+                this.dialog.fadeIn();
             }
+
+            if (showOk) {
+                this.dialog
+                    .find(".probe-dialog-ok")
+                    .off("mouseup")
+                    .on("mouseup", function(){
+                        action();
+                        $this.dialog.fadeOut();
+                    });
+            } else {
+                this.dialog
+                    .find(".probe-dialog-ok")
+                    .off("mouseup")
+                    .hide();
+            }
+
+            this.dialog.css({
+                width: width,
+                height: height,
+                "margin-left": -width/2
+            });
+            this.dialog.find(".content-dropdown-panel").html(content);
+            this.dialog.find(".header-dropdown-panel").html(title);
+
+            return this.dialog;
         };
 
 
@@ -469,12 +495,61 @@ define([
                 '</table>';
 
             content += '<div class="">More info about this probe:<a target="blank" href="' + probeUrl + '"> ' + probeUrl + '</a></div>';
-            content += 'It is part of the group "' + groupId + '".';
-            content += '<span data-probe-id="' + probeId + '" data-group-id="' + groupId + '" class="isolate-probe"> <a>Isolate from this group?</a></span>';
+            content += 'This probe is part of the chart "' + groupId + '".';
+            content += '<span data-probe-id="' + probeId + '" data-group-id="' + groupId + '" class="isolate-probe"> <a>Isolate from this chart.</a></span>';
 
-            this._openDialog(content);
+            this._openDialog(lang.titleProbeInfoDialog, content, 700, 300, false, null);
         };
 
+
+
+        this.openTimeRangeCalendarDialog = function(){
+            var content, dialog;
+
+            content = '<div style="clear: both;">' +
+                '<div style="float: left;">Start date: <br><input type="text" value="" class="timepicker-start date-field"></div>' +
+                '<div style="float: right;">End date: <br><input type="text" value="" class="timepicker-stop date-field"></div>' +
+                '</div>';
+
+            dialog = this._openDialog(lang.titleSelectTimeRange, content, 500, 200, true, function(){
+                var startDate, endDate;
+
+                startDate = startDatepicker.datetimepicker('getDate');
+                endDate = stopDatepicker.datetimepicker('getDate');
+
+                env.main.setTimeRange(startDate, endDate);
+            });
+
+            startDatepicker = dialog.find(".timepicker-start");
+            stopDatepicker = dialog.find(".timepicker-stop");
+
+            startDatepicker.datetimepicker({
+                minDate: env.timeDomain[0],
+                maxDate: env.timeDomain[1],
+                dateFormat: "yy-mm-dd",
+                beforeShow: function(){
+                    $('#ui-datepicker-div').addClass('default-text');
+                },
+                onClose: function(){
+                    $('#ui-datepicker-div').removeClass('default-text');
+                }
+            });
+
+            stopDatepicker.datetimepicker({
+                minDate: env.timeDomain[0],
+                maxDate: env.timeDomain[1],
+                dateFormat: "yy-mm-dd",
+                beforeShow: function(){
+                    $('#ui-datepicker-div').addClass('default-text');
+                },
+                onClose: function(){
+                    $('#ui-datepicker-div').removeClass('default-text');
+                }
+            });
+
+            startDatepicker.datepicker("setDate", env.startDate);
+            stopDatepicker.datepicker("setDate", env.endDate);
+        };
 
 
         this._openAddMenu = function(isGroup){

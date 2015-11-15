@@ -44,6 +44,8 @@ define([], function(){
 
         rightHeader: "From %s to %e",
 
+        titleProbeInfoDialog: "Info about this probe",
+        titleSelectTimeRange: "Select a time range to visualise (UTC)",
         alert: {
             notValidGroupName: "The group name can contain only letters and numbers"
         }
