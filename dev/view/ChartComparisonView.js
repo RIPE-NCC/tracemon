@@ -11,6 +11,7 @@ define([
 
         this.group = group;
         this.lastUpdateParams = {};
+        this.type = "comparison";
         $this = this;
         showDots = config.drawDotsOnComparisonCharts;
         marginBottomLastItem = 20;

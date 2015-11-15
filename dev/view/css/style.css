@@ -219,7 +219,7 @@
     opacity: 0.95;
     box-shadow: 1px 1px 1px 2px rgba(179, 179, 179, 0.37);
     position: absolute;
-    z-index: 10000000;
+    z-index: 100000;
     padding: 5px;
     line-height: 1.5;
     font-size: 13px;
@@ -296,7 +296,7 @@
     top: 29px;
     left: 40px;
     background: #fdfdfd;
-    z-index: 3000000000!important;
+    z-index: 1000000!important;
     border-bottom-right-radius: 5px;
     border-bottom-left-radius: 5px;
     border: 1px solid #CCC;
@@ -322,7 +322,7 @@
 
 .header-dropdown-panel{
     font-size: 18px;
-    margin: 15px;
+    margin: 10px;
     margin-bottom: 2px;
     margin-top: 8px;
     width: 90%;
@@ -333,6 +333,7 @@
 .content-dropdown-panel{
     margin: 10px;
     margin-top: 0;
+    line-height: 2;
 }
 
 .probe-list{
@@ -439,6 +440,12 @@
     border-radius: 3px;
     background-color: #FFFFFF;
     z-index: 1000;
+}
+
+.probe-info-dialog{
+    left: 50%!important;
+    margin-left: -475px;
+    font-size: 16px;
 }
 
 .measurement-id{
@@ -563,6 +570,18 @@
 .nodata{
     text-decoration: line-through;
 }
+
+.probe-listed{
+    cursor: pointer;
+}
+
+.table-info-probe{
+    margin: auto!important;
+    /*width: 800px!important;*/
+    margin-top: 20px!important;
+    margin-bottom: 10px!important;
+}
+
 
 /* Bootstrap Hacks */
 .pagination li{

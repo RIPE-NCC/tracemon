@@ -155,6 +155,16 @@ define([
             this.footer.append('<div class="latencymon-version footer-item">Version:' + env.version + '</div>');
             this.footer.append(atob("PGRpdiBjbGFzcz0ibGF0ZW5jeW1vbi1jb3B5cmlnaHQgZm9vdGVyLWl0ZW0iPkF1dGhvcjogPGEgaHJlZj0iaHR0cDovL21hc3NpbW9jYW5kZWxhLmNvbSI+TWFzc2ltbyBDYW5kZWxhPC9hPjwvZGl2Pg=="));
         }
+
+        this.probeInfoDialog = $('<div class="probe-info-dialog dropdown-panel" style="height: 400px;">' +
+            '<div class="header-dropdown-panel" style="width: 70%;">Info about this probe</div>' +
+            '<div class="content-dropdown-panel"></div>' +
+            '<div class="footer-dropdown-panel">' +
+            '<button type="button" class="btn btn-default probe-dialog-close">Ok</button>' +
+            '</div>' +
+            '</div>');
+
+
         this.addLinePanel = $('<div class="add-line-panel dropdown-panel" style="height: 400px;">' +
             '<div class="header-dropdown-panel" style="width: 70%;"></div>' +
             '<div class="content-dropdown-panel"><table class="probe-list"></table></div>' +
@@ -164,7 +174,6 @@ define([
             '<button type="button" class="btn btn-default add-line-panel-close">Cancel</button>' +
             '<button type="button" class="btn btn-success add-line"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add</button>' +
             '<button type="button" class="btn btn-success add-group"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Group</button>' +
-            //'<button type="button" class="btn btn-success add-comparison"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Compare</button>' +
             '</div>' +
             '</div>');
 
@@ -412,6 +421,62 @@ define([
         };
 
 
+        this._openDialog = function(content){
+            if (!this.dialogAppended) {
+                this.dom.main
+                    .append(this.probeInfoDialog.hide().fadeIn());
+                this.dialogAppended = true;
+
+                this.probeInfoDialog.find(".content-dropdown-panel").html(content);
+                this.probeInfoDialog.find(".probe-dialog-close").on("mouseup", function(){
+                    $this.probeInfoDialog.fadeOut()
+                });
+
+            } else {
+                this.probeInfoDialog.fadeIn();
+            }
+        };
+
+
+        this.openProbeInfoDialog = function(probeId, groupId){
+            var content, probeUrl, probe;
+
+            probe = env.connector.getProbeInfo(probeId);
+            probeUrl = config.probeInfoPageUrl.replace("%p", probeId);
+
+            content = "";
+            content += '<table class="table table-bordered table-striped table-info-probe">' +
+                '<tr>' +
+                '<td>ID:  ' + probe.id + ' </td>' +
+                '<td>Country: ' + probe.country_code + ' </td>' +
+                '</tr>' +
+
+                '<tr>' +
+                '<td>IP v4:  ' + probe.address_v4 + ' </td>' +
+                '<td>IP v6: ' + probe.address_v6 + ' </td>' +
+                '</tr>' +
+
+                '<tr>' +
+                '<td>Prefix v4:  ' + probe.prefix_v4 + ' </td>' +
+                '<td>Prefix v6: ' + probe.prefix_v6 + ' </td>' +
+                '</tr>' +
+
+
+                '<tr>' +
+                '<td>ASn v4:  ' + probe.asn_v4 + ' </td>' +
+                '<td>ASn v6: ' + probe.asn_v6 + ' </td>' +
+                '</tr>' +
+                '</table>';
+
+            content += '<div class="">More info about this probe:<a target="blank" href="' + probeUrl + '"> ' + probeUrl + '</a></div>';
+            content += 'It is part of the group "' + groupId + '".';
+            content += '<span data-probe-id="' + probeId + '" data-group-id="' + groupId + '" class="isolate-probe"> <a>Isolate from this group?</a></span>';
+
+            this._openDialog(content);
+        };
+
+
+
         this._openAddMenu = function(isGroup){
             var probe, data, drawn;
 
@@ -435,20 +500,27 @@ define([
 
                 env.parentDom.find(".add-group")
                     .on("mouseup", function(){
-                        var groups;
+                        var groups, groupName;
 
                         groups = {};
-                        $.each(env.parentDom.find('.probe-list').bootstrapTable('getSelections'), function(i, item){
-                            if (!groups[item.msmid]){
-                                groups[item.msmid] = [];
-                            }
-                            groups[item.msmid].push(item.id);
-                        });
-                        for (var measurement in groups){
-                            env.main.addGroup(measurement, groups[measurement], env.parentDom.find(".group-name>input").val(), "multi-probes");
-                        }
+                        groupName = env.parentDom.find(".group-name>input").val();
 
-                        $this.addLinePanel.fadeOut();
+                        if (config.groupNameRegex.test(groupName)){ // Check group name validity
+                            $.each(env.parentDom.find('.probe-list').bootstrapTable('getSelections'), function(i, item){
+                                if (!groups[item.msmid]){
+                                    groups[item.msmid] = [];
+                                }
+                                groups[item.msmid].push(item.id);
+                            });
+                            for (var measurement in groups){
+                                env.main.addGroup(measurement, groups[measurement], groupName, "multi-probes");
+                            }
+
+                            $this.addLinePanel.fadeOut();
+                        } else {
+                            env.main.error(lang.alert.notValidGroupName, "error");
+
+                        }
                     });
 
                 env.parentDom.find(".add-comparison")

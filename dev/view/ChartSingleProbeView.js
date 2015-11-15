@@ -13,6 +13,7 @@ define([
         this.group = group;
         this.lastUpdateParams = {};
         this.measurement = env.main.getProbeOriginalMeasurement(this.group.measurementId, this.group.probes[0].id);
+        this.type = "single-probe";
         $this = this;
         marginBottomLastItem = 20;
         marginBottomNormalItem = 4;

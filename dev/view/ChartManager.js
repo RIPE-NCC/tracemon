@@ -205,7 +205,6 @@ define([
         };
 
 
-
         this._getYDomainAndRangeLinear = function (lowerbound, upperbound, xDomain) {
             var maxYvalue, item, minYvalue, chartKey, groupView, data, probe;
 
@@ -666,6 +665,35 @@ define([
                     });
 
 
+                $(document).on("click", ".probe-listed", function(){
+                    var probeId, groupId, element;
+
+                    element = $(this);
+                    probeId = element.data("probe-id");
+                    groupId = element.data("group-id");
+
+                    env.template.openProbeInfoDialog(probeId, groupId);
+                });
+
+
+                $(document).on("click", ".isolate-probe", function(){
+                    var probeId, groupId, element, chart, group, probes, msmId, probeIds;
+
+                    element = $(this);
+                    probeId = element.data("probe-id");
+                    groupId = element.data("group-id");
+                    chart = $this.charts[groupId];
+                    group = chart.group;
+
+                    probes = group.probes;
+                    env.main.removeGroup(groupId);
+                    probeIds = utils.removeSubArray($.map(probes, function(probe){return probe.id}), [probeId]);
+                    env.main.addGroup(group.measurementId, probeIds, groupId, group.type);
+                    env.main.addProbe(group.measurementId, probeId);
+                    env.template.probeInfoDialog.fadeOut();
+                });
+
+
 
                 this.dom.chartDiv.sortable(
                     {
@@ -695,6 +723,7 @@ define([
         this.updateOrder = function(){
             delete this._cachedOrder;
         };
+
 
         this._fillDomElements();
     };

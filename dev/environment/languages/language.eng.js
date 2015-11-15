@@ -42,6 +42,10 @@ define([], function(){
         explodeIcon: "Explode",
         dragIcon: "Drag",
 
-        rightHeader: "From %s to %e"
+        rightHeader: "From %s to %e",
+
+        alert: {
+            notValidGroupName: "The group name can contain only letters and numbers"
+        }
     }
 });

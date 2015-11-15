@@ -13,11 +13,12 @@ define([
 
 
     var ConnectorFacade = function (env) {
-        var historyConnector, liveConnector, $this;
+        var historyConnector, liveConnector, $this, probesCache, probesCacheIndexed;
 
         $this = this;
         historyConnector = new HistoryConnector(env);
         liveConnector = new LiveConnector(env);
+        probesCache = {};
 
         this.getHistoricalProbesData = function (measurementId, probes, startDate, endDate, callback, context) {
 
@@ -177,12 +178,27 @@ define([
 
         };
 
-        
+
         this.getMeasurementInfo = function (probe, callback, context) {
 
             return historyConnector.getMeasurementInfo(probe, function(data){
+                probesCache = data.probes;
                 callback.call(context, data);
             }, this);
+        };
+
+
+        this.getProbeInfo = function(probeId){
+
+            if (!probesCacheIndexed){
+                probesCacheIndexed = {};
+                for (var n=0,length=probesCache.length; n<length; n++){
+                    probesCacheIndexed[probeId] = probesCache[n];
+                }
+                probesCache = null;
+            }
+
+            return probesCacheIndexed[probeId];
         };
 
 

@@ -14,6 +14,7 @@ define([
 
         this.group = group;
         this.lastUpdateParams = {};
+        this.type = "multi-probes";
         $this = this;
         marginBottomLastItem = 20;
         marginBottomNormalItem = 4;
@@ -446,7 +447,7 @@ define([
                 numberDisplayedProbes++;
                 if (numberDisplayedProbes <= config.maxNumberOfDisplayedProbesOnChartInfo) {
                     probeId = probe.id;
-                    groupDescriptionDom.push(' <span class="probe-listed probe-label-' + probeId + '" title="' + probeId + ' (no data)">' + probeId + '</span>');
+                    groupDescriptionDom.push(' <span data-group-id="' + group.id + '" data-probe-id="' + probeId + '" class="probe-listed" title="' + probeId + ' (no data)">' + probeId + '</span>');
                 } else {
                     displayedProbeListTruncated = true;
                 }
@@ -481,8 +482,6 @@ define([
                 for (var i= 0,lengthi=probes.length; i<lengthi; i++){
                     env.main.addProbe(msmId, probes[i].id);
                 }
-
-
             });
 
             probeDom.resizable({
@@ -548,7 +547,7 @@ define([
             }
             this.group.dom.find('.probe-listed').addClass("nodata");
             for (var probe in answeringProbes){
-                this.group.dom.find('.probe-label-' + probe).removeClass("nodata");
+                this.group.dom.find('.probe-listed[data-probe-id="' + probe + '"]').removeClass("nodata");
             }
         };
 
@@ -717,7 +716,7 @@ define([
             }
             this.group.dom.find('.probe-listed').addClass("nodata");
             for (var probe in answeringProbes){
-                this.group.dom.find('.probe-label-' + probe).removeClass("nodata");
+                this.group.dom.find('.probe-listed[data-probe-id="' + probe + '"]').removeClass("nodata");
             }
         };
 
