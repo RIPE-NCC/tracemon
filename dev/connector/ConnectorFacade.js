@@ -193,7 +193,7 @@ define([
             if (!probesCacheIndexed){
                 probesCacheIndexed = {};
                 for (var n=0,length=probesCache.length; n<length; n++){
-                    probesCacheIndexed[probeId] = probesCache[n];
+                    probesCacheIndexed[probesCache[n].id] = probesCache[n];
                 }
                 probesCache = null;
             }
