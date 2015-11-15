@@ -18,7 +18,8 @@
 * Includes: core.css, accordion.css, autocomplete.css, button.css, datepicker.css, dialog.css, draggable.css, menu.css, progressbar.css, resizable.css, selectable.css, selectmenu.css, slider.css, sortable.css, spinner.css, tabs.css, tooltip.css, theme.css
 * To view and modify this theme, visit http://jqueryui.com/themeroller/?ffDefault=Trebuchet%20MS%2CTahoma%2CVerdana%2CArial%2Csans-serif&fwDefault=bold&fsDefault=1.1em&cornerRadius=4px&bgColorHeader=f6a828&bgTextureHeader=gloss_wave&bgImgOpacityHeader=35&borderColorHeader=e78f08&fcHeader=ffffff&iconColorHeader=ffffff&bgColorContent=eeeeee&bgTextureContent=highlight_soft&bgImgOpacityContent=100&borderColorContent=dddddd&fcContent=333333&iconColorContent=222222&bgColorDefault=f6f6f6&bgTextureDefault=glass&bgImgOpacityDefault=100&borderColorDefault=cccccc&fcDefault=1c94c4&iconColorDefault=ef8c08&bgColorHover=fdf5ce&bgTextureHover=glass&bgImgOpacityHover=100&borderColorHover=fbcb09&fcHover=c77405&iconColorHover=ef8c08&bgColorActive=ffffff&bgTextureActive=glass&bgImgOpacityActive=65&borderColorActive=fbd850&fcActive=eb8f00&iconColorActive=ef8c08&bgColorHighlight=ffe45c&bgTextureHighlight=highlight_soft&bgImgOpacityHighlight=75&borderColorHighlight=fed22f&fcHighlight=363636&iconColorHighlight=228ef1&bgColorError=b81900&bgTextureError=diagonals_thick&bgImgOpacityError=18&borderColorError=cd0a0a&fcError=ffffff&iconColorError=ffd27a&bgColorOverlay=666666&bgTextureOverlay=diagonals_thick&bgImgOpacityOverlay=20&opacityOverlay=50&bgColorShadow=000000&bgTextureShadow=flat&bgImgOpacityShadow=10&opacityShadow=20&thicknessShadow=5px&offsetTopShadow=-5px&offsetLeftShadow=-5px&cornerRadiusShadow=5px
 * Copyright 2014 jQuery Foundation and other contributors; Licensed MIT */
-  /* Bootstrap Hacks */ }
+  /* Bootstrap Hacks */
+  /* css for timepicker */ }
   .latencymon-container .bootstrap-table .table {
     margin-bottom: 0 !important;
     border-bottom: 1px solid #dddddd;
@@ -5449,7 +5450,6 @@
     z-index: 1000; }
   .latencymon-container .probe-info-dialog {
     left: 50% !important;
-    margin-left: -475px;
     font-size: 16px; }
   .latencymon-container .measurement-id {
     clear: both; }
@@ -5551,11 +5551,42 @@
     cursor: pointer; }
   .latencymon-container .table-info-probe {
     margin: auto !important;
-    /*width: 800px!important;*/
     margin-top: 20px !important;
     margin-bottom: 10px !important; }
   .latencymon-container .pagination li {
     display: inline !important; }
+  .latencymon-container .ui-timepicker-div .ui-widget-header {
+    margin-bottom: 8px; }
+  .latencymon-container .ui-timepicker-div dl {
+    text-align: left; }
+  .latencymon-container .ui-timepicker-div dl dt {
+    float: left;
+    clear: left;
+    padding: 0 0 0 5px; }
+  .latencymon-container .ui-timepicker-div dl dd {
+    margin: 0 10px 10px 45%; }
+  .latencymon-container .ui-timepicker-div td {
+    font-size: 90%; }
+  .latencymon-container .ui-tpicker-grid-label {
+    background: none;
+    border: none;
+    margin: 0;
+    padding: 0; }
+  .latencymon-container .ui-timepicker-rtl {
+    direction: rtl; }
+  .latencymon-container .ui-timepicker-rtl dl {
+    text-align: right;
+    padding: 0 5px 0 0; }
+  .latencymon-container .ui-timepicker-rtl dl dt {
+    float: right;
+    clear: right; }
+  .latencymon-container .ui-timepicker-rtl dl dd {
+    margin: 0 45% 10px 10px; }
+  .latencymon-container .ui-icon-gripsmall-diagonal-se {
+    /*Workaround for jquery-ui bug*/
+    background-position: -64px -224px !important;
+    bottom: 0 !important;
+    right: 0 !important; }
 
 /* Bootstrap hack */
 @font-face {
