@@ -14,8 +14,14 @@
 }
 
 .chart-item{
-    /*background-repeat: ;*/
-    background: url('../img/latencymon_watermark.png') no-repeat 60px 10px;
+    background-image: url('../img/latencymon_watermark.svg');
+    background-repeat: no-repeat;
+    background-position: 65px 10px;
+    background-size: 100px 30px;
+}
+
+.watermark-color{
+    fill: #FFFFFF!important;
 }
 
 .axis path, .axis line {
@@ -517,7 +523,7 @@
     opacity: 0.7;
     text-shadow: 1px 1px 3px #C0C0C0;
     font-size: 26px;
-    width: 200px;
+    width: 300px;
     height: 40px;
     display: none;
     line-height: 28px;
