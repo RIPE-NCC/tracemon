@@ -48,6 +48,8 @@ define([], function(){
         titleSelectTimeRange: "Select a time range to visualise (UTC)",
         alert: {
             notValidGroupName: "The group name can contain only letters and numbers"
-        }
+        },
+
+        measurementAdded: "Measurement loaded. Add now the probes/groups you want to display"
     }
 });

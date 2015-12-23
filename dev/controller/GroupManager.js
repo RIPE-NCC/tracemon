@@ -18,6 +18,15 @@ define([
             return targets;
         };
 
+        this._getMeasurementsIds = function(){
+            var ids = [];
+            for (var msmID in env.originalMeasurements) {
+                ids.push(msmID);
+            }
+
+            return ids;
+        };
+
 
         this.groupByCountry = function(targets, minimumProbesPerGroup, maximumProbesPerGroup, minimumGroupNumber, maximumNumberOfGroups){
             var groups, countryCode, probe, cleanGroups;
@@ -65,7 +74,7 @@ define([
                     env.main.addGroup(
                         Object.keys(env.measurements)[0],
                         $.map(cleanGroups[countryCode], function(item){return item.id}).slice(0, maximumProbesPerGroup),
-                        countryCode,
+                        this._getLabel(countryCode),
                         "multi-probes");
                     maximumNumberOfGroups--;
                 }
@@ -77,6 +86,15 @@ define([
 
         };
 
+
+        this._getLabel = function(label){
+
+            for (var replacement in env.groupingLabelReplace){
+                label = label.replace(replacement, env.groupingLabelReplace[replacement]);
+            }
+
+            return label;
+        };
 
         this.groupByFirstProbes = function(numberOfProbes) {
             var probe;
@@ -116,7 +134,7 @@ define([
                     env.main.addGroup(
                         msmID,
                         $.map(group, function(item){return item.id}).slice(0, maximumProbesPerGroup),
-                        target,
+                        this._getLabel(target),
                         "multi-probes");
 
                     maximumNumberOfGroups--;
@@ -129,22 +147,76 @@ define([
             }
         };
 
-        this.group = function(){
+
+        this.groupByMeasurement = function(maximumNumberOfGroups, maximumProbesPerGroup){
+            var probe, measurement, group;
+
+            if (Object.keys(env.originalMeasurements).length > 1){ // grouping is applicable
+                for (var msmID in env.originalMeasurements) {
+                    measurement = env.originalMeasurements[msmID];
+                    group = [];
+
+                    for (var n=0,length=measurement.probes.length; n<length; n++){
+                        probe = measurement.probes[n];
+                        group.push(probe);
+                    }
+
+                    if (maximumNumberOfGroups <= 0){
+                        break;
+                    }
+
+                    env.main.addGroup(
+                        msmID,
+                        $.map(group, function(item){return item.id}).slice(0, maximumProbesPerGroup),
+                        this._getLabel(msmID),
+                        "multi-probes");
+
+                    maximumNumberOfGroups--;
+                }
+
+            } else {
+                throw "Grouping by measurement is not possible"
+            }
+        };
+
+        this.group = function(type){
             var targets;
 
             targets = this._getTargets();
-            try {
+
+            if (type) {
+                switch (type) {
+                    case "target":
+                        this.groupByTarget(targets, config.maximumNumberOfGroups, config.maximumProbesPerGroup);
+                        break;
+
+                    case "country":
+                        this.groupByCountry(targets, config.minimumProbesPerGroup, config.maximumProbesPerGroup, config.minimumGroupNumber, config.maximumNumberOfGroups);
+                        break;
+
+                    case "measurement":
+                        this.groupByMeasurement(config.maximumNumberOfGroups, config.maximumProbesPerGroup);
+                        break;
+
+                    case "basic":
+                        this.groupByFirstProbes(config.numberOfSpareProbes);
+                        break;
+                }
+            } else {
 
                 try {
-                    this.groupByTarget(targets, config.maximumNumberOfGroups, config.maximumProbesPerGroup);
-                } catch(error) {
-                    this.groupByCountry(targets, config.minimumProbesPerGroup, config.maximumProbesPerGroup, config.minimumGroupNumber, config.maximumNumberOfGroups);
+
+                    try {
+                        this.groupByTarget(targets, config.maximumNumberOfGroups, config.maximumProbesPerGroup);
+                    } catch (error) {
+                        this.groupByCountry(targets, config.minimumProbesPerGroup, config.maximumProbesPerGroup, config.minimumGroupNumber, config.maximumNumberOfGroups);
+                    }
+
+                } catch (error) {
+                    this.groupByFirstProbes(config.numberOfSpareProbes);
                 }
 
-            } catch(error) {
-                this.groupByFirstProbes(config.numberOfSpareProbes);
             }
-
             env.template.updateInfo();
             env.urlManager.updateUrl();
         }

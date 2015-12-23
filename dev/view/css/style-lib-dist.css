@@ -196,8 +196,8 @@
   .latencymon-container .btn:active, .latencymon-container .btn.active {
     background-image: none; }
   .latencymon-container .btn-default {
-    background-image: -webkit-linear-gradient(top, white 0, #e0e0e0 100%);
-    background-image: linear-gradient(to bottom, white 0, #e0e0e0 100%);
+    background-image: -webkit-linear-gradient(top, #fff 0, #e0e0e0 100%);
+    background-image: linear-gradient(to bottom, #fff 0, #e0e0e0 100%);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#ffe0e0e0', GradientType=0);
     filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
     background-repeat: repeat-x;
@@ -279,8 +279,8 @@
     -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.075);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.075); }
   .latencymon-container .dropdown-menu > li > a:hover, .latencymon-container .dropdown-menu > li > a:focus {
-    background-image: -webkit-linear-gradient(top, whitesmoke 0, #e8e8e8 100%);
-    background-image: linear-gradient(to bottom, whitesmoke 0, #e8e8e8 100%);
+    background-image: -webkit-linear-gradient(top, #f5f5f5 0, #e8e8e8 100%);
+    background-image: linear-gradient(to bottom, #f5f5f5 0, #e8e8e8 100%);
     background-repeat: repeat-x;
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff5f5f5', endColorstr='#ffe8e8e8', GradientType=0);
     background-color: #e8e8e8; }
@@ -291,8 +291,8 @@
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff428bca', endColorstr='#ff357ebd', GradientType=0);
     background-color: #357ebd; }
   .latencymon-container .navbar-default {
-    background-image: -webkit-linear-gradient(top, white 0, #f8f8f8 100%);
-    background-image: linear-gradient(to bottom, white 0, #f8f8f8 100%);
+    background-image: -webkit-linear-gradient(top, #fff 0, #f8f8f8 100%);
+    background-image: linear-gradient(to bottom, #fff 0, #f8f8f8 100%);
     background-repeat: repeat-x;
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#fff8f8f8', GradientType=0);
     filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
@@ -309,14 +309,14 @@
   .latencymon-container .navbar-brand, .latencymon-container .navbar-nav > li > a {
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25); }
   .latencymon-container .navbar-inverse {
-    background-image: -webkit-linear-gradient(top, #3c3c3c 0, #222222 100%);
-    background-image: linear-gradient(to bottom, #3c3c3c 0, #222222 100%);
+    background-image: -webkit-linear-gradient(top, #3c3c3c 0, #222 100%);
+    background-image: linear-gradient(to bottom, #3c3c3c 0, #222 100%);
     background-repeat: repeat-x;
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff3c3c3c', endColorstr='#ff222222', GradientType=0);
     filter: progid:DXImageTransform.Microsoft.gradient(enabled=false); }
   .latencymon-container .navbar-inverse .navbar-nav > .active > a {
-    background-image: -webkit-linear-gradient(top, #222222 0, #282828 100%);
-    background-image: linear-gradient(to bottom, #222222 0, #282828 100%);
+    background-image: -webkit-linear-gradient(top, #222 0, #282828 100%);
+    background-image: linear-gradient(to bottom, #222 0, #282828 100%);
     background-repeat: repeat-x;
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff222222', endColorstr='#ff282828', GradientType=0);
     -webkit-box-shadow: inset 0 3px 9px rgba(0, 0, 0, 0.25);
@@ -354,8 +354,8 @@
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff2dede', endColorstr='#ffe7c3c3', GradientType=0);
     border-color: #dca7a7; }
   .latencymon-container .progress {
-    background-image: -webkit-linear-gradient(top, #ebebeb 0, whitesmoke 100%);
-    background-image: linear-gradient(to bottom, #ebebeb 0, whitesmoke 100%);
+    background-image: -webkit-linear-gradient(top, #ebebeb 0, #f5f5f5 100%);
+    background-image: linear-gradient(to bottom, #ebebeb 0, #f5f5f5 100%);
     background-repeat: repeat-x;
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffebebeb', endColorstr='#fff5f5f5', GradientType=0); }
   .latencymon-container .progress-bar {
@@ -398,8 +398,8 @@
     -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); }
   .latencymon-container .panel-default > .panel-heading {
-    background-image: -webkit-linear-gradient(top, whitesmoke 0, #e8e8e8 100%);
-    background-image: linear-gradient(to bottom, whitesmoke 0, #e8e8e8 100%);
+    background-image: -webkit-linear-gradient(top, #f5f5f5 0, #e8e8e8 100%);
+    background-image: linear-gradient(to bottom, #f5f5f5 0, #e8e8e8 100%);
     background-repeat: repeat-x;
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff5f5f5', endColorstr='#ffe8e8e8', GradientType=0); }
   .latencymon-container .panel-primary > .panel-heading {
@@ -428,8 +428,8 @@
     background-repeat: repeat-x;
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff2dede', endColorstr='#ffebcccc', GradientType=0); }
   .latencymon-container .well {
-    background-image: -webkit-linear-gradient(top, #e8e8e8 0, whitesmoke 100%);
-    background-image: linear-gradient(to bottom, #e8e8e8 0, whitesmoke 100%);
+    background-image: -webkit-linear-gradient(top, #e8e8e8 0, #f5f5f5 100%);
+    background-image: linear-gradient(to bottom, #e8e8e8 0, #f5f5f5 100%);
     background-repeat: repeat-x;
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffe8e8e8', endColorstr='#fff5f5f5', GradientType=0);
     border-color: #dcdcdc;
@@ -542,7 +542,7 @@
   @media print {
     .latencymon-container * {
       text-shadow: none !important;
-      color: black !important;
+      color: #000 !important;
       background: transparent !important;
       box-shadow: none !important; }
     .latencymon-container a, .latencymon-container a:visited {
@@ -568,19 +568,19 @@
     .latencymon-container h2, .latencymon-container h3 {
       page-break-after: avoid; }
     .latencymon-container select {
-      background: white !important; }
+      background: #fff !important; }
     .latencymon-container .navbar {
       display: none; }
     .latencymon-container .table td, .latencymon-container .table th {
-      background-color: white !important; }
+      background-color: #fff !important; }
     .latencymon-container .btn > .caret, .latencymon-container .dropup > .btn > .caret {
-      border-top-color: black !important; }
+      border-top-color: #000 !important; }
     .latencymon-container .label {
       border: 1px solid #000; }
     .latencymon-container .table {
       border-collapse: collapse !important; }
     .latencymon-container .table-bordered th, .latencymon-container .table-bordered td {
-      border: 1px solid #dddddd !important; } }
+      border: 1px solid #ddd !important; } }
   .latencymon-container * {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -3236,14 +3236,14 @@
   .latencymon-container .alert-danger .alert-link {
     color: #843534; }
 @-webkit-keyframes progress-bar-stripes {
-  .latencymon-container from {
+  from {
     background-position: 40px 0; }
-  .latencymon-container to {
+  to {
     background-position: 0 0; } }
 @keyframes progress-bar-stripes {
-  .latencymon-container from {
+  from {
     background-position: 40px 0; }
-  .latencymon-container to {
+  to {
     background-position: 0 0; } }
   .latencymon-container .progress {
     overflow: hidden;
@@ -4702,7 +4702,7 @@
     font-size: 1em; }
   .latencymon-container .ui-widget-content {
     border: 1px solid #ddd;
-    background: #eeeeee url("images/ui-bg_highlight-soft_100_eeeeee_1x100.png") 50% top repeat-x;
+    background: #eee url("images/ui-bg_highlight-soft_100_eeeeee_1x100.png") 50% top repeat-x;
     color: #333; }
   .latencymon-container .ui-widget-content a {
     color: #333; }
@@ -4731,7 +4731,7 @@
     text-decoration: none; }
   .latencymon-container .ui-state-active, .latencymon-container .ui-widget-content .ui-state-active, .latencymon-container .ui-widget-header .ui-state-active {
     border: 1px solid #fbd850;
-    background: white url("images/ui-bg_glass_65_ffffff_1x400.png") 50% 50% repeat-x;
+    background: #fff url("images/ui-bg_glass_65_ffffff_1x400.png") 50% 50% repeat-x;
     font-weight: bold;
     color: #eb8f00; }
   .latencymon-container .ui-state-active a, .latencymon-container .ui-state-active a:link, .latencymon-container .ui-state-active a:visited {
@@ -5139,13 +5139,13 @@
   .latencymon-container .ui-corner-all, .latencymon-container .ui-corner-bottom, .latencymon-container .ui-corner-right, .latencymon-container .ui-corner-br {
     border-bottom-right-radius: 4px; }
   .latencymon-container .ui-widget-overlay {
-    background: #666666 url("images/ui-bg_diagonals-thick_20_666666_40x40.png") 50% 50% repeat;
+    background: #666 url("images/ui-bg_diagonals-thick_20_666666_40x40.png") 50% 50% repeat;
     opacity: .5;
     filter: Alpha(Opacity=50); }
   .latencymon-container .ui-widget-shadow {
     margin: -5px 0 0 -5px;
     padding: 5px;
-    background: black url("images/ui-bg_flat_10_000000_40x100.png") 50% 50% repeat-x;
+    background: #000 url("images/ui-bg_flat_10_000000_40x100.png") 50% 50% repeat-x;
     opacity: .2;
     filter: Alpha(Opacity=20);
     border-radius: 5px; }
@@ -5163,8 +5163,12 @@
     box-sizing: content-box !important;
     min-width: 860px !important; }
   .latencymon-container .chart-item {
-    /*background-repeat: ;*/
-    background: url("../img/latencymon_watermark.png") no-repeat 60px 10px; }
+    background-image: url("../img/latencymon_watermark.svg");
+    background-repeat: no-repeat;
+    background-position: 65px 10px;
+    background-size: 100px 30px; }
+  .latencymon-container .watermark-color {
+    fill: #FFFFFF !important; }
   .latencymon-container .axis path, .latencymon-container .axis line {
     fill: none;
     stroke: #000;
@@ -5338,11 +5342,11 @@
     padding: 4px 4px 2px 4px;
     display: inline-block;
     background-color: #FFFFFF;
-    background-image: -webkit-gradient(linear, left top, left bottom, from(white), to(#d0d0d0));
-    background-image: -webkit-linear-gradient(top, white, #d0d0d0);
-    background-image: -moz-linear-gradient(top, white, #d0d0d0);
-    background-image: -o-linear-gradient(top, white, #d0d0d0);
-    background-image: linear-gradient(to bottom, white, #d0d0d0);
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#D0D0D0));
+    background-image: -webkit-linear-gradient(top, #FFFFFF, #D0D0D0);
+    background-image: -moz-linear-gradient(top, #FFFFFF, #D0D0D0);
+    background-image: -o-linear-gradient(top, #FFFFFF, #D0D0D0);
+    background-image: linear-gradient(to bottom, #FFFFFF, #D0D0D0);
     border-radius: 5px; }
   .latencymon-container .dropdown-panel {
     width: 950px;
@@ -5454,12 +5458,12 @@
   .latencymon-container .measurement-id {
     clear: both; }
 @keyframes blinkGreen {
-  .latencymon-container from {
+  from {
     background-color: #6ca100; }
-  .latencymon-container 50%  {
+  50% {
     background-color: #aaff03;
     box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #6e9f01 0 -1px 9px, #6ca100 0 2px 0; }
-  .latencymon-container to {
+  to {
     background-color: #6ca100; } }
   .latencymon-container .led-green {
     width: 12px;
@@ -5509,7 +5513,7 @@
     opacity: 0.7;
     text-shadow: 1px 1px 3px #C0C0C0;
     font-size: 26px;
-    width: 200px;
+    width: 300px;
     height: 40px;
     display: none;
     line-height: 28px; }
@@ -5593,3 +5597,5 @@
   font-family: 'Glyphicons Halflings';
   src: url(../fonts/glyphicons-halflings-regular.eot);
   src: url(../fonts/glyphicons-halflings-regular.eot?#iefix) format("embedded-opentype"), url(../fonts/glyphicons-halflings-regular.woff) format("woff"), url(../fonts/glyphicons-halflings-regular.ttf) format("truetype"), url(../fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular) format("svg"); }
+
+/*# sourceMappingURL=style-lib-dist.css.map */

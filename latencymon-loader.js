@@ -121,7 +121,7 @@ define([
          * Init Dependency Injection Vector
          */
         env = {
-            "version": "15.11.15.2",
+            "version": "15.12.23.2",
             "widgetUrl": LATENCYMON_WIDGET_URL + "dev/",
             "autoStart": (instanceParams.autoStart != undefined) ? instanceParams.autoStart : config.autoStart,
             "dataApiResults": instanceParams.dataApiResults || config.dataAPIs.results,
@@ -129,6 +129,8 @@ define([
             "streamingUrl": instanceParams.streamingHost || config.streamingUrl,
             "syncWithRealTimeData": (instanceParams.syncWithRealTimeData != undefined) ? instanceParams.syncWithRealTimeData : config.syncWithRealTimeData,
             "autoStartGrouping": (instanceParams.autoStartGrouping != undefined) ? instanceParams.autoStartGrouping : config.autoStartGrouping,
+            "groupingType": instanceParams.groupingType,
+            "groupingLabelReplace": (instanceParams.groupingLabelReplace != undefined) ? instanceParams.groupingLabelReplace : {},
             "parentDom": $(parentDom),
             "queryParams": queryParams
         };

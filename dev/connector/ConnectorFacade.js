@@ -175,7 +175,6 @@ define([
                 env.main.error('This update refers to a probe not in the set of the available probes (group: ' + groupId + ')', "connection-fail");
             }
 
-
         };
 
 

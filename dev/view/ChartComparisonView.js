@@ -1,8 +1,10 @@
 define([
     "latencymon.lib.d3-magnetic-cursor",
     "latencymon.env.config",
-    "latencymon.env.utils"
-], function(d3, config, utils) {
+    "latencymon.env.utils",
+    "latencymon.lib.jquery-amd",
+    "latencymon.env.languages.en"
+], function(d3, config, utils, $, lang) {
 
     var ChartComparisonView = function (env, group) {
         var margin, width, height, x, y, xAxis, yAxis, svg, lines, dots, lineSkeletons, colors, $this, maxProbesPossible,
@@ -10,6 +12,7 @@ define([
             lastCheckedNumberOfProbes, timePointer, whiteLeftBackground, extraHeight, showDots, popUpTimer, popUpDiv;
 
         this.group = group;
+        this.cache = {};
         this.lastUpdateParams = {};
         this.type = "comparison";
         $this = this;
@@ -99,9 +102,27 @@ define([
 
 
         this.getChartDom = function () {
-            var probeDom, infoDom, groupDescription, dragIcon, deleteIcon;
+            var probeDom, infoDom, groupDescription, dragIcon, deleteIcon, groupDescriptionText, groupDescriptionDom,
+                numberDisplayedProbes, displayedProbeListTruncated, explodeIcon;
 
-            groupDescription = group.toString();
+            groupDescriptionText = group.toString();
+            groupDescriptionDom = [];
+            numberDisplayedProbes = 0;
+            displayedProbeListTruncated = false;
+
+            group.forEach(function(probe){
+                var probeId;
+
+                numberDisplayedProbes++;
+                if (numberDisplayedProbes <= config.maxNumberOfDisplayedProbesOnChartInfo) {
+                    probeId = probe.id;
+                    groupDescriptionDom.push(' <span style="color:' + $this._getColor("sample-" + probeId) + ';" data-group-id="' + group.id + '" data-probe-id="' + probeId + '" class="probe-listed" title="' + probeId + ' (no data)">' + probeId + '</span>');
+                } else {
+                    displayedProbeListTruncated = true;
+                }
+            });
+
+
             probeDom = $('<div class="chart-item probe-multi-chart" id="chart-probe-' + group.id + '"></div>');
             infoDom = $('<div class="probe-multi-info"></div>')
                 .height(chartHeight)
@@ -109,16 +130,32 @@ define([
 
             dragIcon = $('<img src="' + env.widgetUrl + 'view/img/wbr_drag.png" class="drag-icon"/>');
             deleteIcon = $('<img src="' + env.widgetUrl +'view/img/wbr_bin.png" class="delete-icon"/>');
+            explodeIcon = $('<img src="' + env.widgetUrl +'view/img/wbr_explode.png" class="explode-icon" title="' + lang.explodeIcon + '"/>');
+
 
             infoDom.append('<div class="probe-info-line first-line">' +  group.id + '</div>');
-            infoDom.append('<div class="probe-info-line" title="' + groupDescription + '">Probes: ' + $.map(groupDescription.split(", "), function(item){return '<span style="color:' + $this._getColor("sample-" + item) + ';">' + item + '</span>';}).join(", ") + '</div>');
+            infoDom.append('<div class="probe-info-line" title="' + groupDescriptionText + '">Probes: ' +  ((displayedProbeListTruncated) ? groupDescriptionDom + "..." : groupDescriptionDom) + '</div>');
+            infoDom.append('<div class="probe-info-line">Target: ' + env.measurements[this.group.measurementId].target + '</div>');
+
 
             popUpDiv = $('<div class="probe-hover-popup"></div>');
 
-            probeDom.append(infoDom).append(dragIcon).append(deleteIcon).append(popUpDiv);
+            probeDom.append(infoDom).append(dragIcon).append(deleteIcon).append(explodeIcon).append(popUpDiv);
 
             deleteIcon.on("click", function(){
                 env.main.removeGroup($this.group.id);
+            });
+
+            explodeIcon.on("click", function(){
+                var probes, msmId;
+
+                probes = $this.group.probes;
+
+                env.main.removeGroup($this.group.id);
+                msmId = $this.group.measurementId;
+                for (var i= 0,lengthi=probes.length; i<lengthi; i++){
+                    env.main.addProbe(msmId, probes[i].id);
+                }
             });
 
             probeDom.resizable({
@@ -141,8 +178,74 @@ define([
         };
 
 
+        this._separateSamples = function(){
+            var sample, indexedProbes;
+
+            indexedProbes = {};
+            for (var n= 0,length=$this.samples.length; n<length; n++){
+                sample = $this.samples[n];
+
+                if (!indexedProbes[sample.probe]){
+                    indexedProbes[sample.probe] = [];
+                }
+
+                indexedProbes[sample.probe].push(sample);
+            }
+
+            this.cache.lastIndexedProbes = indexedProbes;
+            return indexedProbes;
+        };
+
+        this._getMeasurementInterval = function(measurementId, probeId){
+            var key = measurementId + '-' + probeId;
+
+            if (!this.cache.measurementInterval) {
+                this.cache.measurementInterval = {};
+            }
+
+            if (!this.cache.measurementInterval[key]){
+                this.cache.measurementInterval[key] = env.main.getProbeOriginalMeasurement(measurementId, probeId);
+            }
+
+            return this.cache.measurementInterval[key]["currentInterval"];
+        };
+
+
+        this._addUndefinedPoints = function(data, measurementId, probeId){
+            var currentPoint, nextPoint, newDataSet, fakePoint, resolutionPeriod;
+
+            newDataSet = [];
+
+            resolutionPeriod = this._getMeasurementInterval(measurementId, probeId);
+
+            if (data) {
+                for (var n = 0, length = data.length; n < length - 1; n++) {
+                    currentPoint = data[n];
+                    nextPoint = data[n + 1];
+
+                    newDataSet.push(currentPoint);
+                    if ((nextPoint.date.getTime() - currentPoint.date.getTime()) > ((resolutionPeriod * 3) / 2 * 1000)) {
+                        fakePoint = {
+                            date: new Date(currentPoint.date.getTime() + 10000),
+                            rcvd: 0,
+                            sent: 0,
+                            min: null,
+                            max: null,
+                            avg: null,
+                            cumulativeValue: null
+                        };
+                        newDataSet.push(fakePoint)
+                    }
+                    newDataSet.push(nextPoint);
+                }
+            }
+
+            return newDataSet;
+        };
+
+
         this.update = function (xDomain, yDomain, yRange, yUnit) {
-            var data;
+            var data, indexedProbes;
 
             data = this.group;
 
@@ -153,11 +256,12 @@ define([
 
             this.updateChart(data, xDomain, yDomain, yRange, yUnit);
 
+            indexedProbes = this._separateSamples();
             data.forEach(function(probe) {
                 var key, probeData;
 
                 key = "sample-" + probe.id;
-                probeData = probe.averageFilteredData || $this._getProbeSeries(probe.filteredData);
+                probeData = $this._getProbeSeries($this._addUndefinedPoints(indexedProbes[probe.id], $this.group.measurementId, probe.id));
                 $this.updateLine(probeData, key);
                 $this.updateDots(probeData, key);
             });
@@ -181,7 +285,16 @@ define([
         };
 
 
-        this.updateDots = function (data, key) {
+        this.updateDots = function (originalData, key) {
+            var item, data;
+
+            data = [];
+            for (var n=0,length=originalData.length; n<length; n++){
+                item = originalData[n];
+                if (item != null && item["cumulativeValue"] != null && item["packetLoss"] < 1){
+                    data.push(item);
+                }
+            }
 
             svg
                 .selectAll(".dot." + key)
@@ -213,6 +326,7 @@ define([
                 .attr("class", function(dataPoint){
                     return "dot fill-normal-dot " + key  + " p" + $this.group.id;
                 })
+                .attr("stroke", $this._getColor(key))
                 .attr("cx", lineSkeletons[key].x())
                 .attr("cy", lineSkeletons[key].y())
                 .attr("opacity", function(){
@@ -285,7 +399,7 @@ define([
 
             for (var n=0,length=this.group.probes.length; n<length; n++){
                 probe = this.group.probes[n];
-                probe.averageFilteredData = $this._getProbeSeries(probe.filteredData);
+                probe.averageFilteredData = $this._getProbeSeries(probe.data);
                 globalSeries = globalSeries.concat(probe.averageFilteredData);
             }
 
@@ -298,8 +412,10 @@ define([
 
             samples = [];
 
-            for (var n=0,length=data.length; n<length; n++){
-                samples.push($this._getAverageSampleValue(data[n]));
+            if (data){
+                for (var n=0,length=data.length; n<length; n++){
+                    samples.push($this._getAverageSampleValue(data[n]));
+                }
             }
 
             return samples;
@@ -307,6 +423,7 @@ define([
 
 
         this.draw = function (xDomain, yDomain, yRange, yUnit) {
+            var indexedProbes;
 
             this.lastUpdateParams.xDomain = xDomain;
             this.lastUpdateParams.yDomain = yDomain;
@@ -315,11 +432,13 @@ define([
 
             this.initChart(this.group, xDomain, yDomain, yRange, yUnit);
 
+            indexedProbes = this._separateSamples();
+
             this.group.forEach(function(probe) {
                 var key, probeData;
 
-                probeData = probe.averageFilteredData || $this._getProbeSeries(probe.filteredData);
                 key = "sample-" + probe.id;
+                probeData = $this._getProbeSeries($this._addUndefinedPoints(indexedProbes[probe.id], $this.group.measurementId, probe.id));
                 lineSkeletons[key] = $this.computeLine(probeData, "cumulativeValue");
                 lines[key] = $this.drawLine(probeData, key, lineSkeletons[key]);
                 dots[key] = $this.drawDots(probeData, key, lineSkeletons[key]);
@@ -642,13 +761,13 @@ define([
                 description.push("Date: " + utils.dateToString(dataPoint.date));
                 description.push('<span style="color:' + $this._getColor("sample-" + dataPoint.probe) + ';">Probe ID: ' + dataPoint.probe + '</span>');
                 description.push("RTT: " + ((dataPoint.min) ? dataPoint.min.toFixed(2) + " | " : "") + ((dataPoint.avg) ? dataPoint.avg.toFixed(2) + " | " : "") + ((dataPoint.max) ? dataPoint.max.toFixed(2) : ""));
-                //description.push("Med: " + dataPoint.avg.toFixed(2));
-                //description.push("Max: " + dataPoint.max.toFixed(2));
-                if (dataPoint.packetLoss) {
-                    description.push("PacketLoss: " + (dataPoint.packetLoss.toFixed(2) * 100) + "%");
-                    description.push("" + dataPoint.sent + " packet sent, "+ dataPoint.received + " received");
 
+
+                if (dataPoint.packetLoss != null) {
+                    description.push("PacketLoss: " + (dataPoint.packetLoss.toFixed(2) * 100) + "%");
                 }
+
+                description.push("" + dataPoint.sent + " packet sent, "+ dataPoint.received + " received");
 
                 popUpDiv.html(description.join("<br>"));
             }, config.hoverPopUpDelay);
@@ -663,18 +782,20 @@ define([
             smallestDistance = Infinity;
 
             group.forEach(function(probe){
-                data = probe.filteredData;
+                data = $this.cache.lastIndexedProbes[probe.id];
 
-                for (var n = 0; n < data.length; n++) {
-                    var drawnX;
+                if (data){
+                    for (var n = 0,length=data.length; n < length; n++) {
+                        var drawnX;
 
-                    sample = data[n];
-                    drawnX = sample.drawnX;
-                    distance = (drawnX < xValue) ? xValue - drawnX: drawnX - xValue;
+                        sample = data[n];
+                        drawnX = sample.drawnX;
+                        distance = (drawnX < xValue) ? xValue - drawnX: drawnX - xValue;
 
-                    if (distance < smallestDistance){
-                        closestSample = sample;
-                        smallestDistance = distance;
+                        if (distance < smallestDistance){
+                            closestSample = sample;
+                            smallestDistance = distance;
+                        }
                     }
                 }
 
@@ -684,7 +805,16 @@ define([
         };
 
 
-        this.drawDots = function (data, key, line) {
+        this.drawDots = function (originalData, key, line) {
+            var item, data;
+
+            data = [];
+            for (var n=0,length=originalData.length; n<length; n++){
+                item = originalData[n];
+                if (item != null && item["cumulativeValue"] != null && item["packetLoss"] < 1){
+                    data.push(item);
+                }
+            }
 
             return svg
                 .selectAll(".dot." + key)
@@ -725,7 +855,7 @@ define([
                     element = elements[n];
                     if (element.cumulativeValue) {
 
-                        if (element.packetLoss > 0){
+                        if (previousElement.cumulativeValue && element.packetLoss > 0){
                             var q, m, x1, y1, x2, y2, dashSize, xn, yn, previousX, previousY, dashSpace, even,
                                 firstSegment, increment, endPoint;
 

@@ -9,8 +9,7 @@ define([
     var ChartMultiProbeView = function (env, group) {
         var margin, width, height, x, y, xAxis, yAxis, svg, areas, lines, dots, lineSkeletons, areaSkeletons, $this,
             marginBottomLastItem, marginBottomNormalItem, chartHeight, dotsRadius, popUpDiv, popUpTimer, extraHeight,
-            timePointer, whiteLeftBackground, averageSeriesCache, lastTimeWindow,
-            lastDomainRedrawn, currentSeries;
+            timePointer, whiteLeftBackground, averageSeriesCache, lastTimeWindow, lastDomainRedrawn, currentSeries;
 
         this.group = group;
         this.lastUpdateParams = {};

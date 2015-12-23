@@ -190,8 +190,8 @@ define([
 
         };
 
-        this.autoGroupMeasurements = function(){
-            env.groupManager.group();
+        this.autoGroupMeasurements = function(groupingType){
+            env.groupManager.group(groupingType);
         };
 
         this.addMeasurement = function(measurementId, callback, context, mergeSameTarget){ // if mergeSameTarget is undefined, the default value is chosen
@@ -606,7 +606,7 @@ define([
                         }
 
                         if (!conf.mergedMeasurements && !conf.groups && env.autoStartGrouping){
-                            $this.autoGroupMeasurements();
+                            $this.autoGroupMeasurements(env.groupingType);
                         }
                     });
 
