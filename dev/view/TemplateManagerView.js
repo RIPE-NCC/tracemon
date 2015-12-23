@@ -176,6 +176,7 @@ define([
             '<input type="text" class="form-control" placeholder="Group name"></div>' +
             '<button type="button" class="btn btn-default add-line-panel-close">Cancel</button>' +
             '<button type="button" class="btn btn-success add-line"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add</button>' +
+            '<button type="button" class="btn btn-success add-comparison"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Compare</button>' +
             '<button type="button" class="btn btn-success add-group"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Group</button>' +
             '</div>' +
             '</div>');
@@ -710,8 +711,14 @@ define([
 
                 env.parentDom.find(".add-measurement-submit")
                     .on("mouseup", function(){
-                        env.main.addMeasurement(env.parentDom.find(".measurement-id").val());
-                        $this.addMeasurementPanel.fadeOut();
+                        try {
+                            env.main.addMeasurement(env.parentDom.find(".measurement-id").val());
+                            $this.addMeasurementPanel.fadeOut();
+                            env.main.error(lang.measurementAdded, "info");
+                            $this.openAddLineMenu();
+                        } catch(e) {
+                            // A message is already shown, don't do anything
+                        }
                     });
 
 
