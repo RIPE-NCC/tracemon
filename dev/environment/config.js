@@ -8,8 +8,11 @@ define([], function(){
     return {
         widgetPrefix: "lm",
         dataAPIs: {
-            results: "https://atlas.ripe.net/api/v2/measurements/0000/routequake/results.jsonp",
-            meta: "https://atlas.ripe.net/api/v2/measurements/0000/routequake/meta.jsonp"
+            results: "https://atlas.ripe.net/api/v2/measurements/0000/results.jsonp",
+            metadata: "https://atlas.ripe.net/api/v2/measurements/0000/routequake/meta.jsonp",
+            dataApiAsAnnotation: "https://stat.ripe.net/data/network-info/data.json",
+            dataApiReverseDns: "https://stat.ripe.net/data/reverse-dns-ip/data.json",
+            dataApiGeolocation: "https://stat.ripe.net/data/geoloc/data.json"
         },
         probeInfoPageUrl: "https://atlas.ripe.net/probes/%p/",
         streamingUrl: "https://atlas-stream.ripe.net:443",

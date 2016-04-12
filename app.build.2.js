@@ -90,7 +90,7 @@
     wrapShim: true,
     generateSourceMaps: true,
 
-    out: "latencymon-dist.js"
+    out: "tracemon-dist.js"
 
 
 })

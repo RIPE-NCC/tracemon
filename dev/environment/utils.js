@@ -1,5 +1,5 @@
 define([
-    "latencymon.lib.date-format"
+    "tracemon.lib.date-format"
 ], function(){
     var locale, timeZoneOffset;
 
@@ -710,8 +710,42 @@ define([
                 .replace(/&lt;/g, '<')
                 .replace(/&gt;/g, '>')
                 .replace(/&amp;/g, '&');
-        }
+        },
 
+        observer: {
+            subscriptions: {},
+
+            publish: function (event, obj){
+                var callbacks, callback;
+
+                callbacks = this.subscriptions[event] || [];
+                for (var n=0,length=callbacks.length; n < length; n++){
+                    callback = callbacks[n];
+                    callback.callback.call(callback.context, obj);
+                }
+            },
+
+            subscribe: function (event, callback, context){
+                if (!this.subscriptions[event]){
+                    this.subscriptions[event] = [];
+                }
+                this.subscriptions[event].push({ callback: callback, context: context })
+            }
+        },
+
+        isPrivateIp: function(addr){
+            return /^(::f{4}:)?10\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/
+                    .test(addr) ||
+                /^(::f{4}:)?192\.168\.([0-9]{1,3})\.([0-9]{1,3})$/.test(addr) ||
+                /^(::f{4}:)?172\.(1[6-9]|2\d|30|31)\.([0-9]{1,3})\.([0-9]{1,3})$/
+                    .test(addr) ||
+                /^(::f{4}:)?127\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/.test(addr) ||
+                /^(::f{4}:)?169\.254\.([0-9]{1,3})\.([0-9]{1,3})$/.test(addr) ||
+                /^fc00:/i.test(addr) ||
+                /^fe80:/i.test(addr) ||
+                /^::1$/.test(addr) ||
+                /^::$/.test(addr);
+        }
 
     }
 });
