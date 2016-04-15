@@ -9,6 +9,7 @@ define([
     "tracemon.env.utils",
     "tracemon.lib.jquery-amd",
     "tracemon.connector.history",
+    "tracemon.connector.live",
     "tracemon.model.hop",
     "tracemon.model.host",
     "tracemon.model.attempt",
@@ -16,10 +17,10 @@ define([
     "tracemon.model.measurement",
     "tracemon.model.traceroute",
     "tracemon.lib.parsePrefix"
-], function(config, utils, $, HistoryConnector, Hop, Host, Attempt, AutonomousSystem, Measurement, Traceroute, prefixUtils) {
+], function(config, utils, $, HistoryConnector, LiveConnector, Hop, Host, Attempt, AutonomousSystem, Measurement, Traceroute, prefixUtils) {
 
     var TranslationConnector = function (env) {
-        var historyConnector, $this;
+        var historyConnector, $this, liveConnector;
 
         $this = this;
         historyConnector = new HistoryConnector(env);
@@ -30,6 +31,93 @@ define([
         this.geolocByIp = {};
         this.hostByIp = {};
 
+
+        liveConnector = new LiveConnector(env);
+
+
+        this.getRealTimeResults = function(filtering, callback, context){
+
+            liveConnector.subscribe(filtering, function(data){
+                var translated;
+
+                translated = [];
+                this.enrichDump([data], translated);
+                callback.call(context, translated);
+            }, this);
+        };
+
+
+
+        this.enrichDump = function(data, dump){
+            var translated, hops, hop, item, hopList, attempts, attemptsList, hostObj, hopObj, attemptObj,
+                hostAddress, tmpHost, errors;
+
+            for (var n1=0,length1 = data.length; n1<length1; n1++) {
+                hops = [];
+                item = data[n1];
+                errors = [];
+                hopList = item["result"];
+
+                for (var n2=0, length2=hopList.length; n2<length2; n2++) {
+                    hop = hopList[n2];
+                    if (hop.error || !hop.hop){
+                        errors.push(hop.error || "One hop was empty");
+                    } else {
+                        attemptsList = hop["result"];
+                        attempts = [];
+
+                        hopObj = new Hop();
+                        hopObj.number = hop["hop"];
+
+                        for (var n3 = 0, length3 = attemptsList.length; n3 < length3; n3++) {
+                            attemptObj = new Attempt();
+                            hostAddress = attemptsList[n3]["from"];
+                            tmpHost = $this.hostByIp[hostAddress];
+
+                            if (tmpHost && !tmpHost.isPrivate) {
+                                attemptObj.host = tmpHost;
+                            } else {
+                                if (hostAddress) {
+                                    attemptObj.host = new Host(hostAddress);
+                                    if (!attemptObj.host.isPrivate) {
+                                        attemptObj.host.setDeferredCallAutonomousSystems($this.getAutonomousSystem(attemptsList[n3]["from"]));
+                                    }
+                                    $this.hostByIp[hostAddress] = attemptObj.host;
+                                    utils.observer.publish("new-host", attemptObj.host);
+                                } else {
+                                    attemptObj.host = new Host(null);
+                                }
+                            }
+
+                            if (attemptsList[n3]["rtt"]) {
+                                attemptObj.rtt = attemptsList[n3]["rtt"];
+                                attemptObj.size = attemptsList[n3]["size"];
+                                attemptObj.ttl = attemptsList[n3]["ttl"];
+                            }
+                            hopObj.addAttempt(attemptObj);
+                        }
+                        hops.push(hopObj);
+                    }
+                }
+
+                hostObj = new Host(item["from"]);
+                hostObj.setProbeId(item["prb_id"]);
+                if (!hostObj.isPrivate) {
+                    hostObj.setDeferredCallAutonomousSystems($this.getAutonomousSystem(hostObj.ip));
+                }
+                translated = new Traceroute(item["prb_id"], item["timestamp"]);
+                translated.probe = hostObj;
+                translated.parisId = item["paris_id"];
+                translated.protocol = item["proto"];
+                translated.measurementId = item["msm_id"];
+                translated.addHops(hops);
+                translated.errors = errors;
+
+                dump.push(translated);
+            }
+        };
+
+
         this.getInitialDump = function (measurementId, options){
             var deferredCall;
 
@@ -37,73 +125,10 @@ define([
 
             historyConnector.getInitialDump(measurementId, options)
                 .done(function(data){
-                    var translated, hops, hop, item, hopList, attempts, attemptsList, hostObj, hopObj, attemptObj,
-                        hostAddress, tmpHost, dump, errors;
+                    var dump;
 
                     dump = [];
-                    for (var n1= 0,length1 = data.length; n1<length1; n1++) {
-                        hops = [];
-                        item = data[n1];
-                        errors = [];
-                        hopList = item["result"];
-
-                        for (var n2=0, length2=hopList.length; n2<length2; n2++) {
-                            hop = hopList[n2];
-                            if (hop.error || !hop.hop){
-                                errors.push(hop.error || "One hop was empty");
-                            } else {
-                                attemptsList = hop["result"];
-                                attempts = [];
-
-                                hopObj = new Hop();
-                                hopObj.number = hop["hop"];
-
-                                for (var n3 = 0, length3 = attemptsList.length; n3 < length3; n3++) {
-                                    attemptObj = new Attempt();
-                                    hostAddress = attemptsList[n3]["from"];
-                                    tmpHost = $this.hostByIp[hostAddress];
-
-                                    if (tmpHost && !tmpHost.isPrivate) {
-                                        attemptObj.host = tmpHost;
-                                    } else {
-                                        if (hostAddress) {
-                                            attemptObj.host = new Host(hostAddress);
-                                            if (!attemptObj.host.isPrivate) {
-                                                attemptObj.host.setDeferredCallAutonomousSystems($this.getAutonomousSystem(attemptsList[n3]["from"]));
-                                            }
-                                            $this.hostByIp[hostAddress] = attemptObj.host;
-                                            utils.observer.publish("new-host", attemptObj.host);
-                                        } else {
-                                            attemptObj.host = new Host(null);
-                                        }
-                                    }
-
-                                    if (attemptsList[n3]["rtt"]) {
-                                        attemptObj.rtt = attemptsList[n3]["rtt"];
-                                        attemptObj.size = attemptsList[n3]["size"];
-                                        attemptObj.ttl = attemptsList[n3]["ttl"];
-                                    }
-                                    hopObj.addAttempt(attemptObj);
-                                }
-                                hops.push(hopObj);
-                            }
-                        }
-
-                        hostObj = new Host(item["from"]);
-                        hostObj.setProbeId(item["prb_id"]);
-                        if (!hostObj.isPrivate) {
-                            hostObj.setDeferredCallAutonomousSystems($this.getAutonomousSystem(hostObj.ip));
-                        }
-                        translated = new Traceroute(item["prb_id"], item["timestamp"]);
-                        translated.probe = hostObj;
-                        translated.parisId = item["paris_id"];
-                        translated.protocol = item["proto"];
-                        translated.measurementId = item["msm_id"];
-                        translated.addHops(hops);
-                        translated.errors = errors;
-
-                        dump.push(translated);
-                    }
+                    $this.enrichDump(data, dump);
 
                     deferredCall.resolve(dump);
                 });
@@ -148,19 +173,11 @@ define([
                         this.autonomousSystemsByAs[asn] = autonomousSystemObj; // Store it
                     }
                     autonomousSystemObj.addPrefix(annotation["prefix"]); // Annotate the object with the new prefix
-                    //if (!this.autonomousSystemsByIp[ip]){
-                    //    this.autonomousSystemsByIp[ip] = [];
-                    //}
-                    //this.autonomousSystemsByIp[ip].push(autonomousSystemObj); // Index this AS by IP
-                    //asPrefixes = autonomousSystemObj.getPrefixes();
-
-                    //for (var n3=0,length3=asPrefixes.length; n3<length3; n3++){
                     encodedPrefix = "" + prefixUtils.encodePrefix(annotation["prefix"]); // Index the new prefix
                     if (!this.autonomousSystemsByPrefix[encodedPrefix]){
                         this.autonomousSystemsByPrefix[encodedPrefix] = [];
                     }
                     this.autonomousSystemsByPrefix[encodedPrefix].push(autonomousSystemObj);
-                    //}
 
                     autonomousSystems.push(autonomousSystemObj);
 

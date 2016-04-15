@@ -120,14 +120,15 @@ define([
 
         var c = new Connector(env);
 
-
         c.getMeasurementInfo(2984884)
             .done(function(measurement){
+
 
                 c.getInitialDump(measurement, {
                     startDate: utils.timestampToUTCDate(parseInt(new Date()/1000) - 3600)
                 }).done(function(measurement){
 
+                    c.getRealTimeResults(measurement, {msm: measurement.id});
                     var unoACaso = measurement.getLastState()["332"];
                     console.log(measurement.getLastState()["332"], measurement.getStateAt(unoACaso.date)["332"]);
                     // console.log(measurement.getTraceroutes(parseInt(new Date()/1000) - 360));

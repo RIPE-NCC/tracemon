@@ -13,6 +13,17 @@ define([
 
         autonomousSystems = {};
 
+
+        this.getRealTimeResults = function(measurement, filtering){
+            filtering.stream_type = "result";
+            translationConnector.getRealTimeResults(
+                filtering,
+                function(result){
+                    measurement.addTraceroutes([result]);
+                }, this);
+        };
+
+
         this.getInitialDump = function(measurement, options){
             var deferredCall;
 
@@ -35,7 +46,6 @@ define([
 
             translationConnector.getAutonomousSystem(ip)
                 .done(function (data) {
-                    console.log(data);
                     deferredCall.resolve(data);
                 });
 
