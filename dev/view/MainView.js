@@ -13,7 +13,16 @@ define([
         $this = this;
         this.hosts = {};
 
+
+        this.graph = new dagreD3
+            .graphlib
+            .Graph({ multigraph: true })
+            .setGraph({ "rankDir": "LR", "edgesep": 20 })
+            .setDefaultEdgeLabel(function() { return {}; });
+
         this.setListeners = function(){
+            // utils.observer.subscribe("new-measurement", this.addMeasurement, this);
+            utils.observer.subscribe("new-traceroute", this.addTraceroute, this);
             utils.observer.subscribe("new-host", this.addHost, this);
             //env.observer.subscribe("", this.addHost, this);
             //env.observer.subscribe("", this.addHost, this);
@@ -23,8 +32,29 @@ define([
         };
 
 
-        this.init = function(){
+        this.init = function(traceroutesList){
+            // var traceroute, traceroutesGroup, hops, attempts, host;
 
+
+            for (var host in this.hosts){
+                this.hosts[host];
+
+            }
+
+            // for (var n=0,length=traceroutesList.length;n<length;n++){
+            //     traceroutesGroup = traceroutesList[n];
+            //     for (var source in traceroutesGroup){
+            //         traceroute = traceroutesGroup[source];
+            //         hops = traceroute.getHops();
+            //         for (var n1=0,length1=hops.length;n1<length1;n1++){
+            //             attempts = hops[n1].getAttempts();
+            //             for (var n2=0,length2=attempts.length;n2<length2;n2++){
+            //                 host = attempts[n2].host;
+            //                 this.addHost(host);
+            //             }
+            //         }
+            //     }
+            // }
         };
 
 
@@ -33,19 +63,36 @@ define([
         };
 
         this.addHost = function(host){
-            try{
-                host.getAutonomousSystems()
-                    .done(function(){
-                        $this.hosts[host.getId()] = new HostView(env, host);
-
-                    });
+            try {
+                $this.hosts[host.getId()] = new HostView(env, host, $this.graph);
+                console.log("new host", host);
+                // host.getAutonomousSystems()
+                //     .done(function(){
+                //         $this.hosts[host.getId()] = new HostView(env, host, $this.graph);
+                //
+                //     });
             } catch (e) {
             }
             // console.log("received", host);
         };
 
+        this.addTraceroute = function(traceroute){
+            var hops, attempts,host, lastHost;
 
-        this.setListeners();
+            hops = traceroute.getHops();
+            for (var n1=0,length1=hops.length;n1<length1;n1++){
+                attempts = hops[n1].getAttempts();
+                host = attempts[0].host; // PROBLEM: we are considering only the first attempt!!! <------
+                if (lastHost){
+                    this.graph.addEdge(lastHost.getId(), host.getId());
+                }
+
+                lastHost = host;
+            }
+        };
+
+
+        // this.setListeners();
 
     };
 

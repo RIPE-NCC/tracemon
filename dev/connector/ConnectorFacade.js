@@ -11,9 +11,6 @@ define([
 
         translationConnector = new TranslationConnector(env);
 
-        autonomousSystems = {};
-
-
         this.getRealTimeResults = function(measurement, filtering){
             filtering.stream_type = "result";
             translationConnector.getRealTimeResults(
@@ -46,6 +43,8 @@ define([
 
             translationConnector.getAutonomousSystem(ip)
                 .done(function (data) {
+
+                    console.log(data);
                     deferredCall.resolve(data);
                 });
 
@@ -95,6 +94,9 @@ define([
             return deferredCall.promise();
         };
 
+        this.getHosts = function(){
+            return translationConnector.getHosts();
+        };
 
 
     };

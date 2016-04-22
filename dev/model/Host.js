@@ -33,6 +33,28 @@ define([
         return this._id;
     };
 
+    Host.prototype.setAutonomousSystem = function(autonomousSystem) {
+        this._autonomousSystem = autonomousSystem;
+    };
+
+    Host.prototype.getAutonomousSystem = function() {
+        var deferredCall;
+
+        if (this.isPrivate && this._autonomousSystems.length == 0){
+            throw "The AutonomousSystem cannot be auto computed";
+        } else if (this._autonomousSystem) {
+            deferredCall = $.Deferred();
+            deferredCall.resolve(this._autonomousSystem);
+
+            return deferredCall.promise();
+        } else {
+            if (!this._deferredCallGetVerifiedAutonomousSystem){
+                throw "The AutonomousSystem cannot be retrieved";
+            }
+
+            return this._deferredCallGetVerifiedAutonomousSystem;
+        }
+    };
 
     Host.prototype.addAutonomousSystem = function(autonomousSystem){
         this._autonomousSystems.push(autonomousSystem);
@@ -47,12 +69,24 @@ define([
         var $this = this;
 
         this._deferredCallGetAutonomousSystems = call;
-        this._deferredCallGetAutonomousSystems.done(function (data) {
+        this._deferredCallGetAutonomousSystems
+            .done(function (data) {
             if (data) {
                 for (var n = 0, length = data.length; n < length; n++) {
                     $this.addAutonomousSystem(data[n]);
                 }
             }
+        });
+    };
+
+
+    Host.prototype.setDeferredCallVerifiedAutonomousSystem = function(call) {
+        var $this;
+
+        $this = this;
+        this._deferredCallGetVerifiedAutonomousSystem = call;
+        this._deferredCallGetVerifiedAutonomousSystem.done(function (data){
+            $this.setAutonomousSystem(data);
         });
     };
 
@@ -64,6 +98,7 @@ define([
             throw "The AutonomousSystem cannot be auto computed";
         } else if (this._autonomousSystems.length != 0) {
             deferredCall = $.Deferred();
+            console.log(this._autonomousSystems);
             deferredCall.resolve(this._autonomousSystems);
 
             return deferredCall.promise();

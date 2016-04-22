@@ -30,7 +30,6 @@ define([
         };
 
 
-
         this.addAutonomousSystem = function(autonomousSystem){
             if (!this.autonomousSystems[autonomousSystem.id]){
                 this.autonomousSystems[autonomousSystem.id] = autonomousSystem;
@@ -47,7 +46,6 @@ define([
                 throw "Autonomous System not present";
             }
         };
-
 
 
         this.addHost = function(host){
@@ -67,8 +65,6 @@ define([
                 throw "Host not present";
             }
         };
-
-
 
 
         this.addTraceroute = function(measurementId, traceroute){
@@ -105,8 +101,6 @@ define([
             }
 
         };
-
-
 
     };
 

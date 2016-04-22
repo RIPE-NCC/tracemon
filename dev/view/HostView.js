@@ -6,9 +6,11 @@ define([
     "tracemon.lib.jquery-amd"
 ], function(utils, config, lang, $){
 
-    var HostView = function(env, host){
+    var HostView = function(env, host, graph){
         this.drawn = false;
         this.model = host;
+
+        this.node = graph.setNode(this.model.getId(),  { label: this.model.getId(), class: "type-" + this.model.getId() });
     };
 
     HostView.prototype.draw = function(){

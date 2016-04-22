@@ -11,11 +11,12 @@ define([
 ], function(config, utils, $) {
 
     var HistoryConnector = function (env) {
-        var requestsByIp, hostsResolutionByIp, geolocByIp;
+        var requestsByIp, hostsResolutionByIp, geolocByIp, neighboursByAsn;
 
         requestsByIp = {};
         hostsResolutionByIp = {};
         geolocByIp = {};
+        neighboursByAsn = {};
 
         this.getInitialDump = function (measurementId, options) {
             var queryParams;
@@ -111,6 +112,40 @@ define([
             }
 
             return geolocByIp[ip];
+        };
+
+
+        this.getHostReverseDns = function (asn) {
+
+            if (!hostsResolutionByIp[ip]) {
+                hostsResolutionByIp[ip] = $.ajax({
+                    dataType: "jsonp",
+                    cache: false,
+                    url: env.dataApiReverseDns,
+                    data: {
+                        resource: asn
+                    }
+                });
+            }
+
+            return hostsResolutionByIp[ip];
+        };
+
+
+        this.getNeighbours = function (asn) {
+
+            if (!neighboursByAsn[asn]) {
+                neighboursByAsn[asn] = $.ajax({
+                    dataType: "jsonp",
+                    cache: false,
+                    url: env.dataApiAsnNeighbours,
+                    data: {
+                        resource: asn
+                    }
+                });
+            }
+
+            return neighboursByAsn[asn];
         };
 
 

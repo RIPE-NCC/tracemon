@@ -12,7 +12,13 @@ define([], function(){
             metadata: "https://atlas.ripe.net/api/v2/measurements/0000/routequake/meta.jsonp",
             dataApiAsAnnotation: "https://stat.ripe.net/data/network-info/data.json",
             dataApiReverseDns: "https://stat.ripe.net/data/reverse-dns-ip/data.json",
-            dataApiGeolocation: "https://stat.ripe.net/data/geoloc/data.json"
+            dataApiGeolocation: "https://stat.ripe.net/data/geoloc/data.json",
+            dataApiAsnNeighbours: "https://stat.ripe.net/data/asn-neighbours/data.json",
+            peeringDb: {
+                lans: "https://www.peeringdb.com/api/ixlan",
+                ixps: "https://www.peeringdb.com/api/ix",
+                prefixes: "https://www.peeringdb.com/api/ixpfx"
+            }
         },
         probeInfoPageUrl: "https://atlas.ripe.net/probes/%p/",
         streamingUrl: "https://atlas-stream.ripe.net:443",
@@ -20,6 +26,7 @@ define([], function(){
         autoMergeSameTargetMeasurement: false,
         autoMergeSamplesSameProbeDifferentMeasurement: true,
         autoMergeOnGrouping: true,
+        ixpHostCheck: true,
         singleChartHeight: 120,
         naturalResolution: "time",
         updateIfYoungerThanMilliseconds: 1000 * 60 * 15,

@@ -59,7 +59,7 @@ define([
         for (var source in this._traceroutesBySource){
             traceroutesForThisSource = this._traceroutesBySource[source];
             lastItem = traceroutesForThisSource[traceroutesForThisSource.length - 1];
-            out[lastItem.source] = lastItem;
+            out[source] = lastItem;
         }
 
         return out;

@@ -28,6 +28,7 @@ requirejs.config({
         "tracemon.lib.jquery-libs": TRACEMON_LIB_URL + "jquery-libs",
         "tracemon.lib.ip": TRACEMON_LIB_URL + "ip",
         "tracemon.lib.parsePrefix": TRACEMON_LIB_URL + "parsePrefix",
+        "tracemon.lib.dagre": TRACEMON_LIB_URL + "dagre-d3",
 
 
 
@@ -77,6 +78,7 @@ requirejs.config({
         "tracemon.connector.history": TRACEMON_CONNECTOR_URL + "HistoryConnector",
         "tracemon.connector.translation": TRACEMON_CONNECTOR_URL + "TranslationConnector",
         "tracemon.connector.live": TRACEMON_CONNECTOR_URL + "LiveConnector",
+        "tracemon.connector.peering-db": TRACEMON_CONNECTOR_URL + "PeeringDbConnector",
 
 
         /* session */
@@ -99,6 +101,11 @@ requirejs.config({
 
         "tracemon.lib.jquery-ui.timepicker": {
             deps: ["tracemon.lib.jquery-ui"]
+        },
+
+        "tracemon.lib.dagre": {
+            deps: ["tracemon.lib.d3-amd"],
+            exports: 'dagreD3'
         }
     }
 });
@@ -135,6 +142,7 @@ define([
             "dataApiAsAnnotation": instanceParams.dataApiAsAnnotation || config.dataAPIs.dataApiAsAnnotation,
             "dataApiReverseDns": instanceParams.dataApiReverseDns || config.dataAPIs.dataApiReverseDns,
             "dataApiGeolocation": instanceParams.dataApiGeolocation || config.dataAPIs.dataApiGeolocation,
+            "dataApiAsnNeighbours": instanceParams.dataApiAsnNeighbours || config.dataAPIs.dataApiAsnNeighbours,
             "streamingUrl": instanceParams.streamingHost || config.streamingUrl,
             "parentDom": $(parentDom),
             "queryParams": queryParams

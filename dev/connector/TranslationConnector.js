@@ -16,24 +16,39 @@ define([
     "tracemon.model.autonomousSystem",
     "tracemon.model.measurement",
     "tracemon.model.traceroute",
-    "tracemon.lib.parsePrefix"
-], function(config, utils, $, HistoryConnector, LiveConnector, Hop, Host, Attempt, AutonomousSystem, Measurement, Traceroute, prefixUtils) {
+    "tracemon.lib.parsePrefix",
+    "tracemon.connector.peering-db"
+], function(config, utils, $, HistoryConnector, LiveConnector, Hop, Host, Attempt, AutonomousSystem, Measurement, Traceroute, prefixUtils, PeeringDbConnector) {
 
     var TranslationConnector = function (env) {
-        var historyConnector, $this, liveConnector;
+        var historyConnector, $this, liveConnector, peeringDbConnector;
 
         $this = this;
         historyConnector = new HistoryConnector(env);
+
+        peeringDbConnector = new PeeringDbConnector(env);
+
         this.autonomousSystemsByAs = {};
         this.autonomousSystemsByIp = {};
         this.autonomousSystemsByPrefix = {};
         this.domainByIp = {};
         this.geolocByIp = {};
+        this.neighboursByAs = {};
         this.hostByIp = {};
 
 
         liveConnector = new LiveConnector(env);
 
+        this.getHosts = function(){
+            var out;
+
+            out = [];
+            for (var ip in this.hostByIp){
+                out.push(this.hostByIp[ip]);
+            }
+
+            return out;
+        };
 
         this.getRealTimeResults = function(filtering, callback, context){
 
@@ -79,13 +94,35 @@ define([
                             } else {
                                 if (hostAddress) {
                                     attemptObj.host = new Host(hostAddress);
+
+                                    if (config.ixpHostCheck) {
+                                        peeringDbConnector.checkIxp(hostAddress) // check if this is an Ixp
+                                            .done(function (ixp) {
+                                                if (ixp !== false){
+                                                    attemptObj.host.isIxp = true;
+                                                    attemptObj.host.ixp = ixp;
+
+                                                    console.log(attemptObj.host);
+                                                }
+                                            });
+                                    }
+
                                     if (!attemptObj.host.isPrivate) {
                                         attemptObj.host.setDeferredCallAutonomousSystems($this.getAutonomousSystem(attemptsList[n3]["from"]));
+
+                                        // attemptObj.host
+                                        //     .getAutonomousSystems()
+                                        //     .done(function(data){
+                                        //
+                                        //
+                                        //     attemptObj.host.setAutonomousSystem();
+                                        // });
                                     }
                                     $this.hostByIp[hostAddress] = attemptObj.host;
                                     utils.observer.publish("new-host", attemptObj.host);
                                 } else {
                                     attemptObj.host = new Host(null);
+                                    utils.observer.publish("new-host", attemptObj.host);
                                 }
                             }
 
@@ -112,9 +149,11 @@ define([
                 translated.measurementId = item["msm_id"];
                 translated.addHops(hops);
                 translated.errors = errors;
-
+                utils.observer.publish("new-traceroute", translated);
                 dump.push(translated);
             }
+
+
         };
 
 
@@ -217,17 +256,20 @@ define([
             } else {
                 historyConnector.getAutonomousSystem(ip)
                     .done(function (data) {
-                        var autonomousSystems, annotations;
+
+                        var autonomousSystems, annotations, asns;
 
                         annotations = data["data"];
                         autonomousSystems = [];
+                        asns = (annotations) ? annotations["asns"] : [];
 
-                        if (annotations.length) {
-                            for (var n = 0, length = annotations.length; n < length; n++) {
-                                autonomousSystems = $this._createAutonomousSystemObject(annotations[n], ip)
+                        if (asns.length) {
+                            autonomousSystems = $this._createAutonomousSystemObject(annotations, ip);
+
+                            if (autonomousSystems.length > 1){
+                                console.log(autonomousSystems);
                             }
-                        } else {
-                            autonomousSystems = $this._createAutonomousSystemObject(annotations, ip)
+
                         }
 
                         deferredCall.resolve(autonomousSystems);
@@ -299,6 +341,41 @@ define([
                         };
                         $this.geolocByIp[ip] = geolocation;
                         deferredCall.resolve(geolocation);
+                    });
+            }
+
+            return deferredCall.promise();
+        };
+
+
+        this.getNeighbours = function(asn){
+            var deferredCall;
+
+            deferredCall = $.Deferred();
+
+            if (this.neighboursByAs[asn]) {
+                deferredCall.resolve(this.neighboursByAs[asn]);
+            } else {
+
+                historyConnector.getNeighbours(asn)
+                    .done(function (data) {
+                        var neighbours, neighboursList, neighbourItem;
+
+                        neighboursList = [];
+                        neighbours = data["data"]["neighbours"];
+
+                        for (var n=0,length=neighbours.length; n<length; n++){
+                            neighbourItem = neighbours[n];
+                            neighboursList.push({
+                                "asn": neighbourItem["ans"],
+                                "score": neighbourItem["ans"]
+                            });
+
+                        }
+
+                        $this.neighboursByAs[asn] = neighboursList;
+
+                        deferredCall.resolve(neighboursList);
                     });
             }
 

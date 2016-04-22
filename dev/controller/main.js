@@ -10,7 +10,9 @@ define([
     "tracemon.model.traceroute",
     "tracemon.connector.facade",
     "tracemon.view.main",
-], function(config, utils, $, Facade, AutonomousSystem, Hop, Host, Measurement, Traceroute, Connector, MainView) {
+    "tracemon.lib.d3-amd",
+    "tracemon.lib.dagre"
+], function(config, utils, $, Facade, AutonomousSystem, Hop, Host, Measurement, Traceroute, Connector, MainView, d3, dagreD3) {
 
     var main = function (env) {
         var $this, timeOverviewInitialised, now;
@@ -130,21 +132,25 @@ define([
 
                     c.getRealTimeResults(measurement, {msm: measurement.id});
                     var unoACaso = measurement.getLastState()["332"];
+
                     console.log(measurement.getLastState()["332"], measurement.getStateAt(unoACaso.date)["332"]);
+
+                    // main.init([measurement.getLastState()]);
+
                     // console.log(measurement.getTraceroutes(parseInt(new Date()/1000) - 360));
                     //
-                    // try {
-                    //     data[0]
-                    //         .hops[0]
-                    //         .getAttempts()[0]
-                    //         .host
-                    //         .getAutonomousSystems()
-                    //         .done(function (asn) {
-                    //             console.log("asn", asn);
-                    //         });
-                    // } catch(e){
-                    //
-                    // }
+                    try {
+                        measurement
+                            .getLastState()["332"]
+                            .getHops()[4]
+                            .getAttempts()[2].host
+                            .getAutonomousSystems()
+                            .done(function (asn) {
+                                console.log("asn", asn);
+                            });
+                    } catch(e){
+                        console.log(e);
+                    }
 
                     // c.getHostReverseDns(data[0].probe)
                     //     .done(function(domain){
@@ -161,6 +167,48 @@ define([
             });
 
 
+        //
+        //
+        // g.nodes().forEach(function(v) {
+        //     var node = g.node(v);
+        //     // Round the corners of the nodes
+        //     node.rx = node.ry = 5;
+        // });
+
+
+//         g.setEdge(3, 4);
+//         g.setEdge(2, 3);
+//         g.setEdge(1, 2);
+//         g.setEdge(6, 7);
+//         g.setEdge(5, 6);
+//         g.setEdge(9, 10);
+//         g.setEdge(8, 9);
+//         g.setEdge(11,12);
+//         g.setEdge(8, 11);
+//         g.setEdge(5, 8);
+//         g.setEdge(1, 5);
+//         g.setEdge(13,14);
+//         g.setEdge(1, 13);
+//         g.setEdge(0, 1);
+//         g.setEdge(8, 6);
+//         g.setEdge(8, 6);
+//
+//         console.log(g);
+//
+// // Create the renderer
+//         var render = new dagreD3.render();
+//
+// // Set up an SVG group so that we can translate the final graph.
+//         var svg = d3.select("svg"),
+//             svgGroup = svg.append("g");
+//
+// // Run the renderer. This is what draws the final graph.
+//         render(d3.select("svg g"), g);
+//
+// // Center the graph
+//         var xCenterOffset = (svg.attr("width") - g.graph().width) / 2;
+//         svgGroup.attr("transform", "translate(" + xCenterOffset + ", 20)");
+//         svg.attr("height", g.graph().height + 40);
         //
         // c.getAutonomousSystem("41.138.32.15")
         //    .done(function(data){
