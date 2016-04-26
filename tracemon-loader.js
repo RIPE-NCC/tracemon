@@ -79,6 +79,7 @@ requirejs.config({
         "tracemon.connector.translation": TRACEMON_CONNECTOR_URL + "TranslationConnector",
         "tracemon.connector.live": TRACEMON_CONNECTOR_URL + "LiveConnector",
         "tracemon.connector.peering-db": TRACEMON_CONNECTOR_URL + "PeeringDbConnector",
+        "tracemon.connector.host-helper": TRACEMON_CONNECTOR_URL + "HostClassificationHelper",
 
 
         /* session */

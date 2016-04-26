@@ -17,16 +17,19 @@ define([
     "tracemon.model.measurement",
     "tracemon.model.traceroute",
     "tracemon.lib.parsePrefix",
-    "tracemon.connector.peering-db"
-], function(config, utils, $, HistoryConnector, LiveConnector, Hop, Host, Attempt, AutonomousSystem, Measurement, Traceroute, prefixUtils, PeeringDbConnector) {
+    "tracemon.connector.peering-db",
+    "tracemon.connector.host-helper"
+
+], function(config, utils, $, HistoryConnector, LiveConnector, Hop, Host, Attempt, AutonomousSystem, Measurement,
+            Traceroute, prefixUtils, PeeringDbConnector, HostClassificationHelper) {
 
     var TranslationConnector = function (env) {
-        var historyConnector, $this, liveConnector, peeringDbConnector;
+        var historyConnector, $this, liveConnector, peeringDbConnector, hostHelper;
 
         $this = this;
         historyConnector = new HistoryConnector(env);
-
         peeringDbConnector = new PeeringDbConnector(env);
+        hostHelper = new HostClassificationHelper(env);
 
         this.autonomousSystemsByAs = {};
         this.autonomousSystemsByIp = {};
@@ -35,6 +38,7 @@ define([
         this.geolocByIp = {};
         this.neighboursByAs = {};
         this.hostByIp = {};
+        this.cacheDeferredCallsAS = {};
 
 
         liveConnector = new LiveConnector(env);
@@ -95,29 +99,21 @@ define([
                                 if (hostAddress) {
                                     attemptObj.host = new Host(hostAddress);
 
-                                    if (config.ixpHostCheck) {
-                                        peeringDbConnector.checkIxp(hostAddress) // check if this is an Ixp
-                                            .done(function (ixp) {
-                                                if (ixp !== false){
-                                                    attemptObj.host.isIxp = true;
-                                                    attemptObj.host.ixp = ixp;
+                                    if (!attemptObj.host.isPrivate) { // It is a public host
 
-                                                    console.log(attemptObj.host);
-                                                }
-                                            });
-                                    }
-
-                                    if (!attemptObj.host.isPrivate) {
                                         attemptObj.host.setDeferredCallAutonomousSystems($this.getAutonomousSystem(attemptsList[n3]["from"]));
 
-                                        // attemptObj.host
-                                        //     .getAutonomousSystems()
-                                        //     .done(function(data){
-                                        //
-                                        //
-                                        //     attemptObj.host.setAutonomousSystem();
-                                        // });
+                                        if (config.ixpHostCheck) {
+                                            peeringDbConnector.checkIxp(hostAddress) // check if this is an Ixp
+                                                .done(function (ixp) {
+                                                    if (ixp !== false){
+                                                        attemptObj.host.isIxp = true;
+                                                        attemptObj.host.ixp = ixp;
+                                                    }
+                                                });
+                                        }
                                     }
+
                                     $this.hostByIp[hostAddress] = attemptObj.host;
                                     utils.observer.publish("new-host", attemptObj.host);
                                 } else {
@@ -150,6 +146,7 @@ define([
                 translated.addHops(hops);
                 translated.errors = errors;
                 utils.observer.publish("new-traceroute", translated);
+                hostHelper.scanTraceroute(translated);
                 dump.push(translated);
             }
 
@@ -245,39 +242,39 @@ define([
         this.getAutonomousSystem = function(ip){
             var deferredCall, asbyPrefix;
 
-            deferredCall = $.Deferred();
-            //asbyIp = this.autonomousSystemsByIp[ip];
-            //if (asbyIp) {
-            //    deferredCall.resolve(asbyIp);
-            //} else {
-            asbyPrefix = this._getSamePrefixAs(ip);
-            if (asbyPrefix){
-                deferredCall.resolve(asbyPrefix);
+            if (this.cacheDeferredCallsAS[ip]){
+                return this.cacheDeferredCallsAS[ip]
             } else {
-                historyConnector.getAutonomousSystem(ip)
-                    .done(function (data) {
+                deferredCall = $.Deferred();
 
-                        var autonomousSystems, annotations, asns;
+                asbyPrefix = this._getSamePrefixAs(ip);
+                if (asbyPrefix){
+                    deferredCall.resolve(asbyPrefix);
+                } else {
+                    historyConnector.getAutonomousSystem(ip)
+                        .done(function (data) {
+                            var autonomousSystems, annotations, asns;
 
-                        annotations = data["data"];
-                        autonomousSystems = [];
-                        asns = (annotations) ? annotations["asns"] : [];
+                            annotations = data["data"];
+                            autonomousSystems = [];
+                            asns = (annotations) ? annotations["asns"] : [];
 
-                        if (asns.length) {
-                            autonomousSystems = $this._createAutonomousSystemObject(annotations, ip);
+                            if (asns.length) {
+                                autonomousSystems = $this._createAutonomousSystemObject(annotations, ip);
 
-                            if (autonomousSystems.length > 1){
-                                console.log(autonomousSystems);
+                                if (autonomousSystems.length > 1){
+                                    console.log("check BGP neighbours for: ", autonomousSystems);
+                                }
+
                             }
 
-                        }
+                            deferredCall.resolve(autonomousSystems);
+                        });
+                }
 
-                        deferredCall.resolve(autonomousSystems);
-                    });
+                this.cacheDeferredCallsAS[ip] = deferredCall.promise();
+                return this.cacheDeferredCallsAS[ip];
             }
-            //}
-
-            return deferredCall.promise();
         };
 
 

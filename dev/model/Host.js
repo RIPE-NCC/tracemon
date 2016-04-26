@@ -98,7 +98,6 @@ define([
             throw "The AutonomousSystem cannot be auto computed";
         } else if (this._autonomousSystems.length != 0) {
             deferredCall = $.Deferred();
-            console.log(this._autonomousSystems);
             deferredCall.resolve(this._autonomousSystems);
 
             return deferredCall.promise();
