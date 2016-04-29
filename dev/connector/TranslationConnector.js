@@ -18,18 +18,20 @@ define([
     "tracemon.model.traceroute",
     "tracemon.lib.parsePrefix",
     "tracemon.connector.peering-db",
-    "tracemon.connector.host-helper"
+    "tracemon.connector.host-helper",
+    "tracemon.connector.asn"
 
 ], function(config, utils, $, HistoryConnector, LiveConnector, Hop, Host, Attempt, AutonomousSystem, Measurement,
-            Traceroute, prefixUtils, PeeringDbConnector, HostClassificationHelper) {
+            Traceroute, prefixUtils, PeeringDbConnector, HostClassificationHelper, AsnLookupConnector) {
 
     var TranslationConnector = function (env) {
-        var historyConnector, $this, liveConnector, peeringDbConnector, hostHelper;
+        var historyConnector, $this, liveConnector, peeringDbConnector, hostHelper, asnLookupConnector;
 
         $this = this;
         historyConnector = new HistoryConnector(env);
         peeringDbConnector = new PeeringDbConnector(env);
         hostHelper = new HostClassificationHelper(env);
+        asnLookupConnector = new AsnLookupConnector(env);
 
         this.autonomousSystemsByAs = {};
         this.autonomousSystemsByIp = {};
@@ -101,7 +103,7 @@ define([
 
                                     if (!attemptObj.host.isPrivate) { // It is a public host
 
-                                        attemptObj.host.setDeferredCallAutonomousSystems($this.getAutonomousSystem(attemptsList[n3]["from"]));
+                                        asnLookupConnector.enrich(attemptObj.host);
 
                                         if (config.ixpHostCheck) {
                                             peeringDbConnector.checkIxp(hostAddress) // check if this is an Ixp
@@ -136,7 +138,7 @@ define([
                 hostObj = new Host(item["from"]);
                 hostObj.setProbeId(item["prb_id"]);
                 if (!hostObj.isPrivate) {
-                    hostObj.setDeferredCallAutonomousSystems($this.getAutonomousSystem(hostObj.ip));
+                    asnLookupConnector.enrich(hostObj);
                 }
                 translated = new Traceroute(item["prb_id"], item["timestamp"]);
                 translated.probe = hostObj;
@@ -145,8 +147,8 @@ define([
                 translated.measurementId = item["msm_id"];
                 translated.addHops(hops);
                 translated.errors = errors;
-                utils.observer.publish("new-traceroute", translated);
                 hostHelper.scanTraceroute(translated);
+                utils.observer.publish("new-traceroute", translated);
                 dump.push(translated);
             }
 
@@ -192,36 +194,6 @@ define([
         };
 
 
-        this._createAutonomousSystemObject = function(annotation, ip){
-            var asn, autonomousSystemObj, autonomousSystems, asPrefixes, encodedPrefix;
-
-            autonomousSystems = [];
-
-            if (annotation && annotation["asns"] && annotation["asns"].length > 0) { // The returned annotation contains something
-
-                for (var n2 = 0, length2 = annotation["asns"].length; n2 < length2; n2++) { // For each returned AS
-
-                    asn = annotation["asns"][n2]; // Get the ASN
-                    autonomousSystemObj = this.autonomousSystemsByAs[asn]; // Check if the object was already created
-
-                    if (!autonomousSystemObj) { // No, it wasn't
-                        autonomousSystemObj = new AutonomousSystem(asn, "OWNER_TODO"); // Create a new model object
-                        this.autonomousSystemsByAs[asn] = autonomousSystemObj; // Store it
-                    }
-                    autonomousSystemObj.addPrefix(annotation["prefix"]); // Annotate the object with the new prefix
-                    encodedPrefix = "" + prefixUtils.encodePrefix(annotation["prefix"]); // Index the new prefix
-                    if (!this.autonomousSystemsByPrefix[encodedPrefix]){
-                        this.autonomousSystemsByPrefix[encodedPrefix] = [];
-                    }
-                    this.autonomousSystemsByPrefix[encodedPrefix].push(autonomousSystemObj);
-
-                    autonomousSystems.push(autonomousSystemObj);
-
-                }
-                return autonomousSystems;
-            }
-            return null;
-        };
 
         this._getSamePrefixAs = function(ip){
             var encodedIp;
@@ -239,43 +211,6 @@ define([
         };
 
 
-        this.getAutonomousSystem = function(ip){
-            var deferredCall, asbyPrefix;
-
-            if (this.cacheDeferredCallsAS[ip]){
-                return this.cacheDeferredCallsAS[ip]
-            } else {
-                deferredCall = $.Deferred();
-
-                asbyPrefix = this._getSamePrefixAs(ip);
-                if (asbyPrefix){
-                    deferredCall.resolve(asbyPrefix);
-                } else {
-                    historyConnector.getAutonomousSystem(ip)
-                        .done(function (data) {
-                            var autonomousSystems, annotations, asns;
-
-                            annotations = data["data"];
-                            autonomousSystems = [];
-                            asns = (annotations) ? annotations["asns"] : [];
-
-                            if (asns.length) {
-                                autonomousSystems = $this._createAutonomousSystemObject(annotations, ip);
-
-                                if (autonomousSystems.length > 1){
-                                    console.log("check BGP neighbours for: ", autonomousSystems);
-                                }
-
-                            }
-
-                            deferredCall.resolve(autonomousSystems);
-                        });
-                }
-
-                this.cacheDeferredCallsAS[ip] = deferredCall.promise();
-                return this.cacheDeferredCallsAS[ip];
-            }
-        };
 
 
         this.getHostReverseDns = function(ip){

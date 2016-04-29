@@ -80,6 +80,7 @@ requirejs.config({
         "tracemon.connector.live": TRACEMON_CONNECTOR_URL + "LiveConnector",
         "tracemon.connector.peering-db": TRACEMON_CONNECTOR_URL + "PeeringDbConnector",
         "tracemon.connector.host-helper": TRACEMON_CONNECTOR_URL + "HostClassificationHelper",
+        "tracemon.connector.asn": TRACEMON_CONNECTOR_URL + "AsnLookupConnector",
 
 
         /* session */

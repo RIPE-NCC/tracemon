@@ -139,18 +139,18 @@ define([
 
                     // console.log(measurement.getTraceroutes(parseInt(new Date()/1000) - 360));
                     //
-                    try {
-                        measurement
-                            .getLastState()["332"]
-                            .getHops()[4]
-                            .getAttempts()[2].host
-                            .getAutonomousSystems()
-                            .done(function (asn) {
-                                console.log("asn", asn);
-                            });
-                    } catch(e){
-                        console.log(e);
-                    }
+                    // try {
+                    //     measurement
+                    //         .getLastState()["332"]
+                    //         .getHops()[4]
+                    //         .getAttempts()[2].host
+                    //         .getAutonomousSystems()
+                    //         .done(function (asn) {
+                    //             console.log("asn", asn);
+                    //         });
+                    // } catch(e){
+                    //     console.log(e);
+                    // }
 
                     // c.getHostReverseDns(data[0].probe)
                     //     .done(function(domain){

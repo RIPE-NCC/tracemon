@@ -78,19 +78,17 @@ define([
                 nextHop = newTraceroute[n+2];
 
                 if (currentHop.toBeMerged && previousHop.hosts.length == 1 && nextHop.hosts.length == 1) {
+                    var as1, as2;
+                    as1 = previousHop.hosts[0].getAutonomousSystem();
+                    as2 =nextHop.hosts[0].getAutonomousSystems();
 
-                    $.when.apply(this, [
-                        previousHop.hosts[0].getAutonomousSystems(),
-                        nextHop.hosts[0].getAutonomousSystems()
-                    ]).done(function(as1, as2){
+                    if (as1 && as2 && as1.id == as2.id){
 
-                        if (as1.length == 1 && as2.length == 1 && as1[0].id == as2[0].id){
-
-                            for (var n1=0,length1=currentHop.hosts.length; n1<length1-1; n1++){
-                                currentHop.hosts[n1]._autonomousSystems = [as1[0]];
-                            }
+                        for (var n1=0,length1=currentHop.hosts.length; n1<length1-1; n1++){
+                            currentHop.hosts[n1].addAutonomousSystem(as1);
+                            console.log(currentHop.hosts[n1], as1, as2);
                         }
-                    });
+                    }
 
                 }
             }
