@@ -12,6 +12,7 @@ define([
 
         $this = this;
         this.hosts = {};
+        this._oldStatus = {};
 
 
         this.graph = new dagreD3
@@ -22,8 +23,9 @@ define([
 
         this.setListeners = function(){
             // utils.observer.subscribe("new-measurement", this.addMeasurement, this);
-            utils.observer.subscribe("new-traceroute", this.addTraceroute, this);
-            utils.observer.subscribe("new-host", this.addHost, this);
+            // utils.observer.subscribe("new-traceroute", this.addTraceroute, this);
+            // utils.observer.subscribe("new-host", this.addHost, this);
+            utils.observer.subscribe("new-status", this.update, this);
             //env.observer.subscribe("", this.addHost, this);
             //env.observer.subscribe("", this.addHost, this);
             //env.observer.subscribe("", this.addHost, this);
@@ -31,6 +33,35 @@ define([
 
         };
 
+
+        this.update = function (newStatus){
+          var diff;
+
+            diff = this._computeDiff(this._oldStatus, newStatus);
+
+            this._updateScene(diff);
+
+            this._oldStatus = newStatus;
+        };
+
+        this._updateScene = function (diff) {
+
+        };
+
+
+        this._computeDiff = function(oldStatus, newStatus) {
+            var newTraceroutes, updatedTraceroutes, deletedTraceroutes, out;
+
+            out = {
+
+            };
+
+            return out;
+        };
+
+        this._getNewTraceroutes = function (status){
+            
+        };
 
         this.init = function(traceroutesList){
             // var traceroute, traceroutesGroup, hops, attempts, host;
@@ -92,7 +123,7 @@ define([
         };
 
 
-        // this.setListeners();
+        this.setListeners();
 
     };
 

@@ -7,6 +7,7 @@ define([
         this.ip = ip;
         this.isProbe = false;
         this._autonomousSystems = [];
+        this._autonomousSystemsKeys = {};
 
         this.isPrivate = utils.isPrivateIp(ip);
     };
@@ -36,15 +37,15 @@ define([
     };
 
     Host.prototype.addAutonomousSystem = function(autonomousSystem){
-        this._autonomousSystems.push(autonomousSystem);
-        autonomousSystem.addHost(this);
-        if (this._autonomousSystem == null){
-            this._autonomousSystem = this._autonomousSystems[0];
+        if (!this._autonomousSystemsKeys[autonomousSystem.id]) {
+            this._autonomousSystems.push(autonomousSystem);
+            this._autonomousSystemsKeys[autonomousSystem.id] = true;
+            autonomousSystem.addHost(this);
+            if (this._autonomousSystem == null) {
+                this._autonomousSystem = this._autonomousSystems[0];
+            }
         }
     };
-
-
-
 
 
     Host.prototype.addAutonomousSystems = function (asns) {

@@ -55,6 +55,8 @@ define([
         };
 
 
+
+
         this.applyConfiguration = function(conf){
             var measurementCounter, callsAddMeasurements;
 
@@ -122,6 +124,20 @@ define([
 
         var c = new Connector(env);
 
+
+        /*
+        * msmList format [{id: 81881, sources: [11,22,99]}]
+        */
+
+        this.loadMeasurements = function (msmList) {
+
+            $.when.apply($, $.map(msmList, function (msm){
+                return c.getMeasurementInfo(msm.id, {sources: msm.sources});
+            }))
+        };
+
+
+        // If you want to load only a set of traceroutes you need <msmId, sources> for each msmId involved
         c.getMeasurementInfo(2984884)
             .done(function(measurement){
 

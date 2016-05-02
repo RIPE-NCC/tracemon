@@ -62,6 +62,8 @@ define([
             out[source] = lastItem;
         }
 
+        utils.observer.publish("new-status", out);
+
         return out;
     };
 
@@ -86,6 +88,8 @@ define([
                 }
             }
         }
+
+        utils.observer.publish("new-status", currentTraceroutes);
 
         return currentTraceroutes;
     };

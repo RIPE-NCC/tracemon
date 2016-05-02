@@ -80,7 +80,7 @@ define([
                 if (currentHop.toBeMerged && previousHop.hosts.length == 1 && nextHop.hosts.length == 1) {
                     var as1, as2;
                     as1 = previousHop.hosts[0].getAutonomousSystem();
-                    as2 =nextHop.hosts[0].getAutonomousSystems();
+                    as2 = nextHop.hosts[0].getAutonomousSystem();
 
                     if (as1 && as2 && as1.id == as2.id){
 

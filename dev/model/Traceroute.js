@@ -25,7 +25,6 @@ define([
     Traceroute.prototype.getHops = function(){
         return this._hops;
     };
-
-
+    
     return Traceroute;
 });

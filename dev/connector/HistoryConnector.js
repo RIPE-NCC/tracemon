@@ -28,8 +28,13 @@ define([
             queryParams = {
                 start: utils.dateToUTCTimestamp(options.startDate)
             };
-            if (options.stopDate){
+            
+            if (options.stopDate) {
                 queryParams.stop = utils.dateToUTCTimestamp(options.stopDate);
+            }
+            
+            if (options.sources) {
+                queryParams.probe_sources = options.sources;
             }
 
             return $.ajax({
