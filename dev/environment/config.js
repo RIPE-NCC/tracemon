@@ -20,6 +20,7 @@ define([], function(){
                 prefixes: "https://www.peeringdb.com/api/ixpfx"
             }
         },
+        eventGroupingAntiFlood: 500,
         probeInfoPageUrl: "https://atlas.ripe.net/probes/%p/",
         streamingUrl: "https://atlas-stream.ripe.net:443",
         maxProbes: 8,

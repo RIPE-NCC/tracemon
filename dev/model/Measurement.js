@@ -62,7 +62,6 @@ define([
             out[source] = lastItem;
         }
 
-        utils.observer.publish("new-status", out);
 
         return out;
     };

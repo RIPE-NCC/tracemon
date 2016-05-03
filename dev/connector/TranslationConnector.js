@@ -41,6 +41,7 @@ define([
         this.neighboursByAs = {};
         this.hostByIp = {};
         this.cacheDeferredCallsAS = {};
+        this.measurementById = {};
 
 
         liveConnector = new LiveConnector(env);
@@ -144,7 +145,7 @@ define([
                 translated.probe = hostObj;
                 translated.parisId = item["paris_id"];
                 translated.protocol = item["proto"];
-                translated.measurementId = item["msm_id"];
+                translated.measurement = $this.measurementById[item["msm_id"]];
                 translated.addHops(hops);
                 translated.errors = errors;
                 hostHelper.scanTraceroute(translated);
@@ -156,12 +157,13 @@ define([
         };
 
 
-        this.getInitialDump = function (measurementId, options){
+        this.getInitialDump = function (measurement, options){
             var deferredCall;
 
             deferredCall = $.Deferred();
 
-            historyConnector.getInitialDump(measurementId, options)
+            this.measurementById[measurement.id] = measurement;
+            historyConnector.getInitialDump(measurement.id, options)
                 .done(function(data){
                     var dump;
 

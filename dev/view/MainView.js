@@ -22,20 +22,12 @@ define([
             .setDefaultEdgeLabel(function() { return {}; });
 
         this.setListeners = function(){
-            // utils.observer.subscribe("new-measurement", this.addMeasurement, this);
-            // utils.observer.subscribe("new-traceroute", this.addTraceroute, this);
-            // utils.observer.subscribe("new-host", this.addHost, this);
             utils.observer.subscribe("new-status", this.update, this);
-            //env.observer.subscribe("", this.addHost, this);
-            //env.observer.subscribe("", this.addHost, this);
-            //env.observer.subscribe("", this.addHost, this);
-            //env.observer.subscribe("", this.addHost, this);
-
         };
 
 
         this.update = function (newStatus){
-          var diff;
+            var diff;
 
             diff = this._computeDiff(this._oldStatus, newStatus);
 
@@ -50,17 +42,69 @@ define([
 
 
         this._computeDiff = function(oldStatus, newStatus) {
-            var newTraceroutes, updatedTraceroutes, deletedTraceroutes, out;
+            var out;
 
             out = {
-
+                newTraceroutes: this._getNewTraceroutes(oldStatus, newStatus),
+                updatedTraceroutes: this._getUpdatedTraceroutes(oldStatus, newStatus),
+                deletedTraceroutes: this._getDeletedTraceroutes(oldStatus, newStatus)
             };
 
             return out;
         };
 
-        this._getNewTraceroutes = function (status){
-            
+        this._getNewTraceroutes = function (oldStatus, newStatus){
+            var newTraceroutes;
+
+            newTraceroutes = [];
+
+            for (var msmId in newStatus) {
+
+                if (!oldStatus[msmId]) { // It is a new measurement, everything is new in it
+                    for (var source in newStatus[msmId]) {
+                        newTraceroutes.push(newStatus[msmId][source]);
+                    }
+                }
+            }
+
+            return newTraceroutes;
+        };
+
+
+        this._getUpdatedTraceroutes = function (oldStatus, newStatus){
+            var updatedTraceroute;
+
+            updatedTraceroute = [];
+            for (var msmId in newStatus) {
+                if (oldStatus[msmId]) { // It is an old measurement
+                    for (var source in newStatus[msmId]) {
+                        if (newStatus[msmId][source].getHash() != oldStatus[msmId][source].getHash()) {
+                            updatedTraceroute.push(newStatus[msmId][source]);
+                        }
+                    }
+                }
+            }
+
+            return updatedTraceroute;
+        };
+
+
+
+        this._getDeletedTraceroutes = function (oldStatus, newStatus){
+            var deletedTraceroutes;
+
+            deletedTraceroutes = [];
+
+            for (var msmId in oldStatus) {
+
+                if (!newStatus[msmId]) { // it has been deleted
+                    for (var source in oldStatus[msmId]) {
+                        deletedTraceroutes.push(oldStatus[msmId][source]);
+                    }
+                }
+            }
+
+            return deletedTraceroutes;
         };
 
         this.init = function(traceroutesList){

@@ -12,12 +12,13 @@ define([
         this._hops = [];
         this.source = source;
         this.date = date;
+        this._hash = null;
     };
 
     Traceroute.prototype.addHops = function(hops){
         this._hops = hops;
     };
-    
+
     Traceroute.prototype.addHop = function(hop){
         this._hops.push(hop);
     };
@@ -25,6 +26,22 @@ define([
     Traceroute.prototype.getHops = function(){
         return this._hops;
     };
-    
+
+    Traceroute.prototype.getHash = function(){
+        var attempts;
+
+        if (!this._hash) {
+            this._hash = "";
+            for (var n = 0, length = this._hops.length; n < length; n++) {
+                attempts = this._hops[n].getAttempts();
+                this._hash += "-";
+                for (var n1 = 0, length1 = attempts.length; n1 < length1; n1++) {
+                    this._hash += attempts[n1].host.ip;
+                }
+            }
+        }
+        return this._hash;
+    };
+
     return Traceroute;
 });

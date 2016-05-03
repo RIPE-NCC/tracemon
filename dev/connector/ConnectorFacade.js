@@ -4,6 +4,7 @@ define([
     "tracemon.env.utils",
     "tracemon.connector.translation"
 ], function(config, $, utils, TranslationConnector) {
+    var antiFloodTimerNewStatus;
 
 
     var ConnectorFacade = function (env) {
@@ -16,7 +17,11 @@ define([
             translationConnector.getRealTimeResults(
                 filtering,
                 function(result){
-                    measurement.addTraceroutes([result]);
+                    measurement.addTraceroutes(result);
+                    clearTimeout(antiFloodTimerNewStatus);
+                    antiFloodTimerNewStatus = setTimeout(function(){
+                        env.main.getLastState();
+                    }, config.eventGroupingAntiFlood);
                 }, this);
         };
 
@@ -26,7 +31,7 @@ define([
 
             deferredCall = $.Deferred();
 
-            translationConnector.getInitialDump(measurement.id, options)
+            translationConnector.getInitialDump(measurement, options)
                 .done(function(data){
                     measurement.addTraceroutes(data);
                     deferredCall.resolve(measurement);

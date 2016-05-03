@@ -21,6 +21,7 @@ define([
         now = utils.getUTCDate();
         this.availableProbes = {};
         this.groups = {};
+        this.inputSelection = {};
 
         this.exposedMethods = ["setStringTimeRange", "setTimeRange", "addMeasurementAndGroup", "autoGroupMeasurements",
             "addMeasurement", "addProbes", "addProbe", "addGroup", "removeGroup", "removeProbe", "setDataFilter",
@@ -120,116 +121,71 @@ define([
 
 
         };
-        var main = new MainView(env);
 
+        var main = new MainView(env);
         var c = new Connector(env);
 
 
         /*
-        * msmList format [{id: 81881, sources: [11,22,99]}]
-        */
+         * msmList format [{id: 81881, sources: [11,22,99]}]
+         */
 
-        this.loadMeasurements = function (msmList) {
+        this.loadMeasurements = function (msmList, callback) {
+            this.loadedMeasurements = {}; // reset
 
             $.when.apply($, $.map(msmList, function (msm){
-                return c.getMeasurementInfo(msm.id, {sources: msm.sources});
-            }))
+                    return c
+                        .getMeasurementInfo(msm.id, {sources: msm.sources})
+                        .done(function (measurement) {
+                            $this.loadedMeasurements[measurement.id] = measurement;
+                        });
+                }))
+                .done(callback);
         };
 
 
-        // If you want to load only a set of traceroutes you need <msmId, sources> for each msmId involved
-        c.getMeasurementInfo(2984884)
-            .done(function(measurement){
+        this.getLastState = function () {
+            var out;
 
+            out = {};
+            for (var msmId in this.loadedMeasurements) {
+                out[msmId] = this.loadedMeasurements[msmId].getLastState();
+            }
 
-                c.getInitialDump(measurement, {
-                    startDate: utils.timestampToUTCDate(parseInt(new Date()/1000) - 3600)
-                }).done(function(measurement){
+            utils.observer.publish("new-status", out);
+
+        };
+        
+
+        this.loadMeasurements([{id: 2984884}], function (){
+
+            for (var msmId in $this.loadedMeasurements) {
+                console.log($this.loadedMeasurements[msmId]);
+
+                c.getInitialDump($this.loadedMeasurements[msmId], {
+                    startDate: utils.timestampToUTCDate(parseInt(new Date() / 1000) - 3600)
+                }).done(function (measurement) {
+                    $this.getLastState();
 
                     c.getRealTimeResults(measurement, {msm: measurement.id});
-                    var unoACaso = measurement.getLastState()["332"];
-
-                    console.log(measurement.getLastState()["332"], measurement.getStateAt(unoACaso.date)["332"]);
-
-                    // main.init([measurement.getLastState()]);
-
-                    // console.log(measurement.getTraceroutes(parseInt(new Date()/1000) - 360));
-                    //
-                    // try {
-                    //     measurement
-                    //         .getLastState()["332"]
-                    //         .getHops()[4]
-                    //         .getAttempts()[2].host
-                    //         .getAutonomousSystems()
-                    //         .done(function (asn) {
-                    //             console.log("asn", asn);
-                    //         });
-                    // } catch(e){
-                    //     console.log(e);
-                    // }
-
-                    // c.getHostReverseDns(data[0].probe)
-                    //     .done(function(domain){
-                    //         console.log(domain);
-                    //     });
-                    //
-                    // c.getGeolocation(data[0].probe)
-                    //     .done(function(geoloc){
-                    //         console.log(geoloc);
-                    //     });
-
-
                 });
-            });
+            }
+
+        });
 
 
+        // If you want to load only a set of traceroutes you need <msmId, sources> for each msmId involved
+        // c.getMeasurementInfo(2984884)
+        //     .done(function(measurement){
         //
         //
-        // g.nodes().forEach(function(v) {
-        //     var node = g.node(v);
-        //     // Round the corners of the nodes
-        //     node.rx = node.ry = 5;
-        // });
-
-
-//         g.setEdge(3, 4);
-//         g.setEdge(2, 3);
-//         g.setEdge(1, 2);
-//         g.setEdge(6, 7);
-//         g.setEdge(5, 6);
-//         g.setEdge(9, 10);
-//         g.setEdge(8, 9);
-//         g.setEdge(11,12);
-//         g.setEdge(8, 11);
-//         g.setEdge(5, 8);
-//         g.setEdge(1, 5);
-//         g.setEdge(13,14);
-//         g.setEdge(1, 13);
-//         g.setEdge(0, 1);
-//         g.setEdge(8, 6);
-//         g.setEdge(8, 6);
-//
-//         console.log(g);
-//
-// // Create the renderer
-//         var render = new dagreD3.render();
-//
-// // Set up an SVG group so that we can translate the final graph.
-//         var svg = d3.select("svg"),
-//             svgGroup = svg.append("g");
-//
-// // Run the renderer. This is what draws the final graph.
-//         render(d3.select("svg g"), g);
-//
-// // Center the graph
-//         var xCenterOffset = (svg.attr("width") - g.graph().width) / 2;
-//         svgGroup.attr("transform", "translate(" + xCenterOffset + ", 20)");
-//         svg.attr("height", g.graph().height + 40);
+        //         c.getInitialDump(measurement, {
+        //             startDate: utils.timestampToUTCDate(parseInt(new Date()/1000) - 3600)
+        //         }).done(function(measurement){
         //
-        // c.getAutonomousSystem("41.138.32.15")
-        //    .done(function(data){
-        //        console.log(data);
-        //    });
+        //             c.getRealTimeResults(measurement, {msm: measurement.id});
+        //         });
+        //     });
 
 
         this._startProcedure = function(){
