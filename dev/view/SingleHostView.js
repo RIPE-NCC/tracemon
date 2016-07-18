@@ -63,7 +63,9 @@ define([
 
             for (var n=0,length=traceroutesToDraw.length; n<length; n++){
                 traceroute = traceroutesToDraw[n];
-                lastHost = null;
+                $this.nodes[traceroute.source.getId()] = traceroute.source;
+                lastHost = traceroute.source;
+
                 traceroute.forEachHop(function(hop){
                     attempt = hop.getMainAttempt();
                     host = attempt.host;

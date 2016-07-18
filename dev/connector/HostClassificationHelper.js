@@ -28,18 +28,21 @@ define([
                 nextAttempt, nextHop, nextHostAS, previousHostAS;
 
             hops = traceroute.getHops();
+            previousHost = traceroute.source;
 
             for (var n=0,length=hops.length; n<length; n++){
                 hop = hops[n];
                 attempt = hop.getMainAttempt();
                 host = attempt.host;
 
-                if (n != 0 && n != hops.length - 1) {
+                if (n != hops.length - 1) {
 
-                    if (!host.getAutonomousSystem()){
-                        previousHop = hops[n - 1];
-                        previousAttempt = previousHop.getMainAttempt();
-                        previousHost = previousAttempt.host;
+                    if (!host.getAutonomousSystem()) {
+                        if (n != 0) {
+                            previousHop = hops[n - 1];
+                            previousAttempt = previousHop.getMainAttempt();
+                            previousHost = previousAttempt.host;
+                        }
                         previousHostAS = previousHost.getAutonomousSystem();
 
                         if (previousHostAS){
@@ -100,13 +103,8 @@ define([
                 host = attempt.host;
 
                 if (host.getAutonomousSystem() && (host.isPrivate || !host.ip)) {
-
                     hostKey = (host.ip || "*") + "-" + host.getAutonomousSystem().id;
-                    // console.log(host.getId(), hostKey);
-
                     if (uniqueHostAs[hostKey] && (uniqueHostAs[hostKey] != attempt.host)){ // Check if the same object instance
-
-                        console.log(hostKey, uniqueHostAs[hostKey]);
                         attempt.host = uniqueHostAs[hostKey]; // Reuse the same Host object
                     } else {
                         uniqueHostAs[hostKey] = host;
@@ -123,6 +121,8 @@ define([
 
             hops = traceroute.getHops();
 
+            previousHost = traceroute.source;
+
             for (var n=0,length=hops.length; n<length; n++){
                 hop = hops[n];
                 attempt = hop.getMainAttempt();
@@ -131,9 +131,11 @@ define([
                 if (!host.ip && !host.getAutonomousSystem()) {
 
                     // Create a structure to calculate how many * exit or enter from each AS
-                    if (n > 0) {
-                        previousHop = hops[n-1];
-                        previousHost = previousHop.getMainAttempt().host;
+                    if (previousHost || n > 0) {
+                        if (!previousHost) {
+                            previousHop = hops[n - 1];
+                            previousHost = previousHop.getMainAttempt().host;
+                        }
                         previousAs = previousHost.getAutonomousSystem();
                         if (previousAs) {
                             bucketKey = previousAs.id.toString() + "-";
@@ -142,6 +144,8 @@ define([
                         }
 
                     }
+
+                    previousHost = null;
 
                     if (n < hops.length - 1) {
                         nextHop = hops[n + 1];
@@ -164,7 +168,7 @@ define([
 
             this._preClassifyNullNodes(traceroute);
             this._combinePrivateAndNullNodes(traceroute);
-            this._cutHopsLength(traceroute, 15);
+            this._cutHopsLength(traceroute, 50);
         };
 
 
@@ -217,7 +221,7 @@ define([
         this.scanAllTraceroutes = function(traceroutes){
             var traceroute;
 
-            // console.log(bucketAses);
+            console.log(bucketAses);
             for (var n=0,length=traceroutes.length; n<length; n++){
                 traceroute = traceroutes[n];
                 this._classifyNullNodes(traceroute);

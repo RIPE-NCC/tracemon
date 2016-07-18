@@ -47,8 +47,8 @@ define([
         for (var n=0,length=list.length; n<length; n++){
             item = list[n];
 
-            this._traceroutesBySource[item.source] = this._traceroutesBySource[item.source] || [];
-            this._traceroutesBySource[item.source].push(item);
+            this._traceroutesBySource[item.source.probeId] = this._traceroutesBySource[item.source.probeId] || [];
+            this._traceroutesBySource[item.source.probeId].push(item);
         }
     };
 

@@ -20,8 +20,11 @@ define([
 
             for (var n=0,length=traceroutesToDraw.length; n<length; n++){
                 traceroute = traceroutesToDraw[n];
-                previousAS = null;
+                previousAS = traceroute.source.getAutonomousSystem();
 
+                if (previousAS) {
+                    $this.nodes[previousAS.id] = previousAS;
+                }
                 traceroute.forEachHop(function(hop){
                     attempt = hop.getMainAttempt();
                     host = attempt.host;
@@ -56,8 +59,8 @@ define([
             }
 
         };
-        
-        
+
+
 
     };
 

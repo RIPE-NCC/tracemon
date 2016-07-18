@@ -157,7 +157,7 @@ define([
                     asList[hostAsn].id = hostAsn;
                     asnLookupConnector.enrich(hostObj, asList[hostAsn]);
                 }
-                translated = new Traceroute(item["prb_id"], item["timestamp"]);
+                translated = new Traceroute(hostObj, item["timestamp"]);
                 translated.probe = hostObj;
                 translated.parisId = item["paris_id"];
                 translated.protocol = item["proto"];
