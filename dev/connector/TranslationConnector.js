@@ -167,7 +167,7 @@ define([
                 hostHelper.scanTraceroute(translated);
                 dump.push(translated);
             }
-
+            hostHelper.scanAllTraceroutes(dump);
 
         };
 
