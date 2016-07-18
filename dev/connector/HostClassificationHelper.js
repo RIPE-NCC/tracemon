@@ -11,87 +11,115 @@ define([
 ], function(config, utils, $) {
 
     var HostClassificationHelper = function (env) {
+        var uniqueHostAs;
 
-        /**
-         *
-         * simplified traceroute format
-         * [ { isNull: false, hosts: [host] }, { isNull: true, hosts: [*, *] }, { isNull: false, hosts: [host] }]
-         */
+        uniqueHostAs = {};
 
-        this.scanTraceroute = function (traceroute) {
-            var hops, hop, attempts, attempt, element, next, sameHopIp, newHop, newTraceroute,
-                toBeMerged, newHopKeys, previousHop, currentHop, nextHop;
+
+
+        this._cutHopsLength = function (traceroute, length) {
+            var hops;
 
             hops = traceroute.getHops();
-            newTraceroute = [];
+            traceroute._hops = hops.slice(Math.max(hops.length - length, 0));
+        };
+
+        this._categorizePrivateAndNull = function (traceroute) {
+            var hops, hop, attempt, host, previousHop, previousAttempt, previousHost, nextHost,
+                nextAttempt, nextHop, nextHostAS, previousHostAS;
+
+            hops = traceroute.getHops();
+
             for (var n=0,length=hops.length; n<length; n++){
                 hop = hops[n];
-                attempts = hop.getAttempts();
-                sameHopIp = null;
+                attempt = hop.getMainAttempt();
+                host = attempt.host;
 
-                newHop = [];
-                newHopKeys = [];
-                toBeMerged = false;
-                for (var n1=0,length1=attempts.length; n1<length1; n1++){
-                    attempt = attempts[n1];
+                if (n != 0 && n != hops.length - 1) {
 
-                    if (attempt.host.ip == null || attempt.host.isPrivate){
-                        toBeMerged = true;
-                    }
-                    if (newHopKeys.indexOf(attempt.host.ip) == -1 || toBeMerged) { //remove duplicate hops
-                        newHopKeys.push(attempt.host.ip);
-                        newHop.push(attempt.host);
-                    }
-                }
+                    if (!host.getAutonomousSystem()){
+                        previousHop = hops[n - 1];
+                        previousAttempt = previousHop.getMainAttempt();
+                        previousHost = previousAttempt.host;
+                        previousHostAS = previousHost.getAutonomousSystem();
 
-                newTraceroute.push({
-                    toBeMerged: toBeMerged,
-                    hosts: newHop
-                });
-            }
+                        if (previousHostAS){
+                            for (var n2=n,length2=hops.length; n2<length2; n2++) {
+                                nextHop = hops[n2];
+                                nextAttempt = nextHop.getMainAttempt();
+                                nextHost = nextAttempt.host;
+                                nextHostAS = nextHost.getAutonomousSystem();
 
-            for (var n=0,length=newTraceroute.length; n<length-1; n++){
-                element = newTraceroute[n];
-                next = newTraceroute[n+1];
-
-                if (element.toBeMerged && next.toBeMerged) {
-                    while (next && next.toBeMerged){
-                        element.hosts = element.hosts.concat(next.hosts);
-                        if (element != newTraceroute[n]){
-                            newTraceroute[n] = null;
-                        }
-                        n++;
-                        next = newTraceroute[n];
-                    }
-
-                    n--;
-                }
-            }
-
-            newTraceroute = newTraceroute.filter(function(element){
-                return element != null;
-            });
-
-            for (var n=0,length=newTraceroute.length; n<length-2; n++){
-                previousHop = newTraceroute[n];
-                currentHop = newTraceroute[n+1];
-                nextHop = newTraceroute[n+2];
-
-                if (currentHop.toBeMerged && previousHop.hosts.length == 1 && nextHop.hosts.length == 1) {
-                    var as1, as2;
-                    as1 = previousHop.hosts[0].getAutonomousSystem();
-                    as2 = nextHop.hosts[0].getAutonomousSystem();
-
-                    if (as1 && as2 && as1.id == as2.id){
-
-                        for (var n1=0,length1=currentHop.hosts.length; n1<length1-1; n1++){
-                            currentHop.hosts[n1].addAutonomousSystem(as1);
-                            console.log(currentHop.hosts[n1], as1, as2);
+                                if (nextHostAS && (nextHostAS.id == previousHostAS.id)){
+                                    host.setAutonomousSystem(nextHostAS);
+                                    break;
+                                }
+                            }
                         }
                     }
-
                 }
             }
+        };
+
+        this._removeMultipleNull = function (traceroute) {
+            var hops, hop, attempt, host, previousHop, previousAttempt, previousHost, newHops;
+
+            hops = traceroute.getHops();
+            newHops = [];
+
+            for (var n=0,length=hops.length; n<length; n++){
+                hop = hops[n];
+                attempt = hop.getMainAttempt();
+                host = attempt.host;
+
+                if (n > 0 && !host.ip){
+                    previousHop = hops[n-1];
+                    previousAttempt = previousHop.getMainAttempt();
+                    previousHost = previousAttempt.host;
+                    if (!previousHost.ip) {
+                        previousHost.multiplicity++;
+                    } else {
+                        newHops.push(hop);
+                    }
+                } else {
+                    newHops.push(hop);
+                }
+            }
+
+            traceroute._hops = newHops;
+        };
+
+
+        this.combinePrivateNodes = function(traceroute){
+            var hops, attempt, host, hostKey, hop;
+
+            hops = traceroute.getHops();
+
+            for (var n=0,length=hops.length; n<length; n++){
+                hop = hops[n];
+                attempt = hop.getMainAttempt();
+                host = attempt.host;
+
+                if (host.getAutonomousSystem() && host.isPrivate) {
+
+                    hostKey = host.ip + "-" + host.getAutonomousSystem().id;
+
+                    if (uniqueHostAs[hostKey] && (uniqueHostAs[hostKey] != attempt.host)){ // Check if the same object instance
+                        attempt.host = uniqueHostAs[hostKey]; // Reuse the same Host object
+                    }
+
+                    uniqueHostAs[hostKey] = host;
+                }
+            }
+
+        };
+
+
+        this.scanTraceroute = function (traceroute) {
+            this._categorizePrivateAndNull(traceroute);
+            this._removeMultipleNull(traceroute);
+            this.combinePrivateNodes(traceroute);
+            this._cutHopsLength(traceroute, 15);
         }
 
     };

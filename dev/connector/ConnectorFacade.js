@@ -8,7 +8,7 @@ define([
 
 
     var ConnectorFacade = function (env) {
-        var translationConnector, autonomousSystems;
+        var translationConnector;
 
         translationConnector = new TranslationConnector(env);
 

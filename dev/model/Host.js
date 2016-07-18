@@ -6,9 +6,7 @@ define([
     var Host = function (ip) { // Proxy
         this.ip = ip;
         this.isProbe = false;
-        this._autonomousSystems = [];
-        this._autonomousSystemsKeys = {};
-
+        this.multiplicity = 1;
         this.isPrivate = utils.isPrivateIp(ip);
     };
 
@@ -20,11 +18,24 @@ define([
 
 
     Host.prototype.getId = function() {
-        if (this._autonomousSystem == null){
-            throw "Set the AutonomousSystem to get the ID of this host";
+        if (!this._id){
+            if (this.ip && this._autonomousSystem){
+                this._id = this.ip + "-" + this._autonomousSystem.id;
+            } else if (!this.ip && this._autonomousSystem) {
+                this._id = "*" + Math.random() + "-" + this._autonomousSystem.id;
+            }else if (this.isPrivate){
+                this._id = "P" + this.ip + "-" + Math.random();
+            } else if (this.ip){
+                this._id = "" + this.ip;
+            } else {
+                this._id = "*" + Math.random();
+            }
         }
-        return this.ip + "-" + this._autonomousSystem;
+
+        return this._id;
     };
+
+
 
 
 
@@ -36,27 +47,6 @@ define([
         return this._autonomousSystem;
     };
 
-    Host.prototype.addAutonomousSystem = function(autonomousSystem){
-        if (!this._autonomousSystemsKeys[autonomousSystem.id]) {
-            this._autonomousSystems.push(autonomousSystem);
-            this._autonomousSystemsKeys[autonomousSystem.id] = true;
-            autonomousSystem.addHost(this);
-            if (this._autonomousSystem == null) {
-                this._autonomousSystem = this._autonomousSystems[0];
-            }
-        }
-    };
-
-
-    Host.prototype.addAutonomousSystems = function (asns) {
-        for (var n=0,length=asns.length; n<length; n++) {
-            this.addAutonomousSystem(asns[n]);
-        }
-    };
-
-    Host.prototype.getAutonomousSystems = function(){
-        return this._autonomousSystems;
-    };
 
     return Host;
 });

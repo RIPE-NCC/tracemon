@@ -57,6 +57,7 @@ define([
             return out;
         };
 
+
         this.getRealTimeResults = function(filtering, callback, context){
 
             liveConnector.subscribe(filtering, function(data){
@@ -69,14 +70,31 @@ define([
         };
 
 
+        this._enrichIXP = function(attemptObj){
+
+            peeringDbConnector
+                .checkIxp(attemptObj.host.ip) // check if this is an Ixp
+                .done(function(ixp) {
+                    if (ixp !== false){
+                        attemptObj.host.isIxp = true;
+                        attemptObj.host.ixp = ixp;
+                        utils.observer.publish("ixp-detected", attemptObj.host);
+                    }
+                });
+
+        };
 
         this.enrichDump = function(data, dump){
             var translated, hops, hop, item, hopList, attempts, attemptsList, hostObj, hopObj, attemptObj,
-                hostAddress, tmpHost, errors;
+                hostAddress, tmpHost, errors, hostAsn, asList, tracerouteList, hostList;
 
-            for (var n1=0,length1 = data.length; n1<length1; n1++) {
+            asList = data['ases'];
+            tracerouteList = data['traceroutes'];
+            hostList = {};
+
+            for (var n1=0,length1 = tracerouteList.length; n1<length1; n1++) {
                 hops = [];
-                item = data[n1];
+                item = tracerouteList[n1];
                 errors = [];
                 hopList = item["result"];
 
@@ -94,6 +112,7 @@ define([
                         for (var n3 = 0, length3 = attemptsList.length; n3 < length3; n3++) {
                             attemptObj = new Attempt();
                             hostAddress = attemptsList[n3]["from"];
+                            hostAsn = (attemptsList[n3]["as"] && attemptsList[n3]["as"] != 0) ? attemptsList[n3]["as"] : null;
                             tmpHost = $this.hostByIp[hostAddress];
 
                             if (tmpHost && !tmpHost.isPrivate) {
@@ -102,18 +121,13 @@ define([
                                 if (hostAddress) {
                                     attemptObj.host = new Host(hostAddress);
 
-                                    if (!attemptObj.host.isPrivate) { // It is a public host
+                                    if (!attemptObj.host.isPrivate && hostAsn) { // It is a public host
 
-                                        asnLookupConnector.enrich(attemptObj.host);
+                                        asList[hostAsn].id = hostAsn;
+                                        asnLookupConnector.enrich(attemptObj.host, asList[hostAsn]);
 
                                         if (config.ixpHostCheck) {
-                                            peeringDbConnector.checkIxp(hostAddress) // check if this is an Ixp
-                                                .done(function (ixp) {
-                                                    if (ixp !== false){
-                                                        attemptObj.host.isIxp = true;
-                                                        attemptObj.host.ixp = ixp;
-                                                    }
-                                                });
+                                            $this._enrichIXP(attemptObj);
                                         }
                                     }
 
@@ -138,8 +152,10 @@ define([
 
                 hostObj = new Host(item["from"]);
                 hostObj.setProbeId(item["prb_id"]);
+                hostAsn = item["from_as"];
                 if (!hostObj.isPrivate) {
-                    asnLookupConnector.enrich(hostObj);
+                    asList[hostAsn].id = hostAsn;
+                    asnLookupConnector.enrich(hostObj, asList[hostAsn]);
                 }
                 translated = new Traceroute(item["prb_id"], item["timestamp"]);
                 translated.probe = hostObj;
@@ -149,7 +165,6 @@ define([
                 translated.addHops(hops);
                 translated.errors = errors;
                 hostHelper.scanTraceroute(translated);
-                utils.observer.publish("new-traceroute", translated);
                 dump.push(translated);
             }
 

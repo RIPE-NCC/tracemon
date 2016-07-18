@@ -4,8 +4,10 @@ define([
     "tracemon.env.config",
     "tracemon.env.languages.en",
     "tracemon.lib.jquery-amd",
-    "tracemon.view.chart.hostView"
-], function(utils, config, lang, $, HostView){
+    "tracemon.lib.d3-amd",
+    "tracemon.view.single-host-view",
+    "tracemon.view.as-view"
+], function(utils, config, lang, $, d3, SingleHostView, ASView){
 
     var MainView = function(env){
         var $this;
@@ -13,6 +15,12 @@ define([
         $this = this;
         this.hosts = {};
         this._oldStatus = {};
+        
+        env.mainView = this;
+
+        this.singleHostView = null;
+
+        this.viewName = env.viewName;
 
 
         this.graph = new dagreD3
@@ -22,21 +30,82 @@ define([
             .setDefaultEdgeLabel(function() { return {}; });
 
         this.setListeners = function(){
-            utils.observer.subscribe("new-status", this.update, this);
+            utils.observer.subscribe("update-status", this._update, this);
+            utils.observer.subscribe("init-status", this._firstDraw, this);
+            utils.observer.subscribe("ixp-detected", this._updateIxp, this);
+            utils.observer.subscribe("cut-hops-length", this._cutHops, this);
+        };
+
+        this._cutHops = function(hops){
+            console.log("cut-hops-length");
+        };
+
+        this._updateIxp = function(host){
+            $($this.svg[0])
+                .find(".type-" + utils.getIdFromIp(host.getId()) + " tspan")
+                .text("IXP: " + host.getId());
+            console.log("IXP: " + host.ip);
         };
 
 
-        this.update = function (newStatus){
+
+
+        this._firstDraw = function(newStatus){
             var diff;
 
             diff = this._computeDiff(this._oldStatus, newStatus);
+            this._oldStatus = newStatus;
 
+
+            if (this.viewName == "host") { // If view is single host
+
+                if (!this.singleHostView) {
+                    this.singleHostView = new SingleHostView(env);
+                }
+
+                this.singleHostView.draw(diff.newTraceroutes);
+
+            } else if (this.viewName == "as") {
+                if (!this.asView) {
+                    this.asView = new ASView(env);
+                }
+
+                this.asView.draw(diff.newTraceroutes);
+            }
+
+
+            var render = new dagreD3.render();
+
+            var svg = d3.select("svg"),
+                svgGroup = svg.append("g");
+
+            this.svg = svg;
+
+            render(d3.select("svg g"), this.graph);
+
+            svg.attr("width", this.graph.graph().width);
+            svg.attr("height", this.graph.graph().height);
+
+            var xCenterOffset = (0);
+            svgGroup.attr("transform", "translate(" + xCenterOffset + ", 20)");
+            svg.attr("height", this.graph.graph().height + 40);
+
+        };
+
+        this._update = function (newStatus){
+            var diff;
+
+            diff = this._computeDiff(this._oldStatus, newStatus);
+            console.log(diff);
             this._updateScene(diff);
-
             this._oldStatus = newStatus;
         };
 
         this._updateScene = function (diff) {
+
+            for (var t=0,length = diff.newTraceroutes.length; t<length; t++) {
+                this.addTraceroute(diff.newTraceroutes[t]);
+            }
 
         };
 
@@ -105,65 +174,6 @@ define([
             }
 
             return deletedTraceroutes;
-        };
-
-        this.init = function(traceroutesList){
-            // var traceroute, traceroutesGroup, hops, attempts, host;
-
-
-            for (var host in this.hosts){
-                this.hosts[host];
-
-            }
-
-            // for (var n=0,length=traceroutesList.length;n<length;n++){
-            //     traceroutesGroup = traceroutesList[n];
-            //     for (var source in traceroutesGroup){
-            //         traceroute = traceroutesGroup[source];
-            //         hops = traceroute.getHops();
-            //         for (var n1=0,length1=hops.length;n1<length1;n1++){
-            //             attempts = hops[n1].getAttempts();
-            //             for (var n2=0,length2=attempts.length;n2<length2;n2++){
-            //                 host = attempts[n2].host;
-            //                 this.addHost(host);
-            //             }
-            //         }
-            //     }
-            // }
-        };
-
-
-        this.draw = function(){
-
-        };
-
-        this.addHost = function(host){
-            try {
-                $this.hosts[host.getId()] = new HostView(env, host, $this.graph);
-                console.log("new host", host);
-                // host.getAutonomousSystems()
-                //     .done(function(){
-                //         $this.hosts[host.getId()] = new HostView(env, host, $this.graph);
-                //
-                //     });
-            } catch (e) {
-            }
-            // console.log("received", host);
-        };
-
-        this.addTraceroute = function(traceroute){
-            var hops, attempts,host, lastHost;
-
-            hops = traceroute.getHops();
-            for (var n1=0,length1=hops.length;n1<length1;n1++){
-                attempts = hops[n1].getAttempts();
-                host = attempts[0].host; // PROBLEM: we are considering only the first attempt!!! <------
-                if (lastHost){
-                    this.graph.addEdge(lastHost.getId(), host.getId());
-                }
-
-                lastHost = host;
-            }
         };
 
 

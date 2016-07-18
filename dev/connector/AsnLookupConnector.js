@@ -13,17 +13,15 @@ define([
 ], function(config, utils, $, AutonomousSystem, prefixUtils) {
 
     var AsnLookupConnector = function (env) {
-        var hosts, grouped, $this, antiFloodTimer, antiFloodTime, lookups, autonomousSystem;
+        var hosts, $this, lookups;
 
         hosts = {};
         lookups = {};
-        grouped = false;
         $this = this;
-        antiFloodTime = 1000;
         this.autonomousSystemsByAs = {};
         this.autonomousSystemsByPrefix = {};
 
-        this.enrich = function (host){
+        this.enrich = function (host, asData){
             var sameAs;
 
             sameAs = this._getSamePrefixAs(host.ip);
@@ -37,41 +35,27 @@ define([
                 if (!lookups[host.ip] && !hosts[host.ip]) {
                     lookups[host.ip] = host;
 
-                    clearTimeout(antiFloodTimer);
-                    antiFloodTimer = setTimeout(this._performCalls, antiFloodTime);
+                    if (asData){
+                        host.setAutonomousSystem($this._createAutonomousSystemObject(asData));
+                    } else {
+                        // DOWNLOAD DATA
+                        host.setAutonomousSystem($this._createAutonomousSystemObject($this._performCall(host.ip)));
+                    }
+
+
                 }
 
             }
         };
 
 
-        this._performCalls = function (){
-            var resources, hostIp, annotation;
+        this._performCall = function (address){
 
-            resources = Object.keys(lookups);
-
-            if (grouped) {
-
-                $this._getJSON(resources, function (data) {
-                    for (var n=0,length=data.length; n<length; n++) {
-                        annotation = data[n];
-                        hostIp = annotation.resource;
-                        $this._updateObject(hostIp, annotation.asns);
-                    }
-                });
-
-            } else {
-
-                for (var n=0,length=resources.length; n<length; n++) {
-                    hostIp = resources[n];
-                    $this._getJSON(hostIp, function(data) {
-                        if (data){
-                            $this._updateObject(hostIp, data[hostIp]);
-                        }
-                    });
+            $this._getJSON(address, function(data) {
+                if (data){
+                    $this._updateObject(address, data[address]);
                 }
-
-            }
+            });
 
         };
 
@@ -134,35 +118,26 @@ define([
         };
 
 
-        this._createAutonomousSystemObject = function(annotation){
-            var asn, autonomousSystemObj, autonomousSystems, encodedPrefix;
+        this._createAutonomousSystemObject = function(asnData){
+            var autonomousSystemObj, autonomousSystems, encodedPrefix, asn;
 
-            autonomousSystems = [];
+            asn = asnData.id;
+            autonomousSystemObj = this.autonomousSystemsByAs[asn]; // Check if the object was already created
 
-            if (annotation && annotation["asns"] && annotation["asns"].length > 0) { // The returned annotation contains something
-
-                for (var n2 = 0, length2 = annotation["asns"].length; n2 < length2; n2++) { // For each returned AS
-
-                    asn = annotation["asns"][n2]; // Get the ASN
-                    autonomousSystemObj = this.autonomousSystemsByAs[asn]; // Check if the object was already created
-
-                    if (!autonomousSystemObj) { // No, it wasn't
-                        autonomousSystemObj = new AutonomousSystem(asn, "OWNER_TODO"); // Create a new model object
-                        this.autonomousSystemsByAs[asn] = autonomousSystemObj; // Store it
-                    }
-                    autonomousSystemObj.addPrefix(annotation["prefix"]); // Annotate the object with the new prefix
-                    encodedPrefix = "" + prefixUtils.encodePrefix(annotation["prefix"]); // Index the new prefix
-                    if (!this.autonomousSystemsByPrefix[encodedPrefix]){
-                        this.autonomousSystemsByPrefix[encodedPrefix] = [];
-                    }
-                    this.autonomousSystemsByPrefix[encodedPrefix].push(autonomousSystemObj);
-
-                    autonomousSystems.push(autonomousSystemObj);
-
-                }
-                return autonomousSystems;
+            if (!autonomousSystemObj) { // No, it wasn't
+                autonomousSystemObj = new AutonomousSystem(asn); // Create a new model object
+                this.autonomousSystemsByAs[asn] = autonomousSystemObj; // Store it
             }
-            return null;
+
+            // autonomousSystemObj.addPrefix(annotation["prefix"]); // Annotate the object with the new prefix
+            // encodedPrefix = "" + prefixUtils.encodePrefix(annotation["prefix"]); // Index the new prefix
+            // if (!this.autonomousSystemsByPrefix[encodedPrefix]){
+            //     this.autonomousSystemsByPrefix[encodedPrefix] = [];
+            // }
+            // this.autonomousSystemsByPrefix[encodedPrefix].push(autonomousSystemObj);
+
+            return autonomousSystemObj;
+
         };
 
     };

@@ -27,6 +27,12 @@ define([
         return this._hops;
     };
 
+    Traceroute.prototype.forEachHop = function(fun){
+        for (var n=0,length=this._hops.length; n<length; n++){
+            fun(this._hops[n]);
+        }
+    };
+
     Traceroute.prototype.getHash = function(){
         var attempts;
 

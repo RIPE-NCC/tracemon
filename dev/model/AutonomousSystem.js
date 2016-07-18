@@ -1,9 +1,8 @@
 define([
 ], function() {
 
-    var AutonomousSystem = function (asn, owner) {
+    var AutonomousSystem = function (asn) {
         this.id = asn;
-        this._owner = owner;
         this._hostsByKey = {};
         this._hosts = [];
         this._prefixes = [];
@@ -32,8 +31,8 @@ define([
     };
 
     AutonomousSystem.prototype.addHost = function(host){
-        if (!this._hostsByKey[host.id]){
-            this._hostsByKey[host.id] = host;
+        if (!this._hostsByKey[host.getId()]){
+            this._hostsByKey[host.getId()] = host;
             this._hosts.push(host);
 
             return true;

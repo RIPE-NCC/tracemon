@@ -41,9 +41,9 @@ requirejs.config({
 
         /* view */
         "tracemon.view.main": TRACEMON_VIEW_URL + "MainView",
-        "tracemon.view.chart.hostView": TRACEMON_VIEW_URL + "HostView",
-        "tracemon.view.chart.multiProbe": TRACEMON_VIEW_URL + "ChartMultiProbeView",
-        "tracemon.view.chart.comparison": TRACEMON_VIEW_URL + "ChartComparisonView",
+        "tracemon.view.single-host-view": TRACEMON_VIEW_URL + "SingleHostView",
+        "tracemon.view.as-view": TRACEMON_VIEW_URL + "ASView",
+
 
         "tracemon.view.viewport": TRACEMON_VIEW_URL + "ViewPort",
         "tracemon.view.chartManager": TRACEMON_VIEW_URL + "ChartManager",
@@ -146,6 +146,9 @@ define([
             "dataApiGeolocation": instanceParams.dataApiGeolocation || config.dataAPIs.dataApiGeolocation,
             "dataApiAsnNeighbours": instanceParams.dataApiAsnNeighbours || config.dataAPIs.dataApiAsnNeighbours,
             "streamingUrl": instanceParams.streamingHost || config.streamingUrl,
+            "viewName": instanceParams.view || config.defaultViewName,
+            "aggregateIPv4": instanceParams.aggregateIPv4 || config.defaultAggregationIPv4,
+            "aggregateIPv6": instanceParams.aggregateIPv6 || config.defaultAggregationIPv6,
             "parentDom": $(parentDom),
             "queryParams": queryParams
         };

@@ -745,6 +745,13 @@ define([
                 /^fe80:/i.test(addr) ||
                 /^::1$/.test(addr) ||
                 /^::$/.test(addr);
+        },
+
+        getIdFromIp: function(ip){
+            ip = ip.replace(/\./g, "-");
+            ip = ip.replace(/\:/g, "-");
+
+            return ip;
         }
 
     }

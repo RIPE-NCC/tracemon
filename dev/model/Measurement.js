@@ -88,7 +88,7 @@ define([
             }
         }
 
-        utils.observer.publish("new-status", currentTraceroutes);
+        utils.observer.publish("update-status", currentTraceroutes);
 
         return currentTraceroutes;
     };

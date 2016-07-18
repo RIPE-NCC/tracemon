@@ -152,22 +152,23 @@ define([
                 out[msmId] = this.loadedMeasurements[msmId].getLastState();
             }
 
-            utils.observer.publish("new-status", out);
+            utils.observer.publish("init-status", out);
 
         };
         
 
-        this.loadMeasurements([{id: 2984884}], function (){
+        this.loadMeasurements([{id: 3749061}], function (){
 
             for (var msmId in $this.loadedMeasurements) {
                 console.log($this.loadedMeasurements[msmId]);
 
                 c.getInitialDump($this.loadedMeasurements[msmId], {
-                    startDate: utils.timestampToUTCDate(parseInt(new Date() / 1000) - 3600)
+                    startDate: utils.timestampToUTCDate(1462250698),
+                    stopDate: utils.timestampToUTCDate(1462270698)
                 }).done(function (measurement) {
                     $this.getLastState();
 
-                    c.getRealTimeResults(measurement, {msm: measurement.id});
+                    // c.getRealTimeResults(measurement, {msm: measurement.id});
                 });
             }
 
