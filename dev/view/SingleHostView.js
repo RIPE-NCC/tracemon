@@ -71,7 +71,7 @@ define([
 
                     $this.nodes[hostId] = host;
 
-                    if (lastHost){
+                    if (lastHost && lastHost.getId() != host.getId()){
                         $this.edges[lastHost.getId() + '-' + hostId] = [lastHost, host];
                     }
 
