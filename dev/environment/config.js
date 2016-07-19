@@ -26,7 +26,8 @@ define([], function(){
         defaultAggregationIPv6: false, //
         streamingUrl: "https://atlas-stream.ripe.net:443",
         viewsEnabled: ["host", "as"],
-        ixpHostCheck: false
+        ixpHostCheck: false,
+        maxNumberHops: 50
 
     };
 });

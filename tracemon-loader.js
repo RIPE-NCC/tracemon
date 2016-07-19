@@ -149,6 +149,7 @@ define([
             "viewName": instanceParams.view || config.defaultViewName,
             "aggregateIPv4": instanceParams.aggregateIPv4 || config.defaultAggregationIPv4,
             "aggregateIPv6": instanceParams.aggregateIPv6 || config.defaultAggregationIPv6,
+            "maxNumberHops": instanceParams.maxNumberHops || config.maxNumberHops,
             "parentDom": $(parentDom),
             "queryParams": queryParams
         };

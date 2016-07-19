@@ -26,7 +26,7 @@ define([
         this.graph = new dagreD3
             .graphlib
             .Graph({ multigraph: true })
-            .setGraph({ "rankDir": "LR", "edgesep": 20 })
+            .setGraph({ "rankDir": "LR", "nodesep": 30, "ranksep": 50, "edgesep": 5 })
             .setDefaultEdgeLabel(function() { return {}; });
 
         this.setListeners = function(){

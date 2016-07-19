@@ -107,7 +107,7 @@ define([
 
             for (var edge in this.edges) {
                 edgeObj = this.edges[edge];
-                env.mainView.graph.setEdge(edgeObj[0].getId(), edgeObj[1].getId());
+                env.mainView.graph.setEdge(edgeObj[0].getId(), edgeObj[1].getId(), { lineInterpolate: 'basis' });
             }
 
         };
@@ -125,7 +125,7 @@ define([
 
             for (var edge in this.edges) {
                 edgeObj = this.edges[edge];
-                env.mainView.graph.setEdge(edge.split("-")[0], edge.split("-")[1]);
+                env.mainView.graph.setEdge(edge.split("-")[0], edge.split("-")[1], { lineInterpolate: 'basis' });
             }
 
         }

@@ -11,10 +11,11 @@ define([
 ], function(config, utils, $) {
 
     var HostClassificationHelper = function (env) {
-        var uniqueHostAs, bucketAses;
+        var uniqueHostAs, bucketAses, asInOut;
 
         uniqueHostAs = {};
         bucketAses = {};
+        asInOut = {};
 
         this._cutHopsLength = function (traceroute, length) {
             var hops;
@@ -145,8 +146,6 @@ define([
 
                     }
 
-                    previousHost = null;
-
                     if (n < hops.length - 1) {
                         nextHop = hops[n + 1];
                         nextHost = nextHop.getMainAttempt().host;
@@ -159,6 +158,9 @@ define([
                     }
 
                 }
+
+                previousHost = null;
+
             }
         };
 
@@ -168,15 +170,15 @@ define([
 
             this._preClassifyNullNodes(traceroute);
             this._combinePrivateAndNullNodes(traceroute);
-            this._cutHopsLength(traceroute, 50);
         };
 
 
         this._classifyNullNodes = function(traceroute){
             var hops, attempt, host, hop, previousHop, nextHop, previousHost, previousAs, bucketKey1, bucketKey2,
-                nextHost, nextAs;
+                nextHost, nextAs, bestBucket;
 
             hops = traceroute.getHops();
+            previousHost = traceroute.source;
 
             for (var n=0,length=hops.length; n<length; n++){
                 hop = hops[n];
@@ -185,12 +187,11 @@ define([
 
                 if (!host.ip && !host.getAutonomousSystem()) {
 
-                    // Create a structure to calculate how many * exit or enter from each AS
-                    if (n > 0) {
-                        previousHop = hops[n-1];
+                    if (!previousHop) {
+                        previousHop = hops[n - 1];
                         previousHost = previousHop.getMainAttempt().host;
-                        previousAs = previousHost.getAutonomousSystem();
                     }
+                    previousAs = previousHost.getAutonomousSystem();
 
                     if (n < hops.length - 1) {
                         nextHop = hops[n + 1];
@@ -206,30 +207,113 @@ define([
                         } else if (bucketAses[bucketKey1] < bucketAses[bucketKey2]){
                             host.setAutonomousSystem(nextAs);
                         } else {
-
-                            // TODO: They are the same
-                            console.log("THE SAMEEE")
+                            if (bucketAses[bucketKey1] == globalUniqueOut[previousAs.id]) {
+                                host.setAutonomousSystem(previousAs);
+                            } else if (bucketAses[bucketKey2] == globalUniqueOut[nextAs.id]) {
+                                host.setAutonomousSystem(nextAs);
+                            } else {
+                                bestBucket = Math.min(
+                                    Math.max(bucketAses[bucketKey1], globalUniqueIn[nextAs.id]),
+                                    Math.max(bucketAses[bucketKey1], globalUniqueOut[nextAs.id])
+                                );
+                                if (bucketAses[bucketKey1] == bestBucket){
+                                    host.setAutonomousSystem(previousAs);
+                                } else {
+                                    host.setAutonomousSystem(nextAs);
+                                }
+                            }
                         }
                     }
 
                 }
+
+                previousHop = null;
             }
         };
 
+        var globalUniqueIn, globalUniqueOut;
 
+        globalUniqueIn = {};
+        globalUniqueOut = {};
+
+        this._computeInOutRanks = function (traceroute) {
+            var hop, hops, previousHost;
+
+            hops = traceroute.getHops();
+
+            previousHost = traceroute.source;
+            for (var n=0,length=hops.length; n<length; n++){
+                var attempt, host, asn, unique, nextHop, nextAttempt, nextHost;
+
+                hop = hops[n];
+
+                unique = {};
+                attempt = hop.getMainAttempt();
+                host = attempt.host;
+                asn = host.getAutonomousSystem();
+
+                if (asn){
+                    if (!unique[asn.id]){
+                        unique[asn.id] = true;
+                        globalUniqueIn[asn.id] = globalUniqueIn[asn.id] || {};
+                        globalUniqueIn[asn.id][previousHost.getId()] = true;
+                        previousHost = host;
+
+                        if (n < length - 1){
+                            nextHop = hops[n + 1];
+                            nextAttempt = nextHop.getMainAttempt();
+                            nextHost = nextAttempt.host;
+
+                            globalUniqueOut[asn.id] = globalUniqueOut[asn.id] || {};
+                            globalUniqueOut[asn.id][nextHost.getId()] = true;
+                        }
+                    }
+                }
+
+            }
+
+        };
 
         this.scanAllTraceroutes = function(traceroutes){
             var traceroute;
 
-            console.log(bucketAses);
             for (var n=0,length=traceroutes.length; n<length; n++){
-                traceroute = traceroutes[n];
-                this._classifyNullNodes(traceroute);
 
             }
-        }
+
+
+            for (var n=0,length=traceroutes.length; n<length; n++) {
+                this._computeInOutRanks(traceroutes[n]);
+            }
+
+
+
+            for (var k in globalUniqueIn){
+                globalUniqueIn[k] = Object.keys(globalUniqueIn[k]).length;
+            }
+
+            for (var k in globalUniqueOut){
+                globalUniqueOut[k] = Object.keys(globalUniqueOut[k]).length;
+            }
+
+
+
+            for (var n=0,length=traceroutes.length; n<length; n++){
+                this._classifyNullNodes(traceroutes[n]);
+                this._combinePrivateAndNullNodes(traceroutes[n]);
+                this._cutHopsLength(traceroutes[n], env.maxNumberHops);
+            }
+
+
+            console.log(globalUniqueIn, globalUniqueOut);
+        };
+
+
 
     };
+
+
+
 
     return HostClassificationHelper;
 
