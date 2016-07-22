@@ -48,5 +48,14 @@ define([
     };
 
 
+    Host.prototype.setLabel = function(label){
+        this._label = label;
+    };
+
+    Host.prototype.getLabel = function(){
+        this._label || this.getId();
+    };
+
+
     return Host;
 });

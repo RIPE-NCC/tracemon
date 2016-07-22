@@ -15,11 +15,11 @@ define([
         $this = this;
         this.hosts = {};
         this._oldStatus = {};
-        
+
         env.mainView = this;
 
         this.singleHostView = null;
-
+        this.view = null;
         this.viewName = env.viewName;
 
 
@@ -49,46 +49,40 @@ define([
 
 
 
+        this._getView = function(){
+            switch(this.viewName) {
+                case "host":
+                    return new SingleHostView(env);
+                    break;
+                case "as":
+                    return new ASView(env);
+                    break;
+                default:
+                    throw "Select a view"
+            }
+        };
+
 
         this._firstDraw = function(newStatus){
-            var diff;
+            var diff, render, svg, svgGroup, xCenterOffset;
 
             diff = this._computeDiff(this._oldStatus, newStatus);
             this._oldStatus = newStatus;
 
+            this.view = this._getView();
+            this.view.draw(diff.newTraceroutes); // Compute the layout
 
-            if (this.viewName == "host") { // If view is single host
-
-                if (!this.singleHostView) {
-                    this.singleHostView = new SingleHostView(env);
-                }
-
-                this.singleHostView.draw(diff.newTraceroutes);
-
-            } else if (this.viewName == "as") {
-                if (!this.asView) {
-                    this.asView = new ASView(env);
-                }
-
-                this.asView.draw(diff.newTraceroutes);
-            }
-
-
-            var render = new dagreD3.render();
-
-            var svg = d3.select("svg"),
-                svgGroup = svg.append("g");
-
-            this.svg = svg;
-
+            // Draw the chart for real
+            render = new dagreD3.render();
+            this.svg = d3.select("svg");
+            svgGroup = this.svg.append("g");
             render(d3.select("svg g"), this.graph);
-
-            svg.attr("width", this.graph.graph().width);
-            svg.attr("height", this.graph.graph().height);
-
-            var xCenterOffset = (0);
+            this.svg.attr("width", this.graph.graph().width);
+            this.svg.attr("height", this.graph.graph().height);
+            xCenterOffset = 0;
             svgGroup.attr("transform", "translate(" + xCenterOffset + ", 20)");
-            svg.attr("height", this.graph.graph().height + 40);
+            this.svg.attr("height", this.graph.graph().height + 40);
+
 
         };
 

@@ -125,6 +125,8 @@ define([
         var main = new MainView(env);
         var c = new Connector(env);
 
+        env.connector = c; // TODO: Temporary, refactor!
+
 
         /*
          * msmList format [{id: 81881, sources: [11,22,99]}]

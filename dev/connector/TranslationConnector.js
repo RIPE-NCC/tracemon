@@ -274,20 +274,24 @@ define([
                     .done(function (data) {
                         var geolocation, geolocRaw;
 
-                        geolocRaw = data["data"]["locations"][0];
-                        geolocation = {
-                            city: geolocRaw["city"],
-                            country: geolocRaw["country"],
-                            latitude: geolocRaw["latitude"],
-                            longitude: geolocRaw["longitude"],
-                            extra: {
-                                radius: 0,
-                                coverage: geolocRaw["covered_percentage"],
-                                accuracy: 100,
-                                priority: 1,
-                                prefixes: geolocRaw["prefixes"]
-                            }
-                        };
+
+                        if (data && data["data"] && data["data"]["locations"] && data["data"]["locations"][0]) {
+                            geolocRaw = data["data"]["locations"][0];
+                            geolocation = {
+                                city: geolocRaw["city"],
+                                country: geolocRaw["country"],
+                                latitude: geolocRaw["latitude"],
+                                longitude: geolocRaw["longitude"],
+                                extra: {
+                                    radius: 0,
+                                    coverage: geolocRaw["covered_percentage"],
+                                    accuracy: 100,
+                                    priority: 1,
+                                    prefixes: geolocRaw["prefixes"]
+                                }
+                            };
+                        }
+
                         $this.geolocByIp[ip] = geolocation;
                         deferredCall.resolve(geolocation);
                     });
