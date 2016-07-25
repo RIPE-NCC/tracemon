@@ -166,7 +166,6 @@ define([
 
                 targetTraceroute = $this.measurementById[item["msm_id"]].target;
                 translated = new Traceroute(hostObj, targetTraceroute, item["timestamp"]);
-                translated.probe = hostObj;
                 translated.parisId = item["paris_id"];
                 translated.protocol = item["proto"];
                 translated.addHops(hops);
@@ -180,7 +179,7 @@ define([
 
 
         this.getInitialDump = function (measurement, options){
-            var deferredCall, targetHost;
+            var deferredCall;
 
             deferredCall = $.Deferred();
 

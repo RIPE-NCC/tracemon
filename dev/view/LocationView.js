@@ -6,7 +6,7 @@ define([
     "tracemon.lib.jquery-amd",
     "tracemon.lib.d3-amd",
     "tracemon.lib.parsePrefix"
-], function(utils, config, lang, $, d3, prefixUtils){
+], function(utils, config, lang, $){
 
     var LocationView = function(env){
         var $this, aggregationBy;
@@ -107,9 +107,6 @@ define([
                         } else {
                             nodeKey = traceroute.target.ip;
                         }
-
-
-                        // nodeKey = $this._getLocationKey(host);
 
                         if (!$this.nodes[nodeKey]) {
                             $this.nodes[nodeKey] = {hosts: {}, label: nodeKey, id: utils.getIdFromIp(nodeKey)};
