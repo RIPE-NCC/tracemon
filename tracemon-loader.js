@@ -43,6 +43,7 @@ requirejs.config({
         "tracemon.view.main": TRACEMON_VIEW_URL + "MainView",
         "tracemon.view.single-host-view": TRACEMON_VIEW_URL + "SingleHostView",
         "tracemon.view.as-view": TRACEMON_VIEW_URL + "ASView",
+        "tracemon.view.location-view": TRACEMON_VIEW_URL + "LocationView",
 
 
         "tracemon.view.viewport": TRACEMON_VIEW_URL + "ViewPort",

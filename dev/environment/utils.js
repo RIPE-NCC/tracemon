@@ -734,17 +734,39 @@ define([
         },
 
         isPrivateIp: function(addr){
-            return /^(::f{4}:)?10\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/
-                    .test(addr) ||
-                /^(::f{4}:)?192\.168\.([0-9]{1,3})\.([0-9]{1,3})$/.test(addr) ||
-                /^(::f{4}:)?172\.(1[6-9]|2\d|30|31)\.([0-9]{1,3})\.([0-9]{1,3})$/
-                    .test(addr) ||
-                /^(::f{4}:)?127\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/.test(addr) ||
-                /^(::f{4}:)?169\.254\.([0-9]{1,3})\.([0-9]{1,3})$/.test(addr) ||
-                /^fc00:/i.test(addr) ||
-                /^fe80:/i.test(addr) ||
-                /^::1$/.test(addr) ||
-                /^::$/.test(addr);
+            // return /^(::f{4}:)?10\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/
+            //         .test(addr) ||
+            //     /^(::f{4}:)?192\.168\.([0-9]{1,3})\.([0-9]{1,3})$/.test(addr) ||
+            //     /^(::f{4}:)?172\.(1[6-9]|2\d|30|31)\.([0-9]{1,3})\.([0-9]{1,3})$/
+            //         .test(addr) ||
+            //     /^(::f{4}:)?127\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/.test(addr) ||
+            //     /^(::f{4}:)?169\.254\.([0-9]{1,3})\.([0-9]{1,3})$/.test(addr) ||
+            //     /^fc00:/i.test(addr) ||
+            //     /^fe80:/i.test(addr) ||
+            //     /^::1$/.test(addr) ||
+            //     /^::$/.test(addr);
+
+            var addressPieces;
+
+            if (addr.indexOf('.') != -1 && addr.indexOf(':') == -1){ // IPv4
+                addressPieces = addr.split(".");
+
+                return (addressPieces[0] == 10) ||
+                    (addressPieces[0] == 127) ||
+                    (addressPieces[0] == 172 && addressPieces[1] >= 16 && addressPieces[1] <= 31) ||
+                    (addressPieces[0] == 192 && addressPieces[1] == 168);
+
+            } else { // IPv6
+                addressPieces = addr.split(":");
+
+                return (addressPieces[0].toLowerCase().indexOf("fd") == 0) ||
+                    (addressPieces[0].toLowerCase().indexOf("fe80") == 0) ||
+                    (addressPieces[0].toLowerCase().indexOf("fc00") == 0) ||
+                    (addressPieces[0].toLowerCase().indexOf("fc00") == 0) ||
+                    (addr == "::1") ||
+                    (addr == "::");
+
+            }
         },
 
         getIdFromIp: function(ip){

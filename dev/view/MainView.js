@@ -6,8 +6,9 @@ define([
     "tracemon.lib.jquery-amd",
     "tracemon.lib.d3-amd",
     "tracemon.view.single-host-view",
-    "tracemon.view.as-view"
-], function(utils, config, lang, $, d3, SingleHostView, ASView){
+    "tracemon.view.as-view",
+    "tracemon.view.location-view"
+], function(utils, config, lang, $, d3, SingleHostView, ASView, LocationView){
 
     var MainView = function(env){
         var $this;
@@ -17,8 +18,6 @@ define([
         this._oldStatus = {};
 
         env.mainView = this;
-
-        this.singleHostView = null;
         this.view = null;
         this.viewName = env.viewName;
 
@@ -57,34 +56,41 @@ define([
                 case "as":
                     return new ASView(env);
                     break;
+                case "geo":
+                    return new LocationView(env);
+                    break;
                 default:
                     throw "Select a view"
             }
         };
 
 
+        this._drawChart = function(){
+            var render, svg, svgGroup, xCenterOffset;
+            // Draw the chart for real
+            render = new dagreD3.render();
+            $this.svg = d3.select("svg");
+            svgGroup = $this.svg.append("g");
+            render(d3.select("svg g"), $this.graph);
+            $this.svg.attr("width", $this.graph.graph().width);
+            $this.svg.attr("height", $this.graph.graph().height);
+            xCenterOffset = 0;
+            svgGroup.attr("transform", "translate(" + xCenterOffset + ", 20)");
+            $this.svg.attr("height", $this.graph.graph().height + 40);
+
+        };
+
+
         this._firstDraw = function(newStatus){
-            var diff, render, svg, svgGroup, xCenterOffset;
+            var diff;
 
             diff = this._computeDiff(this._oldStatus, newStatus);
             this._oldStatus = newStatus;
 
             this.view = this._getView();
-            this.view.draw(diff.newTraceroutes); // Compute the layout
-
-            // Draw the chart for real
-            render = new dagreD3.render();
-            this.svg = d3.select("svg");
-            svgGroup = this.svg.append("g");
-            render(d3.select("svg g"), this.graph);
-            this.svg.attr("width", this.graph.graph().width);
-            this.svg.attr("height", this.graph.graph().height);
-            xCenterOffset = 0;
-            svgGroup.attr("transform", "translate(" + xCenterOffset + ", 20)");
-            this.svg.attr("height", this.graph.graph().height + 40);
-
-
+            this.view.draw(diff.newTraceroutes, this._drawChart); // Compute the layout and draw
         };
+        
 
         this._update = function (newStatus){
             var diff;

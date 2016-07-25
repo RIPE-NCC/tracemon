@@ -73,12 +73,12 @@ define([
         this._enrichIXP = function(attemptObj){
 
             peeringDbConnector
-                .checkIxp(attemptObj.host.ip) // check if this is an Ixp
+                .checkIxp(attemptObj.ip) // check if this is an Ixp
                 .done(function(ixp) {
                     if (ixp !== false){
-                        attemptObj.host.isIxp = true;
-                        attemptObj.host.ixp = ixp;
-                        utils.observer.publish("ixp-detected", attemptObj.host);
+                        attemptObj.isIxp = true;
+                        attemptObj.ixp = ixp;
+                        utils.observer.publish("ixp-detected", attemptObj);
                     }
                 });
 
@@ -86,7 +86,7 @@ define([
 
         this.enrichDump = function(data, dump){
             var translated, hops, hop, item, hopList, attempts, attemptsList, hostObj, hopObj, attemptObj,
-                hostAddress, tmpHost, errors, hostAsn, asList, tracerouteList, hostList;
+                hostAddress, tmpHost, errors, hostAsn, asList, tracerouteList, hostList, targetTraceroute;
 
             asList = data['ases'];
             tracerouteList = data['traceroutes'];
@@ -127,7 +127,7 @@ define([
                                         asnLookupConnector.enrich(attemptObj.host, asList[hostAsn]);
 
                                         if (config.ixpHostCheck) {
-                                            $this._enrichIXP(attemptObj);
+                                            $this._enrichIXP(attemptObj.host);
                                         }
                                     }
 
@@ -153,15 +153,22 @@ define([
                 hostObj = new Host(item["from"]);
                 hostObj.setProbeId(item["prb_id"]);
                 hostAsn = item["from_as"];
+
                 if (!hostObj.isPrivate) {
                     asList[hostAsn].id = hostAsn;
                     asnLookupConnector.enrich(hostObj, asList[hostAsn]);
+
+                    if (config.ixpHostCheck) {
+                        $this._enrichIXP(hostObj);
+                    }
                 }
-                translated = new Traceroute(hostObj, item["timestamp"]);
+
+
+                targetTraceroute = $this.measurementById[item["msm_id"]].target;
+                translated = new Traceroute(hostObj, targetTraceroute, item["timestamp"]);
                 translated.probe = hostObj;
                 translated.parisId = item["paris_id"];
                 translated.protocol = item["proto"];
-                translated.measurement = $this.measurementById[item["msm_id"]];
                 translated.addHops(hops);
                 translated.errors = errors;
                 hostHelper.scanTraceroute(translated);
@@ -173,12 +180,12 @@ define([
 
 
         this.getInitialDump = function (measurement, options){
-            var deferredCall;
+            var deferredCall, targetHost;
 
             deferredCall = $.Deferred();
 
-            this.measurementById[measurement.id] = measurement;
-            historyConnector.getInitialDump(measurement.id, options)
+            historyConnector
+                .getInitialDump(measurement.id, options)
                 .done(function(data){
                     var dump;
 
@@ -199,10 +206,26 @@ define([
 
             historyConnector.getMeasurementInfo(measurementId)
                 .done(function(data){
-                    var measurement, msmTarget;
+                    var measurement, msmTarget, targetHost;
 
                     msmTarget = data["target"];
-                    measurement = new Measurement(measurementId, msmTarget);
+                    if ($this.hostByIp[msmTarget]){
+                        targetHost = $this.hostByIp[msmTarget];
+                    } else {
+                        targetHost = new Host(msmTarget);
+                    }
+
+                    measurement = new Measurement(measurementId, targetHost);
+                    $this.measurementById[measurement.id] = measurement;
+
+                    if (!targetHost.isPrivate) { // TODO: ASN LOOKUP FOR TARGET
+                        // asnLookupConnector.enrich(targetHost);
+
+                        // if (config.ixpHostCheck) {
+                        //     $this._enrichIXP(targetHost);
+                        // }
+                    }
+
                     deferredCall.resolve(measurement);
                 });
 

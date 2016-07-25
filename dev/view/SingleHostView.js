@@ -15,6 +15,8 @@ define([
         this.nodes = {};
         this.edges = {};
 
+        this.nodeLabels = {};
+
         this._aggregate = function(){
             var nodeObj, edgeObj, finalNodes, nodeKey, edgeKey1, edgeKey2, finalEdges, edgeKey, subnet;
 
@@ -58,8 +60,16 @@ define([
             this.edges = finalEdges;
         };
 
-        this.draw = function(traceroutesToDraw){
-            var traceroute, host, hostId, attempt, lastHostId, nodeObj, edgeObj, lastHost;
+        this.getNodeLabel = function (host){
+            return host.getLabel();
+        };
+
+        this.updateNodeLabel = function (host, label) {
+
+        };
+
+        this.draw = function(traceroutesToDraw, callback){
+            var traceroute, host, hostId, attempt, lastHost;
 
             for (var n=0,length=traceroutesToDraw.length; n<length; n++){
                 traceroute = traceroutesToDraw[n];
@@ -70,6 +80,19 @@ define([
                     attempt = hop.getMainAttempt();
                     host = attempt.host;
                     hostId = host.getId();
+
+                    env.connector
+                        .getGeolocation(host)
+                        .done(function(geoloc){
+                            if (geoloc) {
+                                var annotation;
+
+                                annotation = (geoloc.city) ? (geoloc.city + ", " + geoloc.country) :  geoloc.country;
+                                $(env.mainView.svg[0])
+                                    .find(".type-" + utils.getIdFromIp(host.getId()) + " tspan")
+                                    .text(host.getId() + "(" + annotation + ")");
+                            }
+                        });
 
                     $this.nodes[hostId] = host;
 
@@ -90,7 +113,7 @@ define([
             }
 
 
-
+            callback();
         };
 
         this._drawPlain = function(){
@@ -112,13 +135,14 @@ define([
 
         };
 
+
         this._drawAggregated = function () {
             var nodeObj, edgeObj;
 
             for (var node in this.nodes) {
                 nodeObj = this.nodes[node];
                 env.mainView.graph.setNode(node, {
-                    label: nodeObj.getId(),
+                    label: $this.getNodeLabel(nodeObj),
                     class: "type-" + utils.getIdFromIp(nodeObj.getId())
                 });
             }

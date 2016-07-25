@@ -7,7 +7,10 @@ define([
         this.ip = ip;
         this.isProbe = false;
         this.multiplicity = 1;
-        this.isPrivate = utils.isPrivateIp(ip);
+
+        if (this.ip) {
+            this.isPrivate = utils.isPrivateIp(ip);
+        }
     };
 
 
@@ -19,7 +22,7 @@ define([
 
     Host.prototype.getId = function() {
         if (!this._id){
-            if (this.ip && this._autonomousSystem){
+            if (this.ip && this._autonomousSystem && !this.isPrivate){
                 this._id = this.ip + "-" + this._autonomousSystem.id;
             } else if (!this.ip && this._autonomousSystem) {
                 this._id = "*" + Math.random() + "-" + this._autonomousSystem.id;

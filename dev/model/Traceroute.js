@@ -8,11 +8,23 @@
 define([
 ], function() {
 
-    var Traceroute = function (source, date) {
+    var Traceroute = function (source, target, date) {
         this._hops = [];
         this.source = source;
+        this.target = target;
         this.date = date;
         this._hash = null;
+    };
+
+    Traceroute.prototype.reachesTarget = function(){
+        var lastHop;
+
+        lastHop = this._hops[this._hops.length - 1];
+        if (lastHop){
+            return (lastHop.getMainAttempt().host.ip == this.target.ip);
+        }
+
+        return false;
     };
 
     Traceroute.prototype.addHops = function(hops){

@@ -305,7 +305,6 @@ define([
             }
 
 
-            console.log(globalUniqueIn, globalUniqueOut);
         };
 
 

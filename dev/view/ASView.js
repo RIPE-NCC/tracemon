@@ -15,7 +15,7 @@ define([
         this.nodes = {};
         this.edges = {};
 
-        this.draw = function(traceroutesToDraw){
+        this.draw = function(traceroutesToDraw, callback){
             var traceroute, host, edgeKey, attempt, nodeObj, edgeObj, asObj, previousAS;
 
             for (var n=0,length=traceroutesToDraw.length; n<length; n++){
@@ -58,6 +58,7 @@ define([
 
             }
 
+            callback();
         };
 
 

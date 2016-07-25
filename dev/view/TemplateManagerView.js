@@ -230,14 +230,14 @@ define([
                     leftHeaderContent = lang.leftHeader.show
                         .replace("%y", utils.htmlEncode(env.measurements[msmId].type))
                         .replace("%m", utils.htmlEncode(msmId))
-                        .replace("%t", utils.htmlEncode(env.measurements[msmId].target));
+                        .replace("%t", utils.htmlEncode(env.measurements[msmId].target.ip));
                     break;
                 }
             }
 
             if (measurementsNumber > 1 && groupsNumber > 0){
                 for (var msmId in env.originalMeasurements){
-                    targets.push(env.originalMeasurements[msmId].target);
+                    targets.push(env.originalMeasurements[msmId].target.ip);
                 }
             }
 

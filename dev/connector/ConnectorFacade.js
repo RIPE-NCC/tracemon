@@ -49,7 +49,6 @@ define([
             translationConnector.getAutonomousSystem(ip)
                 .done(function (data) {
 
-                    console.log(data);
                     deferredCall.resolve(data);
                 });
 
@@ -77,11 +76,17 @@ define([
 
             deferredCall = $.Deferred();
 
-            translationConnector.getGeolocation(host.ip)
-                .done(function (data) {
-                    deferredCall.resolve(data);
-                });
-
+            if (host.isPrivate || !host.ip) {
+                deferredCall.resolve(null);
+            } else if (host.location){
+                deferredCall.resolve(host.location);
+            } else {
+                translationConnector.getGeolocation(host.ip)
+                    .done(function (data) {
+                        host.location = data;
+                        deferredCall.resolve(data);
+                    });
+            }
             return deferredCall.promise();
         };
 
