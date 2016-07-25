@@ -64,10 +64,6 @@ define([
             return host.getLabel();
         };
 
-        this.updateNodeLabel = function (host, label) {
-
-        };
-
         this.draw = function(traceroutesToDraw, callback){
             var traceroute, host, hostId, attempt, lastHost;
 
@@ -80,20 +76,6 @@ define([
                     attempt = hop.getMainAttempt();
                     host = attempt.host;
                     hostId = host.getId();
-
-                    env.connector
-                        .getGeolocation(host)
-                        .done(function(geoloc){
-                            if (geoloc) {
-                                var annotation;
-
-                                annotation = (geoloc.city) ? (geoloc.city + ", " + geoloc.country) :  geoloc.country;
-                                $(env.mainView.svg[0])
-                                    .find(".type-" + utils.getIdFromIp(host.getId()) + " tspan")
-                                    .text(host.getId() + "(" + annotation + ")");
-                            }
-                        });
-
                     $this.nodes[hostId] = host;
 
                     if (lastHost && lastHost.getId() != host.getId()){

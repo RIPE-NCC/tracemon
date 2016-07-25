@@ -53,7 +53,7 @@ define([
                 for (var edge in this.edges){
                     edgeObj = this.edges[edge];
 
-                    env.mainView.graph.setEdge(edgeObj[0].id, edgeObj[1].id);
+                    env.mainView.graph.setEdge(edgeObj[0].id, edgeObj[1].id, { lineInterpolate: 'basis' });
                 }
 
             }

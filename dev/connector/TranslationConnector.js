@@ -86,11 +86,10 @@ define([
 
         this.enrichDump = function(data, dump){
             var translated, hops, hop, item, hopList, attempts, attemptsList, hostObj, hopObj, attemptObj,
-                hostAddress, tmpHost, errors, hostAsn, asList, tracerouteList, hostList, targetTraceroute;
+                hostAddress, tmpHost, errors, hostAsn, asList, tracerouteList, targetTraceroute;
 
             asList = data['ases'];
             tracerouteList = data['traceroutes'];
-            hostList = {};
 
             for (var n1=0,length1 = tracerouteList.length; n1<length1; n1++) {
                 hops = [];

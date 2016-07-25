@@ -159,14 +159,16 @@ define([
         };
         
 
-        this.loadMeasurements([{id: 3749061}], function (){
+        this.loadMeasurements([{id: 4471092}], function (){ // 3749061
 
             for (var msmId in $this.loadedMeasurements) {
                 console.log($this.loadedMeasurements[msmId]);
 
                 c.getInitialDump($this.loadedMeasurements[msmId], {
-                    startDate: utils.timestampToUTCDate(1462250698),
-                    stopDate: utils.timestampToUTCDate(1462270698)
+                    // startDate: utils.timestampToUTCDate(1462250698),
+                    startDate: utils.timestampToUTCDate((new Date().getTime()/1000) -3600),
+                    // stopDate: utils.timestampToUTCDate(1462270698)
+                    stopDate: utils.timestampToUTCDate((new Date().getTime())/1000)
                 }).done(function (measurement) {
                     $this.getLastState();
 
