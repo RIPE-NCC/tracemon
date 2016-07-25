@@ -44,14 +44,10 @@ define([
         this._locatePrivateHosts = function(traceroutesToDraw){
             var traceroute, host, attempt, hostTmp, hop, lastLocatedHost, hops;
 
-            var cagata1;
-
-
             for (var n=0,length=traceroutesToDraw.length; n<length; n++) {
                 traceroute = traceroutesToDraw[n];
                 hops = traceroute.getHops();
                 lastLocatedHost = null;
-                cagata1 = [];
                 lastLocatedHost = traceroute.source;
 
                 for (var n1=0,length1=hops.length; n1<length1; n1++) {
@@ -59,8 +55,6 @@ define([
                     hop = hops[n1];
                     attempt = hop.getMainAttempt();
                     host = attempt.host;
-
-                    cagata1.push(host);
 
                     if (host.location){ // This node has a location
                         lastLocatedHost = host;
@@ -77,7 +71,6 @@ define([
                     }
                 }
 
-                // console.log($.map(cagata1, function(item){return ((item.location) ? item.location.country : item.getId())}));
             }
         };
 
