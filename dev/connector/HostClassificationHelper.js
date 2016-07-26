@@ -11,10 +11,12 @@ define([
 ], function(config, utils, $) {
 
     var HostClassificationHelper = function (env) {
-        var uniqueHostAs, bucketAses, asInOut;
+        var uniqueHostAs, bucketAses, asInOut, globalUniqueIn, globalUniqueOut, lastNullHop;
 
         uniqueHostAs = {};
         bucketAses = {};
+        globalUniqueIn = {};
+        globalUniqueOut = {};
         asInOut = {};
 
         this._cutHopsLength = function (traceroute, length) {
@@ -172,7 +174,6 @@ define([
             this._combinePrivateAndNullNodes(traceroute);
         };
 
-
         this._classifyNullNodes = function(traceroute){
             var hops, attempt, host, hop, previousHop, nextHop, previousHost, previousAs, bucketKey1, bucketKey2,
                 nextHost, nextAs, bestBucket;
@@ -197,6 +198,15 @@ define([
                         nextHop = hops[n + 1];
                         nextHost = nextHop.getMainAttempt().host;
                         nextAs = nextHost.getAutonomousSystem();
+                    }
+
+                    if (n == hops.length -1){
+                        if (lastNullHop) {
+                            attempt.host = lastNullHop;
+                        } else {
+                            lastNullHop = host;
+
+                        }
                     }
 
                     if (previousAs && nextAs) {
@@ -230,11 +240,6 @@ define([
                 previousHop = null;
             }
         };
-
-        var globalUniqueIn, globalUniqueOut;
-
-        globalUniqueIn = {};
-        globalUniqueOut = {};
 
         this._computeInOutRanks = function (traceroute) {
             var hop, hops, previousHost;
@@ -306,6 +311,8 @@ define([
 
 
         };
+
+
 
 
 

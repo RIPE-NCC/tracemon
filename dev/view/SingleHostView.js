@@ -75,6 +75,7 @@ define([
                 traceroute.forEachHop(function(hop){
                     attempt = hop.getMainAttempt();
                     host = attempt.host;
+                    
                     hostId = host.getId();
                     $this.nodes[hostId] = host;
 
