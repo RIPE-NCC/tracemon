@@ -36,15 +36,10 @@ define([
         };
 
 
-
-
         this.drawOrUpdate = function(){
             console.log("Drawing");
-            var status, netGraph, traceroutesList;
+            var status;
 
-            traceroutesList = $.map(env.main.loadedMeasurements, function(item){
-                return item.getTraceroutes();
-            });
             status = env.main.getLastState();
             if (firstDraw){
                 this._firstDraw(status);
@@ -52,15 +47,6 @@ define([
             } else {
                 this._update(status);
             }
-        };
-
-        this._computeInitialPositions = function(){
-            var status, netGraph, traceroutesList;
-
-            traceroutesList = $.map(env.main.loadedMeasurements, function(item){
-                return item.getTraceroutes();
-            });
-            netGraph = this.computeNet(traceroutesList);
         };
 
         this._partialUpdate = function(whatChanged){
@@ -91,33 +77,26 @@ define([
             }
         };
 
-
-        this._drawChart = function(){
-            var svg, svgGroup, xCenterOffset;
-            // Draw the chart for real
-            $this._render = new dagreD3.render();
-            $this.svg = d3.select("svg");
-            svgGroup = $this.svg.append("g");
-            $this._render(d3.select("svg g"), $this.graph);
-            $this.svg.attr("width", $this.graph.graph().width);
-            $this.svg.attr("height", $this.graph.graph().height);
-            xCenterOffset = 0;
-            svgGroup.attr("transform", "translate(" + xCenterOffset + ", 20)");
-            $this.svg.attr("height", $this.graph.graph().height + 40);
-
-        };
-
-
         this._firstDraw = function(newStatus){
             var diff;
 
+            this._initChart();
             diff = this._computeDiff(this._oldStatus, newStatus);
             this._oldStatus = newStatus;
 
             console.log(diff.newTraceroutes);
             this.view = this._getView();
-            this.view.draw(diff.newTraceroutes, this._drawChart); // Compute the layout and draw
+
+            this.view.draw(diff.newTraceroutes, function(){
+                console.log("drawn");
+            }); // Compute the layout and draw
         };
+
+
+        this._initChart = function(){
+            this.svg = d3.select("svg");
+        };
+
 
         this._updateProxy = function (){
 
@@ -133,7 +112,6 @@ define([
             this.view.draw(diff.updatedTraceroutes, function(){
                 console.log("drawn");
                 $this._render($this.svg, $this.graph);
-                // new dagreD3.render();
             }); // Compute the layout and draw
             this._oldStatus = newStatus;
         };

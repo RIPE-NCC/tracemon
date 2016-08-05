@@ -10,30 +10,26 @@ define([
 ], function(utils, config, lang, $, d3, prefixUtils, LabelPlacement){
 
     var SingleHostView = function(env){
-        var $this, labelPlacement;
+        var $this, labelPlacement, cache;
 
         $this = this;
+        labelPlacement = new LabelPlacement();
+
+        cache = {};
         this.nodes = {};
         this.edges = {};
 
-        labelPlacement = new LabelPlacement();
-
-
         this._drawOrUpdateLabel = function(node){
-            var where, nodeEdges;
+            var where;
 
-            nodeEdges = [];
-
-            for (var edgeKey in this.edges){
-                var edge = this.edges[edgeKey];
-                var nodeView = env.mainView.graph.getEdge(edge[0].getId(), edge[1].getId());
-                nodeEdges.push(nodeView.points);
-
+            if (!cache.edgePoints) {
+                cache.edgePoints = $.map(cache.edges, function (nodeView) {
+                    return [nodeView.points];
+                });
             }
+            where = labelPlacement.getLabelPosition(node, cache.edgePoints);
 
-            where = labelPlacement.getLabelPosition(node, nodeEdges);
-
-            d3.select("svg")
+            env.mainView.svg
                 .append("text")
                 .attr("x", where.x)
                 .attr("y", where.y)
@@ -43,13 +39,12 @@ define([
                     if (where.direction ==  "vertical"){
                         return "rotate(-60," + where.x + "," + where.y + ")";
                     }
-            
+
                     return null;
                 })
                 .attr("class", "node-label node-label-" + utils.getIdFromIp(node.id));
 
         };
-
 
         this._updateLabel = function(host){
             var nodeView = env.mainView.graph.getNode(host.getId());
@@ -59,61 +54,59 @@ define([
                 .text(nodeView.label);
         };
 
-
         this._setListeners = function(){
             utils.observer.subscribe("ixp-detected", this._updateIxp, this);
         };
 
         this._updateIxp = function(host){
-            // console.log("ixp: ", utils.getIdFromIp(host.getId()));
-            d3.select("svg")
+            env.mainView.svg
                 .select(".node-" + utils.getIdFromIp(host.getId()))
                 .attr("class", this._getNodeClass);
             this._updateLabel(host);
         };
 
-        this._aggregate = function(){
-            var nodeObj, edgeObj, finalNodes, nodeKey, edgeKey1, edgeKey2, finalEdges, edgeKey, subnet;
-
-            finalNodes = {};
-            finalEdges = {};
-
-            subnet = env.aggregateIPv4;
-
-            for (var node in this.nodes){
-
-                nodeObj = this.nodes[node];
-
-                if (nodeObj.ip) {
-                    nodeKey = prefixUtils.encodePrefix(nodeObj.ip).substring(0, subnet + 1);
-
-                    if (finalNodes[nodeKey]) {
-                        finalNodes[nodeKey].multiplicity++;
-                    } else {
-                        finalNodes[nodeKey] = nodeObj;
-                    }
-                }
-            }
-
-            for (var edge in this.edges){
-                edgeObj = this.edges[edge];
-
-                if (edgeObj[0].ip && edgeObj[1].ip) {
-
-                    edgeKey1 = prefixUtils.encodePrefix(edgeObj[0].ip).substring(0, subnet + 1);
-                    edgeKey2 = prefixUtils.encodePrefix(edgeObj[1].ip).substring(0, subnet + 1);
-
-                    edgeKey = edgeKey1 + "-" + edgeKey2;
-
-                    if (edgeObj[0] && edgeObj[1] && edgeKey1 != edgeKey2) {
-                        finalEdges[edgeKey] = edgeObj;
-                    }
-                }
-            }
-
-            this.nodes = finalNodes;
-            this.edges = finalEdges;
-        };
+        // this._aggregate = function(){
+        //     var nodeObj, edgeObj, finalNodes, nodeKey, edgeKey1, edgeKey2, finalEdges, edgeKey, subnet;
+        //
+        //     finalNodes = {};
+        //     finalEdges = {};
+        //
+        //     subnet = env.aggregateIPv4;
+        //
+        //     for (var node in this.nodes){
+        //
+        //         nodeObj = this.nodes[node];
+        //
+        //         if (nodeObj.ip) {
+        //             nodeKey = prefixUtils.encodePrefix(nodeObj.ip).substring(0, subnet + 1);
+        //
+        //             if (finalNodes[nodeKey]) {
+        //                 finalNodes[nodeKey].multiplicity++;
+        //             } else {
+        //                 finalNodes[nodeKey] = nodeObj;
+        //             }
+        //         }
+        //     }
+        //
+        //     for (var edge in this.edges){
+        //         edgeObj = this.edges[edge];
+        //
+        //         if (edgeObj[0].ip && edgeObj[1].ip) {
+        //
+        //             edgeKey1 = prefixUtils.encodePrefix(edgeObj[0].ip).substring(0, subnet + 1);
+        //             edgeKey2 = prefixUtils.encodePrefix(edgeObj[1].ip).substring(0, subnet + 1);
+        //
+        //             edgeKey = edgeKey1 + "-" + edgeKey2;
+        //
+        //             if (edgeObj[0] && edgeObj[1] && edgeKey1 != edgeKey2) {
+        //                 finalEdges[edgeKey] = edgeObj;
+        //             }
+        //         }
+        //     }
+        //
+        //     this.nodes = finalNodes;
+        //     this.edges = finalEdges;
+        // };
 
         this.getNodeLabel = function (host){
             if (host.isIxp){
@@ -151,82 +144,50 @@ define([
             }
         };
 
-
         this.draw = function(traceroutesToDraw, callback){
 
             this._computeLayout(this._computeMeshGraph());
-            this.computeVisibleGraph(traceroutesToDraw);
 
-            // NOT WORKING ANYMORE
-            //
-            // if (env.aggregateIPv6 || env.aggregateIPv4){
-            //     this._aggregate();
-            //     this._drawAggregated();
-            // } else {
-            // this._drawPlain(); // Draw visible layout
-            // }
 
-            // callback();
+            if (env.aggregateIPv6 || env.aggregateIPv4){
+                // this._aggregate();
+                // this._drawAggregated();
+            } else {
+                this.computeVisibleGraph(traceroutesToDraw);
+            }
+
             env.mainView.graph.computeLayout();
 
             this._drawEdges();
             this._drawNodes();
-
+            callback();
         };
 
-        this._drawPlain = function(){
-            var nodeObj, edgeObj;
-
-            for (var node in this.nodes) {
-                nodeObj = this.nodes[node];
-                env.mainView
-                    .graph
-                    .addNode(nodeObj.getId(), {
-                        label: this.getNodeLabel(nodeObj),
-                        class: "type-" + utils.getIdFromIp(nodeObj.getId()),
-                        width: config.graph.nodeRadius,
-                        height: config.graph.nodeRadius
-                    });
-
-            }
-
-            for (var edge in this.edges) {
-                edgeObj = this.edges[edge];
-                env.mainView
-                    .graph
-                    .addEdge(edgeObj[0].getId(), edgeObj[1].getId(), {
-                        interpolation: 'basis'
-                    });
-            }
-
-        };
-
-
-        this._drawAggregated = function () {
-            var nodeObj, edgeObj;
-
-            for (var node in this.nodes) {
-                nodeObj = this.nodes[node];
-                env.mainView
-                    .graph
-                    .addNode(node, {
-                        label: $this.getNodeLabel(nodeObj),
-                        class: "type-" + utils.getIdFromIp(nodeObj.getId()),
-                        width: config.graph.nodeRadius,
-                        height: config.graph.nodeRadius
-                    });
-            }
-
-            for (var edge in this.edges) {
-                edgeObj = this.edges[edge];
-                env.mainView
-                    .graph
-                    .addEdge(edge.split("-")[0], edge.split("-")[1], {
-                        interpolation: 'basis'
-                    });
-            }
-
-        };
+        // this._drawAggregated = function () {
+        //     var nodeObj, edgeObj;
+        //
+        //     for (var node in this.nodes) {
+        //         nodeObj = this.nodes[node];
+        //         env.mainView
+        //             .graph
+        //             .addNode(node, {
+        //                 label: $this.getNodeLabel(nodeObj),
+        //                 class: "type-" + utils.getIdFromIp(nodeObj.getId()),
+        //                 width: config.graph.nodeRadius,
+        //                 height: config.graph.nodeRadius
+        //             });
+        //     }
+        //
+        //     for (var edge in this.edges) {
+        //         edgeObj = this.edges[edge];
+        //         env.mainView
+        //             .graph
+        //             .addEdge(edge.split("-")[0], edge.split("-")[1], {
+        //                 interpolation: 'basis'
+        //             });
+        //     }
+        //
+        // };
 
         this._computeMeshGraph = function(){
             var traceroutes, traceroute, edges, nodes, previousHost;
@@ -258,7 +219,6 @@ define([
 
             return { nodes: nodes, edges: edges }
         };
-
 
         this._computeLayout = function(mesh){
 
@@ -309,7 +269,6 @@ define([
             var nodesToDraw;
 
             nodesToDraw = $.map(this.nodes, function(node){
-                console.log(node.getId());
                 var nodeView = env.mainView.graph.getNode(node.getId());
                 nodeView.model = node;
                 return nodeView;
@@ -317,17 +276,11 @@ define([
 
             labelPlacement.setNodes(nodesToDraw);
 
-            console.log(JSON.parse(JSON.stringify(nodesToDraw)));
-
-
             for (var n=0,length=nodesToDraw.length; n<length; n++) {
                 $this._drawOrUpdateLabel(nodesToDraw[n]);
             }
 
-            console.log(JSON.parse(JSON.stringify(nodesToDraw)));
-
-
-            d3.select("svg")
+            env.mainView.svg
                 .append("g")
                 .attr("class", "nodes")
                 .selectAll("circle")
@@ -340,13 +293,10 @@ define([
                 .attr("cy", function(d) { return d.y; });
         };
 
-
-
-
         this._drawEdges = function(){
-            var edges, edge, points;
+            var edge, points;
 
-            edges = $.map(this.edges, function(edge){
+            cache.edges = $.map(this.edges, function(edge){
                 return env.mainView.graph.getEdge(edge[0].getId(), edge[1].getId());
             });
 
@@ -355,15 +305,15 @@ define([
                 .y(function(d) { return d.y; })
                 .interpolate("basis");
 
-            for (var n=0,length=edges.length; n<length; n++){
-                edge = edges[n];
+            for (var n=0,length=cache.edges.length; n<length; n++){
+                edge = cache.edges[n];
 
                 points = [];
                 points.push(env.mainView.graph.getNode(edge.from));
                 points = points.concat(edge.points);
                 points.push(env.mainView.graph.getNode(edge.to));
 
-                d3.select("svg")
+                env.mainView.svg
                     .append("g")
                     .attr("class", "edges")
                     .append("path")
@@ -371,7 +321,6 @@ define([
                     .attr("d", lineFunction(points));
             }
         };
-
 
         this._setListeners();
     };
