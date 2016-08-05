@@ -6,7 +6,7 @@ define([
 ], function(utils, config, $){
 
     var LabelPlacementHelper = function(env){
-        var labelBox, height, width, nodeHalfWidth, nodeHalfHeight, halfScreen, checkedNodes, labelBoxes;
+        var labelBox, height, width, nodeHalfWidth, nodeHalfHeight, checkedNodes, labelBoxes;
 
         width = 120;
         height = 12;
@@ -20,8 +20,6 @@ define([
 
         nodeHalfWidth = 15;
         nodeHalfHeight = 20;
-
-        halfScreen = 750;
 
         checkedNodes = [];
         labelBoxes = [];
@@ -146,8 +144,6 @@ define([
                 };
             }
 
-            // if (node.x > halfScreen){
-
             if (!checkIntersectionLabel(boxRight[0], boxRight[1], edges) &&
                 !this._isNodeIntersection(node, boxRight)  &&
                 !checkIntersectionAmongBoxes(boxRight)){
@@ -173,24 +169,6 @@ define([
                     y: boxLeft[1].y + (nodeHalfHeight)
                 };
             }
-
-            // } else {
-            //     if (!checkIntersectionLabel(boxLeft[2], boxLeft[3], edges) && !this._isNodeIntersection(node, boxLeft)){
-            //         return {
-            //             alignment: "end",
-            //             x: boxLeft[1].x,
-            //             y: boxLeft[1].y + (nodeHalfHeight)
-            //         };
-            //     }
-            //
-            //     if (!checkIntersectionLabel(boxRight[2], boxRight[3], edges) && !this._isNodeIntersection(node, boxRight)){
-            //         return {
-            //             alignment: "start",
-            //             x: boxRight[0].x,
-            //             y: boxRight[0].y + (height + nodeHalfHeight)
-            //         };
-            //     }
-            // }
 
             return {
                 alignment: "middle",

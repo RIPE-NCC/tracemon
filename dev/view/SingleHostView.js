@@ -20,33 +20,16 @@ define([
 
 
         this._drawOrUpdateLabel = function(node){
-            var where, outEdges, inEdges, nodeEdges;
+            var where, nodeEdges;
 
             nodeEdges = [];
-            // outEdges = env.mainView.graph.getEdge(node.id, null);
-            // inEdges = env.mainView.graph.getEdge(null, node.id);
-            //
-            // for (var edgeKey in outEdges){
-            //     nodeEdges.push(outEdges[edgeKey].points);
-            // }
-            //
-            // for (var edgeKey in inEdges){
-            //     nodeEdges.push(inEdges[edgeKey].points);
-            // }
 
-            //
             for (var edgeKey in this.edges){
                 var edge = this.edges[edgeKey];
                 var nodeView = env.mainView.graph.getEdge(edge[0].getId(), edge[1].getId());
                 nodeEdges.push(nodeView.points);
 
             }
-
-
-            // nodeEdges = $.map(this.edges, function(edge){
-            //     return env.mainView.graph.getEdge(edge[0].getId(), edge[1].getId()).points;
-            // });
-
 
             where = labelPlacement.getLabelPosition(node, nodeEdges);
 
@@ -351,7 +334,7 @@ define([
                 .data(nodesToDraw)
                 .enter()
                 .append("circle")
-                .attr("class", this._getNodeClass) // function(d){return "node node-" + utils.getIdFromIp(d.id);
+                .attr("class", this._getNodeClass)
                 .attr("r", config.graph.nodeRadius)
                 .attr("cx", function(d) { return d.x; })
                 .attr("cy", function(d) { return d.y; });
