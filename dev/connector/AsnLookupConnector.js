@@ -26,80 +26,73 @@ define([
 
             sameAs = this._getSamePrefixAs(host.ip);
 
+
             if (sameAs) {
 
                 host.setAutonomousSystem(sameAs);
 
             } else {
 
-                if (!lookups[host.ip] && !hosts[host.ip]) {
-                    lookups[host.ip] = host;
+                if (asData){
+                    host.setAutonomousSystem($this._createAutonomousSystemObject(asData));
+                } else {
 
-                    if (asData){
-                        host.setAutonomousSystem($this._createAutonomousSystemObject(asData));
+                    console.log("[AS lookup] No local info for host", host);
+
+                    if (hosts[host.ip]){
+                        $this._updateObject(host, hosts[host.ip]);
                     } else {
-                        // DOWNLOAD DATA
-                        host.setAutonomousSystem($this._createAutonomousSystemObject($this._performCall(host.ip)));
+                        $this._getJSON(host.ip)
+                            .done(function(data){
+                                hosts[host.ip] = $this._translate(host.ip, data);
+                                $this._updateObject(host, hosts[host.ip]);
+                            });
                     }
-
-
                 }
 
             }
         };
 
 
-        this._performCall = function (address){
+        this._getJSON = function (resources) {
+            if (!lookups[resources]) {
 
-            $this._getJSON(address, function(data) {
-                if (data){
-                    $this._updateObject(address, data[address]);
-                }
-            });
-
-        };
-
-
-
-        this._getJSON = function (resource, callback) {
-            return $.ajax({
-                dataType: "jsonp",
-                cache: false,
-                url: env.dataApiAsAnnotation,
-                data: {
-                    resource: resource
-                }
-            }).done(function (data) {
-                callback($this._translate(data));
-            });
-        };
-
-
-        this._translate = function (data){
-            var autonomousSystems, annotations, asns, translated;
-
-            annotations = data["data"];
-            autonomousSystems = [];
-            asns = (annotations) ? annotations["asns"] : [];
-
-            if (asns.length) {
-                autonomousSystems = this._createAutonomousSystemObject(annotations);
-                translated = autonomousSystems[0];
-
-                if (autonomousSystems.length > 1){
-                    console.log("check BGP neighbours for: ", autonomousSystems);
-                }
+                lookups[resources] = $.ajax({
+                    dataType: "jsonp",
+                    cache: false,
+                    url: env.dataApiAsAnnotation,
+                    data: {
+                        resources: resources
+                    }
+                });
 
             }
 
-            return translated;
+            return lookups[resources];
         };
 
-        this._updateObject = function (ip, asns){
 
-            lookups[ip].setAutonomousSystem(asns);
-            hosts[ip] = lookups[ip];
+        this._translate = function (ip, data){
+            var autonomousSystem, ases, asns, lookups;
 
+            ases = data["ases"];
+            lookups = data["lookups"];
+            autonomousSystem = [];
+
+            if (lookups[ip] && ases[lookups[ip]]){
+                autonomousSystem = this._createAutonomousSystemObject(ases[lookups[ip]]);
+            }
+
+
+            return autonomousSystem;
+        };
+
+        this._updateObject = function (host, asObj){
+            host.setAutonomousSystem(asObj);
+            utils.observer.publish("model-change", {
+                type: "as-lookup",
+                object: host
+            });
         };
 
         this._getSamePrefixAs = function(ip){
@@ -119,13 +112,16 @@ define([
 
 
         this._createAutonomousSystemObject = function(asnData){
-            var autonomousSystemObj, autonomousSystems, encodedPrefix, asn;
+            var autonomousSystemObj, asn;
 
-            asn = asnData.id;
+            asn = asnData.number;
             autonomousSystemObj = this.autonomousSystemsByAs[asn]; // Check if the object was already created
 
             if (!autonomousSystemObj) { // No, it wasn't
                 autonomousSystemObj = new AutonomousSystem(asn); // Create a new model object
+                autonomousSystemObj.owner = asnData["holder"];
+                autonomousSystemObj.announced = asnData["announced"];
+                autonomousSystemObj.extra = asnData["block"];
                 this.autonomousSystemsByAs[asn] = autonomousSystemObj; // Store it
             }
 

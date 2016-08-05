@@ -117,7 +117,7 @@ define([
             return $.ajax({
                 dataType: "jsonp",
                 cache: false,
-                url: "https://jsonp.afeld.me/?url=" + config.dataAPIs.peeringDb.ixps
+                url: config.dataAPIs.peeringDb.ixps
             });
 
         };
@@ -127,7 +127,7 @@ define([
             return $.ajax({
                 dataType: "jsonp",
                 cache: false,
-                url: "https://jsonp.afeld.me/?url=" + config.dataAPIs.peeringDb.lans
+                url: config.dataAPIs.peeringDb.lans
             });
 
         };
@@ -136,7 +136,7 @@ define([
             return $.ajax({
                 dataType: "jsonp",
                 cache: false,
-                url: "https://jsonp.afeld.me/?url=" + config.dataAPIs.peeringDb.prefixes
+                url: config.dataAPIs.peeringDb.prefixes
             });
         };
 

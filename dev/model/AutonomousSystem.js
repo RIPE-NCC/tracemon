@@ -6,6 +6,7 @@ define([
         this._hostsByKey = {};
         this._hosts = [];
         this._prefixes = [];
+        this.owner = "";
     };
 
     AutonomousSystem.prototype.getPrefixes = function(){
@@ -17,10 +18,7 @@ define([
             this._prefixes.push(prefix);
         }
     };
-
-    AutonomousSystem.prototype.getOwner = function(){
-        return this._owner;
-    };
+    
 
     AutonomousSystem.prototype.getHosts = function(){
         return this._hosts;

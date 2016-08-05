@@ -67,24 +67,24 @@ define([
             });
         };
 
-        this.getAutonomousSystem = function (ip) {
-
-            if (!requestsByIp[ip]) {
-                requestsByIp[ip] = $.ajax({
-                    dataType: "jsonp",
-                    cache: false,
-                    url: env.dataApiAsAnnotation,
-                    data: {
-                        resource: ip
-                    }
-                });
-            }
-            //requestsByIp[ip].done(function(){
-            //    delete requestsByIp[ip];
-            //});
-
-            return requestsByIp[ip];
-        };
+        // this.getAutonomousSystem = function (ip) {
+        //
+        //     if (!requestsByIp[ip]) {
+        //         requestsByIp[ip] = $.ajax({
+        //             dataType: "jsonp",
+        //             cache: false,
+        //             url: env.dataApiAsAnnotation,
+        //             data: {
+        //                 resources: ip
+        //             }
+        //         });
+        //     }
+        //     //requestsByIp[ip].done(function(){
+        //     //    delete requestsByIp[ip];
+        //     //});
+        //
+        //     return requestsByIp[ip];
+        // };
 
         this.getHostReverseDns = function (ip) {
 

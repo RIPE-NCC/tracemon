@@ -200,7 +200,7 @@ define([
         },
 
         isThereAnIntersection: function (selectionVertices, cellVertices) {
-            var a, b, c, d, e, f, g, h, thereIsAnIntersection, cellCenter, isSelectionStartingInARect, isSelectionEndingInARect,
+            var a, b, c, d, e, f, g, h, thereIsAnIntersection,
                 intersectionPoint;
 
             a = selectionVertices[0];

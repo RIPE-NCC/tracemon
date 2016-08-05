@@ -14,14 +14,15 @@ define([
 
         this.getRealTimeResults = function(measurement, filtering){
             filtering.stream_type = "result";
+            filtering.buffering = "true";
             translationConnector.getRealTimeResults(
                 filtering,
                 function(result){
                     measurement.addTraceroutes(result);
-                    clearTimeout(antiFloodTimerNewStatus);
-                    antiFloodTimerNewStatus = setTimeout(function(){
-                        env.main.getLastState();
-                    }, config.eventGroupingAntiFlood);
+                    // clearTimeout(antiFloodTimerNewStatus);
+                    // antiFloodTimerNewStatus = setTimeout(function(){
+                    //     env.main.getLastState();
+                    // }, config.eventGroupingAntiFlood);
                 }, this);
         };
 

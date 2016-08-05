@@ -12,6 +12,7 @@ define([
         this._hops = [];
         this.source = source;
         this.target = target;
+        target.isTarget = true;
         this.date = date;
         this._hash = null;
     };

@@ -1,18 +1,14 @@
 <?php
 header('Content-Type: application/json');
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
-$msm = $_GET['id'];
-$start = $_GET['start'];
-$stop = $_GET['stop'];
+$resources = explode(",", $_GET['resources']);
+$timestamp = $_GET['timestamp'];
 $callback = $_GET['callback'];
 $ases = [];
+$lookups = [];
 $ases_reverse = [];
 $link = mysql_connect('localhost', 'root', '');
 mysql_select_db('as');
-
-$url = 'https://atlas.ripe.net/api/v2/measurements/'.$msm.'/results.jsonp?start='.$start.'&stop='.$stop;
-$response = file_get_contents($url);
-$response = json_decode($response, true);
 
 
 function enrich_as($asn){
@@ -93,26 +89,13 @@ function generate_as($ip){
     return $ases[$ip];
 }
 
-foreach ($response as $tracerouteKey => $traceroute){
+foreach ($resources as $resource){
 
-    $response[$tracerouteKey]['dst_as'] = generate_as($traceroute['dst_addr']);
-    $response[$tracerouteKey]['from_as'] = generate_as($traceroute['from']);
-
-    foreach ($traceroute['result'] as $hopKey => $hop){
-        if (isset($hop['result'])){
-            foreach ($hop['result'] as $attemptKey => $attempt){
-
-                if (isset($attempt['from'])){
-                    $response[$tracerouteKey]['result'][$hopKey]['result'][$attemptKey]['as'] = generate_as($attempt['from']);
-                }
-
-            }
-        }
-    }
+    $lookups[$resource] = generate_as($resource);
 
 }
 
-$json = '{"traceroutes":'.json_encode($response).', "ases":'.json_encode($ases_reverse).'}';
+$json = '{"lookups": ' . json_encode($lookups) . ', "ases":' . json_encode($ases_reverse) . '}';
 if (isset($callback)){
     $json = $callback.'('.$json.')';
 }

@@ -43,6 +43,8 @@ define([
         this.cacheDeferredCallsAS = {};
         this.measurementById = {};
 
+        this.asList = {};
+
 
         liveConnector = new LiveConnector(env);
 
@@ -61,10 +63,14 @@ define([
         this.getRealTimeResults = function(filtering, callback, context){
 
             liveConnector.subscribe(filtering, function(data){
-                var translated;
+                var translated, formatOut;
 
                 translated = [];
-                this.enrichDump([data], translated);
+                formatOut = {
+                    traceroutes: data,
+                    ases: {}
+                };
+                $this.enrichDump(formatOut, translated);
                 callback.call(context, translated);
             }, this);
         };
@@ -77,7 +83,26 @@ define([
                 .done(function(ixp) {
                     if (ixp !== false){
                         attemptObj.isIxp = true;
-                        attemptObj.ixp = ixp;
+                        attemptObj.ixp = {
+                            name: ixp.lan.ixp.name,
+                            country: ixp.lan.ixp.country,
+                            city: ixp.lan.ixp.city,
+                            prefix: ixp.prefix,
+                            protocol: ixp.protocol,
+                            extra: { // These are optional
+                                longName: ixp.lan.ixp.name_long,
+                                description: ixp.lan.ixp.descr,
+                                orgId: ixp.lan.ixp.org_id,
+                                website: ixp.lan.ixp.website,
+                                techPhone: ixp.lan.ixp.tech_phone,
+                                techEmail: ixp.lan.ixp.tech_email,
+                                policyEmail: ixp.lan.ixp.policy_email,
+                                policyPhone: ixp.lan.ixp.policy_phone,
+                                region: ixp.lan.ixp.region_continent,
+                                ipv6Support: ixp.lan.ixp.proto_ipv6,
+                                multicastSupport: ixp.lan.ixp.proto_multicast
+                            }
+                        };
                         utils.observer.publish("ixp-detected", attemptObj);
                     }
                 });
@@ -86,9 +111,9 @@ define([
 
         this.enrichDump = function(data, dump){
             var translated, hops, hop, item, hopList, attempts, attemptsList, hostObj, hopObj, attemptObj,
-                hostAddress, tmpHost, errors, hostAsn, asList, tracerouteList, targetTraceroute;
+                hostAddress, tmpHost, errors, hostAsn, tracerouteList, targetTraceroute;
 
-            asList = data['ases'];
+            $.extend(this.asList, data['ases']);
             tracerouteList = data['traceroutes'];
 
             for (var n1=0,length1 = tracerouteList.length; n1<length1; n1++) {
@@ -111,7 +136,7 @@ define([
                         for (var n3 = 0, length3 = attemptsList.length; n3 < length3; n3++) {
                             attemptObj = new Attempt();
                             hostAddress = attemptsList[n3]["from"];
-                            hostAsn = (attemptsList[n3]["as"] && attemptsList[n3]["as"] != 0) ? attemptsList[n3]["as"] : null;
+                            hostAsn = attemptsList[n3]["as"];
                             tmpHost = $this.hostByIp[hostAddress];
 
                             if (tmpHost && !tmpHost.isPrivate) {
@@ -120,10 +145,11 @@ define([
                                 if (hostAddress) {
                                     attemptObj.host = new Host(hostAddress);
 
-                                    if (!attemptObj.host.isPrivate && hostAsn) { // It is a public host
+                                    if (!attemptObj.host.isPrivate) { // It is a public host
 
-                                        asList[hostAsn].id = hostAsn;
-                                        asnLookupConnector.enrich(attemptObj.host, asList[hostAsn]);
+                                        if (hostAsn == undefined || this.asList[hostAsn] && hostAsn != 0) {
+                                            asnLookupConnector.enrich(attemptObj.host, this.asList[hostAsn]);
+                                        }
 
                                         if (config.ixpHostCheck) {
                                             $this._enrichIXP(attemptObj.host);
@@ -149,18 +175,25 @@ define([
                     }
                 }
 
-                hostObj = new Host(item["from"]);
-                hostObj.setProbeId(item["prb_id"]);
-                hostAsn = item["from_as"];
+                hostObj = $this.hostByIp[item["from"]];
+                if (!hostObj) {
+                    hostObj = new Host(item["from"]);
+                    hostObj.setProbeId(item["prb_id"]);
+                    hostAsn = item["from_as"];
 
-                if (!hostObj.isPrivate) {
-                    asList[hostAsn].id = hostAsn;
-                    asnLookupConnector.enrich(hostObj, asList[hostAsn]);
+                    if (!hostObj.isPrivate) {
 
-                    if (config.ixpHostCheck) {
-                        $this._enrichIXP(hostObj);
+                        if (hostAsn && this.asList[hostAsn]) {
+                            asnLookupConnector.enrich(hostObj, this.asList[hostAsn]);
+                        }
+
+                        if (config.ixpHostCheck) {
+                            $this._enrichIXP(hostObj);
+                        }
                     }
+                    $this.hostByIp[item["from"]] = hostObj;
                 }
+
 
 
                 targetTraceroute = $this.measurementById[item["msm_id"]].target;

@@ -7,44 +7,71 @@ define([
     "tracemon.lib.d3-amd",
     "tracemon.view.single-host-view",
     "tracemon.view.as-view",
-    "tracemon.view.location-view"
-], function(utils, config, lang, $, d3, SingleHostView, ASView, LocationView){
+    "tracemon.view.location-view",
+    "tracemon.view.dagre-wrapper"
+], function(utils, config, lang, $, d3, SingleHostView, ASView, LocationView, GraphWrapper){
 
     var MainView = function(env){
-        var $this;
+        var $this, firstDraw;
 
         $this = this;
         this.hosts = {};
         this._oldStatus = {};
-
+        firstDraw = true;
         env.mainView = this;
         this.view = null;
         this.viewName = env.viewName;
-
-
-        this.graph = new dagreD3
-            .graphlib
-            .Graph({ multigraph: true })
-            .setGraph({ "rankDir": "LR", "nodesep": 30, "ranksep": 50, "edgesep": 5 })
-            .setDefaultEdgeLabel(function() { return {}; });
+        
+        this.graph = new GraphWrapper(env);
+        
+        this.graph.initGraph(1400, 1400, {
+            margin: { top: 100, bottom: 100, left: 150, right: 150 }
+        });
 
         this.setListeners = function(){
-            utils.observer.subscribe("update-status", this._update, this);
-            utils.observer.subscribe("init-status", this._firstDraw, this);
-            utils.observer.subscribe("ixp-detected", this._updateIxp, this);
+            // utils.observer.subscribe("update-status", this._update, this);
+            utils.observer.subscribe("new-measurement", this.drawOrUpdate, this);
             utils.observer.subscribe("cut-hops-length", this._cutHops, this);
+            // utils.observer.subscribe("model-change", this.drawOrUpdate, this);
+        };
+
+
+
+
+        this.drawOrUpdate = function(){
+            console.log("Drawing");
+            var status, netGraph, traceroutesList;
+
+            traceroutesList = $.map(env.main.loadedMeasurements, function(item){
+                return item.getTraceroutes();
+            });
+            status = env.main.getLastState();
+            if (firstDraw){
+                this._firstDraw(status);
+                firstDraw = false;
+            } else {
+                this._update(status);
+            }
+        };
+
+        this._computeInitialPositions = function(){
+            var status, netGraph, traceroutesList;
+
+            traceroutesList = $.map(env.main.loadedMeasurements, function(item){
+                return item.getTraceroutes();
+            });
+            netGraph = this.computeNet(traceroutesList);
+        };
+
+        this._partialUpdate = function(whatChanged){
+            env.main.getLastState();
+            this._updateProxy();
         };
 
         this._cutHops = function(hops){
             console.log("cut-hops-length");
         };
 
-        this._updateIxp = function(host){
-            $($this.svg[0])
-                .find(".type-" + utils.getIdFromIp(host.getId()) + " tspan")
-                .text("IXP: " + host.getId());
-            console.log("IXP: " + host.ip);
-        };
 
 
 
@@ -66,12 +93,12 @@ define([
 
 
         this._drawChart = function(){
-            var render, svg, svgGroup, xCenterOffset;
+            var svg, svgGroup, xCenterOffset;
             // Draw the chart for real
-            render = new dagreD3.render();
+            $this._render = new dagreD3.render();
             $this.svg = d3.select("svg");
             svgGroup = $this.svg.append("g");
-            render(d3.select("svg g"), $this.graph);
+            $this._render(d3.select("svg g"), $this.graph);
             $this.svg.attr("width", $this.graph.graph().width);
             $this.svg.attr("height", $this.graph.graph().height);
             xCenterOffset = 0;
@@ -87,17 +114,27 @@ define([
             diff = this._computeDiff(this._oldStatus, newStatus);
             this._oldStatus = newStatus;
 
+            console.log(diff.newTraceroutes);
             this.view = this._getView();
             this.view.draw(diff.newTraceroutes, this._drawChart); // Compute the layout and draw
         };
-        
+
+        this._updateProxy = function (){
+
+
+            setTimeout();
+        };
 
         this._update = function (newStatus){
             var diff;
 
             diff = this._computeDiff(this._oldStatus, newStatus);
-            console.log(diff);
             this._updateScene(diff);
+            this.view.draw(diff.updatedTraceroutes, function(){
+                console.log("drawn");
+                $this._render($this.svg, $this.graph);
+                // new dagreD3.render();
+            }); // Compute the layout and draw
             this._oldStatus = newStatus;
         };
 

@@ -10,18 +10,22 @@ define([
     "tracemon.model.traceroute",
     "tracemon.connector.facade",
     "tracemon.view.main",
-    "tracemon.lib.d3-amd",
-    "tracemon.lib.dagre"
-], function(config, utils, $, Facade, AutonomousSystem, Hop, Host, Measurement, Traceroute, Connector, MainView, d3, dagreD3) {
+    "tracemon.lib.d3-amd"
+], function(config, utils, $, Facade, AutonomousSystem, Hop, Host, Measurement, Traceroute, Connector, MainView, d3) {
 
     var main = function (env) {
-        var $this, timeOverviewInitialised, now;
+        var $this, timeOverviewInitialised, now, firstTimeInit;
 
         $this = this;
         now = utils.getUTCDate();
         this.availableProbes = {};
         this.groups = {};
         this.inputSelection = {};
+        firstTimeInit = true;
+
+        utils.observer.subscribe("init-status", function(){
+            firstTimeInit = false;
+        }, this);
 
         this.exposedMethods = ["setStringTimeRange", "setTimeRange", "addMeasurementAndGroup", "autoGroupMeasurements",
             "addMeasurement", "addProbes", "addProbe", "addGroup", "removeGroup", "removeProbe", "setDataFilter",
@@ -154,25 +158,23 @@ define([
                 out[msmId] = this.loadedMeasurements[msmId].getLastState();
             }
 
-            utils.observer.publish("init-status", out);
-
+            return out;
         };
         
 
-        this.loadMeasurements([{id: 4471092}], function (){ // 3749061
+        this.loadMeasurements([{id: 4471092}], function (){ // 3749061, 4471092 (loop on *)
 
             for (var msmId in $this.loadedMeasurements) {
                 console.log($this.loadedMeasurements[msmId]);
 
                 c.getInitialDump($this.loadedMeasurements[msmId], {
                     // startDate: utils.timestampToUTCDate(1462250698),
-                    startDate: utils.timestampToUTCDate((new Date().getTime()/1000) -3600),
+                    startDate: utils.timestampToUTCDate(1470318491),
                     // stopDate: utils.timestampToUTCDate(1462270698)
-                    stopDate: utils.timestampToUTCDate((new Date().getTime())/1000)
+                    stopDate: utils.timestampToUTCDate(1470322091)
                 }).done(function (measurement) {
-                    $this.getLastState();
-
-                    // c.getRealTimeResults(measurement, {msm: measurement.id});
+                    utils.observer.publish("new-measurement", measurement);
+                    c.getRealTimeResults(measurement, { msm: measurement.id });
                 });
             }
 

@@ -28,7 +28,9 @@ requirejs.config({
         "tracemon.lib.jquery-libs": TRACEMON_LIB_URL + "jquery-libs",
         "tracemon.lib.ip": TRACEMON_LIB_URL + "ip",
         "tracemon.lib.parsePrefix": TRACEMON_LIB_URL + "parsePrefix",
-        "tracemon.lib.dagre": TRACEMON_LIB_URL + "dagre-d3",
+
+        "tracemon.lib.dagre-d3": TRACEMON_LIB_URL + "dagre-d3",
+        "tracemon.lib.dagre": TRACEMON_LIB_URL + "dagre",
 
 
 
@@ -44,6 +46,8 @@ requirejs.config({
         "tracemon.view.single-host-view": TRACEMON_VIEW_URL + "SingleHostView",
         "tracemon.view.as-view": TRACEMON_VIEW_URL + "ASView",
         "tracemon.view.location-view": TRACEMON_VIEW_URL + "LocationView",
+        "tracemon.view.dagre-wrapper": TRACEMON_VIEW_URL + "DagreWrapper",
+        "tracemon.view.label-placement": TRACEMON_VIEW_URL + "LabelPlacementHelper",
 
 
         "tracemon.view.viewport": TRACEMON_VIEW_URL + "ViewPort",
@@ -106,9 +110,13 @@ requirejs.config({
             deps: ["tracemon.lib.jquery-ui"]
         },
 
-        "tracemon.lib.dagre": {
+        "tracemon.lib.dagre-d3": {
             deps: ["tracemon.lib.d3-amd"],
             exports: 'dagreD3'
+        },
+
+        "tracemon.lib.dagre": {
+            exports: 'dagre'
         }
     }
 });
