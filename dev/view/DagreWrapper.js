@@ -40,12 +40,14 @@ define([
 
         this.addNode = function(id, options){
             if (graph){
-                graph.setNode(id, {
-                    label: options.label,
-                    class: options.class,
-                    width: options.width,
-                    height: options.height
-                });
+                if (!this.getNode(id)) {
+                    graph.setNode(id, {
+                        label: options.label,
+                        class: options.class,
+                        width: options.width,
+                        height: options.height
+                    });
+                }
             } else {
                 throw "The graph its not initialised"
             }
@@ -54,11 +56,12 @@ define([
         };
 
         this.addEdge = function(node1, node2, options){
-            if (graph){
-                graph.setEdge(node1, node2, {
-                    lineInterpolate: options.interpolation
-                });
-
+            if (graph) {
+                if (!this.getEdge(node1, node2)) {
+                    graph.setEdge(node1, node2, {
+                        lineInterpolate: options.interpolation
+                    });
+                }
             } else {
                 throw "The graph its not initialised"
             }
@@ -119,14 +122,15 @@ define([
 
                     points = [];
 
-                    for (var n=0,length=edge.points.length; n<length; n++){
-                        point = edge.points[n];
-                        points.push({
-                            x: (point.x * $this.mult.x) + $this.margin.left,
-                            y: (point.y * $this.mult.y) + $this.margin.top
-                        });
+                    if (edge.points) {
+                        for (var n = 0, length = edge.points.length; n < length; n++) {
+                            point = edge.points[n];
+                            points.push({
+                                x: (point.x * $this.mult.x) + $this.margin.left,
+                                y: (point.y * $this.mult.y) + $this.margin.top
+                            });
+                        }
                     }
-
                     return {
                         id: id.v + '-' + id.w,
                         from: id.v,

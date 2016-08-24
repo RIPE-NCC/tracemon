@@ -10,16 +10,17 @@ define([
 ], function(utils, config, lang, $, d3, prefixUtils, LabelPlacement){
 
     var SingleHostView = function(env){
-        var $this, labelPlacement, cache;
+        var $this, labelPlacement, cache, nodeBBox;
 
         $this = this;
-        labelPlacement = new LabelPlacement();
+        nodeBBox = (config.graph.nodeRadius * 2) + 5;
+        labelPlacement = new LabelPlacement(nodeBBox, nodeBBox, 12);
 
         cache = {};
         this.nodes = {};
         this.edges = {};
 
-        this._drawOrUpdateLabel = function(node){
+        this._calculateLabelPosition = function(node){
             var where;
 
             if (!cache.edgePoints) {
@@ -27,22 +28,48 @@ define([
                     return [nodeView.points];
                 });
             }
-            where = labelPlacement.getLabelPosition(node, cache.edgePoints);
+            where = labelPlacement.getLabelPosition(node, cache.edgePoints, node.label);
 
-            env.mainView.svg
+            node.labelPosition = where;
+        };
+
+        this._drawOrUpdateLabels = function(labels){
+            var d3Data;
+
+            d3Data = env.mainView.svg
+                .selectAll("text.node-label")
+                .data(labels);
+
+            d3Data
+                .exit()
+                .remove();
+
+            d3Data
+                .enter()
                 .append("text")
-                .attr("x", where.x)
-                .attr("y", where.y)
-                .text(node.label)
-                .style("text-anchor", where.alignment)
-                .attr("transform", function(){
-                    if (where.direction ==  "vertical"){
-                        return "rotate(-60," + where.x + "," + where.y + ")";
-                    }
+                .attr("class", function(label){
+                    return "node-label node-label-" + utils.getIdFromIp(label.id);
+                });
 
+            d3Data
+                .attr("x", function(label){
+                    return label.labelPosition.x;
+                })
+                .attr("y", function(label){
+                    return label.labelPosition.y;
+                })
+                .text(function(label){
+                    return label.label;
+                })
+                .style("text-anchor", function(label){
+                    return label.labelPosition.alignment;
+                })
+                .attr("transform", function(label){
+                    if (label.labelPosition.direction ==  "vertical"){
+                        return "rotate(-60," + label.labelPosition.x + "," + label.labelPosition.y + ")";
+                    }
                     return null;
                 })
-                .attr("class", "node-label node-label-" + utils.getIdFromIp(node.id));
 
         };
 
@@ -122,6 +149,8 @@ define([
 
         this.computeVisibleGraph = function(traceroutesToDraw){
             var traceroute, host, hostId, attempt, lastHost;
+            $this.nodes = {};
+            $this.edges = {};
 
             for (var n=0,length=traceroutesToDraw.length; n<length; n++){
                 traceroute = traceroutesToDraw[n];
@@ -155,6 +184,22 @@ define([
             } else {
                 this.computeVisibleGraph(traceroutesToDraw);
             }
+
+            env.mainView.graph.computeLayout();
+
+            this._drawEdges();
+            this._drawNodes();
+            callback();
+        };
+
+        this.update = function(traceroutesToDraw, callback){
+            this._computeLayout(this._computeMeshGraph());
+            // if (env.aggregateIPv6 || env.aggregateIPv4){
+            //     // this._aggregate();
+            //     // this._drawAggregated();
+            // } else {
+                this.computeVisibleGraph(traceroutesToDraw);
+            // }
 
             env.mainView.graph.computeLayout();
 
@@ -266,9 +311,9 @@ define([
         };
 
         this._drawNodes = function(){
-            var nodesToDraw;
+            var nodesToDraw, d3Data;
 
-            nodesToDraw = $.map(this.nodes, function(node){
+            nodesToDraw = $.map($this.nodes, function(node){
                 var nodeView = env.mainView.graph.getNode(node.getId());
                 nodeView.model = node;
                 return nodeView;
@@ -277,16 +322,24 @@ define([
             labelPlacement.setNodes(nodesToDraw);
 
             for (var n=0,length=nodesToDraw.length; n<length; n++) {
-                $this._drawOrUpdateLabel(nodesToDraw[n]);
+                $this._calculateLabelPosition(nodesToDraw[n]);
             }
 
-            env.mainView.svg
-                .append("g")
-                .attr("class", "nodes")
+            $this._drawOrUpdateLabels(nodesToDraw);
+
+            d3Data = env.mainView.nodesContainer
                 .selectAll("circle")
-                .data(nodesToDraw)
+                .data(nodesToDraw);
+
+            d3Data
+                .exit()
+                .remove();
+
+            d3Data
                 .enter()
-                .append("circle")
+                .append("circle");
+
+            d3Data
                 .attr("class", this._getNodeClass)
                 .attr("r", config.graph.nodeRadius)
                 .attr("cx", function(d) { return d.x; })
@@ -294,7 +347,9 @@ define([
         };
 
         this._drawEdges = function(){
-            var edge, points;
+            var edge, points, path, paths, d3Data;
+
+            paths = [];
 
             cache.edges = $.map(this.edges, function(edge){
                 return env.mainView.graph.getEdge(edge[0].getId(), edge[1].getId());
@@ -313,13 +368,34 @@ define([
                 points = points.concat(edge.points);
                 points.push(env.mainView.graph.getNode(edge.to));
 
-                env.mainView.svg
-                    .append("g")
-                    .attr("class", "edges")
-                    .append("path")
-                    .attr("class", "edge edge-" + utils.getIdFromIp(edge.id))
-                    .attr("d", lineFunction(points));
+                paths.push({
+                    d: lineFunction(points),
+                    class: "edge edge-" + utils.getIdFromIp(edge.id)
+                });
+
             }
+
+
+
+            d3Data = env.mainView.pathsContainer
+                .selectAll("path")
+                .data(paths);
+
+            d3Data
+                .exit()
+                .remove();
+
+            d3Data
+                .enter()
+                .append("path");
+
+            d3Data
+                .attr("class", function(path){
+                    return path.class;
+                })
+                .attr("d", function(path){
+                    return path.d;
+                });
         };
 
         this._setListeners();

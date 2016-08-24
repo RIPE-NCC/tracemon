@@ -774,6 +774,16 @@ define([
             ip = ip.replace(/\:/g, "-");
 
             return ip;
+        },
+
+        rotate: function(center, point, angle){
+            var radians = (Math.PI / 180) * angle,
+                cos = Math.cos(radians),
+                sin = Math.sin(radians),
+                nx = (cos * (point.x - center.x)) + (sin * (point.y - center.y)) + center.x,
+                ny = (cos * (point.y - center.y)) - (sin * (point.x - center.x)) + center.y;
+
+            return { x: nx, y: ny };
         }
 
     }

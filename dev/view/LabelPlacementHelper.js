@@ -1,32 +1,26 @@
 
 define([
-    "tracemon.env.utils",
-    "tracemon.env.config",
-    "tracemon.lib.jquery-amd"
-], function(utils, config, $){
+    "tracemon.env.utils"
+], function(utils){
 
-    var LabelPlacementHelper = function(env){
-        var labelBox, height, width, nodeHalfWidth, nodeHalfHeight, checkedNodes, labelBoxes;
+    var LabelPlacementHelper = function(nodeWidth, nodeHeight, fontSizePixel){
+        var height, checkedNodes, labelBoxes, minLabelWidth, nodeHalfWidth, nodeHalfHeight;
 
-        width = 120;
-        height = 12;
-
-        labelBox = [
-            {x: 0, y: 0},
-            {x: width, y: 0},
-            {x: width, y: height},
-            {x: 0, y: height}
-        ];
-
-        nodeHalfWidth = 15;
-        nodeHalfHeight = 20;
+        minLabelWidth = 60;
+        height = fontSizePixel + 5;
 
         checkedNodes = [];
         labelBoxes = [];
 
+        nodeHalfWidth = nodeWidth /2;
+        nodeHalfHeight = nodeHeight /2;
+
+
         this.setNodes = function(nodes){
             checkedNodes = nodes;
+            labelBoxes = [];
         };
+
 
         this._isNodeIntersection = function(node, box){
             var nodeTmp;
@@ -49,8 +43,15 @@ define([
         };
 
 
-        this._getRightBox = function(node){
-            var vector;
+        this._getRightBox = function(node, width){
+            var vector, labelBox;
+
+            labelBox = [
+                {x: 0, y: 0},
+                {x: width, y: 0},
+                {x: width, y: height},
+                {x: 0, y: height}
+            ];
 
             vector = {
                 x: (node.x + nodeHalfWidth),
@@ -61,8 +62,15 @@ define([
         };
 
 
-        this._getLeftBox = function(node){
-            var vector;
+        this._getLeftBox = function(node, width){
+            var vector, labelBox;
+
+            labelBox = [
+                {x: 0, y: 0},
+                {x: width, y: 0},
+                {x: width, y: height},
+                {x: 0, y: height}
+            ];
 
             vector = {
                 x: (node.x - (nodeHalfWidth + width)),
@@ -73,24 +81,36 @@ define([
         };
 
 
-        this._getTopBox = function(node){
-            var vector;
+        this._getTopBox = function(node, width){
+            var vector, labelBox;
+
+            labelBox = [
+                {x: 0, y: 0},
+                {x: width, y: 0},
+                {x: width, y: height},
+                {x: 0, y: height}
+            ];
 
             vector = {
-                x: (node.x - (width/2)),
+                x: (node.x - (width/2 - nodeHalfWidth/2)),
                 y: (node.y - (nodeHalfHeight + height))
             };
 
-
             return utils.translate(labelBox, vector);
         };
 
-        this._getBottomBox = function(node){
-            var vector;
+        this._getBottomBox = function(node, width){
+            var vector, labelBox;
 
+            labelBox = [
+                {x: 0, y: 0},
+                {x: width, y: 0},
+                {x: width, y: height},
+                {x: 0, y: height}
+            ];
             vector = {
                 x: (node.x - (width/2)),
-                y: (node.y + (nodeHalfHeight))
+                y: (node.y + (nodeHalfHeight + height/2))
             };
 
 
@@ -98,13 +118,14 @@ define([
         };
 
 
-        this.getLabelPosition = function(node, edges){
-            var boxTop, boxLeft, boxRight, checkIntersectionLabel, boxBottom, checkIntersectionAmongBoxes;
+        this.getLabelPosition = function(node, edges, label){
+            var boxTop, boxLeft, boxRight, checkIntersectionLabel, boxBottom, checkIntersectionAmongBoxes, width;
 
-            boxTop = this._getTopBox(node);
-            boxLeft = this._getLeftBox(node);
-            boxRight = this._getRightBox(node);
-            boxBottom = this._getBottomBox(node);
+            width = Math.max(label.length * (fontSizePixel/2), minLabelWidth);
+            boxTop = this._getTopBox(node, width);
+            boxLeft = this._getLeftBox(node, width);
+            boxRight = this._getRightBox(node, width);
+            boxBottom = this._getBottomBox(node, width);
 
             checkIntersectionLabel = function(sidePoint1, sidePoint2, edges){
                 var intersection, edge;
@@ -133,11 +154,12 @@ define([
                 });
             };
 
-            if (!checkIntersectionLabel(boxTop[3], boxTop[2], edges) && !checkIntersectionAmongBoxes(boxTop)){ // Is there an intersection if I place the label on top?
+            if (!checkIntersectionLabel(boxTop[3], boxTop[1], edges) && !checkIntersectionAmongBoxes(boxTop)){ // Is there an intersection if I place the label on top?
                 labelBoxes.push(boxTop);
                 return {
+                    // alignment: "middle",
+
                     alignment: "start",
-                    writingMode: "tb",
                     direction: "vertical",
                     x: boxTop[3].x + (width/2),
                     y: boxTop[3].y

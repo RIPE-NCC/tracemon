@@ -4,8 +4,9 @@ define([
     "tracemon.env.utils",
     "tracemon.connector.translation"
 ], function(config, $, utils, TranslationConnector) {
-    var antiFloodTimerNewStatus;
+    var antiFloodTimerNewStatus, timelineEvents;
 
+    timelineEvents = [];
 
     var ConnectorFacade = function (env) {
         var translationConnector;
@@ -19,10 +20,10 @@ define([
                 filtering,
                 function(result){
                     measurement.addTraceroutes(result);
-                    // clearTimeout(antiFloodTimerNewStatus);
-                    // antiFloodTimerNewStatus = setTimeout(function(){
-                    //     env.main.getLastState();
-                    // }, config.eventGroupingAntiFlood);
+                    clearTimeout(antiFloodTimerNewStatus);
+                    antiFloodTimerNewStatus = setTimeout(function(){
+                        env.historyManager.getLastState();
+                    }, config.eventGroupingAntiFlood);
                 }, this);
         };
 
@@ -34,6 +35,13 @@ define([
 
             translationConnector.getInitialDump(measurement, options)
                 .done(function(data){
+
+                    for (var n=0,length=data.length; n<length; n++){
+                        if (timelineEvents.indexOf(data[n])){
+                            timelineEvents.push(data[n].date);
+                        }
+                    }
+
                     measurement.addTraceroutes(data);
                     deferredCall.resolve(measurement);
                 });
@@ -41,6 +49,10 @@ define([
             return deferredCall.promise();
         };
 
+
+        this.getNextEvent = function(){
+
+        };
 
         this.getAutonomousSystem = function(ip){
             var deferredCall;

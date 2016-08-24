@@ -29,18 +29,24 @@ define([
         });
 
         this.setListeners = function(){
-            // utils.observer.subscribe("update-status", this._update, this);
-            utils.observer.subscribe("new-measurement", this.drawOrUpdate, this);
+            utils.observer.subscribe("update-status", this.drawOrUpdate, this);
+            utils.observer.subscribe("new-measurement", this.newMeasurement, this);
             utils.observer.subscribe("cut-hops-length", this._cutHops, this);
             // utils.observer.subscribe("model-change", this.drawOrUpdate, this);
         };
 
+        this.emulateHistory = function(){
 
-        this.drawOrUpdate = function(){
+        };
+
+        this.newMeasurement = function(){
+            env.historyManager.getLastState();
+        };
+
+
+        this.drawOrUpdate = function(status){
             console.log("Drawing");
-            var status;
 
-            status = env.main.getLastState();
             if (firstDraw){
                 this._firstDraw(status);
                 firstDraw = false;
@@ -49,10 +55,10 @@ define([
             }
         };
 
-        this._partialUpdate = function(whatChanged){
-            env.main.getLastState();
-            this._updateProxy();
-        };
+        // this._partialUpdate = function(whatChanged){
+        //     env.main.getLastState();
+        //     this._updateProxy();
+        // };
 
         this._cutHops = function(hops){
             console.log("cut-hops-length");
@@ -95,6 +101,15 @@ define([
 
         this._initChart = function(){
             this.svg = d3.select("svg");
+
+            this.pathsContainer = this.svg
+                .append("g")
+                .attr("class", "edges");
+
+            this.nodesContainer = this.svg
+                .append("g")
+                .attr("class", "nodes");
+
         };
 
 
@@ -106,14 +121,14 @@ define([
 
         this._update = function (newStatus){
             var diff;
+            this._oldStatus = {};
 
             diff = this._computeDiff(this._oldStatus, newStatus);
-            this._updateScene(diff);
-            this.view.draw(diff.updatedTraceroutes, function(){
-                console.log("drawn");
-                $this._render($this.svg, $this.graph);
-            }); // Compute the layout and draw
-            this._oldStatus = newStatus;
+            // this._updateScene(diff);
+            this.view.update(diff.newTraceroutes, function(){
+                console.log("updated");
+            });
+            // this._oldStatus = newStatus;
         };
 
         this._updateScene = function (diff) {

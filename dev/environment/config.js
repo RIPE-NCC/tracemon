@@ -29,7 +29,9 @@ define([], function(){
         viewsEnabled: ["host", "as"],
         ixpHostCheck: true,
         maxNumberHops: 10,
-        checkRealtime: true,
+        checkRealtime: false,
+        eventGroupingAntiFlood: 800,
+        historyEmulationEventDuration: 1000,
 
         graph: {
             nodeRadius: 10,

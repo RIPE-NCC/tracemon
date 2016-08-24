@@ -72,6 +72,7 @@ requirejs.config({
         "tracemon.controller.gesture-manager": TRACEMON_CONTROLLER_URL + "GesturesManager",
         "tracemon.controller.url-manager": TRACEMON_CONTROLLER_URL + "UrlManager",
         "tracemon.controller.main": TRACEMON_CONTROLLER_URL + "main",
+        "tracemon.controller.history-manager": TRACEMON_CONTROLLER_URL + "HistoryManager",
 
         /* data manipulation */
         "tracemon.filter.relative-rtt": TRACEMON_FILTER_URL + "RelativeRTTFilter",

@@ -10,13 +10,14 @@ define([
     "tracemon.model.traceroute",
     "tracemon.connector.facade",
     "tracemon.view.main",
-    "tracemon.lib.d3-amd"
-], function(config, utils, $, Facade, AutonomousSystem, Hop, Host, Measurement, Traceroute, Connector, MainView, d3) {
+    "tracemon.controller.history-manager"
+], function(config, utils, $, Facade, AutonomousSystem, Hop, Host, Measurement, Traceroute, Connector, MainView, HistoryManager) {
 
     var main = function (env) {
         var $this, timeOverviewInitialised, now, firstTimeInit;
 
         $this = this;
+        env.historyManager = new HistoryManager(env);
         now = utils.getUTCDate();
         this.availableProbes = {};
         this.groups = {};
@@ -140,27 +141,18 @@ define([
             this.loadedMeasurements = {}; // reset
 
             $.when.apply($, $.map(msmList, function (msm){
-                    return c
-                        .getMeasurementInfo(msm.id, {sources: msm.sources})
-                        .done(function (measurement) {
-                            $this.loadedMeasurements[measurement.id] = measurement;
-                        });
-                }))
+                return c
+                    .getMeasurementInfo(msm.id, {sources: msm.sources})
+                    .done(function (measurement) {
+                        $this.loadedMeasurements[measurement.id] = measurement;
+                    });
+            }))
                 .done(callback);
         };
 
 
-        this.getLastState = function () {
-            var out;
 
-            out = {};
-            for (var msmId in this.loadedMeasurements) {
-                out[msmId] = this.loadedMeasurements[msmId].getLastState();
-            }
 
-            return out;
-        };
-        
 
         this.loadMeasurements([{id: 4471092}], function (){ // 3749061, 4471092 (loop on *)
 
@@ -173,9 +165,13 @@ define([
                     // stopDate: utils.timestampToUTCDate(1462270698)
                     stopDate: utils.timestampToUTCDate(1470322091)
                 }).done(function (measurement) {
+                    env.historyManager.addMeasurement(measurement);
+
                     utils.observer.publish("new-measurement", measurement);
-                    c.getRealTimeResults(measurement, { msm: measurement.id });
-                });
+                    if (config.checkRealtime) {
+                        c.getRealTimeResults(measurement, {msm: measurement.id});
+                    }
+                    });
             }
 
         });
