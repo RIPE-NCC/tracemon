@@ -46,6 +46,17 @@ define([
         }
     };
 
+    Traceroute.prototype.getHostList = function(){ // Main attempts
+        var out;
+
+        out = [this.source];
+        for (var n = 0, length = this._hops.length; n < length; n++) {
+            out.push(this._hops[n].getMainAttempt().host);
+        }
+
+        return out;
+    };
+
     Traceroute.prototype.getHash = function(){
         var attempts;
 

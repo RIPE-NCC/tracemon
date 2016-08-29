@@ -33,9 +33,7 @@ define([
         this.addMeasurement = function(measurement){
             var traceroutes;
 
-            console.log(measurement._traceroutesBySource);
             traceroutes = measurement.getTraceroutes();
-            console.log(traceroutes);
 
             for (var n=0,length=traceroutes.length; n<length; n++){
                 if (this._historyTimeline.indexOf(traceroutes[n]) == -1){
@@ -45,7 +43,6 @@ define([
 
             this.emulateHistory(function(state){
 
-                console.log(state);
             });
         };
 

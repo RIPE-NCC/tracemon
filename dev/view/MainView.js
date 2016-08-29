@@ -21,9 +21,9 @@ define([
         env.mainView = this;
         this.view = null;
         this.viewName = env.viewName;
-        
+
         this.graph = new GraphWrapper(env);
-        
+
         this.graph.initGraph(1400, 1400, {
             margin: { top: 100, bottom: 100, left: 150, right: 150 }
         });
@@ -90,10 +90,9 @@ define([
             diff = this._computeDiff(this._oldStatus, newStatus);
             this._oldStatus = newStatus;
 
-            console.log(diff.newTraceroutes);
             this.view = this._getView();
 
-            this.view.draw(diff.newTraceroutes, function(){
+            this.view.draw(diff, function(){
                 console.log("drawn");
             }); // Compute the layout and draw
         };
@@ -112,38 +111,38 @@ define([
 
         };
 
-
-        this._updateProxy = function (){
-
-
-            setTimeout();
-        };
+        //
+        // this._updateProxy = function (){
+        //
+        //
+        //     setTimeout();
+        // };
 
         this._update = function (newStatus){
             var diff;
-            this._oldStatus = {};
 
             diff = this._computeDiff(this._oldStatus, newStatus);
             // this._updateScene(diff);
-            this.view.update(diff.newTraceroutes, function(){
+            this.view.update(diff, function(){
                 console.log("updated");
             });
             // this._oldStatus = newStatus;
         };
 
-        this._updateScene = function (diff) {
-
-            for (var t=0,length = diff.newTraceroutes.length; t<length; t++) {
-                this.addTraceroute(diff.newTraceroutes[t]);
-            }
-
-        };
+        // this._updateScene = function (diff) {
+        //
+        //     for (var t=0,length = diff.newTraceroutes.length; t<length; t++) {
+        //         this.addTraceroute(diff.newTraceroutes[t]);
+        //     }
+        //
+        // };
 
 
         this._computeDiff = function(oldStatus, newStatus) {
             var out;
 
             out = {
+                status: this._getStatus(newStatus),
                 newTraceroutes: this._getNewTraceroutes(oldStatus, newStatus),
                 updatedTraceroutes: this._getUpdatedTraceroutes(oldStatus, newStatus),
                 deletedTraceroutes: this._getDeletedTraceroutes(oldStatus, newStatus)
@@ -169,6 +168,20 @@ define([
             return newTraceroutes;
         };
 
+        this._getStatus = function (newStatus){
+            var status;
+
+            status = [];
+
+            for (var msmId in newStatus) {
+                    for (var source in newStatus[msmId]) {
+                        status.push(newStatus[msmId][source]);
+                    }
+            }
+
+            return status;
+        };
+
 
         this._getUpdatedTraceroutes = function (oldStatus, newStatus){
             var updatedTraceroute;
@@ -178,7 +191,7 @@ define([
                 if (oldStatus[msmId]) { // It is an old measurement
                     for (var source in newStatus[msmId]) {
                         if (newStatus[msmId][source].getHash() != oldStatus[msmId][source].getHash()) {
-                            updatedTraceroute.push(newStatus[msmId][source]);
+                            updatedTraceroute.push({ now: newStatus[msmId][source], before: oldStatus[msmId][source] });
                         }
                     }
                 }
@@ -186,6 +199,18 @@ define([
 
             return updatedTraceroute;
         };
+
+
+        // this._getDiff = function(before, now){
+        //     var hopsBefore, hopsAfter;
+        //
+        //     hopsBefore = before.getHops();
+        //     hopsAfter = now.getHops();
+        //
+        //     for (var n=0; n<length; n++) {
+        //
+        //     }
+        // };
 
 
 
@@ -206,6 +231,10 @@ define([
             return deletedTraceroutes;
         };
 
+
+        this._getPathString = function(){
+
+        };
 
         this.setListeners();
 

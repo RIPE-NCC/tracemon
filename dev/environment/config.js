@@ -31,7 +31,7 @@ define([], function(){
         maxNumberHops: 10,
         checkRealtime: false,
         eventGroupingAntiFlood: 800,
-        historyEmulationEventDuration: 1000,
+        historyEmulationEventDuration: 5000,
 
         graph: {
             nodeRadius: 10,

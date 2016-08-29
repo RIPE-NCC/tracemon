@@ -148,15 +148,17 @@ define([
         };
 
         this.computeVisibleGraph = function(traceroutesToDraw){
-            var traceroute, host, hostId, attempt, lastHost;
+            var traceroute, host, hostId, attempt, lastHost, tracerouteId, edgeId;
             $this.nodes = {};
             $this.edges = {};
+            $this.traceroutes = {};
 
             for (var n=0,length=traceroutesToDraw.length; n<length; n++){
                 traceroute = traceroutesToDraw[n];
                 $this.nodes[traceroute.source.getId()] = traceroute.source;
                 lastHost = traceroute.source;
 
+                tracerouteId = traceroute.source.getId() + '-' + traceroute.target.getId();
                 traceroute.forEachHop(function(hop){
                     attempt = hop.getMainAttempt();
                     host = attempt.host;
@@ -165,7 +167,18 @@ define([
                     $this.nodes[hostId] = host;
 
                     if (lastHost && lastHost.getId() != host.getId()){
-                        $this.edges[lastHost.getId() + '-' + hostId] = [lastHost, host];
+                        edgeId = lastHost.getId() + '-' + hostId;
+
+                        $this.traceroutes[tracerouteId] = $this.traceroutes[tracerouteId]  || [];
+
+                        $this.edges[edgeId] = {
+                            start: lastHost,
+                            stop: host,
+                            traceroute: tracerouteId
+                        };
+
+                        $this.traceroutes[tracerouteId].push($this.edges[edgeId]);
+
                     }
 
                     lastHost = host;
@@ -173,8 +186,10 @@ define([
             }
         };
 
-        this.draw = function(traceroutesToDraw, callback){
+        this.draw = function(diff, callback){
+            var traceroutesToDraw;
 
+            traceroutesToDraw = diff.newTraceroutes;
             this._computeLayout(this._computeMeshGraph());
 
 
@@ -192,18 +207,28 @@ define([
             callback();
         };
 
-        this.update = function(traceroutesToDraw, callback){
+        this.update = function(diff, callback){
+            var traceroutesToDraw;
+
+            console.log(diff);
+            traceroutesToDraw = diff.updatedTraceroutes;
             this._computeLayout(this._computeMeshGraph());
             // if (env.aggregateIPv6 || env.aggregateIPv4){
             //     // this._aggregate();
             //     // this._drawAggregated();
             // } else {
-                this.computeVisibleGraph(traceroutesToDraw);
+            this.computeVisibleGraph(diff.status);
             // }
 
             env.mainView.graph.computeLayout();
 
-            this._drawEdges();
+            for (var change in diff.updatedTraceroutes) {
+
+                console.log("HERE");
+                console.log(diff.updatedTraceroutes[change]["before"], diff.updatedTraceroutes[change]["now"]);
+                this._animatePathChange(diff.updatedTraceroutes[change]["before"], diff.updatedTraceroutes[change]["now"]);
+            }
+            // this._drawEdges();
             this._drawNodes();
             callback();
         };
@@ -255,10 +280,12 @@ define([
                     attempt = hop.getMainAttempt();
                     host = attempt.host;
 
-                    nodes[host.getId()] = host;
-                    edges[previousHost.getId() + "-" + host.getId()] = [previousHost, host];
+                    if (previousHost.getId() != host.getId()) {
+                        nodes[host.getId()] = host;
+                        edges[previousHost.getId() + "-" + host.getId()] = [previousHost, host];
+                        previousHost = host;
+                    }
 
-                    previousHost = host;
                 });
             }
 
@@ -329,7 +356,9 @@ define([
 
             d3Data = env.mainView.nodesContainer
                 .selectAll("circle")
-                .data(nodesToDraw);
+                .data(nodesToDraw, function(element){
+                    return element.id;
+                });
 
             d3Data
                 .exit()
@@ -341,24 +370,27 @@ define([
 
             d3Data
                 .attr("class", this._getNodeClass)
+                .transition()
+                .duration(4000)
                 .attr("r", config.graph.nodeRadius)
                 .attr("cx", function(d) { return d.x; })
                 .attr("cy", function(d) { return d.y; });
         };
 
         this._drawEdges = function(){
-            var edge, points, path, paths, d3Data;
+            var edge, points, path, paths, d3Data, pathId;
 
             paths = [];
 
             cache.edges = $.map(this.edges, function(edge){
-                return env.mainView.graph.getEdge(edge[0].getId(), edge[1].getId());
+                return env.mainView.graph.getEdge(edge.start.getId(), edge.stop.getId());
             });
 
             var lineFunction = d3.svg.line()
                 .x(function(d) { return d.x; })
                 .y(function(d) { return d.y; })
                 .interpolate("basis");
+
 
             for (var n=0,length=cache.edges.length; n<length; n++){
                 edge = cache.edges[n];
@@ -368,18 +400,20 @@ define([
                 points = points.concat(edge.points);
                 points.push(env.mainView.graph.getNode(edge.to));
 
+                pathId = utils.getIdFromIp(edge.id);
                 paths.push({
+                    id: pathId,
                     d: lineFunction(points),
-                    class: "edge edge-" + utils.getIdFromIp(edge.id)
+                    class: "edge edge-" + pathId
                 });
 
             }
 
-
-
             d3Data = env.mainView.pathsContainer
                 .selectAll("path")
-                .data(paths);
+                .data(paths, function(path){
+                    return path.id;
+                });
 
             d3Data
                 .exit()
@@ -393,9 +427,57 @@ define([
                 .attr("class", function(path){
                     return path.class;
                 })
+                .transition()
+                .duration(4000)
                 .attr("d", function(path){
                     return path.d;
                 });
+        };
+
+        this._animatePathChange = function (oldTraceroute, newTraceroute) {
+
+            var lineFunction = d3.svg.line()
+                .x(function(d) { return d.x; })
+                .y(function(d) { return d.y; })
+                .interpolate("basis");
+
+            env.mainView.pathsContainer
+                .append("path")
+                .style("stroke-width", "15px")
+                .attr("class", "edge")
+                .attr("d", lineFunction(this._getPointsFromTraceroute(oldTraceroute)))
+                .transition()
+                .duration(2000)
+                .ease("linear")
+                .attr("d", lineFunction(this._getPointsFromTraceroute(newTraceroute)))
+                .remove();
+
+        };
+
+        this._getPointsFromTraceroute = function(traceroute){
+            var edge, points, pathId, unifiedPathArray, hosts, edgeSet;
+
+            // tracerouteId = traceroute.source.getId() + '-' + traceroute.target.getId();
+
+            unifiedPathArray = [];
+            hosts = traceroute.getHostList();
+
+            console.log(hosts);
+
+            for (var n=0,length=hosts.length; n<length-1; n++){
+                if (hosts[n].getId() != hosts[n + 1].getId()) {
+                    unifiedPathArray.push(env.mainView.graph.getEdge(hosts[n].getId(), hosts[n + 1].getId()));
+                }
+            }
+
+            points = [];
+            for (var n=0,length=unifiedPathArray.length; n<length; n++){
+                edge = unifiedPathArray[n];
+                points = points.concat(edge.points);
+                pathId = utils.getIdFromIp(edge.id);
+            }
+
+            return points;
         };
 
         this._setListeners();
