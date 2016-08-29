@@ -58,6 +58,8 @@ define([
                 }, duration);
             };
 
+            this._historyTimeline = this._historyTimeline.sort();
+            console.log(this._historyTimeline);
             for (var n=0,length=this._historyTimeline.length; n<length; n++){
 
                 setTimer($this._historyTimeline[n], eventDuration * n);

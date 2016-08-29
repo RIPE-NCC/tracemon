@@ -126,7 +126,7 @@ define([
             this.view.update(diff, function(){
                 console.log("updated");
             });
-            // this._oldStatus = newStatus;
+            this._oldStatus = newStatus;
         };
 
         // this._updateScene = function (diff) {

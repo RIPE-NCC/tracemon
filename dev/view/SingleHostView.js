@@ -210,7 +210,6 @@ define([
         this.update = function(diff, callback){
             var traceroutesToDraw;
 
-            console.log(diff);
             traceroutesToDraw = diff.updatedTraceroutes;
             this._computeLayout(this._computeMeshGraph());
             // if (env.aggregateIPv6 || env.aggregateIPv4){
@@ -223,12 +222,10 @@ define([
             env.mainView.graph.computeLayout();
 
             for (var change in diff.updatedTraceroutes) {
-
-                console.log("HERE");
-                console.log(diff.updatedTraceroutes[change]["before"], diff.updatedTraceroutes[change]["now"]);
                 this._animatePathChange(diff.updatedTraceroutes[change]["before"], diff.updatedTraceroutes[change]["now"]);
             }
-            // this._drawEdges();
+
+            this._drawEdges();
             this._drawNodes();
             callback();
         };
@@ -396,21 +393,25 @@ define([
                 edge = cache.edges[n];
 
                 points = [];
-                points.push(env.mainView.graph.getNode(edge.from));
-                points = points.concat(edge.points);
-                points.push(env.mainView.graph.getNode(edge.to));
+                if (edge.from != edge.to) {
+                    points.push(env.mainView.graph.getNode(edge.from));
+                    points = points.concat(edge.points);
+                    points.push(env.mainView.graph.getNode(edge.to));
 
-                pathId = utils.getIdFromIp(edge.id);
-                paths.push({
-                    id: pathId,
-                    d: lineFunction(points),
-                    class: "edge edge-" + pathId
-                });
-
+                    pathId = utils.getIdFromIp(edge.id);
+                    paths.push({
+                        id: pathId,
+                        d: lineFunction(points),
+                        class: "edge edge-normal edge-" + pathId
+                    });
+                }
             }
 
+            if (paths.indexOf(undefined) >= 0){
+                console.log(paths);
+            }
             d3Data = env.mainView.pathsContainer
-                .selectAll("path")
+                .selectAll("path.edge-normal")
                 .data(paths, function(path){
                     return path.id;
                 });
@@ -444,7 +445,7 @@ define([
             env.mainView.pathsContainer
                 .append("path")
                 .style("stroke-width", "15px")
-                .attr("class", "edge")
+                .attr("class", "edge edge-animation")
                 .attr("d", lineFunction(this._getPointsFromTraceroute(oldTraceroute)))
                 .transition()
                 .duration(2000)
@@ -461,8 +462,6 @@ define([
 
             unifiedPathArray = [];
             hosts = traceroute.getHostList();
-
-            console.log(hosts);
 
             for (var n=0,length=hosts.length; n<length-1; n++){
                 if (hosts[n].getId() != hosts[n + 1].getId()) {
