@@ -35,6 +35,10 @@
     fill: none;
 }
 
+.path[data-hover] {
+    stroke-width: 15px!important;
+}
+
 .node-label {
     opacity: 0.8;
     fill: #454545;

@@ -291,6 +291,15 @@ define([
             return { nodes: nodes, edges: edges }
         };
 
+        this._hightlightPath = function(pathId, highlighted){
+
+            console.log(".path-" + pathId);
+            env.mainView.pathsContainer
+                .select(".path-" + pathId)
+                .attr("data-hover", ((highlighted) ? true : null));
+
+        };
+
         this._computeLayout = function(mesh){
 
             var nodeObj, edgeObj;
@@ -400,29 +409,16 @@ define([
                 };
             });
 
-
-            // for (var n=0,length=cache.edges.length; n<length; n++){
-            //     edge = cache.edges[n];
-            //
-            //     points = [];
-            //     if (edge.from != edge.to) {
-            //         points.push(env.mainView.graph.getNode(edge.from));
-            //         points = points.concat(edge.points);
-            //         points.push(env.mainView.graph.getNode(edge.to));
-            //
-            //         pathId = utils.getIdFromIp(edge.id);
-            //         paths.push({
-            //             id: pathId,
-            //             d: lineFunction(points),
-            //             class: "edge edge-normal edge-" + pathId
-            //         });
-            //     }
-            // }
-
             d3Data = env.mainView.pathsContainer
                 .selectAll("path.path-normal")
                 .data(paths, function(path){
                     return path.id;
+                })
+                .on("mouseenter", function(path){
+                    $this._hightlightPath(path.id, true);
+                })
+                .on("mouseout", function(path){
+                    $this._hightlightPath(path.id, false);
                 });
 
             d3Data
