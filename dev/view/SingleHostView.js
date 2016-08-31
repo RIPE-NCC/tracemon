@@ -391,7 +391,7 @@ define([
             lineFunction = d3.svg.line()
                 .x(function(d) { return d.x; })
                 .y(function(d) { return d.y; })
-                .interpolate("basis");
+                .interpolate(config.graph.pathInterpolation);
 
             paths = $.map(this.traceroutes, function(path){
                 return {
@@ -513,7 +513,7 @@ define([
             lineFunction = d3.svg.line()
                 .x(function(d) { return d.x; })
                 .y(function(d) { return d.y; })
-                .interpolate("basis");
+                .interpolate(config.graph.pathInterpolation);
 
             element = env.mainView.pathsContainer
                 .select("path.path-" + tracerouteId);
@@ -546,7 +546,10 @@ define([
             points = [];
             for (var n=0,length=unifiedPathArray.length; n<length; n++){
                 edge = unifiedPathArray[n];
+
+                points.push(env.mainView.graph.getNode(edge.from));
                 points = points.concat(edge.points);
+                points.push(env.mainView.graph.getNode(edge.to));
                 pathId = utils.getIdFromIp(edge.id);
             }
 
