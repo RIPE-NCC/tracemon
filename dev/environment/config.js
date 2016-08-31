@@ -33,6 +33,11 @@ define([], function(){
         eventGroupingAntiFlood: 800,
         historyEmulationEventDuration: 5000,
 
+        transitionsTimes:{
+            pathChange: 2000,
+            nodeRemoval: 5000
+        },
+
         graph: {
             nodeRadius: 10,
             asColors: ["#ff0000", "#ffcc00", "#00ffaa", "#005299", "#f780ff", "#590000", "#594700", "#bfffea", "#bfe1ff",

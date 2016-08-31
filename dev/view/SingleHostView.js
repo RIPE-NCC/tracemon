@@ -158,7 +158,13 @@ define([
                 $this.nodes[traceroute.source.getId()] = traceroute.source;
                 lastHost = traceroute.source;
 
-                tracerouteId = traceroute.source.getId() + '-' + traceroute.target.getId();
+                tracerouteId = utils.getIdFromIp(traceroute.source.getId() + '-' + traceroute.target.getId());
+
+                $this.traceroutes[tracerouteId] = {
+                    points: this._getPointsFromTraceroute(traceroute),
+                    id: tracerouteId
+                };
+
                 traceroute.forEachHop(function(hop){
                     attempt = hop.getMainAttempt();
                     host = attempt.host;
@@ -169,16 +175,11 @@ define([
                     if (lastHost && lastHost.getId() != host.getId()){
                         edgeId = lastHost.getId() + '-' + hostId;
 
-                        $this.traceroutes[tracerouteId] = $this.traceroutes[tracerouteId]  || [];
-
                         $this.edges[edgeId] = {
                             start: lastHost,
                             stop: host,
                             traceroute: tracerouteId
                         };
-
-                        $this.traceroutes[tracerouteId].push($this.edges[edgeId]);
-
                     }
 
                     lastHost = host;
@@ -202,7 +203,8 @@ define([
 
             env.mainView.graph.computeLayout();
 
-            this._drawEdges();
+            // this._drawEdges();
+            this._drawPaths();
             this._drawNodes();
             callback();
         };
@@ -225,7 +227,7 @@ define([
                 this._animatePathChange(diff.updatedTraceroutes[change]["before"], diff.updatedTraceroutes[change]["now"]);
             }
 
-            this._drawEdges();
+            this._drawPaths();
             this._drawNodes();
             callback();
         };
@@ -359,7 +361,12 @@ define([
 
             d3Data
                 .exit()
-                .remove();
+                .transition()
+                .duration(config.transitionsTimes.nodeRemoval)
+                .style("opacity", 0.1)
+                .each("end", function(){
+                    d3.select(this).remove();
+                });
 
             d3Data
                 .enter()
@@ -374,44 +381,46 @@ define([
                 .attr("cy", function(d) { return d.y; });
         };
 
-        this._drawEdges = function(){
-            var edge, points, path, paths, d3Data, pathId;
-
-            paths = [];
+        this._drawPaths = function(){
+            var edge, points, path, paths, d3Data, lineFunction;
 
             cache.edges = $.map(this.edges, function(edge){
                 return env.mainView.graph.getEdge(edge.start.getId(), edge.stop.getId());
             });
 
-            var lineFunction = d3.svg.line()
+            lineFunction = d3.svg.line()
                 .x(function(d) { return d.x; })
                 .y(function(d) { return d.y; })
                 .interpolate("basis");
 
+            paths = $.map(this.traceroutes, function(path){
+                return {
+                    d: lineFunction(path.points),
+                    id: path.id
+                };
+            });
 
-            for (var n=0,length=cache.edges.length; n<length; n++){
-                edge = cache.edges[n];
 
-                points = [];
-                if (edge.from != edge.to) {
-                    points.push(env.mainView.graph.getNode(edge.from));
-                    points = points.concat(edge.points);
-                    points.push(env.mainView.graph.getNode(edge.to));
+            // for (var n=0,length=cache.edges.length; n<length; n++){
+            //     edge = cache.edges[n];
+            //
+            //     points = [];
+            //     if (edge.from != edge.to) {
+            //         points.push(env.mainView.graph.getNode(edge.from));
+            //         points = points.concat(edge.points);
+            //         points.push(env.mainView.graph.getNode(edge.to));
+            //
+            //         pathId = utils.getIdFromIp(edge.id);
+            //         paths.push({
+            //             id: pathId,
+            //             d: lineFunction(points),
+            //             class: "edge edge-normal edge-" + pathId
+            //         });
+            //     }
+            // }
 
-                    pathId = utils.getIdFromIp(edge.id);
-                    paths.push({
-                        id: pathId,
-                        d: lineFunction(points),
-                        class: "edge edge-normal edge-" + pathId
-                    });
-                }
-            }
-
-            if (paths.indexOf(undefined) >= 0){
-                console.log(paths);
-            }
             d3Data = env.mainView.pathsContainer
-                .selectAll("path.edge-normal")
+                .selectAll("path.path-normal")
                 .data(paths, function(path){
                     return path.id;
                 });
@@ -426,39 +435,104 @@ define([
 
             d3Data
                 .attr("class", function(path){
-                    return path.class;
+                    return "path path-normal path-" + path.id;
                 })
                 .transition()
-                .duration(4000)
                 .attr("d", function(path){
                     return path.d;
                 });
         };
 
-        this._animatePathChange = function (oldTraceroute, newTraceroute) {
 
-            var lineFunction = d3.svg.line()
+        // this._drawEdges = function(){
+        //     var edge, points, path, paths, d3Data, pathId;
+        //
+        //     paths = [];
+        //
+        //     cache.edges = $.map(this.edges, function(edge){
+        //         return env.mainView.graph.getEdge(edge.start.getId(), edge.stop.getId());
+        //     });
+        //
+        //     var lineFunction = d3.svg.line()
+        //         .x(function(d) { return d.x; })
+        //         .y(function(d) { return d.y; })
+        //         .interpolate("basis");
+        //
+        //
+        //     for (var n=0,length=cache.edges.length; n<length; n++){
+        //         edge = cache.edges[n];
+        //
+        //         points = [];
+        //         if (edge.from != edge.to) {
+        //             points.push(env.mainView.graph.getNode(edge.from));
+        //             points = points.concat(edge.points);
+        //             points.push(env.mainView.graph.getNode(edge.to));
+        //
+        //             pathId = utils.getIdFromIp(edge.id);
+        //             paths.push({
+        //                 id: pathId,
+        //                 d: lineFunction(points),
+        //                 class: "edge edge-normal edge-" + pathId
+        //             });
+        //         }
+        //     }
+        //
+        //     if (paths.indexOf(undefined) >= 0){
+        //         console.log(paths);
+        //     }
+        //     d3Data = env.mainView.pathsContainer
+        //         .selectAll("path.edge-normal")
+        //         .data(paths, function(path){
+        //             return path.id;
+        //         });
+        //
+        //     d3Data
+        //         .exit()
+        //         .remove();
+        //
+        //     d3Data
+        //         .enter()
+        //         .append("path");
+        //
+        //     d3Data
+        //         .attr("class", function(path){
+        //             return path.class;
+        //         })
+        //         .transition()
+        //         .duration(4000)
+        //         .attr("d", function(path){
+        //             return path.d;
+        //         });
+        // };
+
+        this._animatePathChange = function (oldTraceroute, newTraceroute) {
+            var tracerouteId, element, lineFunction;
+
+            tracerouteId = utils.getIdFromIp(oldTraceroute.source.getId() + '-' + oldTraceroute.target.getId());
+
+            lineFunction = d3.svg.line()
                 .x(function(d) { return d.x; })
                 .y(function(d) { return d.y; })
                 .interpolate("basis");
 
-            env.mainView.pathsContainer
-                .append("path")
+            element = env.mainView.pathsContainer
+                .select("path.path-" + tracerouteId);
+
+            setTimeout(function(){
+                element.style("stroke-width", "8px");
+            }, config.transitionsTimes.pathChange);
+
+            element
                 .style("stroke-width", "15px")
-                .attr("class", "edge edge-animation")
-                .attr("d", lineFunction(this._getPointsFromTraceroute(oldTraceroute)))
                 .transition()
-                .duration(2000)
+                .duration(config.transitionsTimes.pathChange)
                 .ease("linear")
-                .attr("d", lineFunction(this._getPointsFromTraceroute(newTraceroute)))
-                .remove();
+                .attr("d", lineFunction(this._getPointsFromTraceroute(newTraceroute)));
 
         };
 
         this._getPointsFromTraceroute = function(traceroute){
             var edge, points, pathId, unifiedPathArray, hosts, edgeSet;
-
-            // tracerouteId = traceroute.source.getId() + '-' + traceroute.target.getId();
 
             unifiedPathArray = [];
             hosts = traceroute.getHostList();

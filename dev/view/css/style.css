@@ -28,6 +28,13 @@
     fill: none;
 }
 
+.path {
+    stroke: #C0C0C0;
+    stroke-width: 8;
+    opacity: 0.5;
+    fill: none;
+}
+
 .node-label {
     opacity: 0.8;
     fill: #454545;
