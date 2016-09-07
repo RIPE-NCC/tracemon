@@ -92,48 +92,48 @@ define([
             this._updateLabel(host);
         };
 
-        // this._aggregate = function(){
-        //     var nodeObj, edgeObj, finalNodes, nodeKey, edgeKey1, edgeKey2, finalEdges, edgeKey, subnet;
-        //
-        //     finalNodes = {};
-        //     finalEdges = {};
-        //
-        //     subnet = env.aggregateIPv4;
-        //
-        //     for (var node in this.nodes){
-        //
-        //         nodeObj = this.nodes[node];
-        //
-        //         if (nodeObj.ip) {
-        //             nodeKey = prefixUtils.encodePrefix(nodeObj.ip).substring(0, subnet + 1);
-        //
-        //             if (finalNodes[nodeKey]) {
-        //                 finalNodes[nodeKey].multiplicity++;
-        //             } else {
-        //                 finalNodes[nodeKey] = nodeObj;
-        //             }
-        //         }
-        //     }
-        //
-        //     for (var edge in this.edges){
-        //         edgeObj = this.edges[edge];
-        //
-        //         if (edgeObj[0].ip && edgeObj[1].ip) {
-        //
-        //             edgeKey1 = prefixUtils.encodePrefix(edgeObj[0].ip).substring(0, subnet + 1);
-        //             edgeKey2 = prefixUtils.encodePrefix(edgeObj[1].ip).substring(0, subnet + 1);
-        //
-        //             edgeKey = edgeKey1 + "-" + edgeKey2;
-        //
-        //             if (edgeObj[0] && edgeObj[1] && edgeKey1 != edgeKey2) {
-        //                 finalEdges[edgeKey] = edgeObj;
-        //             }
-        //         }
-        //     }
-        //
-        //     this.nodes = finalNodes;
-        //     this.edges = finalEdges;
-        // };
+        this._aggregate = function(){
+            var nodeObj, edgeObj, finalNodes, nodeKey, edgeKey1, edgeKey2, finalEdges, edgeKey, subnet;
+
+            finalNodes = {};
+            finalEdges = {};
+
+            subnet = env.aggregateIPv4;
+
+            for (var node in this.nodes){
+
+                nodeObj = this.nodes[node];
+
+                if (nodeObj.ip) {
+                    nodeKey = prefixUtils.encodePrefix(nodeObj.ip).substring(0, subnet + 1);
+
+                    if (finalNodes[nodeKey]) {
+                        finalNodes[nodeKey].multiplicity++;
+                    } else {
+                        finalNodes[nodeKey] = nodeObj;
+                    }
+                }
+            }
+
+            for (var edge in this.edges){
+                edgeObj = this.edges[edge];
+
+                if (edgeObj[0].ip && edgeObj[1].ip) {
+
+                    edgeKey1 = prefixUtils.encodePrefix(edgeObj[0].ip).substring(0, subnet + 1);
+                    edgeKey2 = prefixUtils.encodePrefix(edgeObj[1].ip).substring(0, subnet + 1);
+
+                    edgeKey = edgeKey1 + "-" + edgeKey2;
+
+                    if (edgeObj[0] && edgeObj[1] && edgeKey1 != edgeKey2) {
+                        finalEdges[edgeKey] = edgeObj;
+                    }
+                }
+            }
+
+            this.nodes = finalNodes;
+            this.edges = finalEdges;
+        };
 
         this.getNodeLabel = function (host){
             if (host.isIxp){
@@ -161,6 +161,7 @@ define([
                 tracerouteId = utils.getIdFromIp(traceroute.source.getId() + '-' + traceroute.target.getId());
 
                 $this.traceroutes[tracerouteId] = {
+                    model: traceroute,
                     points: this._getPointsFromTraceroute(traceroute),
                     id: tracerouteId
                 };
@@ -194,12 +195,13 @@ define([
             this._computeLayout(this._computeMeshGraph());
 
 
-            if (env.aggregateIPv6 || env.aggregateIPv4){
-                // this._aggregate();
+            if (env.aggregateIPv6 || env.aggregateIPv4) {
+                this._aggregate();
                 // this._drawAggregated();
-            } else {
-                this.computeVisibleGraph(traceroutesToDraw);
+                // } else {
             }
+                this.computeVisibleGraph(traceroutesToDraw);
+            // }
 
             env.mainView.graph.computeLayout();
 
@@ -291,13 +293,80 @@ define([
             return { nodes: nodes, edges: edges }
         };
 
-        this._hightlightPath = function(pathId, highlighted){
+        this._showDirection = function (path, highlighted) {
+            var marker;
 
-            console.log(".path-" + pathId);
+            env.mainView.svg
+                .selectAll(".dot.direction")
+                .remove();
+
+            if (highlighted) {
+                marker = env.mainView.svg
+                    .append("circle")
+                    .attr("class", "dot direction");
+
+                marker.attr("r", 4);
+                transition();
+            }
+
+            function transition() {
+                marker
+                    .transition()
+                    .duration(3000)
+                    .attrTween("transform", translateAlong(path.node()));
+            }
+
+            function translateAlong(path) {
+                var l = path.getTotalLength();
+                return function (i) {
+                    return function (t) {
+                        var p = path.getPointAtLength(t * l);
+                        return "translate(" + p.x + "," + p.y + ")"; //Move marker
+                    }
+                }
+            }
+        };
+
+        this._hightlightPath = function(pathId, highlighted){
+            var hosts, nodesToUpdate, nodes, path;
+
+            hosts = this.traceroutes[pathId].model.getHostList();
+
+            d3.selectAll(".node-label")
+                .style("opacity", ((!highlighted) ? config.graph.normalOpacity : config.graph.notHighlightedOpacity));
+
+            nodesToUpdate = $.map(hosts, function(node){
+                var nodeView = env.mainView.graph.getNode(node.getId());
+                nodeView.model = node;
+
+                d3.selectAll(".node-label-" + utils.getIdFromIp(nodeView.id))
+                    .style("opacity", config.graph.normalOpacity);
+                return nodeView;
+            });
+
+
+            nodes = env.mainView.nodesContainer
+                .selectAll("circle")
+                .style("opacity", ((!highlighted) ? config.graph.normalOpacity : config.graph.notHighlightedOpacity));
+
+            nodes
+                .data(nodesToUpdate, function(element){
+                    return element.id;
+                })
+                .style("opacity", ((highlighted) ? config.graph.highlightedOpacity : config.graph.normalOpacity))
+                .attr("r", ((highlighted) ? config.graph.nodeSelectedRadius : config.graph.nodeRadius));
+
             env.mainView.pathsContainer
+                .selectAll(".path")
+                .style("opacity", ((highlighted) ? config.graph.notHighlightedOpacity : config.graph.highlightedOpacity));
+
+            path = env.mainView.pathsContainer
                 .select(".path-" + pathId)
                 .attr("data-hover", ((highlighted) ? true : null));
 
+            this._showDirection(path, highlighted);
+
+            utils.observer.publish("traceroute-selected", this.traceroutes[pathId].model);
         };
 
         this._computeLayout = function(mesh){

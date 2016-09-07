@@ -1,3 +1,19 @@
+.tracemon-content{
+    margin: auto;
+    padding-top: 4px;
+    min-height: 600px;
+    font-size: 10px;
+    font-family: sans-serif;
+    position: relative;
+    border: 1px solid #C0C0C0;
+    background: #FFFFFF;
+    line-height: normal!important;
+    border-radius: 4px;
+    box-sizing: content-box!important;
+    min-width: 860px!important;
+}
+
+
 .node {
     fill: #EDD37B;
     stroke-dasharray: 6,6;
@@ -37,6 +53,11 @@
 
 .path[data-hover] {
     stroke-width: 15px!important;
+    cursor: pointer;
+    opacity: 0.5!important;
+}
+.node[data-hover] {
+    opacity: 0.1;
 }
 
 .node-label {
@@ -46,6 +67,36 @@
     font-size: 11px;
 }
 
+.dot.direction {
+    fill: white;
+}
+
+.loading-image{
+    position: absolute;
+    top: 40%;
+    left: 49%;
+}
+
+.tracemon-svg {
+    width: 100%;
+    height: 2000px!important;
+}
+
+
+.error-message{
+    text-align: center;
+    z-index: 1000000000;
+    position: absolute;
+    top: 100px;
+    left: 42%;
+    opacity: 0.7;
+    text-shadow: 1px 1px 3px #C0C0C0;
+    font-size: 26px;
+    width: 300px;
+    height: 40px;
+    display: none;
+    line-height: 28px;
+}
 
 /* Bootstrap Hacks */
 .pagination li{
@@ -70,6 +121,132 @@
     background-position: -64px -224px !important;
     bottom: 0 !important;
     right: 0 !important;
+}
+
+
+
+
+.control-panel{
+    z-index: 4;
+}
+
+.button-group .left-bar .button{
+    border-right: 1px solid #C0C0C0;
+    float: left;
+}
+
+.button-group .right-bar .button{
+    border-left: 1px solid #C0C0C0;
+    float: right;
+}
+
+.control-panel .button{
+    width: 26px;
+    text-align: center;
+    cursor: pointer;
+}
+
+
+
+.button-group .right-bar .button{
+    border-left: 1px solid #C0C0C0;
+    float: right;
+}
+
+.control-panel .button{
+    width: 26px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.control-panel .legend{
+    width: 310px;
+    float: left;
+    margin-top: 3px;
+    margin-left: 3px;
+    text-shadow: 1px 1px 2px #C0C0C0;
+}
+
+.button-group {
+    height: 26px;
+    width: 98%;
+    border: 1px solid #CCC;
+    margin-left: 11px;
+    padding: 4px 4px 2px 4px;
+    display: inline-block;
+    background-color: #FFFFFF;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#D0D0D0));
+    background-image: -webkit-linear-gradient(top, #FFFFFF, #D0D0D0);
+    background-image:    -moz-linear-gradient(top, #FFFFFF, #D0D0D0);
+    background-image:      -o-linear-gradient(top, #FFFFFF, #D0D0D0);
+    background-image:         linear-gradient(to bottom, #FFFFFF, #D0D0D0);
+    border-radius: 5px;
+}
+
+
+.dropdown-panel{
+    width: 950px;
+    position: absolute;
+    top: 29px;
+    left: 40px;
+    background: #fdfdfd;
+    z-index: 1000000!important;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border: 1px solid #CCC;
+    box-shadow: 1px 1px 1px 2px rgba(179, 179, 179, 0.37);
+    overflow: hidden;
+}
+
+.footer-dropdown-panel{
+    width: 100%;
+    height: 56px;
+    position: absolute;
+    bottom: 0;
+    background: #eaeaea;
+    border-top: 1px solid #CCC;
+    text-align: right;
+}
+
+.footer-dropdown-panel button{
+    margin-top: 10px;
+    margin-right: 20px;
+    position: relative;
+}
+
+.header-dropdown-panel{
+    font-size: 18px;
+    margin: 10px;
+    margin-bottom: 2px;
+    margin-top: 8px;
+    width: 90%;
+    float: left;
+    text-shadow: 1px 1px 1px #C0C0C0;
+}
+
+.content-dropdown-panel{
+    margin: 10px;
+    margin-top: 0;
+    line-height: 2;
+}
+
+.probe-list{
+    font-size: 14px;
+}
+
+.tracemon-footer{
+    width: 100%;
+    height: 16px;
+    text-align: right;
+    padding-left: 5px;
+    padding-right: 5px;
+    font-size: 13px;
+}
+
+.footer-item{
+    float: right;
+    margin-left: 8px;
+    margin-right: 8px;
 }
 
 

@@ -10,14 +10,17 @@ define([
     "tracemon.model.traceroute",
     "tracemon.connector.facade",
     "tracemon.view.main",
-    "tracemon.controller.history-manager"
-], function(config, utils, $, Facade, AutonomousSystem, Hop, Host, Measurement, Traceroute, Connector, MainView, HistoryManager) {
+    "tracemon.controller.history-manager",
+    "tracemon.view.templateManager"
+], function(config, utils, $, Facade, AutonomousSystem, Hop, Host, Measurement, Traceroute, Connector, MainView,
+            HistoryManager, TemplateManagerView) {
 
     var main = function (env) {
         var $this, timeOverviewInitialised, now, firstTimeInit;
 
         $this = this;
         env.historyManager = new HistoryManager(env);
+        env.template = new TemplateManagerView(env);
         now = utils.getUTCDate();
         this.availableProbes = {};
         this.groups = {};
@@ -156,6 +159,8 @@ define([
 
         this.loadMeasurements([{id: 4471092}], function (){ // 3749061, 4471092 (loop on *)
 
+            env.template.showLoadingImage(true);
+
             for (var msmId in $this.loadedMeasurements) {
                 console.log($this.loadedMeasurements[msmId]);
 
@@ -166,6 +171,8 @@ define([
                     stopDate: utils.timestampToUTCDate(1470322091)
                 }).done(function (measurement) {
                     env.historyManager.addMeasurement(measurement);
+
+                    env.template.showLoadingImage(false);
 
                     utils.observer.publish("new-measurement", measurement);
                     if (config.checkRealtime) {

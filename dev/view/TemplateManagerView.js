@@ -3,10 +3,10 @@
  */
 
 define([
-    "latencymon.env.utils",
-    "latencymon.env.config",
-    "latencymon.env.languages.en",
-    "latencymon.lib.jquery-amd"
+    "tracemon.env.utils",
+    "tracemon.env.config",
+    "tracemon.env.languages.en",
+    "tracemon.lib.jquery-amd"
 ], function(utils, config, lang, $){
 
     /**
@@ -24,6 +24,7 @@ define([
         widgetUrl = env.widgetUrl;
         $this = this;
         loadingImageCounter = 0;
+
 
         this.loadingImage = '<img src="' + widgetUrl + 'view/img/loading2.gif" class="loading-image"/> ';
 
@@ -113,13 +114,6 @@ define([
             '<img src="' + widgetUrl + 'view/img/chart_mode.png"/>' +
             '</div>' +
 
-                //'<div class="button filters">' +
-                //'<img src="' + widgetUrl + 'view/img/filter_icon.png"/>' +
-                //'</div>' +
-
-                //'<div class="button full-screen">' +
-                //'<img src="' + widgetUrl + 'view/img/dnsmon_fullscreen_icon.png"/>' +
-                //'</div>' +
             '</div>' +
             '<div class="led-box"></div>' +
             '</div>';
@@ -145,15 +139,15 @@ define([
 
 
         this.timeOverview = $('<div class="time-overview-dom"></div>');
-        this.footer = $('<div class="latencymon-footer"></div>');
+        this.footer = $('<div class="tracemon-footer"></div>');
 
 
-        this.footer.append('<div class="latencymon-about footer-item"><a href="' + config.aboutUrl + '" title="' + lang.about + '">' + lang.about + '</a></div>');
-        this.footer.append('<div class="latencymon-embed footer-item"><a href="' + config.embedCodeUrl + '" title="' + lang.embedCode + '">' + lang.embedCode + '</a></div>');
-        this.footer.append('<div class="latencymon-documentation footer-item"><a href="' + config.documentationUrl + '" title="' + lang.documentation + '">' + lang.documentation + '</a></div>');
+        this.footer.append('<div class="tracemon-about footer-item"><a href="' + config.aboutUrl + '" title="' + lang.about + '">' + lang.about + '</a></div>');
+        this.footer.append('<div class="tracemon-embed footer-item"><a href="' + config.embedCodeUrl + '" title="' + lang.embedCode + '">' + lang.embedCode + '</a></div>');
+        this.footer.append('<div class="tracemon-documentation footer-item"><a href="' + config.documentationUrl + '" title="' + lang.documentation + '">' + lang.documentation + '</a></div>');
 
         if (utils.getUrlParam("info") == "true") {
-            this.footer.append('<div class="latencymon-version footer-item">Version:' + env.version + '</div>');
+            this.footer.append('<div class="tracemon-version footer-item">Version:' + env.version + '</div>');
             this.footer.append(atob("PGRpdiBjbGFzcz0ibGF0ZW5jeW1vbi1jb3B5cmlnaHQgZm9vdGVyLWl0ZW0iPkF1dGhvcjogPGEgaHJlZj0iaHR0cDovL21hc3NpbW9jYW5kZWxhLmNvbSI+TWFzc2ltbyBDYW5kZWxhPC9hPjwvZGl2Pg=="));
         }
 
@@ -194,8 +188,8 @@ define([
 
         this.dom = {};
 
-        env.parentDom.addClass("latencymon-container");
-        this.dom.main = $("<div></div>").addClass("latencymon-content").appendTo(env.parentDom);
+        env.parentDom.addClass("tracemon-container");
+        this.dom.main = $("<div></div>").addClass("tracemon-content").appendTo(env.parentDom);
 
         this.dom.loadingImage = $(this.loadingImage).appendTo(this.dom.main);
 

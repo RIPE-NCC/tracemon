@@ -57,6 +57,14 @@ define([
         return out;
     };
 
+    Traceroute.prototype.forEachHost = function(fun){
+        var hosts = this.getHostList();
+        for (var n=0,length=hosts.length; n<length; n++){
+            fun(hosts[n]);
+        }
+    };
+
+
     Traceroute.prototype.getHash = function(){
         var attempts;
 

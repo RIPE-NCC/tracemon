@@ -772,6 +772,7 @@ define([
         getIdFromIp: function(ip){
             ip = ip.replace(/\./g, "-");
             ip = ip.replace(/\:/g, "-");
+            ip = ip.replace(/\*/g, "");
 
             return ip;
         },

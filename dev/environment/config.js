@@ -41,6 +41,11 @@ define([], function(){
         graph: {
             pathInterpolation: "basis",
             nodeRadius: 10,
+            nodeSelectedRadius: 15,
+            notHighlightedOpacity: 0.2,
+            highlightedOpacity: 0.8,
+            normalOpacity: 1,
+
             asColors: ["#ff0000", "#ffcc00", "#00ffaa", "#005299", "#f780ff", "#590000", "#594700", "#bfffea", "#bfe1ff",
                 "#590053", "#99574d", "#66644d", "#005947", "#001433", "#b3008f", "#992900", "#8f9900", "#00ffee", "#001f73",
                 "#ff0088", "#ffa280", "#003033", "#0022ff", "#804062", "#ffd0bf", "#ccff00", "#53a0a6", "#8091ff",

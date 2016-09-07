@@ -146,7 +146,7 @@ define([
          * Init Dependency Injection Vector
          */
         env = {
-            "version": "16.1.19.1",
+            "version": "16.9.6.1",
             "widgetUrl": TRACEMON_WIDGET_URL + "dev/",
             "autoStart": (instanceParams.autoStart != undefined) ? instanceParams.autoStart : config.autoStart,
             "dataApiResults": instanceParams.dataApiResults || config.dataAPIs.results,

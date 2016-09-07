@@ -24,10 +24,6 @@ define([
 
         this.graph = new GraphWrapper(env);
 
-        this.graph.initGraph(1400, 1400, {
-            margin: { top: 100, bottom: 100, left: 150, right: 150 }
-        });
-
         this.setListeners = function(){
             utils.observer.subscribe("update-status", this.drawOrUpdate, this);
             utils.observer.subscribe("new-measurement", this.newMeasurement, this);
@@ -99,7 +95,10 @@ define([
 
 
         this._initChart = function(){
-            this.svg = d3.select("svg");
+            this.svg = d3
+                .select(env.template.dom.main[0])
+                .append("svg")
+                .attr("class", "tracemon-svg");
 
             this.pathsContainer = this.svg
                 .append("g")
@@ -108,6 +107,22 @@ define([
             this.nodesContainer = this.svg
                 .append("g")
                 .attr("class", "nodes");
+
+            this.graph.initGraph(
+                parseInt(this.svg.style("width").replace("px", "")),
+                parseInt(this.svg.style("height").replace("px", "")),
+                {
+                    margin: { top: 100, bottom: 100, left: 150, right: 150 }
+                }
+            );
+
+            env.template.dom.main
+                .append(env.template.controlPanel)
+                // .append(env.template.infoHeader.container)
+                // .append(this.dom.chartDiv)
+                // .append(env.template.timeOverview)
+                .append(env.template.footer);
+
 
         };
 
@@ -174,9 +189,9 @@ define([
             status = [];
 
             for (var msmId in newStatus) {
-                    for (var source in newStatus[msmId]) {
-                        status.push(newStatus[msmId][source]);
-                    }
+                for (var source in newStatus[msmId]) {
+                    status.push(newStatus[msmId][source]);
+                }
             }
 
             return status;
