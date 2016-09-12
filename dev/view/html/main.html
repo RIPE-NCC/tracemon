@@ -1,8 +1,44 @@
 <div class="tracemon-content">
     <img src="dev/view/img/loading2.gif" class="loading-image" style="left: 50%; top: 50%; display: none;">
     <div class="error-message"></div>
-    <svg class="tracemon-svg"></svg>
+    <div class="tracemon-header">
+        <div class="tracemon-title">
+            <div class="padded-text">Traceroute Route Visualisation</div>
+        </div>
+        <div class="tracemon-right-controllers">
 
+            <div class="right-controller tracemon-search">
+                <div>{{>search}}</div>
+            </div>
+
+            <div class="bootstrap-slider right-controller reproduction-speed">
+
+                <div class="input-label">Speed: <span class="value-slider"></span></div>
+
+                <input data-slider-id='ex1Slider' type="text" data-slider-min="0"
+                       data-slider-max="20" data-slider-step="1" data-slider-value="14"/>
+            </div>
+
+            <div class="bootstrap-slider right-controller hops-number">
+
+                <div class="input-label">Hops: <span class="value-slider">1-{{env.maxNumberHops}}</span></div>
+
+                <input data-slider-id='ex2Slider' type="text" data-slider-min="1"
+                       data-slider-max="{{maxPossibleHops}}" data-slider-step="1"
+                       data-slider-value="[1, {{env.maxNumberHops}}]" />
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="tracemon-controller">
+        <div class="controller-line">Traceroutes to {{values.target}}</div>
+        <div class="controller-line">From {{values.numberProbes}} of {{values.totalProbes}} probes (select)</div>
+        <div class="controller-line">From {{probes}} (select)</div>
+    </div>
+    <svg class="tracemon-svg"></svg>
+    {{lang.test}}
     <div class="tracemon-footer">
         <div class="tracemon-about footer-item">
         </div>

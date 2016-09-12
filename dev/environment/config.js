@@ -32,6 +32,7 @@ define([], function(){
         checkRealtime: false,
         eventGroupingAntiFlood: 800,
         historyEmulationEventDuration: 5000,
+        templatesLocation: "http://localhost:63342/viz-atlas-tracemon/dev/view/html/",
 
         transitionsTimes:{
             pathChange: 2000,

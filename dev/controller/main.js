@@ -159,7 +159,7 @@ define([
 
         this.loadMeasurements([{id: 4471092}], function (){ // 3749061, 4471092 (loop on *)
 
-            env.template.showLoadingImage(true);
+            // env.template.showLoadingImage(true);
 
             for (var msmId in $this.loadedMeasurements) {
                 console.log($this.loadedMeasurements[msmId]);
@@ -172,7 +172,7 @@ define([
                 }).done(function (measurement) {
                     env.historyManager.addMeasurement(measurement);
 
-                    env.template.showLoadingImage(false);
+                    // env.template.showLoadingImage(false);
 
                     utils.observer.publish("new-measurement", measurement);
                     if (config.checkRealtime) {

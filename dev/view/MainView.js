@@ -96,9 +96,7 @@ define([
 
         this._initChart = function(){
             this.svg = d3
-                .select(env.template.dom.main[0])
-                .append("svg")
-                .attr("class", "tracemon-svg");
+                .select(env.template.dom.svg[0]);
 
             this.pathsContainer = this.svg
                 .append("g")
@@ -116,12 +114,6 @@ define([
                 }
             );
 
-            env.template.dom.main
-                .append(env.template.controlPanel)
-                // .append(env.template.infoHeader.container)
-                // .append(this.dom.chartDiv)
-                // .append(env.template.timeOverview)
-                .append(env.template.footer);
 
 
         };

@@ -13,7 +13,8 @@
         "latencymon.lib.jquery-ui",
         "latencymon.lib.jquery-ui.timepicker",
         "latencymon.lib.bootstrap",
-        "latencymon.lib.bootstrap-table"
+        "latencymon.lib.bootstrap-table",
+        "tracemon.lib.bootstrap-slider"
     ],
 
     paths:{
@@ -21,6 +22,7 @@
         "latencymon.lib.jquery-ui": "dev/libs/jquery/jquery-ui.min",
         "latencymon.lib.jquery-ui.timepicker": "dev/libs/jquery/jquery-ui.timepicker",
         "latencymon.lib.bootstrap": "dev/libs/bootstrap/js/bootstrap.min",
+        "tracemon.lib.bootstrap-slider": "dev/libs/bootstrap-slider",
         "latencymon.lib.bootstrap-table": "dev/libs/bootstrap-table/bootstrap-table.min"
     },
 

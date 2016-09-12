@@ -1,8 +1,7 @@
 .tracemon-content{
     margin: auto;
-    padding-top: 4px;
     min-height: 600px;
-    font-size: 10px;
+    font-size: 12px;
     font-family: sans-serif;
     position: relative;
     border: 1px solid #C0C0C0;
@@ -13,6 +12,11 @@
     min-width: 860px!important;
 }
 
+.tracemon-search {
+    width: 250px!important;
+    float: right;
+    display: block;
+}
 
 .node {
     fill: #EDD37B;
@@ -64,7 +68,7 @@
     opacity: 0.8;
     fill: #454545;
     font-weight: bold;
-    font-size: 11px;
+    font-size: 10px!important;
 }
 
 .dot.direction {
@@ -123,117 +127,6 @@
     right: 0 !important;
 }
 
-
-
-
-.control-panel{
-    z-index: 4;
-}
-
-.button-group .left-bar .button{
-    border-right: 1px solid #C0C0C0;
-    float: left;
-}
-
-.button-group .right-bar .button{
-    border-left: 1px solid #C0C0C0;
-    float: right;
-}
-
-.control-panel .button{
-    width: 26px;
-    text-align: center;
-    cursor: pointer;
-}
-
-
-
-.button-group .right-bar .button{
-    border-left: 1px solid #C0C0C0;
-    float: right;
-}
-
-.control-panel .button{
-    width: 26px;
-    text-align: center;
-    cursor: pointer;
-}
-
-.control-panel .legend{
-    width: 310px;
-    float: left;
-    margin-top: 3px;
-    margin-left: 3px;
-    text-shadow: 1px 1px 2px #C0C0C0;
-}
-
-.button-group {
-    height: 26px;
-    width: 98%;
-    border: 1px solid #CCC;
-    margin-left: 11px;
-    padding: 4px 4px 2px 4px;
-    display: inline-block;
-    background-color: #FFFFFF;
-    background-image: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#D0D0D0));
-    background-image: -webkit-linear-gradient(top, #FFFFFF, #D0D0D0);
-    background-image:    -moz-linear-gradient(top, #FFFFFF, #D0D0D0);
-    background-image:      -o-linear-gradient(top, #FFFFFF, #D0D0D0);
-    background-image:         linear-gradient(to bottom, #FFFFFF, #D0D0D0);
-    border-radius: 5px;
-}
-
-
-.dropdown-panel{
-    width: 950px;
-    position: absolute;
-    top: 29px;
-    left: 40px;
-    background: #fdfdfd;
-    z-index: 1000000!important;
-    border-bottom-right-radius: 5px;
-    border-bottom-left-radius: 5px;
-    border: 1px solid #CCC;
-    box-shadow: 1px 1px 1px 2px rgba(179, 179, 179, 0.37);
-    overflow: hidden;
-}
-
-.footer-dropdown-panel{
-    width: 100%;
-    height: 56px;
-    position: absolute;
-    bottom: 0;
-    background: #eaeaea;
-    border-top: 1px solid #CCC;
-    text-align: right;
-}
-
-.footer-dropdown-panel button{
-    margin-top: 10px;
-    margin-right: 20px;
-    position: relative;
-}
-
-.header-dropdown-panel{
-    font-size: 18px;
-    margin: 10px;
-    margin-bottom: 2px;
-    margin-top: 8px;
-    width: 90%;
-    float: left;
-    text-shadow: 1px 1px 1px #C0C0C0;
-}
-
-.content-dropdown-panel{
-    margin: 10px;
-    margin-top: 0;
-    line-height: 2;
-}
-
-.probe-list{
-    font-size: 14px;
-}
-
 .tracemon-footer{
     width: 100%;
     height: 16px;
@@ -249,7 +142,65 @@
     margin-right: 8px;
 }
 
+.tracemon-title {
+    width: 50%;
+    height: 30px;
+    font-size: 12px;
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+}
 
+.tracemon-right-controllers {
+    width: 50%;
+    height: 100%;
+    padding-right: 10px;
+    position: absolute;
+    right: 0;
+}
+
+.tracemon-header {
+    border-bottom: 1px solid #C0C0C0;
+    position: relative;
+    height: 40px;
+    padding-top: 3px;
+}
+
+.tracemon-controller {
+
+}
+
+.tracemon-controller .controller-line {
+    margin-left: 10px;
+    margin-top: 5px;
+}
+
+.padded-text {
+    margin-left: 5px;
+    margin-right: 5px;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.input-label {
+    margin-left: 5px;
+    margin-right: 5px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.right-controller {
+    float: right;
+    display: inline;
+    margin-left: 10px;
+    height: 100%;
+    min-width: 120px;
+}
+
+.value-slider {
+    font-weight: normal;
+}
 
 
 

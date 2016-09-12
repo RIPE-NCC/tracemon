@@ -22,6 +22,7 @@ requirejs.config({
         "tracemon.lib.tree-map": TRACEMON_LIB_URL + "TreeMap",
         "tracemon.lib.date-format": TRACEMON_LIB_URL + "dateFormat",
         "tracemon.lib.bootstrap": TRACEMON_LIB_URL + "bootstrap/js/bootstrap.min",
+        "tracemon.lib.bootstrap-slider": TRACEMON_LIB_URL + "bootstrap-slider/js/bootstrap-slider",
         "tracemon.lib.socket-io": TRACEMON_LIB_URL + "socket.io",
         "tracemon.lib.bootstrap-table": TRACEMON_LIB_URL + "bootstrap-table/bootstrap-table.min",
         "tracemon.lib.jquery-amd": TRACEMON_LIB_URL + "jquery-libs-amd",
@@ -31,6 +32,12 @@ requirejs.config({
 
         "tracemon.lib.dagre-d3": TRACEMON_LIB_URL + "dagre-d3",
         "tracemon.lib.dagre": TRACEMON_LIB_URL + "dagre",
+
+
+        "tracemon.lib.mustache": TRACEMON_LIB_URL + "mustache",
+        "tracemon.lib.handlebars": TRACEMON_LIB_URL + "handlebars",
+        "tracemon.lib.text": TRACEMON_LIB_URL + "require-text",
+        "tracemon.lib.stache": TRACEMON_LIB_URL + "stache",
 
 
 
@@ -119,6 +126,11 @@ requirejs.config({
         "tracemon.lib.dagre": {
             exports: 'dagre'
         }
+    },
+
+    stache: {
+        extension: '.html', // default = '.html'
+        path: 'dev/view/html/' // default = ''
     }
 });
 
@@ -160,6 +172,7 @@ define([
             "aggregateIPv4": instanceParams.aggregateIPv4 || config.defaultAggregationIPv4,
             "aggregateIPv6": instanceParams.aggregateIPv6 || config.defaultAggregationIPv6,
             "maxNumberHops": instanceParams.maxNumberHops || config.maxNumberHops,
+            "templatesLocation": instanceParams.templatesLocation || config.templatesLocation,
             "parentDom": $(parentDom),
             "queryParams": queryParams
         };
@@ -187,7 +200,9 @@ define([
                 TRACEMON_LIB_URL + "jquery/jquery-ui.min.css",
                 TRACEMON_LIB_URL + "bootstrap/css/bootstrap.min.css",
                 TRACEMON_LIB_URL + "bootstrap/css/bootstrap-theme.min.css",
-                TRACEMON_LIB_URL + "bootstrap-table/bootstrap-table.min.css"
+                TRACEMON_LIB_URL + "bootstrap-table/bootstrap-table.min.css",
+                TRACEMON_LIB_URL + "bootstrap-slider/css/bootstrap-slider.css",
+                TRACEMON_VIEW_URL + "css/bootstrap-search.css"
             ];
 
         }
