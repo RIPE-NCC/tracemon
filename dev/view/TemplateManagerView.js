@@ -8,8 +8,10 @@ define([
     "tracemon.env.languages.en",
     "tracemon.lib.jquery-amd",
     "tracemon.lib.stache!main",
-    "tracemon.lib.stache!search"
-], function(utils, config, lang, $, template, search){
+    "tracemon.lib.stache!search",
+    "tracemon.lib.stache!select-view",
+    "tracemon.lib.stache!probes-selection"
+], function(utils, config, lang, $, template, search, selectView, probesSelection){
 
     /**
      * TemplateManagerView is the component in charge of creating and manipulating the HTML dom elements.
@@ -20,12 +22,6 @@ define([
      */
 
     var TemplateManagerView = function(env){
-        var templates, templatesLocation;
-
-        templatesLocation = env.templatesLocation;
-        templates = {
-            main: templatesLocation + "main.html"
-        };
 
         this.lang = lang;
         this.env = env;
@@ -37,14 +33,27 @@ define([
         this.values.totalProbes = 50;
 
         this.maxPossibleHops = function(){
-          return 15; // Compute the maximum number of hops for the loaded traceroute
+            return 15; // Compute the maximum number of hops for the loaded traceroute
+        };
+
+        this.getViews = function(){
+            return Object.keys(lang.views)
+                .map(function(key) {
+                    return lang.views[key];
+                })
+        };
+
+        this.getViewLabel = function () {
+            return lang.views[env.viewName];
         };
 
         this.init = function() {
             var html, partials;
 
             partials = {
-                "search": search(this)
+                "search": search(this),
+                "select-view": selectView(this),
+                "probes-selection": probesSelection(this)
             };
 
             html = $(template(this, partials));
@@ -52,24 +61,45 @@ define([
             this.dom.svg = html.find(".tracemon-svg");
 
             env.parentDom
-                .find('.bootstrap-slider  input')
+                .find('.reproduction-speed>input')
                 .slider({
+                    value: env.reproductionSpeed,
                     step: 1,
-                    min: 0,
-                    max: 10,
+                    min: 1,
+                    max: config.maxReproductionSpeed
+                })
+                .on("slide", function(slideEvt) {
 
-                    formatter: function(value) {
-                        // console.log(value);
-                        return parseInt(value);
-                    }
+                    $(slideEvt.target)
+                        .closest(".bootstrap-slider")
+                        .find(".value-slider")
+                        .text(slideEvt.value);
+                });
+
+            env.parentDom
+                .find('.hops-number>input')
+                .slider({
+                    value: [1, env.maxNumberHops],
+                    step: 1,
+                    min: 1,
+                    max: this.maxPossibleHops()
                 })
                 .on("slide", function(slideEvt) {
                     $(slideEvt.target)
-                        .closest(".right-controller")
+                        .closest(".bootstrap-slider")
                         .find(".value-slider")
-                        .html(slideEvt.value[0] + '-' + slideEvt.value[1]);
+                        .text(slideEvt.value[0] + '-' + slideEvt.value[1]);
                 });
 
+            $(".select-view")
+                .find("li")
+                .click(function(){
+                    var option = $(this);
+                    option
+                        .closest(".select-view")
+                        .find('.dropdown-toggle')
+                        .html(option.text() + ' <span class="caret"></span>');
+                });
 
         };
 

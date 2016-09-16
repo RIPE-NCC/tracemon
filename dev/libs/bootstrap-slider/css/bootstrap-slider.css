@@ -28,8 +28,10 @@
  * ========================================================= */
 .slider {
     display: inline-block;
-    vertical-align: middle;
+    /*vertical-align: middle;*/
     position: relative;
+    bottom: 0;
+    /*margin-top: 20px;*/
 }
 .slider.slider-horizontal {
     width: 210px;

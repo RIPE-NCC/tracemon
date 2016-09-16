@@ -584,11 +584,12 @@ define([
                 .select("path.path-" + tracerouteId);
 
             setTimeout(function(){
-                element.style("stroke-width", "8px");
+                element
+                    .attr("data-hover", null);
             }, config.transitionsTimes.pathChange);
 
             element
-                .style("stroke-width", "15px")
+                .attr("data-hover", true)
                 .transition()
                 .duration(config.transitionsTimes.pathChange)
                 .ease("linear")

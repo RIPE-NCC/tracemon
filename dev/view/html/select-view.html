@@ -1,0 +1,11 @@
+<div class="btn-group select-view">
+    <button type="button" class="btn btn-xs btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{getViewLabel}} <span class="caret"></span>                </button>
+    <ul class="dropdown-menu">
+        {{#getViews}}
+        <li><a href="#">{{.}}</a></li>
+        {{/getViews}}
+
+        <!--<li><a href="#">Autonomous System</a></li>-->
+        <!--<li><a href="#">Country</a></li>-->
+    </ul>
+</div>

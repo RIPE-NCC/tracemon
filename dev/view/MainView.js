@@ -80,10 +80,15 @@ define([
         };
 
         this._firstDraw = function(newStatus){
-            var diff;
+            var diff, maxLengthTraceroute;
 
-            this._initChart();
             diff = this._computeDiff(this._oldStatus, newStatus);
+            maxLengthTraceroute = Math.max.apply(null, $.map(diff.newTraceroutes, function(item){
+                return item.getLength();
+            }));
+
+            this._initChart(maxLengthTraceroute);
+
             this._oldStatus = newStatus;
 
             this.view = this._getView();
@@ -94,7 +99,9 @@ define([
         };
 
 
-        this._initChart = function(){
+        this._initChart = function(maxLengthTraceroute){
+            var svgHeight;
+
             this.svg = d3
                 .select(env.template.dom.svg[0]);
 
@@ -106,9 +113,12 @@ define([
                 .append("g")
                 .attr("class", "nodes");
 
+            svgHeight = Math.max(this.svg.style("height").replace("px", ""), maxLengthTraceroute * config.graph.verticalNodeDistance);
+            this.svg.style("height", svgHeight);
+
             this.graph.initGraph(
                 parseInt(this.svg.style("width").replace("px", "")),
-                parseInt(this.svg.style("height").replace("px", "")),
+                parseInt(svgHeight),
                 {
                     margin: { top: 100, bottom: 100, left: 150, right: 150 }
                 }

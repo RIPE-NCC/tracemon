@@ -1,6 +1,6 @@
 .tracemon-content{
     margin: auto;
-    min-height: 600px;
+    min-height: 1024px;
     font-size: 12px;
     font-family: sans-serif;
     position: relative;
@@ -20,8 +20,8 @@
 
 .node {
     fill: #EDD37B;
-    stroke-dasharray: 6,6;
-    stroke-width: 2;
+    stroke-dasharray: 4,4;
+    stroke-width: 1;
     stroke: #5A5D5E;
 }
 
@@ -50,13 +50,13 @@
 
 .path {
     stroke: #C0C0C0;
-    stroke-width: 8;
+    stroke-width: 6;
     opacity: 0.5;
     fill: none;
 }
 
 .path[data-hover] {
-    stroke-width: 15px!important;
+    stroke-width: 11px!important;
     cursor: pointer;
     opacity: 0.5!important;
 }
@@ -83,7 +83,7 @@
 
 .tracemon-svg {
     width: 100%;
-    height: 2000px!important;
+    height: 200px;
 }
 
 
@@ -152,7 +152,7 @@
 }
 
 .tracemon-right-controllers {
-    width: 50%;
+    width: 800px;
     height: 100%;
     padding-right: 10px;
     position: absolute;
@@ -167,7 +167,7 @@
 }
 
 .tracemon-controller {
-
+    border-bottom: 1px solid #c0c0c0;
 }
 
 .tracemon-controller .controller-line {
@@ -202,28 +202,27 @@
     font-weight: normal;
 }
 
-
-
-/* TRACEMON */
-
-/* This sets the color for "TK" nodes to a light blue green. */
-g.type-TK > rect {
-    fill: #00ffd0;
+.bootstrap-slider{
+    height: 100%;
 }
 
-text {
-    font-weight: 300;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
-    font-size: 14px;
-}
 
-.node rect {
-    stroke: #999;
-    fill: #fff;
-    stroke-width: 1.5px;
-}
 
-.edgePath path {
-    stroke: #333;
-    stroke-width: 1.5px;
+.btn-group > .btn:first-of-type {
+    margin-left: 0;
+    -webkit-border-top-left-radius: 4px;
+    -moz-border-radius-topleft: 4px;
+    border-top-left-radius: 4px;
+    -webkit-border-bottom-left-radius: 4px;
+    -moz-border-radius-bottomleft: 4px;
+    border-bottom-left-radius: 4px;
+}
+.btn-group > .btn:last-of-type,
+.btn-group > .dropdown-toggle {
+    -webkit-border-top-right-radius: 4px;
+    -moz-border-radius-topright: 4px;
+    border-top-right-radius: 4px;
+    -webkit-border-bottom-right-radius: 4px;
+    -moz-border-radius-bottomright: 4px;
+    border-bottom-right-radius: 4px;
 }

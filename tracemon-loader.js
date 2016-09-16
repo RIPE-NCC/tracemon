@@ -23,6 +23,8 @@ requirejs.config({
         "tracemon.lib.date-format": TRACEMON_LIB_URL + "dateFormat",
         "tracemon.lib.bootstrap": TRACEMON_LIB_URL + "bootstrap/js/bootstrap.min",
         "tracemon.lib.bootstrap-slider": TRACEMON_LIB_URL + "bootstrap-slider/js/bootstrap-slider",
+        "tracemon.lib.bootstrap-select": TRACEMON_LIB_URL + "bootstrap-select/js/bootstrap-select",
+
         "tracemon.lib.socket-io": TRACEMON_LIB_URL + "socket.io",
         "tracemon.lib.bootstrap-table": TRACEMON_LIB_URL + "bootstrap-table/bootstrap-table.min",
         "tracemon.lib.jquery-amd": TRACEMON_LIB_URL + "jquery-libs-amd",
@@ -173,6 +175,7 @@ define([
             "aggregateIPv6": instanceParams.aggregateIPv6 || config.defaultAggregationIPv6,
             "maxNumberHops": instanceParams.maxNumberHops || config.maxNumberHops,
             "templatesLocation": instanceParams.templatesLocation || config.templatesLocation,
+            "reproductionSpeed":  instanceParams.reproductionSpeed || config.reproductionSpeed,
             "parentDom": $(parentDom),
             "queryParams": queryParams
         };

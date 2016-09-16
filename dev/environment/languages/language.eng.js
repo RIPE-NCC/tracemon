@@ -6,6 +6,10 @@
 define([], function(){
     return {
 
-        test: "ciao"
+        views: {
+            host: "IP",
+            asn: "Autonomous System",
+            country: "Country"
+        }
     }
 });

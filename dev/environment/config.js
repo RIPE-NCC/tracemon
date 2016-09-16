@@ -27,6 +27,8 @@ define([], function(){
         defaultAggregationIPv6: false, //
         streamingUrl: "https://atlas-stream.ripe.net:443",
         viewsEnabled: ["host", "as"],
+        reproductionSpeed: 5,
+        maxReproductionSpeed: 10,
         ixpHostCheck: true,
         maxNumberHops: 10,
         checkRealtime: false,
@@ -41,11 +43,12 @@ define([], function(){
 
         graph: {
             pathInterpolation: "basis",
-            nodeRadius: 10,
-            nodeSelectedRadius: 15,
+            nodeRadius: 7,
+            nodeSelectedRadius: 10,
             notHighlightedOpacity: 0.2,
-            highlightedOpacity: 0.8,
+            highlightedOpacity: 0.7,
             normalOpacity: 1,
+            verticalNodeDistance: 90,
 
             asColors: ["#ff0000", "#ffcc00", "#00ffaa", "#005299", "#f780ff", "#590000", "#594700", "#bfffea", "#bfe1ff",
                 "#590053", "#99574d", "#66644d", "#005947", "#001433", "#b3008f", "#992900", "#8f9900", "#00ffee", "#001f73",
