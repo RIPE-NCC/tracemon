@@ -42,6 +42,8 @@ define([
         this.hostByIp = {};
         this.cacheDeferredCallsAS = {};
         this.measurementById = {};
+        this.probesByMsm = {};
+        this.probesById = {};
 
         this.asList = {};
 
@@ -388,6 +390,57 @@ define([
 
             return deferredCall.promise();
         };
+
+
+        this.getProbeInfo = function(probeId){
+            return $this.probesById[probeId];
+        };
+
+
+        this.getProbesInfo = function(measurementId){
+            var deferredCall;
+
+            deferredCall = $.Deferred();
+
+            if (this.probesByMsm[measurementId]){
+                deferredCall.resolve(this.probesByMsm[measurementId]);
+            } else {
+                historyConnector
+                    .getProbesInfo(measurementId)
+                    .done(function (data) {
+                        var probes, probe, probesArray, probeTmp;
+
+                        probes = data["probes"];
+                        probesArray = [];
+
+                        for (var n=0,length=probes.length; n<length; n++) {
+                            probe = probes[n];
+
+                            if ($this.probesById[probe.id]) {
+                                $this.probesById[probe.id].msmId = ',' + measurementId;
+                            } else {
+                                probeTmp = {
+                                    id: probe.id,
+                                    select: false,
+                                    msmid: measurementId,
+                                    cc: probe.country_code,
+                                    asv4: probe.asn_v4,
+                                    asv6: probe.asn_v6,
+                                    ipv4: probe.address_v4,
+                                    ipv6: probe.address_v6
+                                };
+
+                                probesArray.push(probeTmp);
+                                $this.probesById[probe.id] = probeTmp;
+                            }
+                        }
+                        $this.probesByMsm[measurementId] = probesArray;
+                        deferredCall.resolve(probesArray);
+                    });
+            }
+
+            return deferredCall.promise();
+        }
     };
 
     return TranslationConnector;

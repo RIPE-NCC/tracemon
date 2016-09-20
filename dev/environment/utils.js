@@ -245,13 +245,13 @@ define([
                 p3x = d.x,
                 p3y = d.y,
 
-            /// calc difference between the coords
+                /// calc difference between the coords
                 d1x = p1x - p0x,
                 d1y = p1y - p0y,
                 d2x = p3x - p2x,
                 d2y = p3y - p2y,
 
-            /// determinator
+                /// determinator
                 d = d1x * d2y - d2x * d1y,
 
                 px, py,
@@ -775,6 +775,18 @@ define([
             ip = ip.replace(/\*/g, "");
 
             return ip;
+        },
+
+        arrayUnique: function(values){
+            var u = {}, a = [];
+            for(var i = 0, l = values.length; i < l; ++i){
+                if(u.hasOwnProperty(values[i])) {
+                    continue;
+                }
+                a.push(values[i]);
+                u[values[i]] = 1;
+            }
+            return a;
         },
 
         rotate: function(center, point, angle){

@@ -40,10 +40,10 @@ define([
                     this._historyTimeline.push(traceroutes[n].date);
                 }
             }
-
-            this.emulateHistory(function(state){
-
-            });
+            //
+            // this.emulateHistory(function(state){
+            //
+            // });
         };
 
         this.getHistoryTimeline = function(){

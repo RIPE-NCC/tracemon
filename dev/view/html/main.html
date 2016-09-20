@@ -28,7 +28,7 @@
     </div>
 
     <div class="tracemon-controller">
-        <div class="controller-line">Traceroutes to {{values.target}} from {{values.numberProbes}} of {{values.totalProbes}} probes (select)</div>
+        <div class="controller-line">Traceroutes to {{values.target}} from <span class="value-number-probes">{{values.numberProbes}}</span> of {{values.totalProbes}} probes (<span class="clickable click-select-probe">select</span>)</div>
         {{>probes-selection}}
 
         <div class="controller-line">Hosts grouped by {{>select-view}}</div>

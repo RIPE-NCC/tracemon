@@ -16,20 +16,10 @@ define([
             HistoryManager, TemplateManagerView) {
 
     var main = function (env) {
-        var $this, timeOverviewInitialised, now, firstTimeInit;
+        var $this, now, firstTimeInit;
 
         $this = this;
-        env.historyManager = new HistoryManager(env);
-        env.template = new TemplateManagerView(env);
-        now = utils.getUTCDate();
-        this.availableProbes = {};
-        this.groups = {};
-        this.inputSelection = {};
-        firstTimeInit = true;
 
-        utils.observer.subscribe("init-status", function(){
-            firstTimeInit = false;
-        }, this);
 
         this.exposedMethods = ["setStringTimeRange", "setTimeRange", "addMeasurementAndGroup", "autoGroupMeasurements",
             "addMeasurement", "addProbes", "addProbe", "addGroup", "removeGroup", "removeProbe", "setDataFilter",
@@ -62,9 +52,6 @@ define([
         this.applyUrl = function(){
             this.applyConfiguration(env.urlManager.getConfigurationFromUrl());
         };
-
-
-
 
         this.applyConfiguration = function(conf){
             var measurementCounter, callsAddMeasurements;
@@ -118,23 +105,7 @@ define([
                     });
 
             }
-            // DONT DELETE THIS IS A GOOD SORTING FUNCTION
-            //setTimeout(function() {
-            //    console.log("eseguito");
-            //    for (var g=0,lengthGroups=conf.groups.length; g<lengthGroups-1; g++) {
-            //        console.log('#chart-probe-' + conf.groups[g].id, '#chart-probe-' + conf.groups[g + 1].id);
-            //        $('#chart-probe-' + conf.groups[g].id).insertBefore($('#chart-probe-' + conf.groups[g + 1].id));
-            //    }
-            //}, 20000);
-
-
         };
-
-        var main = new MainView(env);
-        var c = new Connector(env);
-
-        env.connector = c; // TODO: Temporary, refactor!
-
 
         /*
          * msmList format [{id: 81881, sources: [11,22,99]}]
@@ -144,7 +115,7 @@ define([
             this.loadedMeasurements = {}; // reset
 
             $.when.apply($, $.map(msmList, function (msm){
-                return c
+                return env.connector
                     .getMeasurementInfo(msm.id, {sources: msm.sources})
                     .done(function (measurement) {
                         $this.loadedMeasurements[measurement.id] = measurement;
@@ -152,36 +123,6 @@ define([
             }))
                 .done(callback);
         };
-
-
-
-
-
-        this.loadMeasurements([{id: 4471092}], function (){ // 3749061, 4471092 (loop on *)
-
-            // env.template.showLoadingImage(true);
-
-            for (var msmId in $this.loadedMeasurements) {
-                console.log($this.loadedMeasurements[msmId]);
-
-                c.getInitialDump($this.loadedMeasurements[msmId], {
-                    // startDate: utils.timestampToUTCDate(1462250698),
-                    startDate: utils.timestampToUTCDate(1470318491),
-                    // stopDate: utils.timestampToUTCDate(1462270698)
-                    stopDate: utils.timestampToUTCDate(1470322091)
-                }).done(function (measurement) {
-                    env.historyManager.addMeasurement(measurement);
-
-                    // env.template.showLoadingImage(false);
-
-                    utils.observer.publish("new-measurement", measurement);
-                    if (config.checkRealtime) {
-                        c.getRealTimeResults(measurement, {msm: measurement.id});
-                    }
-                    });
-            }
-
-        });
 
 
         // If you want to load only a set of traceroutes you need <msmId, sources> for each msmId involved
@@ -212,6 +153,46 @@ define([
         };
 
         this.init = function(){
+            env.connector = new Connector(env);
+            env.historyManager = new HistoryManager(env);
+            env.template = new TemplateManagerView(env);
+            env.mainView = new MainView(env);
+
+
+            now = utils.getUTCDate();
+            this.groups = {};
+            firstTimeInit = true;
+
+            utils.observer.subscribe("init-status", function(){
+                firstTimeInit = false;
+            }, this);
+
+
+
+            this.loadMeasurements([{id: 4471092}], function (){ // 3749061, 4471092 (loop on *)
+
+                // env.template.showLoadingImage(true);
+
+                for (var msmId in $this.loadedMeasurements) {
+
+                    env.connector.getInitialDump($this.loadedMeasurements[msmId], {
+                        // startDate: utils.timestampToUTCDate(1462250698),
+                        startDate: utils.timestampToUTCDate(1470318491),
+                        // stopDate: utils.timestampToUTCDate(1462270698)
+                        stopDate: utils.timestampToUTCDate(1470322091)
+                    }).done(function (measurement) {
+                        env.historyManager.addMeasurement(measurement);
+
+                        // env.template.showLoadingImage(false);
+
+                        utils.observer.publish("new-measurement", measurement);
+                        if (config.checkRealtime) {
+                            env.connector.getRealTimeResults(measurement, { msm: measurement.id });
+                        }
+                    });
+                }
+
+            });
 
         };
 

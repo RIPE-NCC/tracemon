@@ -153,6 +153,21 @@ define([
             return neighboursByAsn[asn];
         };
 
+        this.getProbesInfo = function(measurementId){
+
+            return $.ajax({
+                dataType: "jsonp",
+                cache: false,
+                url: env.dataApiMetadata.replace("0000", measurementId),
+                data: {
+                    type: "jsonp"
+                },
+                error: function () {
+                    env.main.error("It is not possible to retrieve measurement information for this ID", "connection-fail");
+                }
+            });
+        };
+
 
     };
 

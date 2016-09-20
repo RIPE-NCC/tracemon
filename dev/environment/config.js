@@ -22,6 +22,7 @@ define([], function(){
                 prefixes: "http://localhost/peering_db.php?type=ixpfx"
             }
         },
+        autoStart: true,
         defaultViewName: "as",
         defaultAggregationIPv4: false, //
         defaultAggregationIPv6: false, //
@@ -38,7 +39,7 @@ define([], function(){
 
         transitionsTimes:{
             pathChange: 2000,
-            nodeRemoval: 5000
+            nodeRemoval: 3000
         },
 
         graph: {

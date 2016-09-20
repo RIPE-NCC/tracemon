@@ -22,15 +22,25 @@ define([
      */
 
     var TemplateManagerView = function(env){
+        var $this;
 
+        $this = this;
         this.lang = lang;
         this.env = env;
         this.values = {};
         this.dom = {};
+        this.loadedProbes = [];
+
+        // utils.observer.subscribe("new-measurement", this.updateTemplatesInfo, this);
+
+
+        this.updateTemplatesInfo = function(){
+
+        };
 
         this.values.target = "dominio";
-        this.values.numberProbes = 15;
-        this.values.totalProbes = 50;
+        // this.values.totalProbes = this.loadedProbes.length;
+        // this.values.numberProbes = env.mainView.shownSources ? Object.keys(env.mainView.shownSources).length : this.values.totalProbes;
 
         this.maxPossibleHops = function(){
             return 15; // Compute the maximum number of hops for the loaded traceroute
@@ -46,6 +56,129 @@ define([
         this.getViewLabel = function () {
             return lang.views[env.viewName];
         };
+
+
+        this.populateProbeList = function(data){
+            var table, parent;
+
+            this.loadedProbes = data;
+            parent = env.parentDom.find(".add-probe-panel");
+            table = parent.find('.probe-list');
+
+            parent.show();
+            parent
+                .find(".close-panel")
+                .on("mouseup", function(){
+                    parent.fadeOut();
+                });
+
+            parent
+                .find(".add-probe")
+                .on("mouseup", function(){
+                    var probeSet = $.map(
+                        env.parentDom.find('.probe-list').bootstrapTable('getSelections'),
+                        function(probe){
+                            return probe.id;
+                        });
+
+                    $this.values.numberProbes = probeSet.length;
+                    env.parentDom.find('.value-number-probes').text($this.values.numberProbes);
+
+                    utils.observer.publish("probe-set-changed", probeSet);
+                    parent.fadeOut();
+                });
+
+            if (table.is(".table-condensed")){
+                table.bootstrapTable('load', data)
+            } else {
+                table
+                    .addClass("table-condensed")
+                    .bootstrapTable({
+                        striped: true,
+                        clickToSelect: true,
+                        checkboxHeader: true,
+                        sortOrder: "desc",
+                        sortName: "name",
+                        pagination: true,
+                        showPaginationSwitch: false,
+                        pageSize: 8,
+                        pageList: [],
+                        maintainSelected: true,
+                        smartDisplay: true,
+                        sidePagination: "client",
+                        dataShowPaginationSwitch: true,
+                        showFooter: false,
+                        sortable: true,
+                        search: true,
+                        checkedBooleanField: "checked",
+                        onCheckAll: function(){
+                            var groupName;
+
+                            groupName = env.parentDom.find(".group-name>input");
+                            if (groupName.is(":visible")){
+                                groupName.val(env.parentDom.find(".search > input").val()).trigger("keyup");
+                            }
+                        },
+                        columns: [
+                            {
+                                field: 'select',
+                                title: 'Select',
+                                checkbox: true
+                            },
+                            {
+                                field: 'id',
+                                title: 'Probe ID',
+                                sortable: true
+                            }, {
+                                field: 'cc',
+                                sortable: true,
+                                title: 'Country'
+                            }, {
+                                field: 'asv4',
+                                sortable: true,
+                                title: 'ASv4'
+                            }, {
+                                field: 'asv6',
+                                sortable: true,
+                                title: 'ASv6'
+                            }, {
+                                field: 'ipv4',
+                                sortable: true,
+                                title: 'IPv4'
+                            }, {
+                                field: 'ipv6',
+                                sortable: true,
+                                title: 'IPv6'
+                            }, {
+                                field: 'msmid',
+                                sortable: true,
+                                title: 'Measurement ID'
+                            }
+                        ],
+                        data: data
+                    });
+            }
+
+            for (var n=0,length=data.length; n<length; n++){
+                var element;
+
+                element = table
+                    .find("tr[data-index]").find("td:eq(1):contains('" + data[n].id + "')")
+                    .closest("tr[data-index]");
+
+                if (data[n].empty) {
+                    element
+                        .addClass("empty-probe");
+                } else {
+                    element
+                        .removeClass("empty-probe");
+                }
+
+            }
+
+
+        };
+
 
         this.init = function() {
             var html, partials;
@@ -91,14 +224,22 @@ define([
                         .text(slideEvt.value[0] + '-' + slideEvt.value[1]);
                 });
 
-            $(".select-view")
-                .find("li")
+            env.parentDom
+                .find(".select-view li")
                 .click(function(){
                     var option = $(this);
                     option
                         .closest(".select-view")
                         .find('.dropdown-toggle')
                         .html(option.text() + ' <span class="caret"></span>');
+                });
+
+            env.parentDom
+                .find(".click-select-probe")
+                .on("click", function(){
+
+                    $this.populateProbeList(env.connector.loadedProbes);
+
                 });
 
         };

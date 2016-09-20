@@ -12,7 +12,9 @@ define([
         this._tracerouteSort = function(traceroute1, traceroute2){
             return traceroute1.date - traceroute2.date;
         };
+
     };
+
 
 
     Measurement.prototype.addTraceroutes = function(traceroutes){
@@ -34,12 +36,10 @@ define([
         }
     };
 
-
     Measurement.prototype._createIndex = function(list){
         this._traceroutesBySource = {};
         this._updateIndex(list);
     };
-
 
     Measurement.prototype._updateIndex = function(list){
         var item;
@@ -69,7 +69,6 @@ define([
     Measurement.prototype.getTraceroutes = function(){
         return this._traceroutes;
     };
-
 
     Measurement.prototype.getStateAt = function(date){
         var currentTraceroutes, traceroute, traceroutesForThisSource;

@@ -17,8 +17,8 @@ define([
         $this = this;
         this.hosts = {};
         this._oldStatus = {};
+        this.shownSources = {};
         firstDraw = true;
-        env.mainView = this;
         this.view = null;
         this.viewName = env.viewName;
 
@@ -28,6 +28,7 @@ define([
             utils.observer.subscribe("update-status", this.drawOrUpdate, this);
             utils.observer.subscribe("new-measurement", this.newMeasurement, this);
             utils.observer.subscribe("cut-hops-length", this._cutHops, this);
+            utils.observer.subscribe("probe-set-changed", this._updateShownSources, this);
             // utils.observer.subscribe("model-change", this.drawOrUpdate, this);
         };
 
@@ -40,9 +41,38 @@ define([
         };
 
 
+        this._updateShownSources = function(newSet){
+            this.shownSources = {};
+            for (var n=0,length=newSet.length; n<length; n++) {
+                this.shownSources[newSet[n]] = true;
+            }
+            env.historyManager.getLastState();
+        };
+
+
+        this._filterBySources = function(status){
+            var newStatus;
+
+            if (Object.keys(this.shownSources).length == 0){
+                return status;
+            } else {
+                newStatus = {};
+                for (var msm in status) {
+                    newStatus[msm] = {};
+                    for (var source in status[msm]) {
+                        if (this.shownSources[source]) {
+                            newStatus[msm][source] = status[msm][source];
+                        }
+                    }
+                }
+                return newStatus;
+            }
+        };
+
         this.drawOrUpdate = function(status){
             console.log("Drawing");
 
+            status = this._filterBySources(status);
             if (firstDraw){
                 this._firstDraw(status);
                 firstDraw = false;
@@ -128,31 +158,16 @@ define([
 
         };
 
-        //
-        // this._updateProxy = function (){
-        //
-        //
-        //     setTimeout();
-        // };
 
         this._update = function (newStatus){
             var diff;
 
             diff = this._computeDiff(this._oldStatus, newStatus);
-            // this._updateScene(diff);
             this.view.update(diff, function(){
                 console.log("updated");
             });
             this._oldStatus = newStatus;
         };
-
-        // this._updateScene = function (diff) {
-        //
-        //     for (var t=0,length = diff.newTraceroutes.length; t<length; t++) {
-        //         this.addTraceroute(diff.newTraceroutes[t]);
-        //     }
-        //
-        // };
 
 
         this._computeDiff = function(oldStatus, newStatus) {
@@ -207,7 +222,7 @@ define([
             for (var msmId in newStatus) {
                 if (oldStatus[msmId]) { // It is an old measurement
                     for (var source in newStatus[msmId]) {
-                        if (newStatus[msmId][source].getHash() != oldStatus[msmId][source].getHash()) {
+                        if (newStatus[msmId][source] && oldStatus[msmId][source] && newStatus[msmId][source].getHash() != oldStatus[msmId][source].getHash()) {
                             updatedTraceroute.push({ now: newStatus[msmId][source], before: oldStatus[msmId][source] });
                         }
                     }
