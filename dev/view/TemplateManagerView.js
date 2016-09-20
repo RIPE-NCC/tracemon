@@ -31,16 +31,24 @@ define([
         this.dom = {};
         this.loadedProbes = [];
 
-        // utils.observer.subscribe("new-measurement", this.updateTemplatesInfo, this);
+        this.setListeners = function(){
+            utils.observer.subscribe("draw", this.updateTemplatesInfo, this);
+        };
 
 
         this.updateTemplatesInfo = function(){
+            this.values.target = "google.it";
+            this.values.totalProbes = env.connector.loadedProbes.length;
+            this.values.numberProbes = this.values.numberProbes || Object.keys(env.mainView.shownSources).length;
 
+            env.parentDom.find('.value-target').text($this.getMonitoredTargets());
+            env.parentDom.find('.value-number-probes').text($this.values.numberProbes);
+            env.parentDom.find('.value-total-probes').text($this.values.totalProbes);
         };
 
-        this.values.target = "dominio";
-        // this.values.totalProbes = this.loadedProbes.length;
-        // this.values.numberProbes = env.mainView.shownSources ? Object.keys(env.mainView.shownSources).length : this.values.totalProbes;
+        this.getMonitoredTargets = function () {
+            return "TODO"; // TODO
+        };
 
         this.maxPossibleHops = function(){
             return 15; // Compute the maximum number of hops for the loaded traceroute
@@ -82,8 +90,6 @@ define([
                         });
 
                     $this.values.numberProbes = probeSet.length;
-                    env.parentDom.find('.value-number-probes').text($this.values.numberProbes);
-
                     utils.observer.publish("probe-set-changed", probeSet);
                     parent.fadeOut();
                 });
@@ -159,6 +165,7 @@ define([
                     });
             }
 
+
             for (var n=0,length=data.length; n<length; n++){
                 var element;
 
@@ -183,6 +190,7 @@ define([
         this.init = function() {
             var html, partials;
 
+            this.setListeners();
             partials = {
                 "search": search(this),
                 "select-view": selectView(this),
@@ -222,6 +230,9 @@ define([
                         .closest(".bootstrap-slider")
                         .find(".value-slider")
                         .text(slideEvt.value[0] + '-' + slideEvt.value[1]);
+
+
+
                 });
 
             env.parentDom
@@ -237,10 +248,17 @@ define([
             env.parentDom
                 .find(".click-select-probe")
                 .on("click", function(){
-
                     $this.populateProbeList(env.connector.loadedProbes);
-
                 });
+
+            env.parentDom
+                .find(".range-timeline")
+                .ionRangeSlider({
+                type: "double",
+                min: 1000000,
+                max: 2000000,
+                grid: true
+            });
 
         };
 

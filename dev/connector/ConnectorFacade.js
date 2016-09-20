@@ -139,7 +139,6 @@ define([
             return translationConnector.getProbeInfo(probeId);
         };
 
-
         this._enrichProbes = function(measurement){
             var replyingProbes, probesList;
 

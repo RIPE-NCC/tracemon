@@ -47,6 +47,9 @@ requirejs.config({
         "tracemon.lib.d3-magnetic-cursor": TRACEMON_LIB_URL + "d3-magnetic-cursor",
 
 
+        "tracemon.lib.range-slider": TRACEMON_LIB_URL + "range-slider/js/ion.rangeSlider",
+
+
         /* model */
 
 
@@ -205,7 +208,9 @@ define([
                 TRACEMON_LIB_URL + "bootstrap/css/bootstrap-theme.min.css",
                 TRACEMON_LIB_URL + "bootstrap-table/bootstrap-table.min.css",
                 TRACEMON_LIB_URL + "bootstrap-slider/css/bootstrap-slider.css",
-                TRACEMON_VIEW_URL + "css/bootstrap-search.css"
+                TRACEMON_VIEW_URL + "css/bootstrap-search.css",
+                TRACEMON_LIB_URL + "range-slider/css/ion.rangeSlider.css",
+                TRACEMON_LIB_URL + "range-slider/css/ion.rangeSlider.skinModern.css"
             ];
 
         }

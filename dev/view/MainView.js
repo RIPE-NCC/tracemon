@@ -49,6 +49,12 @@ define([
             env.historyManager.getLastState();
         };
 
+        this.setInitialSources = function(){
+            for (var n=0,length=env.connector.loadedProbes.length; n<length && n < 8; n++) { // Just random first 8 probes
+                this.shownSources[env.connector.loadedProbes[n].id] = true;
+                env.connector.loadedProbes[n]["select"] = true;
+            }
+        };
 
         this._filterBySources = function(status){
             var newStatus;
@@ -72,13 +78,17 @@ define([
         this.drawOrUpdate = function(status){
             console.log("Drawing");
 
-            status = this._filterBySources(status);
             if (firstDraw){
+                this.setInitialSources();
+                status = this._filterBySources(status);
                 this._firstDraw(status);
                 firstDraw = false;
             } else {
+                status = this._filterBySources(status);
                 this._update(status);
             }
+
+            utils.observer.publish("draw", status);
         };
 
         // this._partialUpdate = function(whatChanged){
