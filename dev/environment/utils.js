@@ -456,8 +456,8 @@ define([
             return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds()));
         },
 
-        dateToUTCTimestamp: function (date) {
-            return Math.ceil(date.getTime() / 1000 - (timeZoneOffset * 60));
+        UTCDateToUTCTimestamp: function (date) {
+            return parseInt(this.UTCDateToLocalDate(date).getTime()/1000);
         },
 
         callCallbacks: function (list, parameters) {

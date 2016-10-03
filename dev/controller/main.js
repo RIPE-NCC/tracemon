@@ -20,7 +20,6 @@ define([
 
         $this = this;
 
-
         this.exposedMethods = ["setStringTimeRange", "setTimeRange", "addMeasurementAndGroup", "autoGroupMeasurements",
             "addMeasurement", "addProbes", "addProbe", "addGroup", "removeGroup", "removeProbe", "setDataFilter",
             "mergeMeasurements", "removeMeasurement", "init"];
@@ -54,57 +53,65 @@ define([
         };
 
         this.applyConfiguration = function(conf){
-            var measurementCounter, callsAddMeasurements;
-
-            if (conf.dataFilter){
-                this.setDataFilter(conf.dataFilter);
-            }
+            var measurementsToLoad;
 
             if (conf.startTimestamp && conf.stopTimestamp){
-                if (!env.timeDomain){
-                    env.startDate = utils.timestampToUTCDate(conf.startTimestamp);
-                    env.endDate = utils.timestampToUTCDate(conf.stopTimestamp);
-                    env.timeWindowSize = env.endDate - env.startDate;
-                    env.isUpdatable = this._isUpdatable();
-                } else {
-                    $this.setTimeRange(utils.timestampToUTCDate(conf.startTimestamp), utils.timestampToUTCDate(conf.stopTimestamp));
-                }
-            } else if (conf.timeWindow){
-                $this.setStringTimeRange(conf.timeWindow);
-            } else { // No string time window, not time defined, use a reasonable time range
-
+                env.startDate = moment.unix(conf.startTimestamp).utc();
+                env.stopDate = moment.unix(conf.stopTimestamp).utc();
             }
 
             if (conf.measurements) {
-                measurementCounter = 0;
-                callsAddMeasurements = [];
-                for (var n = 0, lengthMeasurements = conf.measurements.length; n < lengthMeasurements; n++) {
-                    callsAddMeasurements.push($this.addMeasurement(conf.measurements[n], function () {
-                        measurementCounter++;
-                    }, this, false));
+                measurementsToLoad = $.map(conf.measurements, function(item){
+                    return { id: item };
+                });
+                this.updateData(measurementsToLoad, true);
+            }
+        };
+
+        this.updateCurrentData = function() {
+            var measurementsToLoad;
+
+            env.reset = true;
+            measurementsToLoad = $.map(Object.keys(this.loadedMeasurements), function(item){
+                return { id: item };
+            });
+            this.updateData(measurementsToLoad);
+        };
+
+        this.updateData = function(measurementsToLoad) {
+
+            this.loadMeasurements(measurementsToLoad, function () { // 3749061, 4471092 (loop on *)
+                var deferredArray, deferredQuery;
+
+                // env.template.showLoadingImage(true);
+                deferredArray = [];
+                for (var msmId in $this.loadedMeasurements) {
+
+                    deferredQuery = env.connector
+                        .getInitialDump($this.loadedMeasurements[msmId], {
+                            startDate: env.startDate,
+                            stopDate: env.stopDate
+                        }).done(function(measurement) {
+                            env.historyManager.addMeasurement(measurement);
+
+                            if (config.checkRealtime) {
+                                env.connector.getRealTimeResults(measurement, { msm: measurement.id });
+                            }
+                        });
+
+                    deferredArray
+                        .push(deferredQuery);
                 }
 
-                $.when.apply(this, callsAddMeasurements)
-                    .done(function () {
-                        if (conf.mergedMeasurements) {
-                            for (var m = 0, lengthMerge = conf.mergedMeasurements.length; m < lengthMerge; m++) {
-                                $this.mergeMeasurements(conf.mergedMeasurements[m], true);
-                            }
-                        }
-
-                        if (conf.groups) {
-                            for (var g = 0, lengthGroups = conf.groups.length; g < lengthGroups; g++) {
-                                var groupTmp = conf.groups[g];
-                                $this.addGroup(groupTmp.measurementId, groupTmp.probes, groupTmp.id, groupTmp.type);
-                            }
-                        }
-
-                        if (!conf.mergedMeasurements && !conf.groups && env.autoStartGrouping){
-                            $this.autoGroupMeasurements(env.groupingType);
-                        }
+                $.when
+                    .apply($, deferredArray)
+                    .then(function(){
+                        env.historyManager.getLastState();
+                        env.template.updateTimeline();
+                        // env.template.showLoadingImage(false);
                     });
 
-            }
+            });
         };
 
         /*
@@ -116,8 +123,19 @@ define([
 
             $.when.apply($, $.map(msmList, function (msm){
                 return env.connector
-                    .getMeasurementInfo(msm.id, {sources: msm.sources})
+                    .getMeasurementInfo(msm.id, { sources: msm.sources })
                     .done(function (measurement) {
+                        if (!env.meta){
+                            env.meta = {
+                                startDate: Infinity,
+                                endDate: null
+                            };
+                        }
+
+                        env.meta.startDate = Math.min(measurement.startDate.unix(), env.meta.startDate);
+                        if (measurement.endDate) {
+                            env.meta.endDate = Math.max(measurement.endDate.unix(), env.meta.endDate);
+                        }
                         $this.loadedMeasurements[measurement.id] = measurement;
                     });
             }))
@@ -167,32 +185,9 @@ define([
                 firstTimeInit = false;
             }, this);
 
+            this._startProcedure();
+            env.template.init();
 
-
-            this.loadMeasurements([{id: 4471092}], function (){ // 3749061, 4471092 (loop on *)
-
-                // env.template.showLoadingImage(true);
-
-                for (var msmId in $this.loadedMeasurements) {
-
-                    env.connector.getInitialDump($this.loadedMeasurements[msmId], {
-                        // startDate: utils.timestampToUTCDate(1462250698),
-                        startDate: utils.timestampToUTCDate(1470318491),
-                        // stopDate: utils.timestampToUTCDate(1462270698)
-                        stopDate: utils.timestampToUTCDate(1470322091)
-                    }).done(function (measurement) {
-                        env.historyManager.addMeasurement(measurement);
-
-                        // env.template.showLoadingImage(false);
-
-                        utils.observer.publish("new-measurement", measurement);
-                        if (config.checkRealtime) {
-                            env.connector.getRealTimeResults(measurement, { msm: measurement.id });
-                        }
-                    });
-                }
-
-            });
 
         };
 

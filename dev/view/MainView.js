@@ -26,19 +26,11 @@ define([
 
         this.setListeners = function(){
             utils.observer.subscribe("update-status", this.drawOrUpdate, this);
-            utils.observer.subscribe("new-measurement", this.newMeasurement, this);
             utils.observer.subscribe("cut-hops-length", this._cutHops, this);
             utils.observer.subscribe("probe-set-changed", this._updateShownSources, this);
             // utils.observer.subscribe("model-change", this.drawOrUpdate, this);
         };
 
-        this.emulateHistory = function(){
-
-        };
-
-        this.newMeasurement = function(){
-            env.historyManager.getLastState();
-        };
 
 
         this._updateShownSources = function(newSet){

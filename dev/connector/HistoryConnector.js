@@ -26,11 +26,11 @@ define([
             }
 
             queryParams = {
-                start: utils.dateToUTCTimestamp(options.startDate)
+                start: options.startDate.unix()
             };
             
             if (options.stopDate) {
-                queryParams.stop = utils.dateToUTCTimestamp(options.stopDate);
+                queryParams.stop = options.stopDate.unix();
             }
             
             if (options.sources) {

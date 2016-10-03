@@ -291,3 +291,8 @@
 .empty-probe {
     font-weight: bold;
 }
+
+.range-timeline {
+    margin-left: 5px;
+    margin-right: 5px;
+}

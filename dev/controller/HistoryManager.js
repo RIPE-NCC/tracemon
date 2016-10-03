@@ -46,8 +46,11 @@ define([
             });
         };
 
-        this.getHistoryTimeline = function(){
-            return this._historyTimeline;
+        this.getTimeRange = function(){
+            return {
+                startDate: this._historyTimeline[0],
+                endDate: this._historyTimeline[this._historyTimeline.length - 1]
+            }
         };
 
         this.emulateHistory = function(callback){

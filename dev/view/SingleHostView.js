@@ -329,7 +329,7 @@ define([
             }
         };
 
-        this._hightlightPath = function(pathId, highlighted){
+        this._highlightPath = function(pathId, highlighted){
             var hosts, nodesToUpdate, nodes, path;
 
             hosts = this.traceroutes[pathId].model.getHostList();
@@ -343,6 +343,7 @@ define([
 
                 d3.selectAll(".node-label-" + utils.getIdFromIp(nodeView.id))
                     .style("opacity", config.graph.normalOpacity);
+
                 return nodeView;
             });
 
@@ -454,8 +455,9 @@ define([
 
             d3Data
                 .attr("class", this._getNodeClass)
-                .transition()
-                .duration(4000)
+                .style("opacity", 1)
+                // .transition()
+                // .duration(4000)
                 .attr("r", config.graph.nodeRadius)
                 .attr("cx", function(d) { return d.x; })
                 .attr("cy", function(d) { return d.y; });
@@ -486,10 +488,10 @@ define([
                     return path.id;
                 })
                 .on("mouseenter", function(path){
-                    $this._hightlightPath(path.id, true);
+                    $this._highlightPath(path.id, true);
                 })
                 .on("mouseout", function(path){
-                    $this._hightlightPath(path.id, false);
+                    $this._highlightPath(path.id, false);
                 });
 
             d3Data

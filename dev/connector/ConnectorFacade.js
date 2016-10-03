@@ -36,7 +36,8 @@ define([
             deferredCall = $.Deferred();
             deferredArray = [];
 
-            initialDumpPromise = translationConnector.getInitialDump(measurement, options)
+            initialDumpPromise = translationConnector
+                .getInitialDump(measurement, options)
                 .done(function(data){
 
                     for (var n=0,length=data.length; n<length; n++){

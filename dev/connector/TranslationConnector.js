@@ -241,6 +241,7 @@ define([
                 .done(function(data){
                     var measurement, msmTarget, targetHost;
 
+                    console.log(data);
                     msmTarget = data["target"];
                     if ($this.hostByIp[msmTarget]){
                         targetHost = $this.hostByIp[msmTarget];
@@ -249,6 +250,9 @@ define([
                     }
 
                     measurement = new Measurement(measurementId, targetHost);
+
+                    measurement.startDate = moment.unix(data["start_time"]).utc();
+                    measurement.stopDate = (data["stop_time"]) ? moment.unix(data["stop_time"]).utc() : null;
                     $this.measurementById[measurement.id] = measurement;
 
                     if (!targetHost.isPrivate) { // TODO: ASN LOOKUP FOR TARGET

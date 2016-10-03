@@ -186,9 +186,31 @@ define([
 
         };
 
+        this.updateTimeline = function(){
+            var timeRange;
+
+            timeRange = env.historyManager.getTimeRange();
+            env.parentDom
+                .find(".timeline-controller")
+                .ionRangeSlider({
+                    type: "double",
+                    min: moment.unix(env.meta.startDate).utc().unix(),
+                    max: ((env.meta.endDate) ? moment.unix(env.meta.endDate).utc().unix() : moment().utc().unix()),
+                    from: moment.unix(timeRange.startDate).utc().unix(),
+                    to: moment.unix(timeRange.endDate).utc().unix(),
+                    grid: true,
+                    prettify: function (num) {
+                        var m = moment(num, "X").locale("ru");
+                        return m.format("Do MMMM, HH:mm");
+                    },
+                    onFinish: function (data) {
+                        env.main.updateCurrentData();
+                    }
+                });
+        };
 
         this.init = function() {
-            var html, partials;
+            var html, partials, timeRange;
 
             this.setListeners();
             partials = {
@@ -251,18 +273,7 @@ define([
                     $this.populateProbeList(env.connector.loadedProbes);
                 });
 
-            env.parentDom
-                .find(".range-timeline")
-                .ionRangeSlider({
-                type: "double",
-                min: 1000000,
-                max: 2000000,
-                grid: true
-            });
-
         };
-
-        this.init();
 
     };
 
