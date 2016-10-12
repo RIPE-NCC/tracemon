@@ -331,3 +331,16 @@
 
 .timeline-controller{
 }
+
+
+.legend_latencymon {
+    margin-left: 80px;
+}
+
+.legend_latencymon img {
+    border: 1px solid #C0C0C0;
+}
+
+.legend_latencymon span {
+    margin-right: 10px;
+}

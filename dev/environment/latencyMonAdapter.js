@@ -58,7 +58,7 @@ define([
                         dataApiMeta: "https://atlas.ripe.net/api/v2/measurements/0000/routequake/meta.jsonp",
                         dev: true,
                         onlyChartMode: true,
-                        autoStart: false,
+                        autoStart: true,
                         showMinimumByDefault: true,
                         onTimeRangeChange: function(start, stop){
                             console.log("Time Range changed: " + start + ' - ' +  stop);
