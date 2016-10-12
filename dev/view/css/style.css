@@ -4,12 +4,23 @@
     font-size: 12px;
     font-family: sans-serif;
     position: relative;
-    border: 1px solid #C0C0C0;
     background: #FFFFFF;
     line-height: normal!important;
-    border-radius: 4px;
     box-sizing: content-box!important;
     min-width: 860px!important;
+}
+
+.blubble{
+    border-radius: 4px;
+    border: 1px solid #C0C0C0;
+}
+.bubble-one{
+    border-bottom: none;
+}
+
+.bubble-two{
+    margin-top: 0;
+    border-top: none;
 }
 
 .tracemon-search {
@@ -295,4 +306,24 @@
 .range-timeline {
     margin-left: 5px;
     margin-right: 5px;
+}
+
+.latencymon-content {
+    min-height: 0!important;
+}
+
+.time-selection-cone{
+    height: 50px;
+    width: 100%;
+}
+
+.chart-svg {
+    /*fill: transparent!important;*/
+}
+
+.cone-time-boundaries{
+    stroke: #C0C0C0;
+    stroke-width: 1px;
+    /*stroke-dasharray: 3, 3;*/
+    fill: white;
 }

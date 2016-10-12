@@ -8,8 +8,9 @@ define([
     "tracemon.view.single-host-view",
     "tracemon.view.as-view",
     "tracemon.view.location-view",
-    "tracemon.view.dagre-wrapper"
-], function(utils, config, lang, $, d3, SingleHostView, ASView, LocationView, GraphWrapper){
+    "tracemon.view.dagre-wrapper",
+    "tracemon.env.latencymon-adapter"
+], function(utils, config, lang, $, d3, SingleHostView, ASView, LocationView, GraphWrapper, LatencyMonAdapter){
 
     var MainView = function(env){
         var $this, firstDraw;
@@ -21,6 +22,8 @@ define([
         firstDraw = true;
         this.view = null;
         this.viewName = env.viewName;
+
+        this.latencymon = new LatencyMonAdapter(env);
 
         this.graph = new GraphWrapper(env);
 
@@ -75,6 +78,7 @@ define([
                 status = this._filterBySources(status);
                 this._firstDraw(status);
                 firstDraw = false;
+                this.latencymon.init(".latencymon-chart", env.queryParams.measurements, Object.keys(this.shownSources));
             } else {
                 status = this._filterBySources(status);
                 this._update(status);
@@ -152,7 +156,7 @@ define([
                 parseInt(this.svg.style("width").replace("px", "")),
                 parseInt(svgHeight),
                 {
-                    margin: { top: 100, bottom: 100, left: 150, right: 150 }
+                    margin: { top: 100, bottom: 20, left: 150, right: 150 }
                 }
             );
 

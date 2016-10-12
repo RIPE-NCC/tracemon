@@ -1,47 +1,53 @@
 <div class="tracemon-content">
     <img src="dev/view/img/loading2.gif" class="loading-image" style="left: 50%; top: 50%; display: none;">
     <div class="error-message"></div>
-    <div class="tracemon-header">
-        <div class="tracemon-title">
-            <div class="padded-text">Traceroute Route Visualisation</div>
-        </div>
-        <div class="tracemon-right-controllers">
-
-            <div class="right-controller tracemon-search">
-                <div>{{>search}}</div>
+    <div class="blubble bubble-one">
+        <div class="tracemon-header">
+            <div class="tracemon-title">
+                <div class="padded-text">Traceroute Route Visualisation</div>
             </div>
+            <div class="tracemon-right-controllers">
 
-            <div class="right-controller  bootstrap-slider reproduction-speed">
-                <div class="input-label">Speed: <span class="value-slider">{{env.reproductionSpeed}}</span></div>
-                <input type="text"/>
+                <div class="right-controller tracemon-search">
+                    <div>{{>search}}</div>
+                </div>
+
+                <div class="right-controller  bootstrap-slider reproduction-speed">
+                    <div class="input-label">Speed: <span class="value-slider">{{env.reproductionSpeed}}</span></div>
+                    <input type="text"/>
+                </div>
+
+                <div class="right-controller bootstrap-slider hops-number">
+
+                    <div class="input-label">Hops: <span class="value-slider">1-{{env.maxNumberHops}}</span></div>
+
+                    <input type="text"/>
+
+                </div>
+
             </div>
+        </div>
 
-            <div class="right-controller bootstrap-slider hops-number">
+        <div class="tracemon-controller">
+            <div class="controller-line">Traceroutes to <span class="value-target">{{values.target}}</span> from <span class="value-number-probes">{{values.numberProbes}}</span> of <span class="value-total-probes">{{values.totalProbes}}</span> probes (<span class="clickable click-select-probe">select</span>)</div>
+            {{>probes-selection}}
 
-                <div class="input-label">Hops: <span class="value-slider">1-{{env.maxNumberHops}}</span></div>
+            <div class="controller-line">Hosts grouped by {{>select-view}}</div>
 
-                <input type="text"/>
 
+        </div>
+        <svg class="tracemon-svg"></svg>
+        <div class="latencymon-chart"></div>
+    </div>
+    <svg class="time-selection-cone"></svg>
+    <div class="blubble bubble-two">
+        <div class="range-timeline">
+            <div class="timeline-controller"></div>
+        </div>
+        <div class="tracemon-footer">
+            <div class="tracemon-about footer-item">
             </div>
-
         </div>
     </div>
 
-    <div class="tracemon-controller">
-        <div class="controller-line">Traceroutes to <span class="value-target">{{values.target}}</span> from <span class="value-number-probes">{{values.numberProbes}}</span> of <span class="value-total-probes">{{values.totalProbes}}</span> probes (<span class="clickable click-select-probe">select</span>)</div>
-        {{>probes-selection}}
-
-        <div class="controller-line">Hosts grouped by {{>select-view}}</div>
-
-
-    </div>
-    <svg class="tracemon-svg"></svg>
-    {{lang.test}}
-    <div class="range-timeline">
-        <div class="timeline-controller"></div>
-    </div>
-    <div class="tracemon-footer">
-        <div class="tracemon-about footer-item">
-        </div>
-    </div>
 </div>

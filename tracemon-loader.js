@@ -12,6 +12,7 @@ requirejs.config({
         "tracemon.env.params-manager": TRACEMON_ENVIRONMENT_URL + "ParamsManager",
         "tracemon.env.history-manager": TRACEMON_ENVIRONMENT_URL + "HistoryManager",
         "tracemon.env.languages.en": TRACEMON_ENVIRONMENT_URL + "languages/language.eng",
+        "tracemon.env.latencymon-adapter": TRACEMON_ENVIRONMENT_URL + "latencyMonAdapter",
 
 
         /* libs */

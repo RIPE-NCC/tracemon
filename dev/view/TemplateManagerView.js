@@ -7,11 +7,12 @@ define([
     "tracemon.env.config",
     "tracemon.env.languages.en",
     "tracemon.lib.jquery-amd",
+    "tracemon.lib.d3-amd",
     "tracemon.lib.stache!main",
     "tracemon.lib.stache!search",
     "tracemon.lib.stache!select-view",
     "tracemon.lib.stache!probes-selection"
-], function(utils, config, lang, $, template, search, selectView, probesSelection){
+], function(utils, config, lang, $, d3, template, search, selectView, probesSelection){
 
     /**
      * TemplateManagerView is the component in charge of creating and manipulating the HTML dom elements.
@@ -22,7 +23,7 @@ define([
      */
 
     var TemplateManagerView = function(env){
-        var $this;
+        var $this, lineFunction;
 
         $this = this;
         this.lang = lang;
@@ -30,6 +31,10 @@ define([
         this.values = {};
         this.dom = {};
         this.loadedProbes = [];
+        lineFunction = d3.svg.line()
+            .x(function(d) { return d.x; })
+            .y(function(d) { return d.y; })
+            .interpolate("linear");
 
         this.setListeners = function(){
             utils.observer.subscribe("draw", this.updateTemplatesInfo, this);
@@ -186,6 +191,8 @@ define([
 
         };
 
+
+
         this.updateTimeline = function(){
             var timeRange;
 
@@ -204,10 +211,13 @@ define([
                         return m.format("Do MMMM, HH:mm");
                     },
                     onFinish: function (data) {
-                        env.main.updateCurrentData();
+                        var width = env.parentDom.width();
+                        env.main.setTimeRange(moment.unix(data.from).utc().unix(), moment.unix(data.to).utc().unix());
+                        $this.updateTimeSelectionCone([(width/100) * data.from_percent, (width/100) * data.to_percent]);
                     }
                 });
         };
+
 
         this.init = function() {
             var html, partials, timeRange;
@@ -252,9 +262,6 @@ define([
                         .closest(".bootstrap-slider")
                         .find(".value-slider")
                         .text(slideEvt.value[0] + '-' + slideEvt.value[1]);
-
-
-
                 });
 
             env.parentDom
@@ -273,7 +280,41 @@ define([
                     $this.populateProbeList(env.connector.loadedProbes);
                 });
 
+            this.timeSelectionCone = d3.select(env.parentDom[0])
+                .select(".time-selection-cone");
+
+            this.timeSelectionConeLeft = this.timeSelectionCone
+                .append("path")
+                .attr("class", "cone-time-boundaries");
+
+
+            this.timeSelectionConeRight = this.timeSelectionCone
+                .append("path")
+                .attr("class", "cone-time-boundaries");
         };
+
+
+        this.updateTimeSelectionCone = function (points) {
+            var height, width, margin;
+
+            height = 50;
+            margin = { left: 0, right: 0 };
+            width = env.parentDom.width() - margin.left - margin.right;
+
+            this.timeSelectionConeRight
+                .attr("d", lineFunction([
+                    {x: width + margin.left, y: height},
+                    {x: points[1], y: height},
+                    {x: width + margin.left, y: 0}
+                ]));
+
+            this.timeSelectionConeLeft
+                .attr("d", lineFunction([
+                    {x: margin.left, y: 0},
+                    {x: points[0], y: height},
+                    {x: margin.left, y: height}
+                ]));
+        }
 
     };
 

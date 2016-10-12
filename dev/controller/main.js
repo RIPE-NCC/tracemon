@@ -170,6 +170,13 @@ define([
             }
         };
 
+        this.setTimeRange = function(start, stop){ // Accept timestamps for public API
+            env.startDate = moment.unix(start).utc();
+            env.endDate = moment.unix(stop).utc();
+            env.main.updateCurrentData();
+            env.mainView.latencymon.setTimeRange(env.startDate, env.endDate);
+        };
+
         this.init = function(){
             env.connector = new Connector(env);
             env.historyManager = new HistoryManager(env);

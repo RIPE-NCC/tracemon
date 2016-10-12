@@ -241,7 +241,6 @@ define([
                 .done(function(data){
                     var measurement, msmTarget, targetHost;
 
-                    console.log(data);
                     msmTarget = data["target"];
                     if ($this.hostByIp[msmTarget]){
                         targetHost = $this.hostByIp[msmTarget];

@@ -212,8 +212,6 @@ define([
         };
 
         this.update = function(diff, callback){
-            console.log(diff);
-
             var traceroutesToDraw;
 
             traceroutesToDraw = diff.updatedTraceroutes;

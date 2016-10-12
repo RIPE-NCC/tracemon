@@ -1,5 +1,6 @@
 <?php
 header('Content-Type: application/json');
+ini_set('memory_limit', '-1');
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
 $msm = $_GET['id'];
 $start = $_GET['start'];
