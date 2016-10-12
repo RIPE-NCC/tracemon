@@ -38,6 +38,7 @@ define([
 
         this.setListeners = function(){
             utils.observer.subscribe("draw", this.updateTemplatesInfo, this);
+            utils.observer.subscribe("update-status", this.updateTimeline, this)
         };
 
 
@@ -192,34 +193,48 @@ define([
         };
 
 
-
         this.updateTimeline = function(){
             var timeRange;
 
             timeRange = env.historyManager.getTimeRange();
-            env.parentDom
-                .find(".timeline-controller")
-                .ionRangeSlider({
-                    type: "double",
-                    min: moment.unix(env.meta.startDate).utc().unix(),
-                    max: ((env.meta.endDate) ? moment.unix(env.meta.endDate).utc().unix() : moment().utc().unix()),
-                    from: moment.unix(timeRange.startDate).utc().unix(),
-                    to: moment.unix(timeRange.endDate).utc().unix(),
-                    grid: true,
-                    prettify: function (num) {
-                        var m = moment(num, "X").locale("ru");
-                        return m.format("Do MMMM, HH:mm");
-                    },
-                    onFinish: function (data) {
-                        var width = env.parentDom.width();
-                        $this.updateTimeSelectionCone([((width/100) * data.from_percent) + 40, ((width/100) * data.to_percent) + 40]); //Yes, 40 is arbitrary, I got bored to find out why
-                        env.main.setTimeRange(moment.unix(data.from).utc().unix(), moment.unix(data.to).utc().unix());
-                    },
-                    onStart: function(data){
-                        var width = env.parentDom.width();
-                        $this.updateTimeSelectionCone([((width/100) * data.from_percent) + 40, ((width/100) * data.to_percent) + 40]);
-                    }
-                });
+
+            console.log(timeRange);
+            if (this.timeline){
+                this.timeline
+                    .data("ionRangeSlider")
+                    .update({
+                        min: moment.unix(env.meta.startDate).utc().unix(),
+                        max: ((env.meta.stopDate) ? moment.unix(env.meta.stopDate).utc().unix() : moment().utc().unix()),
+                        from: moment.unix(timeRange.startDate).utc().unix(),
+                        to: moment.unix(timeRange.stopDate).utc().unix()
+                    });
+            } else {
+                this.timeline = env.parentDom
+                    .find(".timeline-controller")
+                    .ionRangeSlider({
+                        type: "double",
+                        min: moment.unix(env.meta.startDate).utc().unix(),
+                        max: ((env.meta.stopDate) ? moment.unix(env.meta.stopDate).utc().unix() : moment().utc().unix()),
+                        from: moment.unix(timeRange.startDate).utc().unix(),
+                        to: moment.unix(timeRange.stopDate).utc().unix(),
+                        grid: true,
+                        prettify: function (num) {
+                            var m = moment(num, "X").locale("ru");
+                            return m.format("Do MMMM, HH:mm");
+                        },
+                        onFinish: function (data) {
+                            var width = env.parentDom.width();
+                            $this.updateTimeSelectionCone([((width / 100) * data.from_percent) + 40, ((width / 100) * data.to_percent) + 40]); //Yes, 40 is arbitrary, I got bored to find out why
+
+                            console.log(moment.unix(data.from).utc().unix(), moment.unix(data.to).utc().unix());
+                            env.main.setTimeRange(moment.unix(data.from).utc().unix(), moment.unix(data.to).utc().unix());
+                        },
+                        onStart: function (data) {
+                            var width = env.parentDom.width();
+                            $this.updateTimeSelectionCone([((width / 100) * data.from_percent) + 40, ((width / 100) * data.to_percent) + 40]);
+                        }
+                    });
+            }
         };
 
 

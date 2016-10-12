@@ -61,7 +61,7 @@ define([
                         autoStart: true,
                         showMinimumByDefault: true,
                         onTimeRangeChange: function(start, stop){
-                            console.log("Time Range changed: " + start + ' - ' +  stop);
+                            env.main.setTimeRange(moment(start).utc().unix(), moment(stop).utc().unix())
                         },
                         autoStartGrouping: true,
                         permalinkEnabled: false

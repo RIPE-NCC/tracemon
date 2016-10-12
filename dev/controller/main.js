@@ -75,6 +75,7 @@ define([
             measurementsToLoad = $.map(Object.keys(this.loadedMeasurements), function(item){
                 return { id: item };
             });
+            env.historyManager.reset();
             this.updateData(measurementsToLoad);
         };
 
@@ -86,6 +87,8 @@ define([
                 // env.template.showLoadingImage(true);
                 deferredArray = [];
                 for (var msmId in $this.loadedMeasurements) {
+
+                    console.log(env.startDate.unix(), env.stopDate.unix());
 
                     deferredQuery = env.connector
                         .getInitialDump($this.loadedMeasurements[msmId], {
@@ -107,7 +110,7 @@ define([
                     .apply($, deferredArray)
                     .then(function(){
                         env.historyManager.getLastState();
-                        env.template.updateTimeline();
+                        // env.template.updateTimeline();
                         // env.template.showLoadingImage(false);
                     });
 
@@ -128,13 +131,13 @@ define([
                         if (!env.meta){
                             env.meta = {
                                 startDate: Infinity,
-                                endDate: null
+                                stopDate: null
                             };
                         }
 
                         env.meta.startDate = Math.min(measurement.startDate.unix(), env.meta.startDate);
-                        if (measurement.endDate) {
-                            env.meta.endDate = Math.max(measurement.endDate.unix(), env.meta.endDate);
+                        if (measurement.stopDate) {
+                            env.meta.stopDate = Math.max(measurement.stopDate.unix(), env.meta.stopDate);
                         }
                         $this.loadedMeasurements[measurement.id] = measurement;
                     });
@@ -172,9 +175,12 @@ define([
 
         this.setTimeRange = function(start, stop){ // Accept timestamps for public API
             env.startDate = moment.unix(start).utc();
-            env.endDate = moment.unix(stop).utc();
+            env.stopDate = moment.unix(stop).utc();
+
+            console.log(env.startDate.unix(), env.stopDate.unix());
             env.main.updateCurrentData();
-            env.mainView.latencymon.setTimeRange(env.startDate, env.endDate);
+
+            env.mainView.latencymon.setTimeRange(env.startDate, env.stopDate);
         };
 
         this.init = function(){

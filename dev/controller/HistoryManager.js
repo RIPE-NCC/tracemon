@@ -30,6 +30,11 @@ define([
         eventDuration = config.historyEmulationEventDuration;
         this._historyTimeline = [];
 
+        this.reset = function(){
+            this._historyTimeline = [];
+        };
+
+
         this.addMeasurement = function(measurement){
             var traceroutes;
 
@@ -41,15 +46,15 @@ define([
                 }
             }
 
-            this.emulateHistory(function(state){
-
-            });
+            // this.emulateHistory(function(state){
+            //
+            // });
         };
 
         this.getTimeRange = function(){
             return {
                 startDate: this._historyTimeline[0],
-                endDate: this._historyTimeline[this._historyTimeline.length - 1]
+                stopDate: this._historyTimeline[this._historyTimeline.length - 1]
             }
         };
 
