@@ -304,8 +304,9 @@
 }
 
 .range-timeline {
-    margin-left: 5px;
-    margin-right: 5px;
+    width: 100%;
+    padding-left: 50px;
+    padding-right: 50px;
 }
 
 .latencymon-content {
@@ -326,4 +327,7 @@
     stroke-width: 1px;
     /*stroke-dasharray: 3, 3;*/
     fill: white;
+}
+
+.timeline-controller{
 }

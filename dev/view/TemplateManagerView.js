@@ -212,8 +212,12 @@ define([
                     },
                     onFinish: function (data) {
                         var width = env.parentDom.width();
+                        $this.updateTimeSelectionCone([((width/100) * data.from_percent) + 40, ((width/100) * data.to_percent) + 40]); //Yes, 40 is arbitrary, I got bored to find out why
                         env.main.setTimeRange(moment.unix(data.from).utc().unix(), moment.unix(data.to).utc().unix());
-                        $this.updateTimeSelectionCone([(width/100) * data.from_percent, (width/100) * data.to_percent]);
+                    },
+                    onStart: function(data){
+                        var width = env.parentDom.width();
+                        $this.updateTimeSelectionCone([((width/100) * data.from_percent) + 40, ((width/100) * data.to_percent) + 40]);
                     }
                 });
         };
