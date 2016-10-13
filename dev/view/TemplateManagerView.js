@@ -23,7 +23,7 @@ define([
      */
 
     var TemplateManagerView = function(env){
-        var $this, lineFunction;
+        var $this, lineFunction, blockListeners;
 
         $this = this;
         this.lang = lang;
@@ -31,6 +31,7 @@ define([
         this.values = {};
         this.dom = {};
         this.loadedProbes = [];
+        blockListeners = false;
         lineFunction = d3.svg.line()
             .x(function(d) { return d.x; })
             .y(function(d) { return d.y; })
@@ -38,18 +39,21 @@ define([
 
         this.setListeners = function(){
             utils.observer.subscribe("draw", this.updateTemplatesInfo, this);
-            utils.observer.subscribe("update-status", this.updateTimeline, this)
+            utils.observer.subscribe("updates-history", this.updateTimeline, this);
+            utils.observer.subscribe("update-time-range", this.updateTimeline, this);
         };
 
 
         this.updateTemplatesInfo = function(){
-            this.values.target = "google.it";
-            this.values.totalProbes = env.connector.loadedProbes.length;
-            this.values.numberProbes = this.values.numberProbes || Object.keys(env.mainView.shownSources).length;
+            if (!blockListeners) {
+                this.values.target = "google.it";
+                this.values.totalProbes = env.connector.loadedProbes.length;
+                this.values.numberProbes = this.values.numberProbes || Object.keys(env.mainView.shownSources).length;
 
-            env.parentDom.find('.value-target').text($this.getMonitoredTargets());
-            env.parentDom.find('.value-number-probes').text($this.values.numberProbes);
-            env.parentDom.find('.value-total-probes').text($this.values.totalProbes);
+                env.parentDom.find('.value-target').text($this.getMonitoredTargets());
+                env.parentDom.find('.value-number-probes').text($this.values.numberProbes);
+                env.parentDom.find('.value-total-probes').text($this.values.totalProbes);
+            }
         };
 
         this.getMonitoredTargets = function () {
@@ -189,51 +193,50 @@ define([
 
             }
 
-
         };
 
 
         this.updateTimeline = function(){
             var timeRange;
 
-            timeRange = env.historyManager.getTimeRange();
+            if (!blockListeners) {
+                timeRange = env.historyManager.getTimeRange();
 
-            console.log(timeRange);
-            if (this.timeline){
-                this.timeline
-                    .data("ionRangeSlider")
-                    .update({
-                        min: moment.unix(env.meta.startDate).utc().unix(),
-                        max: ((env.meta.stopDate) ? moment.unix(env.meta.stopDate).utc().unix() : moment().utc().unix()),
-                        from: moment.unix(timeRange.startDate).utc().unix(),
-                        to: moment.unix(timeRange.stopDate).utc().unix()
-                    });
-            } else {
-                this.timeline = env.parentDom
-                    .find(".timeline-controller")
-                    .ionRangeSlider({
-                        type: "double",
-                        min: moment.unix(env.meta.startDate).utc().unix(),
-                        max: ((env.meta.stopDate) ? moment.unix(env.meta.stopDate).utc().unix() : moment().utc().unix()),
-                        from: moment.unix(timeRange.startDate).utc().unix(),
-                        to: moment.unix(timeRange.stopDate).utc().unix(),
-                        grid: true,
-                        prettify: function (num) {
-                            var m = moment(num, "X").locale("ru");
-                            return m.format("Do MMMM, HH:mm");
-                        },
-                        onFinish: function (data) {
-                            var width = env.parentDom.width();
-                            $this.updateTimeSelectionCone([((width / 100) * data.from_percent) + 40, ((width / 100) * data.to_percent) + 40]); //Yes, 40 is arbitrary, I got bored to find out why
-
-                            console.log(moment.unix(data.from).utc().unix(), moment.unix(data.to).utc().unix());
-                            env.main.setTimeRange(moment.unix(data.from).utc().unix(), moment.unix(data.to).utc().unix());
-                        },
-                        onStart: function (data) {
-                            var width = env.parentDom.width();
-                            $this.updateTimeSelectionCone([((width / 100) * data.from_percent) + 40, ((width / 100) * data.to_percent) + 40]);
-                        }
-                    });
+                if (this.timeline) {
+                    this.timeline
+                        .data("ionRangeSlider")
+                        .update({
+                            min: moment.unix(env.meta.startDate).utc().unix(),
+                            max: ((env.meta.stopDate) ? moment.unix(env.meta.stopDate).utc().unix() : moment().utc().unix()),
+                            from: timeRange.startDate,
+                            to: timeRange.stopDate
+                        });
+                } else {
+                    this.timeline = env.parentDom
+                        .find(".timeline-controller")
+                        .ionRangeSlider({
+                            type: "double",
+                            min: moment.unix(env.meta.startDate).utc().unix(),
+                            max: ((env.meta.stopDate) ? moment.unix(env.meta.stopDate).utc().unix() : moment().utc().unix()),
+                            from: timeRange.startDate,
+                            to: timeRange.stopDate,
+                            grid: true,
+                            prettify: function (num) {
+                                return moment.unix(num).utc().format("Do MMMM, HH:mm");
+                            },
+                            onFinish: function (data) {
+                                var width = env.parentDom.width();
+                                $this.updateTimeSelectionCone([((width / 100) * data.from_percent) + 40, ((width / 100) * data.to_percent) + 40]); //Yes, 40 is arbitrary, I got bored to find out why
+                                blockListeners = true;
+                                env.main.setTimeRange(moment.unix(data.from).utc().unix(), moment.unix(data.to).utc().unix());
+                                blockListeners = false;
+                            },
+                            onStart: function (data) {
+                                var width = env.parentDom.width();
+                                $this.updateTimeSelectionCone([((width / 100) * data.from_percent) + 40, ((width / 100) * data.to_percent) + 40]);
+                            }
+                        });
+                }
             }
         };
 

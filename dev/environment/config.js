@@ -34,11 +34,11 @@ define([], function(){
         maxNumberHops: 10,
         checkRealtime: false,
         eventGroupingAntiFlood: 800,
-        historyEmulationEventDuration: 5000,
+        historyEmulationEventDuration: 3000,
         templatesLocation: "http://localhost:63342/viz-atlas-tracemon/dev/view/html/",
 
         transitionsTimes:{
-            pathChange: 2000,
+            pathChange: 1600,
             nodeRemoval: 2000
         },
 

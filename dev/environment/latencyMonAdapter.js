@@ -12,7 +12,22 @@ define([
 
         this.setListeners = function(){
             utils.observer.subscribe("new-measurement", this.addMeasurement, this);
+            utils.observer.subscribe("update-time", this.updateTimeCursor, this);
+            utils.observer.subscribe("update-time-range", this.setTimeRange, this);
         };
+
+
+        this.updateTimeCursor = function (instant) {
+            var interface;
+
+            try {
+                interface = this._getInterface();
+                interface.updateExternalTimeCursor(instant.unix());
+            } catch(e){
+                console.log(e);
+            }
+        };
+
 
         this._getInterface = function(){
             if (!this.shell){
@@ -39,9 +54,11 @@ define([
             console.log("runned");
         };
 
-        this.setTimeRange = function(start, stop){
-            var interface;
+        this.setTimeRange = function(range){
+            var interface, start, stop;
 
+            start = range.startDate;
+            stop = range.stopDate;
             try {
                 interface = this._getInterface();
                 interface.setTimeRange(start.toDate(), stop.toDate());
@@ -52,6 +69,7 @@ define([
 
         this.init = function(whereClass, measurements, probes){
             if (initLatencymon){
+                console.log(env.startDate.unix(), env.stopDate.unix());
                 this.instance = initLatencymon(
                     whereClass,
                     {

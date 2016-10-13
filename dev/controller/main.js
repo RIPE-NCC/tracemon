@@ -88,8 +88,6 @@ define([
                 deferredArray = [];
                 for (var msmId in $this.loadedMeasurements) {
 
-                    console.log(env.startDate.unix(), env.stopDate.unix());
-
                     deferredQuery = env.connector
                         .getInitialDump($this.loadedMeasurements[msmId], {
                             startDate: env.startDate,
@@ -174,13 +172,11 @@ define([
         };
 
         this.setTimeRange = function(start, stop){ // Accept timestamps for public API
+
             env.startDate = moment.unix(start).utc();
             env.stopDate = moment.unix(stop).utc();
-
-            console.log(env.startDate.unix(), env.stopDate.unix());
             env.main.updateCurrentData();
-
-            env.mainView.latencymon.setTimeRange(env.startDate, env.stopDate);
+            utils.observer.publish("update-time-range", { startDate: env.startDate, stopDate: env.stopDate });
         };
 
         this.init = function(){

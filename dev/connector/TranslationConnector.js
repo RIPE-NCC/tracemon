@@ -199,7 +199,7 @@ define([
 
 
                 targetTraceroute = $this.measurementById[item["msm_id"]].target;
-                translated = new Traceroute(hostObj, targetTraceroute, item["timestamp"]);
+                translated = new Traceroute(hostObj, targetTraceroute, moment.unix(item["timestamp"]).utc());
                 translated.parisId = item["paris_id"];
                 translated.protocol = item["proto"];
                 translated.addHops(hops);

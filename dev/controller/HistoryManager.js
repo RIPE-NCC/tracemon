@@ -42,13 +42,13 @@ define([
 
             for (var n=0,length=traceroutes.length; n<length; n++){
                 if (this._historyTimeline.indexOf(traceroutes[n]) == -1){
-                    this._historyTimeline.push(traceroutes[n].date);
+                    this._historyTimeline.push(traceroutes[n].date.unix());
                 }
             }
 
-            // this.emulateHistory(function(state){
-            //
-            // });
+            this.emulateHistory(function(state){
+
+            });
         };
 
         this.getTimeRange = function(){
@@ -59,16 +59,16 @@ define([
         };
 
         this.emulateHistory = function(callback){
-            var setTimer = function(date, duration){
+            var setTimer = function(timestamp, duration){
                 setTimeout(function(){
-                    console.log("emulation");
+                    var date = moment.unix(timestamp).utc();
                     callback($this.getStateAt(date));
+                    utils.observer.publish("update-time", date);
                 }, duration);
             };
 
             this._historyTimeline = this._historyTimeline.sort();
             for (var n=0,length=this._historyTimeline.length; n<length; n++){
-
                 setTimer($this._historyTimeline[n], eventDuration * n);
             }
 
