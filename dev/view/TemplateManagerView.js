@@ -313,6 +313,7 @@ define([
             this.timeSelectionConeRight = this.timeSelectionCone
                 .append("path")
                 .attr("class", "cone-time-boundaries");
+
         };
 
 

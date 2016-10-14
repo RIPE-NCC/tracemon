@@ -67,7 +67,8 @@ define([
                     return label.labelPosition.y;
                 })
                 .text(function(node){
-                    return $this.getNodeLabel(node.model);
+                    node.label = $this.getNodeLabel(node.model);
+                    return node.label;
                 })
                 .style("text-anchor", function(label){
                     return label.labelPosition.alignment;
@@ -499,16 +500,40 @@ define([
 
             d3Data
                 .enter()
-                .append("circle");
+                .append("circle")
+                .attr("data-container", "body")
+                .attr("data-toggle", "popover")
+                .attr("data-placement", "right")
+                .attr("data-html", "true")
+                .attr("title", function(d){
+                    return d.label;
+                })
+                .attr("data-content", function(d){
+                    var asObj = d.model.getAutonomousSystem();
+                    if (asObj){
+                        var out = asObj.owner + "<br> Announced: " + asObj.announced + "<br>";
+                        for (var extra in asObj.extra){
+                            out += extra.charAt(0).toUpperCase() + extra.slice(1) + ": " + asObj.extra[extra] + "<br>";
+                        }
+                        return out;
+                    } else {
+                        console.log(asObj);
+                    }
+                });
 
             d3Data
                 .attr("class", this._getNodeClass)
                 .style("opacity", 1)
-                // .transition()
-                // .duration(4000)
                 .attr("r", config.graph.nodeRadius)
                 .attr("cx", function(d) { return d.x; })
                 .attr("cy", function(d) { return d.y; });
+
+            env.parentDom
+                .find('[data-toggle="popover"]')
+                .popover({
+                    container: 'body'
+                    // trigger: 'focus'
+                });
         };
 
         this._drawPaths = function(){
