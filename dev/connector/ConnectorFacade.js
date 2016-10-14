@@ -91,10 +91,31 @@ define([
 
             deferredCall = $.Deferred();
 
-            translationConnector.getHostReverseDns(host.ip)
-                .done(function (data) {
-                    deferredCall.resolve(data);
-                });
+
+            if (host.isPrivate || !host.ip) {
+                host.reverseDns = null;
+                deferredCall.resolve(host.reverseDns);
+            } else if (host.reverseDns){
+                deferredCall.resolve(host.reverseDns);
+            } else {
+                translationConnector.getHostReverseDns(host.ip)
+                    .done(function (data) {
+                        var reverseArray, reverse;
+
+                        try {
+                            reverseArray = data.split(".");
+                            reverse = [
+                                reverseArray[reverseArray.length - 3],
+                                reverseArray[reverseArray.length - 2],
+                                reverseArray[reverseArray.length - 1]
+                            ].join(".");
+                        }catch(e){
+                            reverse = data;
+                        }
+                        host.reverseDns = reverse;
+                        deferredCall.resolve(reverse);
+                    });
+            }
 
             return deferredCall.promise();
         };
@@ -106,7 +127,8 @@ define([
             deferredCall = $.Deferred();
 
             if (host.isPrivate || !host.ip) {
-                deferredCall.resolve(null);
+                host.location = null;
+                deferredCall.resolve(host.location);
             } else if (host.location){
                 deferredCall.resolve(host.location);
             } else {

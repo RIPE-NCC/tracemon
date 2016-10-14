@@ -311,7 +311,7 @@ define([
                                 domain = results[0];
                                 $this.domainByIp[ip] = domain;
                             } else {
-                                domain = "Not found"
+                                domain = null;
                             }
                             deferredCall.resolve(domain);
                         });

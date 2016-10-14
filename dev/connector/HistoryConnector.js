@@ -120,23 +120,6 @@ define([
         };
 
 
-        this.getHostReverseDns = function (asn) {
-
-            if (!hostsResolutionByIp[ip]) {
-                hostsResolutionByIp[ip] = $.ajax({
-                    dataType: "jsonp",
-                    cache: false,
-                    url: env.dataApiReverseDns,
-                    data: {
-                        resource: asn
-                    }
-                });
-            }
-
-            return hostsResolutionByIp[ip];
-        };
-
-
         this.getNeighbours = function (asn) {
 
             if (!neighboursByAsn[asn]) {

@@ -71,8 +71,6 @@ define([
         };
 
         this.drawOrUpdate = function(status){
-            console.log("Drawing");
-
             if (firstDraw){
                 this.setInitialSources();
                 status = this._filterBySources(status);
@@ -170,7 +168,6 @@ define([
 
             diff = this._computeDiff(this._oldStatus, newStatus);
             this.view.update(diff, function(){
-                console.log("updated");
             });
             this._oldStatus = newStatus;
         };
@@ -251,6 +248,9 @@ define([
         // };
 
 
+        this._computeValidId = function(str){
+            return utils.getIdFromIp(str).replace("*", "w-");
+        };
 
         this._getDeletedTraceroutes = function (oldStatus, newStatus){
             var deletedTraceroutes;
@@ -270,8 +270,8 @@ define([
         };
 
 
-        this._getPathString = function(){
-
+        this.setLabelLevel = function(level){
+            env.labelLevel = level;
         };
 
         this.setListeners();

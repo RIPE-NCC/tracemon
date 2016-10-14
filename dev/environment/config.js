@@ -32,7 +32,7 @@ define([], function(){
         maxReproductionSpeed: 10,
         ixpHostCheck: true,
         maxNumberHops: 10,
-        checkRealtime: false,
+        checkRealtime: true,
         eventGroupingAntiFlood: 800,
         historyEmulationEventDuration: 3000,
         templatesLocation: "http://localhost:63342/viz-atlas-tracemon/dev/view/html/",

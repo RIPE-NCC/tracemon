@@ -245,7 +245,7 @@
     width: 950px;
     position: absolute;
     top: 90px;
-    left: 50%;
+    left: 50%!important;
     margin-left: -475px;
     background: #fdfdfd;
     z-index: 1000000!important;

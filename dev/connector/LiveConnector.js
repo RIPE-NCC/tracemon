@@ -11,16 +11,18 @@ define([
 
 
     var LiveConnector = function (env) {
+        var socket, callback, context, enabled;
 
-        var socket, callback, context;
-
+        enabled = false;
+        window.activateStreaming = function(active){
+            enabled = active;
+        };
 
         socket = io(config.streamingUrl, { path : "/stream/socket.io" });
 
 
         socket.on("atlas_result", function(result){
-            console.log("Live ", result);
-            if (callback){
+            if (callback && enabled){
                 callback.call(context, result);
             }
         });

@@ -20,6 +20,14 @@ define([
         this.nodes = {};
         this.edges = {};
 
+        env.labelLevel = "host";
+
+        window.setLabelLevel = function(level){ // TEMPORARY
+            env.labelLevel = level;
+            console.log("This function pollutes the global env. TEMPORARY, REMOVE THIS SHIT");
+        };
+
+
         this._calculateLabelPosition = function(node){
             var where;
 
@@ -58,8 +66,8 @@ define([
                 .attr("y", function(label){
                     return label.labelPosition.y;
                 })
-                .text(function(label){
-                    return label.label;
+                .text(function(node){
+                    return $this.getNodeLabel(node.model);
                 })
                 .style("text-anchor", function(label){
                     return label.labelPosition.alignment;
@@ -73,11 +81,13 @@ define([
 
         };
 
-        this._updateLabel = function(host){
+        this._updateLabel = function(host, label){
             var nodeView = env.mainView.graph.getNode(host.getId());
 
-            nodeView.label = this.getNodeLabel(host);
-            d3.select(".node-label-" + utils.getIdFromIp(nodeView.id))
+            nodeView.label =  label || this.getNodeLabel(host);
+            env.mainView
+                .svg
+                .selectAll(".node-label-" + utils.getIdFromIp(nodeView.id))
                 .text(nodeView.label);
         };
 
@@ -135,7 +145,7 @@ define([
             this.edges = finalEdges;
         };
 
-        this.getNodeLabel = function (host){
+        this._getDefaultNodeLabel = function(host){
             if (host.isIxp){
                 return host.ixp.name;
             } else if (host.isProbe) {
@@ -145,6 +155,36 @@ define([
             } else {
                 return host.ip + ((host.getAutonomousSystem()) ? " (AS" + host.getAutonomousSystem().id + ")" : "");
             }
+        };
+
+        this.getNodeLabel = function (host){
+
+            switch (env.labelLevel){
+                case "geo":
+                    if (host.location !== undefined){
+                        return (host.location) ? host.location.country : this._getDefaultNodeLabel(host) || this._getDefaultNodeLabel(host);
+                    } else {
+                        env.connector.getGeolocation(host)
+                            .done(function(label){
+                            });
+                        return "loading";
+                    }
+
+                    break;
+                case "reverseLookup":
+                    if (host.reverseDns !== undefined){
+                        return host.reverseDns || this._getDefaultNodeLabel(host);
+                    } else {
+                        env.connector.getHostReverseDns(host)
+                            .done(function(label){
+                            });
+                        return "loading";
+                    }
+                    break;
+                default:
+                    return this._getDefaultNodeLabel(host);
+            }
+
         };
 
         this.computeVisibleGraph = function(traceroutesToDraw){
@@ -200,7 +240,7 @@ define([
                 // this._drawAggregated();
                 // } else {
             }
-                this.computeVisibleGraph(traceroutesToDraw);
+            this.computeVisibleGraph(traceroutesToDraw);
             // }
 
             env.mainView.graph.computeLayout();

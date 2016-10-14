@@ -69,7 +69,6 @@ define([
 
         this.init = function(whereClass, measurements, probes){
             if (initLatencymon){
-                console.log(env.startDate.unix(), env.stopDate.unix());
                 this.instance = initLatencymon(
                     whereClass,
                     {
