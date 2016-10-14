@@ -14,8 +14,9 @@ define([
         var socket, callback, context, enabled;
 
         enabled = false;
-        window.activateStreaming = function(active){
+        window.activateStreaming = function(active){ // TEMPORARY
             enabled = active;
+            console.log("This function pollutes the global env. TEMPORARY, REMOVE THIS SHIT");
         };
 
         socket = io(config.streamingUrl, { path : "/stream/socket.io" });

@@ -81,10 +81,10 @@ define([
 
         };
 
-        this._updateLabel = function(host, label){
+        this._updateLabel = function(host){
             var nodeView = env.mainView.graph.getNode(host.getId());
 
-            nodeView.label =  label || this.getNodeLabel(host);
+            nodeView.label =  this.getNodeLabel(host);
             env.mainView
                 .svg
                 .selectAll(".node-label-" + utils.getIdFromIp(nodeView.id))
@@ -164,8 +164,13 @@ define([
                     if (host.location !== undefined){
                         return (host.location) ? host.location.country : this._getDefaultNodeLabel(host) || this._getDefaultNodeLabel(host);
                     } else {
-                        env.connector.getGeolocation(host)
+                        env.connector
+                            .getGeolocation(host)
                             .done(function(label){
+                                try {
+                                    $this._updateLabel(host);
+                                }catch(e){
+                                }
                             });
                         return "loading";
                     }
@@ -175,8 +180,13 @@ define([
                     if (host.reverseDns !== undefined){
                         return host.reverseDns || this._getDefaultNodeLabel(host);
                     } else {
-                        env.connector.getHostReverseDns(host)
+                        env.connector
+                            .getHostReverseDns(host)
                             .done(function(label){
+                                try {
+                                    $this._updateLabel(host);
+                                }catch(e){
+                                }
                             });
                         return "loading";
                     }

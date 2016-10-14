@@ -309,7 +309,6 @@ define([
                 this._cutHopsLength(traceroutes[n], env.maxNumberHops);
             }
 
-
         };
 
 
