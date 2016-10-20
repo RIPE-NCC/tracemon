@@ -5,6 +5,11 @@
 
 define([], function(){
     return {
+        latency: "Latency",
+        traceroutesDontReach: "Some traceroutes don't reach the target",
+        allTraceroutesDontReach: "All the traceroutes don't reach the target",
+        title: "Traceroute Route Visualisation",
+        hostGroupedBy: "Hosts grouped by",
 
         views: {
             host: "IP",
