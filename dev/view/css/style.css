@@ -344,3 +344,16 @@
 .legend_latencymon span {
     margin-right: 10px;
 }
+
+.traceroute-text{
+    width: 98%;
+    height: 200px;
+    padding: 5px;
+    margin-left: 5px;
+}
+
+.close-traceroute{
+    position: absolute;
+    top: 0;
+    right: 3px;
+}

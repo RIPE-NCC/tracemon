@@ -72,7 +72,6 @@ define([
                 this.instance = initLatencymon(
                     whereClass,
                     {
-                        dataApiMeta: "https://atlas.ripe.net/api/v2/measurements/0000/routequake/meta.jsonp",
                         dev: true,
                         onlyChartMode: true,
                         autoStart: true,

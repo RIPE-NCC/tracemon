@@ -11,7 +11,7 @@ $ases_reverse = [];
 $link = mysql_connect('localhost', 'root', '');
 mysql_select_db('as');
 
-$url = 'https://atlas.ripe.net/api/v2/measurements/'.$msm.'/results.jsonp?start='.$start.'&stop='.$stop;
+$url = 'https://atlas.ripe.net/api/v2/measurements/'.$msm.'/results?type=jsonp&start='.$start.'&stop='.$stop;
 $response = file_get_contents($url);
 $response = json_decode($response, true);
 

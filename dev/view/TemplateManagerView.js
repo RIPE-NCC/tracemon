@@ -41,6 +41,7 @@ define([
             utils.observer.subscribe("draw", this.updateTemplatesInfo, this);
             utils.observer.subscribe("updates-history", this.updateTimeline, this);
             utils.observer.subscribe("update-time-range", this.updateTimeline, this);
+            utils.observer.subscribe("traceroute-clicked", this.showTraceroute, this);
         };
 
 
@@ -272,6 +273,15 @@ define([
                 });
 
             env.parentDom
+                .find(".close-traceroute")
+                .on("click", function () {
+                    env.parentDom
+                        .find(".traceroute-output") // optimise this!
+                        .hide();
+
+                });
+
+            env.parentDom
                 .find('.hops-number>input')
                 .slider({
                     value: [1, env.maxNumberHops],
@@ -301,6 +311,10 @@ define([
                 .on("click", function(){
                     $this.populateProbeList(env.connector.loadedProbes);
                 });
+
+            this.tracerouteDivDom = env.parentDom
+                .find(".traceroute-output")
+                .hide();
 
             this.timeSelectionCone = d3.select(env.parentDom[0])
                 .select(".time-selection-cone");
@@ -337,6 +351,13 @@ define([
                     {x: points[0], y: height},
                     {x: margin.left, y: height}
                 ]));
+        };
+
+
+        this.showTraceroute = function(traceroute){
+            this.tracerouteDivDom.show();
+            this.tracerouteDivDom.find("textarea")
+                .text(traceroute.toString());
         }
 
     };

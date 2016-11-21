@@ -87,5 +87,39 @@ define([
         return this._hash;
     };
 
+
+    Traceroute.prototype.toString = function(){
+        var attempts, host, reverse, rtt, stringLine, lineNumber;
+
+        if (!this._string) {
+            this._string = "";
+            lineNumber = 0;
+            for (var n = 0, length = this._hops.length; n < length; n++) {
+                attempts = this._hops[n].getAttempts();
+                attempts = attempts.sort(function(a, b){return a.rtt-b.rtt});
+                stringLine = [];
+                for (var n1 = 0, length1 = attempts.length; n1 < length1; n1++) {
+
+                    host = attempts[n1].host.ip || '*';
+                    reverse = attempts[n1].host.reverseDns || attempts[n1].host.ip;
+                    rtt = attempts[n1].rtt;
+
+                    stringLine.push(
+                        host
+                        + ((reverse) ? ' (' + reverse + ') ' : '')
+                        + ((rtt) ? rtt : '')
+                    );
+                }
+
+                this._string += lineNumber + "    " + stringLine.join("\n      ") + "\n";
+                lineNumber ++;
+
+            }
+
+        }
+
+        return this._string;
+    };
+
     return Traceroute;
 });

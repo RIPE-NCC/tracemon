@@ -45,7 +45,7 @@ define([
         };
 
         this.setInitialSources = function(){
-            for (var n=0,length=env.connector.loadedProbes.length; n<length && n < 8; n++) { // Just random first 8 probes
+            for (var n=0,length=env.connector.loadedProbes.length; n<length && n < env.queryParams.numberOfProbes; n++) { // Just random first 8 probes
                 this.shownSources[env.connector.loadedProbes[n].id] = true;
                 env.connector.loadedProbes[n]["select"] = true;
             }

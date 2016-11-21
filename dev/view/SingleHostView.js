@@ -85,11 +85,15 @@ define([
         this._updateLabel = function(host){
             var nodeView = env.mainView.graph.getNode(host.getId());
 
-            nodeView.label =  this.getNodeLabel(host);
-            env.mainView
-                .svg
-                .selectAll(".node-label-" + utils.getIdFromIp(nodeView.id))
-                .text(nodeView.label);
+            try {
+                nodeView.label = this.getNodeLabel(host);
+                env.mainView
+                    .svg
+                    .selectAll(".node-label-" + utils.getIdFromIp(nodeView.id))
+                    .text(nodeView.label);
+            } catch (e){
+                console.log(e);
+            }
         };
 
         this._setListeners = function(){
@@ -168,10 +172,10 @@ define([
                         env.connector
                             .getGeolocation(host)
                             .done(function(label){
-                                try {
-                                    $this._updateLabel(host);
-                                }catch(e){
-                                }
+                                // try {
+                                //     $this._updateLabel(host);
+                                // }catch(e){
+                                // }
                             });
                         return "loading";
                     }
@@ -184,10 +188,10 @@ define([
                         env.connector
                             .getHostReverseDns(host)
                             .done(function(label){
-                                try {
-                                    $this._updateLabel(host);
-                                }catch(e){
-                                }
+                                // try {
+                                //     $this._updateLabel(host);
+                                // }catch(e){
+                                // }
                             });
                         return "loading";
                     }
@@ -378,6 +382,11 @@ define([
             }
         };
 
+
+        this._clickPath = function(pathId){
+            utils.observer.publish("traceroute-clicked", this.traceroutes[pathId].model);
+        };
+
         this._highlightPath = function(pathId, highlighted){
             var hosts, nodesToUpdate, nodes, path;
 
@@ -516,8 +525,6 @@ define([
                             out += extra.charAt(0).toUpperCase() + extra.slice(1) + ": " + asObj.extra[extra] + "<br>";
                         }
                         return out;
-                    } else {
-                        console.log(asObj);
                     }
                 });
 
@@ -565,6 +572,9 @@ define([
                 })
                 .on("mouseout", function(path){
                     $this._highlightPath(path.id, false);
+                })
+                .on("mousedown", function(path){
+                    $this._clickPath(path.id);
                 });
 
             d3Data

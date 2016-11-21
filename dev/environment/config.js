@@ -10,7 +10,7 @@ define([], function(){
         dataAPIs: {
 //            results: "https://atlas.ripe.net/api/v2/measurements/0000/results.jsonp",
             results: "http://localhost/unified_api.php?id=0000",
-            metadata: "https://atlas.ripe.net/api/v2/measurements/0000/routequake/meta.jsonp",
+            metadata: "https://atlas.ripe.net/api/v2/measurements/0000/routequake/meta/",
             // dataApiAsAnnotation: "https://stat.ripe.net/data/network-info/data.json",
             dataApiAsAnnotation: "http://localhost/as_lookup.php",
             dataApiReverseDns: "https://stat.ripe.net/data/reverse-dns-ip/data.json",
