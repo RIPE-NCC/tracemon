@@ -8,11 +8,12 @@ define([
     "tracemon.env.languages.en",
     "tracemon.lib.jquery-amd",
     "tracemon.lib.d3-amd",
+    "tracemon.controller.header",
     "tracemon.lib.stache!main",
     "tracemon.lib.stache!search",
     "tracemon.lib.stache!select-view",
-    "tracemon.lib.stache!probes-selection"
-], function(utils, config, lang, $, d3, template, search, selectView, probesSelection){
+    "tracemon.lib.stache!probes-selection",
+], function(utils, config, lang, $, d3, HeaderController, template, search, selectView, probesSelection){
 
     /**
      * TemplateManagerView is the component in charge of creating and manipulating the HTML dom elements.
@@ -23,7 +24,7 @@ define([
      */
 
     var TemplateManagerView = function(env){
-        var $this, lineFunction, blockListeners;
+        var $this, lineFunction, blockListeners, headerController;
 
         $this = this;
         this.lang = lang;
@@ -256,6 +257,8 @@ define([
             env.parentDom.html(html);
             this.dom.svg = html.find(".tracemon-svg");
 
+            headerController = new HeaderController(env);
+
             env.parentDom
                 .find('.reproduction-speed>input')
                 .slider({
@@ -270,6 +273,8 @@ define([
                         .closest(".bootstrap-slider")
                         .find(".value-slider")
                         .text(slideEvt.value);
+
+                    headerController.setReplaySpeed(slideEvt.value);
                 });
 
             env.parentDom
@@ -284,7 +289,7 @@ define([
             env.parentDom
                 .find('.hops-number>input')
                 .slider({
-                    value: [1, env.maxNumberHops],
+                    value: env.maxNumberHops,
                     step: 1,
                     min: 1,
                     max: this.maxPossibleHops()
@@ -293,7 +298,8 @@ define([
                     $(slideEvt.target)
                         .closest(".bootstrap-slider")
                         .find(".value-slider")
-                        .text(slideEvt.value[0] + '-' + slideEvt.value[1]);
+                        .text(slideEvt.value);
+                    headerController.setMaxHop(slideEvt.value);
                 });
 
             env.parentDom

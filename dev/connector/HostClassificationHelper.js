@@ -311,14 +311,7 @@ define([
 
         };
 
-
-
-
-
     };
-
-
-
 
     return HostClassificationHelper;
 
