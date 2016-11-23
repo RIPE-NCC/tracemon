@@ -69,11 +69,13 @@ define([
 
                         emulationPosition = date.unix();
                         $this.getStateAt(date);
+                        console.log("emulate");
                         utils.observer.publish("update-time", date);
 
                         if (env.emulationEnabled) {
-                            if (n == length){
+                            if (n == length - 1){
                                 env.emulationEnabled = false;
+                                console.log("animation stop");
                                 utils.observer.publish("animation-stop", $this._historyTimeline[n]);
                             } else {
                                 console.log("emulation scheduled");

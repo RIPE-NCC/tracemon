@@ -35,7 +35,7 @@ define([
         };
 
         this.setReplaySpeed = function(speed){
-
+            env.historyEmulationEventDuration = (speed/2) * 1000
         };
     };
 
