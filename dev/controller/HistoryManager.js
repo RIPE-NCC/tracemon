@@ -24,10 +24,11 @@ define([
 ], function(config, utils){
 
     var HistoryManager = function(env){
-        var $this, eventDuration;
+        var $this, emulationPosition;
 
         $this = this;
-        eventDuration = config.historyEmulationEventDuration;
+        emulationPosition = null;
+        env.emulationEnabled = true;
         this._historyTimeline = [];
 
         this.reset = function(){
@@ -46,9 +47,7 @@ define([
                 }
             }
 
-            this.emulateHistory(function(state){
-
-            });
+            this.emulateHistory();
         };
 
         this.getTimeRange = function(){
@@ -58,20 +57,45 @@ define([
             }
         };
 
-        this.emulateHistory = function(callback){
-            var setTimer = function(timestamp, duration){
-                setTimeout(function(){
-                    var date = moment.unix(timestamp).utc();
-                    callback($this.getStateAt(date));
-                    utils.observer.publish("update-time", date);
-                }, duration);
+        this.emulateHistory = function(){
+
+            var emulate = function(){
+                console.log("emulate set");
+
+                for (var n=0,length=$this._historyTimeline.length; n<length; n++){
+
+                    if ($this._historyTimeline[n] > emulationPosition){
+                        var date = moment.unix($this._historyTimeline[n]).utc();
+
+                        emulationPosition = date.unix();
+                        $this.getStateAt(date);
+                        utils.observer.publish("update-time", date);
+
+                        if (env.emulationEnabled) {
+                            if (n == length){
+                                env.emulationEnabled = false;
+                                utils.observer.publish("animation-stop", $this._historyTimeline[n]);
+                            } else {
+                                console.log("emulation scheduled");
+                                setTimeout(emulate, env.historyEmulationEventDuration);
+                            }
+                        }
+
+                        break;
+                    }
+                }
+
             };
 
             this._historyTimeline = this._historyTimeline.sort();
-            for (var n=0,length=this._historyTimeline.length; n<length; n++){
-                setTimer($this._historyTimeline[n], eventDuration * n);
+
+            if (emulationPosition == null){
+                emulationPosition = $this._historyTimeline[0];
             }
 
+            if (env.emulationEnabled){
+                emulate();
+            }
         };
 
 
