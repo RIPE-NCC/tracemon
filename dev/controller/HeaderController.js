@@ -20,13 +20,34 @@
 
 define([
     "tracemon.env.config",
-    "tracemon.env.utils"
-], function(config, utils){
+    "tracemon.env.utils",
+    "tracemon.controller.boolean-search"
+], function(config, utils, SearchHelper){
 
     var HeaderController = function(env){
+        var searchHelper, andSymbol, orSymbol;
 
-        this.search = function(searchKey){
+        searchHelper = new SearchHelper(env);
+        orSymbol = "OR";
+        andSymbol = "AND";
 
+        this._getSearchKey = function (searchArray) {
+            return searchArray.join(' ' + orSymbol + ' ');
+        };
+
+        this.search = function(searchString){
+            var results;
+
+            results = [];
+            if (searchString) {
+                results = searchHelper.search(this._getSearchKey(searchString));
+
+                for (var n=0,length=results.length; n<length; n++) {
+                    utils.observer.publish("traceroute-selected", results[n]);
+                }
+            }
+
+            return results;
         };
 
         this.setMaxHop = function(maxHop){

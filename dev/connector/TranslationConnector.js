@@ -61,6 +61,9 @@ define([
             return out;
         };
 
+        this.getASes = function () {
+            return this.asList;
+        };
 
         this.getRealTimeResults = function(filtering, callback, context){
 

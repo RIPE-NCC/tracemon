@@ -10,6 +10,8 @@ define([
 
     var Traceroute = function (source, target, date) {
         this._hops = [];
+        this.stateKey = source.getId() + '-' + target.getId();
+        this.id = this.stateKey + '-' + date.unix();
         this.source = source;
         this.target = target;
         target.isTarget = true;
@@ -88,6 +90,26 @@ define([
     };
 
 
+    Traceroute.prototype.getSingleLineString = function () {
+        var attempt, rtt, host, asObj;
+
+        rtt = 0;
+        if (!this._singleLineString) {
+            this._singleLineString = "source" + this.source.probeId + " ip" + this.source.ip;
+
+            for (var n = 0, length = this._hops.length; n < length; n++) {
+                attempt = this._hops[n].getMainAttempt();
+                host = attempt.host;
+                rtt += attempt.rtt;
+                asObj = host.getAutonomousSystem();
+                this._singleLineString += " ip" + host.ip + ((asObj) ? " as" + asObj.id : "");
+            }
+            this._singleLineString += " rtt" + rtt + " outcome" + ((this.reachesTarget()) ? "reached":"not-reached");
+        }
+
+        return this._singleLineString;
+    };
+
     Traceroute.prototype.toString = function(){
         var attempts, host, reverse, rtt, stringLine, lineNumber;
 
@@ -113,9 +135,7 @@ define([
 
                 this._string += lineNumber + "    " + stringLine.join("\n      ") + "\n";
                 lineNumber ++;
-
             }
-
         }
 
         return this._string;

@@ -80,6 +80,7 @@ define([
                 this._update(status);
             }
 
+            this.drawnStatus = status;
             utils.observer.publish("draw", status);
         };
 

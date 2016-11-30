@@ -29,7 +29,6 @@ define([
                 }, this);
         };
 
-
         this.getInitialDump = function(measurement, options){
             var deferredCall, deferredArray, initialDumpPromise, getProbesPromise;
 
@@ -65,11 +64,6 @@ define([
             return deferredCall.promise();
         };
 
-
-        this.getNextEvent = function(){
-
-        };
-
         this.getAutonomousSystem = function(ip){
             var deferredCall;
 
@@ -83,8 +77,6 @@ define([
 
             return deferredCall.promise();
         };
-
-
 
         this.getHostReverseDns = function(host){
             var deferredCall;
@@ -120,7 +112,6 @@ define([
             return deferredCall.promise();
         };
 
-
         this.getGeolocation = function(host){
             var deferredCall;
 
@@ -141,7 +132,6 @@ define([
             return deferredCall.promise();
         };
 
-
         this.getMeasurementInfo = function(ip){
             var deferredCall;
 
@@ -157,6 +147,10 @@ define([
 
         this.getHosts = function(){
             return translationConnector.getHosts();
+        };
+
+        this.getASes = function () {
+            return translationConnector.getASes();
         };
 
         this.getProbeInfo = function(probeId){
@@ -193,7 +187,6 @@ define([
 
             return deferredCall.promise();
         };
-
 
     };
 

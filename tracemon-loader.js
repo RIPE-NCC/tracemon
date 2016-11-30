@@ -42,13 +42,12 @@ requirejs.config({
         "tracemon.lib.text": TRACEMON_LIB_URL + "require-text",
         "tracemon.lib.stache": TRACEMON_LIB_URL + "stache",
 
-
-
         "tracemon.lib.d3-amd": TRACEMON_LIB_URL + "d3/js/d3.v3.amd",
         "tracemon.lib.d3-magnetic-cursor": TRACEMON_LIB_URL + "d3-magnetic-cursor",
 
-
         "tracemon.lib.range-slider": TRACEMON_LIB_URL + "range-slider/js/ion.rangeSlider",
+        "tracemon.lib.reparse": TRACEMON_LIB_URL + "reparse",
+        "tracemon.lib.expression": TRACEMON_LIB_URL + "expression",
 
 
         /* model */
@@ -86,6 +85,7 @@ requirejs.config({
         "tracemon.controller.main": TRACEMON_CONTROLLER_URL + "main",
         "tracemon.controller.history-manager": TRACEMON_CONTROLLER_URL + "HistoryManager",
         "tracemon.controller.header": TRACEMON_CONTROLLER_URL + "HeaderController",
+        "tracemon.controller.boolean-search": TRACEMON_CONTROLLER_URL + "BooleanSearchHelper",
 
         /* data manipulation */
         "tracemon.filter.relative-rtt": TRACEMON_FILTER_URL + "RelativeRTTFilter",

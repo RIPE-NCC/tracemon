@@ -12,7 +12,7 @@ define([
     "tracemon.lib.stache!main",
     "tracemon.lib.stache!search",
     "tracemon.lib.stache!select-view",
-    "tracemon.lib.stache!probes-selection",
+    "tracemon.lib.stache!probes-selection"
 ], function(utils, config, lang, $, d3, HeaderController, template, search, selectView, probesSelection){
 
     /**
@@ -24,7 +24,7 @@ define([
      */
 
     var TemplateManagerView = function(env){
-        var $this, lineFunction, blockListeners, headerController, oldShownSources, updateSearchField, firstDraw;
+        var $this, lineFunction, blockListeners, headerController, firstDraw;
 
         $this = this;
         firstDraw = true;
@@ -39,6 +39,17 @@ define([
             .y(function(d) { return d.y; })
             .interpolate("linear");
 
+        this.selectionDataset = {
+            outcome: {
+                text:'Outcome',
+                order: 2,
+                children: [
+                    {id: 'outcomereached', text: 'Target reached'},
+                    {id: 'outcomenot-reached', text: 'Target not reached '}
+                ]
+            }
+        };
+
         this.setListeners = function(){
             utils.observer.subscribe("draw", this.updateTemplatesInfo, this);
             utils.observer.subscribe("probe-set-changed", this.updateSearchBox, this);
@@ -47,19 +58,36 @@ define([
             utils.observer.subscribe("traceroute-clicked", this.showTraceroute, this);
         };
 
-        this.selectionDataset = {
-            outcome: {
-                text:'Outcome',
-                order: 2,
-                children: [
-                    {id: 'outcome:target-reached', text: 'Target reached'},
-                    {id: 'outcome:target-not-reached', text: 'Target not reached '}
-                ]
-            }
-        };
 
         this.getSelectionDataset = function(){
             var out = [];
+
+            this.selectionDataset.source = {
+                text: 'Source',
+                order: 1,
+                children: $.map(Object.keys(env.mainView.shownSources), function (probeId) {
+                    return { id: 'source' + probeId, text: 'Probe ' + probeId };
+                })
+            };
+
+            this.selectionDataset.as = {
+                text:'ASN',
+                order: 2,
+                children:
+                    $.map(env.connector.getASes(), function(asObj){
+                        return {id: 'as' + asObj.number, label: 'AS' + asObj.number, text: 'AS' + asObj.number + " - " + asObj.holder};
+                    })
+            };
+
+            // this.selectionDataset.country = {
+            //     text:'Country',
+            //     order: 2,
+            //     children:
+            //         $.map(this.values.shownSources, function(probeId){
+            //             return {id: 'probe:' + probeId, text: 'Probe ' + probeId};
+            //         })
+            // };
+
 
             for (var part in this.selectionDataset){
                 out.push(this.selectionDataset[part]);
@@ -70,6 +98,7 @@ define([
 
         this.updateTemplatesInfo = function(){
             if (firstDraw){
+                firstDraw = false;
                 this.updateSearchBox();
             }
 
@@ -87,15 +116,6 @@ define([
 
 
         this.updateSearchBox = function(){
-
-            this.selectionDataset.source = {
-                text: 'Source',
-                order: 1,
-                children: $.map(Object.keys(env.mainView.shownSources), function (probeId) {
-                    return { id: 'probe:' + probeId, text: 'Probe ' + probeId };
-                })
-            };
-
             if (this.searchField){
                 this.searchField.select2("destroy").empty();
             } else {
@@ -109,7 +129,13 @@ define([
                     tags: "true",
                     placeholder: "Focus on",
                     allowClear: true,
-                    data: this.getSelectionDataset()
+                    data: this.getSelectionDataset(),
+                    templateSelection: function(item){
+                        return item.label || item.text;
+                    }
+                })
+                .on("change", function (value) {
+                    headerController.search($(this).val());
                 })
                 .trigger('change.select2');
         };
@@ -315,40 +341,6 @@ define([
             this.dom.svg = html.find(".tracemon-svg");
 
             headerController = new HeaderController(env);
-
-
-            var data = [
-                //
-                // {
-                //     text:'ASN',
-                //     order: 2,
-                //     children:
-                //         $.map(this.values.shownSources, function(probeId){
-                //             return {id: 'probe:' + probeId, text: 'Probe ' + probeId};
-                //         })
-                // },
-                //
-                // {
-                //     text:'Country',
-                //     order: 2,
-                //     children:
-                //         $.map(this.values.shownSources, function(probeId){
-                //             return {id: 'probe:' + probeId, text: 'Probe ' + probeId};
-                //         })
-                // },
-
-                {
-                    text:'Outcome',
-                    order: 2,
-                    children: [
-                        {id: 'outcome:target-reached', text: 'Target reached'},
-                        {id: 'outcome:target-not-reached', text: 'Target not reached '}
-                    ]
-                }
-
-
-            ];
-
 
             env.parentDom
                 .find('.reproduction-speed>input')

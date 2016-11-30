@@ -98,6 +98,12 @@ define([
 
         this._setListeners = function(){
             utils.observer.subscribe("ixp-detected", this._updateIxp, this);
+            utils.observer.subscribe("traceroute-selected", function(traceroute){
+                this._highlightPath(utils.getIdFromIp(traceroute.stateKey), true);
+            }, this);
+            utils.observer.subscribe("traceroute-unselected", function(traceroute){
+                this._highlightPath(utils.getIdFromIp(traceroute.stateKey), false);
+            }, this);
         };
 
         this._updateIxp = function(host){
@@ -213,7 +219,7 @@ define([
                 $this.nodes[traceroute.source.getId()] = traceroute.source;
                 lastHost = traceroute.source;
 
-                tracerouteId = utils.getIdFromIp(traceroute.source.getId() + '-' + traceroute.target.getId());
+                tracerouteId = utils.getIdFromIp(traceroute.stateKey);
 
                 $this.traceroutes[tracerouteId] = {
                     model: traceroute,
@@ -382,11 +388,6 @@ define([
             }
         };
 
-
-        this._clickPath = function(pathId){
-            utils.observer.publish("traceroute-clicked", this.traceroutes[pathId].model);
-        };
-
         this._highlightPath = function(pathId, highlighted){
             var hosts, nodesToUpdate, nodes, path;
 
@@ -427,7 +428,6 @@ define([
 
             this._showDirection(path, highlighted);
 
-            utils.observer.publish("traceroute-selected", this.traceroutes[pathId].model);
         };
 
         this._computeLayout = function(mesh){
@@ -568,13 +568,13 @@ define([
                     return path.id;
                 })
                 .on("mouseenter", function(path){
-                    $this._highlightPath(path.id, true);
+                    utils.observer.publish("traceroute-selected", $this.traceroutes[path.id].model);
                 })
                 .on("mouseout", function(path){
-                    $this._highlightPath(path.id, false);
+                    utils.observer.publish("traceroute-unselected", $this.traceroutes[path.id].model);
                 })
                 .on("mousedown", function(path){
-                    $this._clickPath(path.id);
+                    utils.observer.publish("traceroute-clicked", $this.traceroutes[path.id].model);
                 });
 
             d3Data
@@ -595,67 +595,6 @@ define([
                 });
         };
 
-
-        // this._drawEdges = function(){
-        //     var edge, points, path, paths, d3Data, pathId;
-        //
-        //     paths = [];
-        //
-        //     cache.edges = $.map(this.edges, function(edge){
-        //         return env.mainView.graph.getEdge(edge.start.getId(), edge.stop.getId());
-        //     });
-        //
-        //     var lineFunction = d3.svg.line()
-        //         .x(function(d) { return d.x; })
-        //         .y(function(d) { return d.y; })
-        //         .interpolate("basis");
-        //
-        //
-        //     for (var n=0,length=cache.edges.length; n<length; n++){
-        //         edge = cache.edges[n];
-        //
-        //         points = [];
-        //         if (edge.from != edge.to) {
-        //             points.push(env.mainView.graph.getNode(edge.from));
-        //             points = points.concat(edge.points);
-        //             points.push(env.mainView.graph.getNode(edge.to));
-        //
-        //             pathId = utils.getIdFromIp(edge.id);
-        //             paths.push({
-        //                 id: pathId,
-        //                 d: lineFunction(points),
-        //                 class: "edge edge-normal edge-" + pathId
-        //             });
-        //         }
-        //     }
-        //
-        //     if (paths.indexOf(undefined) >= 0){
-        //         console.log(paths);
-        //     }
-        //     d3Data = env.mainView.pathsContainer
-        //         .selectAll("path.edge-normal")
-        //         .data(paths, function(path){
-        //             return path.id;
-        //         });
-        //
-        //     d3Data
-        //         .exit()
-        //         .remove();
-        //
-        //     d3Data
-        //         .enter()
-        //         .append("path");
-        //
-        //     d3Data
-        //         .attr("class", function(path){
-        //             return path.class;
-        //         })
-        //         .transition()
-        //         .duration(4000)
-        //         .attr("d", function(path){
-        //             return path.d;
-        //         });
-        // };
 
         this._animatePathChange = function (oldTraceroute, newTraceroute) {
             var tracerouteId, element, lineFunction;
