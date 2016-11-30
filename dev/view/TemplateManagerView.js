@@ -24,9 +24,10 @@ define([
      */
 
     var TemplateManagerView = function(env){
-        var $this, lineFunction, blockListeners, headerController;
+        var $this, lineFunction, blockListeners, headerController, oldShownSources, updateSearchField, firstDraw;
 
         $this = this;
+        firstDraw = true;
         this.lang = lang;
         this.env = env;
         this.values = {};
@@ -40,23 +41,79 @@ define([
 
         this.setListeners = function(){
             utils.observer.subscribe("draw", this.updateTemplatesInfo, this);
+            utils.observer.subscribe("probe-set-changed", this.updateSearchBox, this);
             utils.observer.subscribe("updates-history", this.updateTimeline, this);
             utils.observer.subscribe("update-time-range", this.updateTimeline, this);
             utils.observer.subscribe("traceroute-clicked", this.showTraceroute, this);
         };
 
-
-        this.updateTemplatesInfo = function(){
-            if (!blockListeners) {
-                this.values.target = "google.it";
-                this.values.totalProbes = env.connector.loadedProbes.length;
-                this.values.numberProbes = this.values.numberProbes || Object.keys(env.mainView.shownSources).length;
-
-                env.parentDom.find('.value-target').text($this.getMonitoredTargets());
-                env.parentDom.find('.value-number-probes').text($this.values.numberProbes);
-                env.parentDom.find('.value-total-probes').text($this.values.totalProbes);
+        this.selectionDataset = {
+            outcome: {
+                text:'Outcome',
+                order: 2,
+                children: [
+                    {id: 'outcome:target-reached', text: 'Target reached'},
+                    {id: 'outcome:target-not-reached', text: 'Target not reached '}
+                ]
             }
         };
+
+        this.getSelectionDataset = function(){
+            var out = [];
+
+            for (var part in this.selectionDataset){
+                out.push(this.selectionDataset[part]);
+            }
+
+            return out;
+        };
+
+        this.updateTemplatesInfo = function(){
+            if (firstDraw){
+                this.updateSearchBox();
+            }
+
+            if (!blockListeners) {
+                this.values.target = this.getMonitoredTargets();
+                this.values.totalProbes = env.connector.loadedProbes.length;
+                this.values.numberProbes = this.values.numberProbes || Object.keys(env.mainView.shownSources).length;
+                this.values.probes = Object.keys(env.mainView.shownSources);
+
+                env.parentDom.find('.value-target').text(this.values.target);
+                env.parentDom.find('.value-number-probes').text(this.values.numberProbes);
+                env.parentDom.find('.value-total-probes').text(this.values.totalProbes);
+            }
+        };
+
+
+        this.updateSearchBox = function(){
+
+            this.selectionDataset.source = {
+                text: 'Source',
+                order: 1,
+                children: $.map(Object.keys(env.mainView.shownSources), function (probeId) {
+                    return { id: 'probe:' + probeId, text: 'Probe ' + probeId };
+                })
+            };
+
+            if (this.searchField){
+                this.searchField.select2("destroy").empty();
+            } else {
+                this.searchField = env.parentDom
+                    .find(".search-box-field");
+            }
+
+            this.searchField
+                .select2({
+                    debug: true,
+                    tags: "true",
+                    placeholder: "Focus on",
+                    allowClear: true,
+                    data: this.getSelectionDataset()
+                })
+                .trigger('change.select2');
+        };
+
 
         this.getMonitoredTargets = function () {
             return "TODO"; // TODO
@@ -244,7 +301,7 @@ define([
 
 
         this.init = function() {
-            var html, partials, timeRange;
+            var html, partials;
 
             this.setListeners();
             partials = {
@@ -258,6 +315,48 @@ define([
             this.dom.svg = html.find(".tracemon-svg");
 
             headerController = new HeaderController(env);
+
+            var data = [
+                // {
+                //     text:'Source',
+                //     order: 1,
+                //     children:
+                //         $.map(Object.keys(env.mainView.shownSources), function(probeId){
+                //             console.log("DAIIII", {id: 'probe:' + probeId, text: 'Probe ' + probeId});
+                //             return {id: 'probe:' + probeId, text: 'Probe ' + probeId};
+                //         })
+                // },
+                //
+                // {
+                //     text:'ASN',
+                //     order: 2,
+                //     children:
+                //         $.map(this.values.shownSources, function(probeId){
+                //             return {id: 'probe:' + probeId, text: 'Probe ' + probeId};
+                //         })
+                // },
+                //
+                // {
+                //     text:'Country',
+                //     order: 2,
+                //     children:
+                //         $.map(this.values.shownSources, function(probeId){
+                //             return {id: 'probe:' + probeId, text: 'Probe ' + probeId};
+                //         })
+                // },
+
+                {
+                    text:'Outcome',
+                    order: 2,
+                    children: [
+                        {id: 'outcome:target-reached', text: 'Target reached'},
+                        {id: 'outcome:target-not-reached', text: 'Target not reached '}
+                    ]
+                }
+
+
+            ];
+
 
             env.parentDom
                 .find('.reproduction-speed>input')

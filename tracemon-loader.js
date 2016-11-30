@@ -186,6 +186,8 @@ define([
             "queryParams": queryParams
         };
 
+        window.env = env; // TEMP: just for debugging
+
 
 
         /*
@@ -202,7 +204,7 @@ define([
 
         if (!instanceParams.dev){
             styleDownloads = [
-                TRACEMON_VIEW_URL + "css/style-lib-dist.min.css"
+                // TRACEMON_VIEW_URL + "css/style-lib-dist.min.css"
             ];
         } else {
 
@@ -213,6 +215,8 @@ define([
                 TRACEMON_LIB_URL + "bootstrap/css/bootstrap-theme.min.css",
                 TRACEMON_LIB_URL + "bootstrap-table/bootstrap-table.min.css",
                 TRACEMON_LIB_URL + "bootstrap-slider/css/bootstrap-slider.css",
+                TRACEMON_LIB_URL + "bootstrap-select/css/bootstrap-select.css",
+                TRACEMON_LIB_URL + "bootstrap-select2/css/bootstrap-select.css",
                 TRACEMON_VIEW_URL + "css/bootstrap-search.css",
                 TRACEMON_LIB_URL + "range-slider/css/ion.rangeSlider.css",
                 TRACEMON_LIB_URL + "range-slider/css/ion.rangeSlider.skinModern.css"

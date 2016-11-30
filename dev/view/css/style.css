@@ -119,24 +119,24 @@
 }
 
 
-/* css for timepicker */
-.ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
-.ui-timepicker-div dl { text-align: left; }
-.ui-timepicker-div dl dt { float: left; clear:left; padding: 0 0 0 5px; }
-.ui-timepicker-div dl dd { margin: 0 10px 10px 45%; }
-.ui-timepicker-div td { font-size: 90%; }
-.ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
+/*!* css for timepicker *!*/
+/*.ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }*/
+/*.ui-timepicker-div dl { text-align: left; }*/
+/*.ui-timepicker-div dl dt { float: left; clear:left; padding: 0 0 0 5px; }*/
+/*.ui-timepicker-div dl dd { margin: 0 10px 10px 45%; }*/
+/*.ui-timepicker-div td { font-size: 90%; }*/
+/*.ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }*/
 
-.ui-timepicker-rtl{ direction: rtl; }
-.ui-timepicker-rtl dl { text-align: right; padding: 0 5px 0 0; }
-.ui-timepicker-rtl dl dt{ float: right; clear: right; }
-.ui-timepicker-rtl dl dd { margin: 0 45% 10px 10px; }
+/*.ui-timepicker-rtl{ direction: rtl; }*/
+/*.ui-timepicker-rtl dl { text-align: right; padding: 0 5px 0 0; }*/
+/*.ui-timepicker-rtl dl dt{ float: right; clear: right; }*/
+/*.ui-timepicker-rtl dl dd { margin: 0 45% 10px 10px; }*/
 
-.ui-icon-gripsmall-diagonal-se{ /*Workaround for jquery-ui bug*/
-    background-position: -64px -224px !important;
-    bottom: 0 !important;
-    right: 0 !important;
-}
+/*.ui-icon-gripsmall-diagonal-se{ !*Workaround for jquery-ui bug*!*/
+    /*background-position: -64px -224px !important;*/
+    /*bottom: 0 !important;*/
+    /*right: 0 !important;*/
+/*}*/
 
 .tracemon-footer{
     width: 100%;
@@ -332,7 +332,6 @@
 .timeline-controller{
 }
 
-
 .legend_latencymon {
     margin-left: 80px;
 }
@@ -356,4 +355,30 @@
     position: absolute;
     top: 0;
     right: 3px;
+}
+
+.search-box {
+    font-size: 14px;
+}
+
+.search-box-field{
+    width: 100%;
+    border-right: 0;
+    height: 100%;
+}
+
+.select2-selection__rendered {
+    height: 30px;
+    overflow-y: hidden;
+}
+
+.select2-selection__choice{
+
+}
+
+.select2-container--open{
+    width: 800px!important;
+    position: absolute!important;
+    right: 39px!important;
+    z-index: 100;
 }
