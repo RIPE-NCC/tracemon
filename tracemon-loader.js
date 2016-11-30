@@ -74,7 +74,6 @@ requirejs.config({
 
         /* model*/
         "tracemon.model.host": TRACEMON_MODEL_URL + "Host",
-        "tracemon.model.facade": TRACEMON_MODEL_URL + "Facade",
         "tracemon.model.autonomousSystem": TRACEMON_MODEL_URL + "AutonomousSystem",
         "tracemon.model.hop": TRACEMON_MODEL_URL + "Hop",
         "tracemon.model.measurement": TRACEMON_MODEL_URL + "Measurement",

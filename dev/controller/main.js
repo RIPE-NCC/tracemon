@@ -2,7 +2,6 @@ define([
     "tracemon.env.config",
     "tracemon.env.utils",
     "tracemon.lib.jquery-amd",
-    "tracemon.model.facade",
     "tracemon.model.autonomousSystem",
     "tracemon.model.hop",
     "tracemon.model.host",
@@ -12,7 +11,7 @@ define([
     "tracemon.view.main",
     "tracemon.controller.history-manager",
     "tracemon.view.templateManager"
-], function(config, utils, $, Facade, AutonomousSystem, Hop, Host, Measurement, Traceroute, Connector, MainView,
+], function(config, utils, $, AutonomousSystem, Hop, Host, Measurement, Traceroute, Connector, MainView,
             HistoryManager, TemplateManagerView) {
 
     var main = function (env) {

@@ -316,16 +316,8 @@ define([
 
             headerController = new HeaderController(env);
 
+
             var data = [
-                // {
-                //     text:'Source',
-                //     order: 1,
-                //     children:
-                //         $.map(Object.keys(env.mainView.shownSources), function(probeId){
-                //             console.log("DAIIII", {id: 'probe:' + probeId, text: 'Probe ' + probeId});
-                //             return {id: 'probe:' + probeId, text: 'Probe ' + probeId};
-                //         })
-                // },
                 //
                 // {
                 //     text:'ASN',

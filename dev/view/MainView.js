@@ -22,9 +22,7 @@ define([
         firstDraw = true;
         this.view = null;
         this.viewName = env.viewName;
-
         this.latencymon = new LatencyMonAdapter(env);
-
         this.graph = new GraphWrapper(env);
 
         this.setListeners = function(){
