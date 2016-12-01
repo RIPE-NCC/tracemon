@@ -15,7 +15,7 @@
         "tracemon.lib.bootstrap",
         "tracemon.lib.bootstrap-table",
         "tracemon.lib.bootstrap-slider",
-        "tracemon.lib.bootstrap-select",
+        // "tracemon.lib.bootstrap-select",
         "tracemon.lib.bootstrap-select2",
         "tracemon.lib.range-slider"
     ],
@@ -27,7 +27,7 @@
         "tracemon.lib.bootstrap": "dev/libs/bootstrap/js/bootstrap.min",
         "tracemon.lib.bootstrap-slider": "dev/libs/bootstrap-slider/js/bootstrap-slider",
         "tracemon.lib.bootstrap-table": "dev/libs/bootstrap-table/bootstrap-table.min",
-        "tracemon.lib.bootstrap-select": "dev/libs/bootstrap-select/js/bootstrap-select",
+        // "tracemon.lib.bootstrap-select": "dev/libs/bootstrap-select/js/bootstrap-select",
         "tracemon.lib.bootstrap-select2": "dev/libs/bootstrap-select2/js/bootstrap-select",
         "tracemon.lib.range-slider": "dev/libs/range-slider/js/ion.rangeSlider"
     },

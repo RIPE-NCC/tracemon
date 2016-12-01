@@ -6,104 +6,83 @@ requirejs.config({
     waitSeconds: 30,
     paths:{
         /* environment */
-        "tracemon.env": TRACEMON_ENVIRONMENT_URL + "environment",
-        "tracemon.env.utils": TRACEMON_ENVIRONMENT_URL + "utils",
-        "tracemon.env.config": TRACEMON_ENVIRONMENT_URL + "config",
-        "tracemon.env.params-manager": TRACEMON_ENVIRONMENT_URL + "ParamsManager",
-        "tracemon.env.history-manager": TRACEMON_ENVIRONMENT_URL + "HistoryManager",
-        "tracemon.env.languages.en": TRACEMON_ENVIRONMENT_URL + "languages/language.eng",
-        "tracemon.env.latencymon-adapter": TRACEMON_ENVIRONMENT_URL + "latencyMonAdapter",
-
+        "tracemon.env": window.atlas._widgets.tracemon.urls.env + "environment",
+        "tracemon.env.utils": window.atlas._widgets.tracemon.urls.env + "utils",
+        "tracemon.env.config": window.atlas._widgets.tracemon.urls.env + "config",
+        "tracemon.env.params-manager": window.atlas._widgets.tracemon.urls.env + "ParamsManager",
+        "tracemon.env.history-manager": window.atlas._widgets.tracemon.urls.env + "HistoryManager",
+        "tracemon.env.languages.en": window.atlas._widgets.tracemon.urls.env + "languages/language.eng",
+        "tracemon.env.latencymon-adapter": window.atlas._widgets.tracemon.urls.env + "latencyMonAdapter",
 
         /* libs */
-        //"tracemon.lib.d3": TRACEMON_LIB_URL + "d3/js/d3.v3.amd",
-
-        "tracemon.lib.jquery": TRACEMON_LIB_URL + "jquery/jquery-1.11.1.min",
-        "tracemon.lib.jquery-ui": TRACEMON_LIB_URL + "jquery/jquery-ui.min",
-        "tracemon.lib.tree-map": TRACEMON_LIB_URL + "TreeMap",
-        "tracemon.lib.date-format": TRACEMON_LIB_URL + "dateFormat",
-        "tracemon.lib.bootstrap": TRACEMON_LIB_URL + "bootstrap/js/bootstrap.min",
-        "tracemon.lib.bootstrap-slider": TRACEMON_LIB_URL + "bootstrap-slider/js/bootstrap-slider",
-        "tracemon.lib.bootstrap-select": TRACEMON_LIB_URL + "bootstrap-select/js/bootstrap-select",
-
-        "tracemon.lib.socket-io": TRACEMON_LIB_URL + "socket.io",
-        "tracemon.lib.bootstrap-table": TRACEMON_LIB_URL + "bootstrap-table/bootstrap-table.min",
-        "tracemon.lib.jquery-amd": TRACEMON_LIB_URL + "jquery-libs-amd",
-        "tracemon.lib.jquery-libs": TRACEMON_LIB_URL + "jquery-libs",
-        "tracemon.lib.ip": TRACEMON_LIB_URL + "ip",
-        "tracemon.lib.parsePrefix": TRACEMON_LIB_URL + "parsePrefix",
-
-        "tracemon.lib.dagre-d3": TRACEMON_LIB_URL + "dagre-d3",
-        "tracemon.lib.dagre": TRACEMON_LIB_URL + "dagre",
-
-
-        "tracemon.lib.mustache": TRACEMON_LIB_URL + "mustache",
-        "tracemon.lib.handlebars": TRACEMON_LIB_URL + "handlebars",
-        "tracemon.lib.text": TRACEMON_LIB_URL + "require-text",
-        "tracemon.lib.stache": TRACEMON_LIB_URL + "stache",
-
-        "tracemon.lib.d3-amd": TRACEMON_LIB_URL + "d3/js/d3.v3.amd",
-        "tracemon.lib.d3-magnetic-cursor": TRACEMON_LIB_URL + "d3-magnetic-cursor",
-
-        "tracemon.lib.range-slider": TRACEMON_LIB_URL + "range-slider/js/ion.rangeSlider",
-        "tracemon.lib.reparse": TRACEMON_LIB_URL + "reparse",
-        "tracemon.lib.expression": TRACEMON_LIB_URL + "expression",
-
-
-        /* model */
-
+        "tracemon.lib.jquery": window.atlas._widgets.tracemon.urls.libs + "jquery/jquery-1.11.1.min",
+        "tracemon.lib.jquery-ui": window.atlas._widgets.tracemon.urls.libs + "jquery/jquery-ui.min",
+        "tracemon.lib.tree-map": window.atlas._widgets.tracemon.urls.libs + "TreeMap",
+        "tracemon.lib.date-format": window.atlas._widgets.tracemon.urls.libs + "dateFormat",
+        "tracemon.lib.bootstrap": window.atlas._widgets.tracemon.urls.libs + "bootstrap/js/bootstrap.min",
+        "tracemon.lib.bootstrap-slider": window.atlas._widgets.tracemon.urls.libs + "bootstrap-slider/js/bootstrap-slider",
+        "tracemon.lib.bootstrap-select": window.atlas._widgets.tracemon.urls.libs + "bootstrap-select/js/bootstrap-select",
+        "tracemon.lib.socket-io": window.atlas._widgets.tracemon.urls.libs + "socket.io",
+        "tracemon.lib.bootstrap-table": window.atlas._widgets.tracemon.urls.libs + "bootstrap-table/bootstrap-table.min",
+        "tracemon.lib.jquery-amd": window.atlas._widgets.tracemon.urls.libs + "jquery-libs-amd",
+        "tracemon.lib.jquery-libs": window.atlas._widgets.tracemon.urls.libs + "jquery-libs",
+        "tracemon.lib.ip": window.atlas._widgets.tracemon.urls.libs + "ip",
+        "tracemon.lib.parsePrefix": window.atlas._widgets.tracemon.urls.libs + "parsePrefix",
+        "tracemon.lib.dagre-d3": window.atlas._widgets.tracemon.urls.libs + "dagre-d3",
+        "tracemon.lib.dagre": window.atlas._widgets.tracemon.urls.libs + "dagre",
+        "tracemon.lib.mustache": window.atlas._widgets.tracemon.urls.libs + "mustache",
+        "tracemon.lib.handlebars": window.atlas._widgets.tracemon.urls.libs + "handlebars",
+        "tracemon.lib.text": window.atlas._widgets.tracemon.urls.libs + "require-text",
+        "tracemon.lib.stache": window.atlas._widgets.tracemon.urls.libs + "stache",
+        "tracemon.lib.d3-amd": window.atlas._widgets.tracemon.urls.libs + "d3/js/d3.v3.amd",
+        "tracemon.lib.d3-magnetic-cursor": window.atlas._widgets.tracemon.urls.libs + "d3-magnetic-cursor",
+        "tracemon.lib.range-slider": window.atlas._widgets.tracemon.urls.libs + "range-slider/js/ion.rangeSlider",
+        "tracemon.lib.reparse": window.atlas._widgets.tracemon.urls.libs + "reparse",
+        "tracemon.lib.expression": window.atlas._widgets.tracemon.urls.libs + "expression",
 
         /* view */
-        "tracemon.view.main": TRACEMON_VIEW_URL + "MainView",
-        "tracemon.view.single-host-view": TRACEMON_VIEW_URL + "SingleHostView",
-        "tracemon.view.as-view": TRACEMON_VIEW_URL + "ASView",
-        "tracemon.view.location-view": TRACEMON_VIEW_URL + "LocationView",
-        "tracemon.view.dagre-wrapper": TRACEMON_VIEW_URL + "DagreWrapper",
-        "tracemon.view.label-placement": TRACEMON_VIEW_URL + "LabelPlacementHelper",
-
-
-        "tracemon.view.viewport": TRACEMON_VIEW_URL + "ViewPort",
-        "tracemon.view.chartManager": TRACEMON_VIEW_URL + "ChartManager",
-        "tracemon.view.templateManager": TRACEMON_VIEW_URL + "TemplateManagerView",
-        "tracemon.view.timeOverview": TRACEMON_VIEW_URL + "TimeOverviewView",
+        "tracemon.view.main": window.atlas._widgets.tracemon.urls.view + "MainView",
+        "tracemon.view.single-host-view": window.atlas._widgets.tracemon.urls.view + "SingleHostView",
+        "tracemon.view.as-view": window.atlas._widgets.tracemon.urls.view + "ASView",
+        "tracemon.view.location-view": window.atlas._widgets.tracemon.urls.view + "LocationView",
+        "tracemon.view.dagre-wrapper": window.atlas._widgets.tracemon.urls.view + "DagreWrapper",
+        "tracemon.view.label-placement": window.atlas._widgets.tracemon.urls.view + "LabelPlacementHelper",
+        "tracemon.view.viewport": window.atlas._widgets.tracemon.urls.view + "ViewPort",
+        "tracemon.view.chartManager": window.atlas._widgets.tracemon.urls.view + "ChartManager",
+        "tracemon.view.templateManager": window.atlas._widgets.tracemon.urls.view + "TemplateManagerView",
+        "tracemon.view.timeOverview": window.atlas._widgets.tracemon.urls.view + "TimeOverviewView",
 
         /* view.svg */
-        "tracemon.view.svg.chart": TRACEMON_VIEW_URL + "svg/SvgChartView",
-
+        "tracemon.view.svg.chart": window.atlas._widgets.tracemon.urls.view + "svg/SvgChartView",
 
         /* model*/
-        "tracemon.model.host": TRACEMON_MODEL_URL + "Host",
-        "tracemon.model.autonomousSystem": TRACEMON_MODEL_URL + "AutonomousSystem",
-        "tracemon.model.hop": TRACEMON_MODEL_URL + "Hop",
-        "tracemon.model.measurement": TRACEMON_MODEL_URL + "Measurement",
-        "tracemon.model.traceroute": TRACEMON_MODEL_URL + "Traceroute",
-        "tracemon.model.attempt": TRACEMON_MODEL_URL + "Attempt",
+        "tracemon.model.host": window.atlas._widgets.tracemon.urls.model + "Host",
+        "tracemon.model.autonomousSystem": window.atlas._widgets.tracemon.urls.model + "AutonomousSystem",
+        "tracemon.model.hop": window.atlas._widgets.tracemon.urls.model + "Hop",
+        "tracemon.model.measurement": window.atlas._widgets.tracemon.urls.model + "Measurement",
+        "tracemon.model.traceroute": window.atlas._widgets.tracemon.urls.model + "Traceroute",
+        "tracemon.model.attempt": window.atlas._widgets.tracemon.urls.model + "Attempt",
 
         /* controller */
-        "tracemon.controller.gesture-manager": TRACEMON_CONTROLLER_URL + "GesturesManager",
-        "tracemon.controller.url-manager": TRACEMON_CONTROLLER_URL + "UrlManager",
-        "tracemon.controller.main": TRACEMON_CONTROLLER_URL + "main",
-        "tracemon.controller.history-manager": TRACEMON_CONTROLLER_URL + "HistoryManager",
-        "tracemon.controller.header": TRACEMON_CONTROLLER_URL + "HeaderController",
-        "tracemon.controller.boolean-search": TRACEMON_CONTROLLER_URL + "BooleanSearchHelper",
-
-        /* data manipulation */
-        "tracemon.filter.relative-rtt": TRACEMON_FILTER_URL + "RelativeRTTFilter",
-        "tracemon.filter.natural-rtt": TRACEMON_FILTER_URL + "NaturalRTTFilter",
+        "tracemon.controller.gesture-manager": window.atlas._widgets.tracemon.urls.controller + "GesturesManager",
+        "tracemon.controller.url-manager": window.atlas._widgets.tracemon.urls.controller + "UrlManager",
+        "tracemon.controller.main": window.atlas._widgets.tracemon.urls.controller + "main",
+        "tracemon.controller.history-manager": window.atlas._widgets.tracemon.urls.controller + "HistoryManager",
+        "tracemon.controller.header": window.atlas._widgets.tracemon.urls.controller + "HeaderController",
+        "tracemon.controller.boolean-search": window.atlas._widgets.tracemon.urls.controller + "BooleanSearchHelper",
 
 
         /* connector */
-        "tracemon.connector.facade": TRACEMON_CONNECTOR_URL + "ConnectorFacade",
-        "tracemon.connector.history": TRACEMON_CONNECTOR_URL + "HistoryConnector",
-        "tracemon.connector.translation": TRACEMON_CONNECTOR_URL + "TranslationConnector",
-        "tracemon.connector.live": TRACEMON_CONNECTOR_URL + "LiveConnector",
-        "tracemon.connector.peering-db": TRACEMON_CONNECTOR_URL + "PeeringDbConnector",
-        "tracemon.connector.host-helper": TRACEMON_CONNECTOR_URL + "HostClassificationHelper",
-        "tracemon.connector.asn": TRACEMON_CONNECTOR_URL + "AsnLookupConnector",
-
+        "tracemon.connector.facade": window.atlas._widgets.tracemon.urls.connector + "ConnectorFacade",
+        "tracemon.connector.history": window.atlas._widgets.tracemon.urls.connector + "HistoryConnector",
+        "tracemon.connector.translation": window.atlas._widgets.tracemon.urls.connector + "TranslationConnector",
+        "tracemon.connector.live": window.atlas._widgets.tracemon.urls.connector + "LiveConnector",
+        "tracemon.connector.peering-db": window.atlas._widgets.tracemon.urls.connector + "PeeringDbConnector",
+        "tracemon.connector.host-helper": window.atlas._widgets.tracemon.urls.connector + "HostClassificationHelper",
+        "tracemon.connector.asn": window.atlas._widgets.tracemon.urls.connector + "AsnLookupConnector",
 
         /* session */
-        "tracemon.session.facade": TRACEMON_SESSION_URL + "SessionManager"
+        "tracemon.session.facade": window.atlas._widgets.tracemon.urls.session + "SessionManager"
     },
     shim:{
 
@@ -203,22 +182,22 @@ define([
 
         if (!instanceParams.dev){
             styleDownloads = [
-                // TRACEMON_VIEW_URL + "css/style-lib-dist.min.css"
+                // window.atlas._widgets.tracemon.urls.view + "css/style-lib-dist.min.css"
             ];
         } else {
 
             styleDownloads = [
-                TRACEMON_VIEW_URL + "css/style.css",
-                TRACEMON_LIB_URL + "jquery/jquery-ui.min.css",
-                TRACEMON_LIB_URL + "bootstrap/css/bootstrap.min.css",
-                TRACEMON_LIB_URL + "bootstrap/css/bootstrap-theme.min.css",
-                TRACEMON_LIB_URL + "bootstrap-table/bootstrap-table.min.css",
-                TRACEMON_LIB_URL + "bootstrap-slider/css/bootstrap-slider.css",
-                TRACEMON_LIB_URL + "bootstrap-select/css/bootstrap-select.css",
-                TRACEMON_LIB_URL + "bootstrap-select2/css/bootstrap-select.css",
-                TRACEMON_VIEW_URL + "css/bootstrap-search.css",
-                TRACEMON_LIB_URL + "range-slider/css/ion.rangeSlider.css",
-                TRACEMON_LIB_URL + "range-slider/css/ion.rangeSlider.skinModern.css"
+                window.atlas._widgets.tracemon.urls.view + "css/style.css",
+                window.atlas._widgets.tracemon.urls.libs + "jquery/jquery-ui.min.css",
+                window.atlas._widgets.tracemon.urls.libs + "bootstrap/css/bootstrap.min.css",
+                window.atlas._widgets.tracemon.urls.libs + "bootstrap/css/bootstrap-theme.min.css",
+                window.atlas._widgets.tracemon.urls.libs + "bootstrap-table/bootstrap-table.min.css",
+                window.atlas._widgets.tracemon.urls.libs + "bootstrap-slider/css/bootstrap-slider.css",
+                window.atlas._widgets.tracemon.urls.libs + "bootstrap-select/css/bootstrap-select.css",
+                window.atlas._widgets.tracemon.urls.libs + "bootstrap-select2/css/bootstrap-select.css",
+                window.atlas._widgets.tracemon.urls.view + "css/bootstrap-search.css",
+                window.atlas._widgets.tracemon.urls.libs + "range-slider/css/ion.rangeSlider.css",
+                window.atlas._widgets.tracemon.urls.libs + "range-slider/css/ion.rangeSlider.skinModern.css"
             ];
 
         }

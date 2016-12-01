@@ -19,7 +19,7 @@ deployment_dir='/Volumes/PersonalDisk/work/git-workspace/atlas-ui/measurements/s
 #fi
 
 
-r.js -o app.build.1.js
+#r.js -o app.build.1.js
 #r.js -o app.build.2.js
 
 cp -fR * ${deployment_dir}
