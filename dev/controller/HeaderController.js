@@ -43,7 +43,7 @@ define([
                 results = searchHelper.search(this._getSearchKey(searchString));
 
                 for (var n=0,length=results.length; n<length; n++) {
-                    utils.observer.publish("traceroute-selected", results[n]);
+                    utils.observer.publish("view.traceroute:mousein", results[n]);
                 }
             }
 

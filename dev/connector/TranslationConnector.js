@@ -108,7 +108,7 @@ define([
                                 multicastSupport: ixp.lan.ixp.proto_multicast
                             }
                         };
-                        utils.observer.publish("ixp-detected", attemptObj);
+                        utils.observer.publish("model.host:ixp", attemptObj);
                     }
                 });
 
@@ -162,10 +162,10 @@ define([
                                     }
 
                                     $this.hostByIp[hostAddress] = attemptObj.host;
-                                    utils.observer.publish("new-host", attemptObj.host);
+                                    utils.observer.publish("model.host:new", attemptObj.host);
                                 } else {
                                     attemptObj.host = new Host(null);
-                                    utils.observer.publish("new-host", attemptObj.host);
+                                    utils.observer.publish("model.host:new", attemptObj.host);
                                 }
                             }
 

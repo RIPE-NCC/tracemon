@@ -51,11 +51,12 @@ define([
         };
 
         this.setListeners = function(){
-            utils.observer.subscribe("draw", this.updateTemplatesInfo, this);
-            utils.observer.subscribe("probe-set-changed", this.updateSearchBox, this);
-            utils.observer.subscribe("updates-history", this.updateTimeline, this);
-            utils.observer.subscribe("update-time-range", this.updateTimeline, this);
-            utils.observer.subscribe("traceroute-clicked", this.showTraceroute, this);
+            utils.observer.subscribe("view.status:change", this.updateTemplatesInfo, this);
+            utils.observer.subscribe("view:probe-set", this.updateSearchBox, this);
+            utils.observer.subscribe("model.history:new", this.updateTimeline, this);
+            utils.observer.subscribe("model.history:change", this.updateTimeline, this);
+            utils.observer.subscribe("view.time-selection:change", this.updateTimeline, this);
+            utils.observer.subscribe("view.traceroute:click", this.showTraceroute, this);
         };
 
 
@@ -185,7 +186,7 @@ define([
                         });
 
                     $this.values.numberProbes = probeSet.length;
-                    utils.observer.publish("probe-set-changed", probeSet);
+                    utils.observer.publish("view:probe-set", probeSet);
                     parent.fadeOut();
                 });
 

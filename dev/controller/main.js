@@ -107,7 +107,6 @@ define([
                     .apply($, deferredArray)
                     .then(function(){
                         env.historyManager.getLastState();
-                        // env.template.updateTimeline();
                         // env.template.showLoadingImage(false);
                     });
 
@@ -171,11 +170,10 @@ define([
         };
 
         this.setTimeRange = function(start, stop){ // Accept timestamps for public API
-
             env.startDate = moment.unix(start).utc();
             env.stopDate = moment.unix(stop).utc();
             env.main.updateCurrentData();
-            utils.observer.publish("update-time-range", { startDate: env.startDate, stopDate: env.stopDate });
+            utils.observer.publish("view.time-selection:change", { startDate: env.startDate, stopDate: env.stopDate });
         };
 
         this.init = function(){
@@ -195,7 +193,6 @@ define([
 
             this._startProcedure();
             env.template.init();
-
 
         };
 

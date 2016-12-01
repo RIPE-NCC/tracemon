@@ -97,11 +97,11 @@ define([
         };
 
         this._setListeners = function(){
-            utils.observer.subscribe("ixp-detected", this._updateIxp, this);
-            utils.observer.subscribe("traceroute-selected", function(traceroute){
+            utils.observer.subscribe("model.host:ixp", this._updateIxp, this);
+            utils.observer.subscribe("view.traceroute:mousein", function(traceroute){
                 this._highlightPath(utils.getIdFromIp(traceroute.stateKey), true);
             }, this);
-            utils.observer.subscribe("traceroute-unselected", function(traceroute){
+            utils.observer.subscribe("view.traceroute:mouseout", function(traceroute){
                 this._highlightPath(utils.getIdFromIp(traceroute.stateKey), false);
             }, this);
         };
@@ -568,13 +568,13 @@ define([
                     return path.id;
                 })
                 .on("mouseenter", function(path){
-                    utils.observer.publish("traceroute-selected", $this.traceroutes[path.id].model);
+                    utils.observer.publish("view.traceroute:mousein", $this.traceroutes[path.id].model);
                 })
                 .on("mouseout", function(path){
-                    utils.observer.publish("traceroute-unselected", $this.traceroutes[path.id].model);
+                    utils.observer.publish("view.traceroute:mouseout", $this.traceroutes[path.id].model);
                 })
                 .on("mousedown", function(path){
-                    utils.observer.publish("traceroute-clicked", $this.traceroutes[path.id].model);
+                    utils.observer.publish("view.traceroute:click", $this.traceroutes[path.id].model);
                 });
 
             d3Data

@@ -58,7 +58,7 @@ define([
                 .then(function(){
                     $this._enrichProbes(measurement); // Enrich the probes (e.g. check if they replied) NOTE: it's ASYNC
                     deferredCall.resolve(measurement);
-                    utils.observer.publish("updates-history");
+                    utils.observer.publish("model.history:new");
                 });
 
             return deferredCall.promise();

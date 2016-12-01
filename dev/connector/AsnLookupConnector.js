@@ -89,10 +89,7 @@ define([
 
         this._updateObject = function (host, asObj){
             host.setAutonomousSystem(asObj);
-            utils.observer.publish("model-change", {
-                type: "as-lookup",
-                object: host
-            });
+            utils.observer.publish("model.host:as", host);
         };
 
         this._getSamePrefixAs = function(ip){

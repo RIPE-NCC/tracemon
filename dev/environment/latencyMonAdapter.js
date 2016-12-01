@@ -11,9 +11,9 @@ define([
         this.shell = null;
 
         this.setListeners = function(){
-            utils.observer.subscribe("new-measurement", this.addMeasurement, this);
-            utils.observer.subscribe("update-time", this.updateTimeCursor, this);
-            utils.observer.subscribe("update-time-range", this.setTimeRange, this);
+            utils.observer.subscribe("model.measurement:new", this.addMeasurement, this);
+            utils.observer.subscribe("view.current-instant:change", this.updateTimeCursor, this);
+            utils.observer.subscribe("view.time-selection:change", this.setTimeRange, this);
         };
 
 

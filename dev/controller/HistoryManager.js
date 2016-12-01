@@ -70,13 +70,13 @@ define([
                         emulationPosition = date.unix();
                         $this.getStateAt(date);
                         console.log("emulate");
-                        utils.observer.publish("update-time", date);
+                        utils.observer.publish("view.current-instant:change", date);
 
                         if (env.emulationEnabled) {
                             if (n == length - 1){
                                 env.emulationEnabled = false;
                                 console.log("animation stop");
-                                utils.observer.publish("animation-stop", $this._historyTimeline[n]);
+                                utils.observer.publish("view.animation:stop", $this._historyTimeline[n]);
                             } else {
                                 console.log("emulation scheduled");
                                 setTimeout(emulate, env.historyEmulationEventDuration);
@@ -109,7 +109,7 @@ define([
                 out[msmId] = env.main.loadedMeasurements[msmId].getLastState();
             }
 
-            utils.observer.publish("update-status", out);
+            utils.observer.publish("view.status:change", out);
 
             return out;
         };
@@ -123,7 +123,7 @@ define([
                 out[msmId] = env.main.loadedMeasurements[msmId].getStateAt(date);
             }
 
-            utils.observer.publish("update-status", out);
+            utils.observer.publish("view.status:change", out);
 
             return out;
         };
