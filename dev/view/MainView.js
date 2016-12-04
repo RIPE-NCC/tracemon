@@ -19,6 +19,7 @@ define([
         this.hosts = {};
         this._oldStatus = {};
         this.shownSources = {};
+        this._drawnStatus = null;
         firstDraw = true;
         this.view = null;
         this.viewName = env.viewName;
@@ -29,9 +30,27 @@ define([
             utils.observer.subscribe("view.status:change", this.drawOrUpdate, this);
             utils.observer.subscribe("view:max-hops", this._cutHops, this);
             utils.observer.subscribe("view:probe-set", this._updateShownSources, this);
+            utils.observer.subscribe("view.traceroute.search:change", this._applySearch, this);
         };
 
 
+        this._applySearch = function (searchResults) {
+            this.view.applySearch(searchResults);
+        };
+
+        this.getDrawnTraceroutes = function(){
+            var measurement, traceroutes;
+
+            traceroutes = [];
+            for (var msm in this._drawnStatus){
+                measurement = this._drawnStatus[msm];
+                for (var source in measurement){
+                    traceroutes.push(measurement[source]);
+                }
+            }
+
+            return traceroutes;
+        };
 
         this._updateShownSources = function(newSet){
             this.shownSources = {};
@@ -68,6 +87,8 @@ define([
         };
 
         this.drawOrUpdate = function(status){
+
+            this._drawnStatus = status;
             if (firstDraw){
                 this.setInitialSources();
                 status = this._filterBySources(status);
@@ -79,7 +100,6 @@ define([
                 this._update(status);
             }
 
-            this.drawnStatus = status;
         };
 
         // this._partialUpdate = function(whatChanged){

@@ -342,6 +342,7 @@ define([
             this.dom.svg = html.find(".tracemon-svg");
 
             headerController = new HeaderController(env);
+            env.headerController = headerController;
 
             env.parentDom
                 .find('.reproduction-speed>input')

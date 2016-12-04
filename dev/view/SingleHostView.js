@@ -10,23 +10,39 @@ define([
 ], function(utils, config, lang, $, d3, prefixUtils, LabelPlacement){
 
     var SingleHostView = function(env){
-        var $this, labelPlacement, cache, nodeBBox;
+        var $this, labelPlacement, cache, nodeBBox, currentSearch, lineFunction;
 
         $this = this;
         nodeBBox = (config.graph.nodeRadius * 2) + 5;
         labelPlacement = new LabelPlacement(nodeBBox, nodeBBox, 12);
-
+        currentSearch = null;
         cache = {};
+        lineFunction = d3.svg.line()
+            .x(function(d) { return d.x; })
+            .y(function(d) { return d.y; })
+            .interpolate(config.graph.pathInterpolation);
+
         this.nodes = {};
+        this.nodesArray = [];
         this.edges = {};
+        this.traceroutes = {};
 
         env.labelLevel = "host";
 
         window.setLabelLevel = function(level){ // TEMPORARY
             env.labelLevel = level;
-            console.log("This function pollutes the global env. TEMPORARY, REMOVE THIS SHIT");
+            console.log("This function pollutes the global env. Remove this!");
         };
 
+        this._setListeners = function(){
+            utils.observer.subscribe("model.host:ixp", this._updateIxp, this);
+            utils.observer.subscribe("view.traceroute:mousein", function(traceroute){
+                this._hoveredPath(traceroute, true);
+            }, this);
+            utils.observer.subscribe("view.traceroute:mouseout", function(traceroute){
+                this._hoveredPath(traceroute, false);
+            }, this);
+        };
 
         this._calculateLabelPosition = function(node){
             var where;
@@ -41,41 +57,45 @@ define([
             node.labelPosition = where;
         };
 
-        this._drawOrUpdateLabels = function(labels){
-            var d3Data;
+        this._drawOrUpdateLabels = function(nodes){
+            var labelsSvg;
 
-            d3Data = env.mainView.svg
+            labelsSvg = env.mainView.svg
                 .selectAll("text.node-label")
-                .data(labels);
+                .data(nodes, function(element){
+                    return element.id;
+                });
 
-            d3Data
+            labelsSvg
                 .exit()
                 .remove();
 
-            d3Data
+            labelsSvg
                 .enter()
                 .append("text")
-                .attr("class", function(label){
-                    return "node-label node-label-" + utils.getIdFromIp(label.id);
+                .attr("class", function(node){
+                    return "node-label node-label-" + utils.getIdFromIp(node.id);
                 });
 
-            d3Data
-                .attr("x", function(label){
-                    return label.labelPosition.x;
+            labelsSvg
+                .attr("data-focus-out", function (node) {
+                    return node.focusOut;
                 })
-                .attr("y", function(label){
-                    return label.labelPosition.y;
+                .attr("x", function(node){
+                    return node.labelPosition.x;
+                })
+                .attr("y", function(node){
+                    return node.labelPosition.y;
                 })
                 .text(function(node){
-                    node.label = $this.getNodeLabel(node.model);
                     return node.label;
                 })
-                .style("text-anchor", function(label){
-                    return label.labelPosition.alignment;
+                .style("text-anchor", function(node){
+                    return node.labelPosition.alignment;
                 })
-                .attr("transform", function(label){
-                    if (label.labelPosition.direction ==  "vertical"){
-                        return "rotate(-60," + label.labelPosition.x + "," + label.labelPosition.y + ")";
+                .attr("transform", function(node){
+                    if (node.labelPosition.direction ==  "vertical"){
+                        return "rotate(-60," + node.labelPosition.x + "," + node.labelPosition.y + ")";
                     }
                     return null;
                 })
@@ -96,16 +116,6 @@ define([
             }
         };
 
-        this._setListeners = function(){
-            utils.observer.subscribe("model.host:ixp", this._updateIxp, this);
-            utils.observer.subscribe("view.traceroute:mousein", function(traceroute){
-                this._highlightPath(utils.getIdFromIp(traceroute.stateKey), true);
-            }, this);
-            utils.observer.subscribe("view.traceroute:mouseout", function(traceroute){
-                this._highlightPath(utils.getIdFromIp(traceroute.stateKey), false);
-            }, this);
-        };
-
         this._updateIxp = function(host){
             env.mainView.svg
                 .select(".node-" + utils.getIdFromIp(host.getId()))
@@ -113,50 +123,51 @@ define([
             this._updateLabel(host);
         };
 
-        this._aggregate = function(){
-            var nodeObj, edgeObj, finalNodes, nodeKey, edgeKey1, edgeKey2, finalEdges, edgeKey, subnet;
-
-            finalNodes = {};
-            finalEdges = {};
-
-            subnet = env.aggregateIPv4;
-
-            for (var node in this.nodes){
-
-                nodeObj = this.nodes[node];
-
-                if (nodeObj.ip) {
-                    nodeKey = prefixUtils.encodePrefix(nodeObj.ip).substring(0, subnet + 1);
-
-                    if (finalNodes[nodeKey]) {
-                        finalNodes[nodeKey].multiplicity++;
-                    } else {
-                        finalNodes[nodeKey] = nodeObj;
-                    }
-                }
-            }
-
-            for (var edge in this.edges){
-                edgeObj = this.edges[edge];
-
-                if (edgeObj[0].ip && edgeObj[1].ip) {
-
-                    edgeKey1 = prefixUtils.encodePrefix(edgeObj[0].ip).substring(0, subnet + 1);
-                    edgeKey2 = prefixUtils.encodePrefix(edgeObj[1].ip).substring(0, subnet + 1);
-
-                    edgeKey = edgeKey1 + "-" + edgeKey2;
-
-                    if (edgeObj[0] && edgeObj[1] && edgeKey1 != edgeKey2) {
-                        finalEdges[edgeKey] = edgeObj;
-                    }
-                }
-            }
-
-            this.nodes = finalNodes;
-            this.edges = finalEdges;
-        };
+        // this._aggregate = function(){
+        //     var nodeObj, edgeObj, finalNodes, nodeKey, edgeKey1, edgeKey2, finalEdges, edgeKey, subnet;
+        //
+        //     finalNodes = {};
+        //     finalEdges = {};
+        //
+        //     subnet = env.aggregateIPv4;
+        //
+        //     for (var node in this.nodes){
+        //
+        //         nodeObj = this.nodes[node];
+        //
+        //         if (nodeObj.ip) {
+        //             nodeKey = prefixUtils.encodePrefix(nodeObj.ip).substring(0, subnet + 1);
+        //
+        //             if (finalNodes[nodeKey]) {
+        //                 finalNodes[nodeKey].multiplicity++;
+        //             } else {
+        //                 finalNodes[nodeKey] = nodeObj;
+        //             }
+        //         }
+        //     }
+        //
+        //     for (var edge in this.edges){
+        //         edgeObj = this.edges[edge];
+        //
+        //         if (edgeObj[0].ip && edgeObj[1].ip) {
+        //
+        //             edgeKey1 = prefixUtils.encodePrefix(edgeObj[0].ip).substring(0, subnet + 1);
+        //             edgeKey2 = prefixUtils.encodePrefix(edgeObj[1].ip).substring(0, subnet + 1);
+        //
+        //             edgeKey = edgeKey1 + "-" + edgeKey2;
+        //
+        //             if (edgeObj[0] && edgeObj[1] && edgeKey1 != edgeKey2) {
+        //                 finalEdges[edgeKey] = edgeObj;
+        //             }
+        //         }
+        //     }
+        //
+        //     this.nodes = finalNodes;
+        //     this.edges = finalEdges;
+        // };
 
         this._getDefaultNodeLabel = function(host){
+
             if (host.isIxp){
                 return host.ixp.name;
             } else if (host.isProbe) {
@@ -208,44 +219,110 @@ define([
 
         };
 
+
+        this.applySearch = function (searchResults) {
+            currentSearch = searchResults;
+
+            if (currentSearch) {
+                this._updateNodesGraphAttributes();
+                this._drawPaths();
+                this._drawNodes();
+            } else {
+                env.mainView.svg
+                    .selectAll(".node-label")
+                    .attr("data-focus-out", null);
+
+                env.mainView.nodesContainer
+                    .selectAll(".node")
+                    .attr("data-focus-out", null);
+
+                env.mainView.pathsContainer
+                    .selectAll(".path")
+                    .attr("data-focus-out", null);
+            }
+        };
+
+        this._createNodeView = function(host, traceroute){
+            var nodeKey, nodeObj;
+
+            nodeKey = host.getId();
+            if (this.nodes[nodeKey]) { // The node exists already
+                this.nodes[nodeKey].traceroutes.push(traceroute);
+            } else {
+                nodeObj = {
+                    model: host,
+                    traceroutes: [traceroute]
+                };
+                this.nodes[nodeKey] = nodeObj;
+                this.nodesArray.push(nodeObj);
+            }
+        };
+
+        this._createEdgeView = function (start, stop, traceroute) {
+            var edgeId;
+
+            if (start.getId() != stop.getId()) {
+                edgeId = start.getId() + '-' + stop.getId();
+                this.edges[edgeId] = {
+                    start: start,
+                    stop: stop,
+                    traceroute: traceroute
+                };
+            }
+        };
+
+        this._createPathView = function (traceroute) {
+            var tracerouteId;
+
+            tracerouteId = utils.getIdFromIp(traceroute.stateKey);
+            this.traceroutes[tracerouteId] = {
+                model: traceroute,
+                points: this._getPointsFromTraceroute(traceroute),
+                id: tracerouteId
+            };
+        };
+
         this.computeVisibleGraph = function(traceroutesToDraw){
-            var traceroute, host, hostId, attempt, lastHost, tracerouteId, edgeId;
-            $this.nodes = {};
-            $this.edges = {};
-            $this.traceroutes = {};
+            var traceroute, host, attempt, lastHost;
+
+            this.nodes = {};
+            this.nodesArray = [];
+            this.edges = {};
+            this.traceroutes = {};
 
             for (var n=0,length=traceroutesToDraw.length; n<length; n++){
+
                 traceroute = traceroutesToDraw[n];
-                $this.nodes[traceroute.source.getId()] = traceroute.source;
                 lastHost = traceroute.source;
 
-                tracerouteId = utils.getIdFromIp(traceroute.stateKey);
-
-                $this.traceroutes[tracerouteId] = {
-                    model: traceroute,
-                    points: this._getPointsFromTraceroute(traceroute),
-                    id: tracerouteId
-                };
+                this._createNodeView(lastHost, traceroute);
+                this._createPathView(traceroute);
 
                 traceroute.forEachHop(function(hop){
                     attempt = hop.getMainAttempt();
                     host = attempt.host;
+                    $this._createNodeView(host, traceroute);
 
-                    hostId = host.getId();
-                    $this.nodes[hostId] = host;
-
-                    if (lastHost && lastHost.getId() != host.getId()){
-                        edgeId = lastHost.getId() + '-' + hostId;
-
-                        $this.edges[edgeId] = {
-                            start: lastHost,
-                            stop: host,
-                            traceroute: tracerouteId
-                        };
+                    if (lastHost){
+                        $this._createEdgeView(lastHost, host, traceroute);
                     }
 
                     lastHost = host;
                 });
+            }
+        };
+
+        this._updateNodesGraphAttributes = function(){
+            var node, graphAttributes;
+
+            for (var n=0,length=this.nodesArray.length; n<length; n++){
+                node = this.nodesArray[n];
+                graphAttributes = env.mainView.graph.getNode(node.model.getId());
+                node.x = graphAttributes.x;
+                node.y = graphAttributes.y;
+                node.id = node.model.getId();
+                node.label = this.getNodeLabel(node.model);
+                node.focusOut = this._isNodeFocusOut(node);
             }
         };
 
@@ -254,37 +331,21 @@ define([
 
             traceroutesToDraw = diff.newTraceroutes;
             this._computeLayout(this._computeMeshGraph());
-
-
-            if (env.aggregateIPv6 || env.aggregateIPv4) {
-                this._aggregate();
-                // this._drawAggregated();
-                // } else {
-            }
             this.computeVisibleGraph(traceroutesToDraw);
-            // }
-
             env.mainView.graph.computeLayout();
-
-            // this._drawEdges();
+            this._updateNodesGraphAttributes();
             this._drawPaths();
             this._drawNodes();
             callback();
         };
 
         this.update = function(diff, callback){
-            var traceroutesToDraw;
 
-            traceroutesToDraw = diff.updatedTraceroutes;
+            currentSearch = env.headerController.updateSearch();
             this._computeLayout(this._computeMeshGraph());
-            // if (env.aggregateIPv6 || env.aggregateIPv4){
-            //     // this._aggregate();
-            //     // this._drawAggregated();
-            // } else {
             this.computeVisibleGraph(diff.status);
-            // }
-
             env.mainView.graph.computeLayout();
+            this._updateNodesGraphAttributes();
 
             for (var change in diff.updatedTraceroutes) {
                 this._animatePathChange(diff.updatedTraceroutes[change]["before"], diff.updatedTraceroutes[change]["now"]);
@@ -388,46 +449,41 @@ define([
             }
         };
 
-        this._highlightPath = function(pathId, highlighted){
+        this._hoveredPath = function(traceroute, hovered){
             var hosts, nodesToUpdate, nodes, path;
 
-            hosts = this.traceroutes[pathId].model.getHostList();
+            hosts = traceroute.getHostList();
 
-            d3.selectAll(".node-label")
-                .style("opacity", ((!highlighted) ? config.graph.normalOpacity : config.graph.notHighlightedOpacity));
+            // d3.selectAll(".node-label")
+            //     .style("opacity", ((!hovered) ? config.graph.normalOpacity : config.graph.notHighlightedOpacity));
 
             nodesToUpdate = $.map(hosts, function(node){
                 var nodeView = env.mainView.graph.getNode(node.getId());
-                nodeView.model = node;
 
-                d3.selectAll(".node-label-" + utils.getIdFromIp(nodeView.id))
-                    .style("opacity", config.graph.normalOpacity);
+                // d3.selectAll(".node-label-" + utils.getIdFromIp(nodeView.id))
+                //     .style("opacity", config.graph.normalOpacity);
 
                 return nodeView;
             });
 
-
             nodes = env.mainView.nodesContainer
-                .selectAll("circle")
-                .style("opacity", ((!highlighted) ? config.graph.normalOpacity : config.graph.notHighlightedOpacity));
+                .selectAll("circle");
+                // .style("opacity", ((!hovered) ? config.graph.normalOpacity : config.graph.notHighlightedOpacity));
 
             nodes
                 .data(nodesToUpdate, function(element){
                     return element.id;
                 })
-                .style("opacity", ((highlighted) ? config.graph.highlightedOpacity : config.graph.normalOpacity))
-                .attr("r", ((highlighted) ? config.graph.nodeSelectedRadius : config.graph.nodeRadius));
+                .attr("data-hover", ((hovered) ? true : null))
+                .attr("r", ((hovered) ? config.graph.nodeSelectedRadius : config.graph.nodeRadius));
 
-            env.mainView.pathsContainer
-                .selectAll(".path")
-                .style("opacity", ((highlighted) ? config.graph.notHighlightedOpacity : config.graph.highlightedOpacity));
+            // .style("opacity", ((hovered) ? config.graph.highlightedOpacity : config.graph.normalOpacity))
 
             path = env.mainView.pathsContainer
-                .select(".path-" + pathId)
-                .attr("data-hover", ((highlighted) ? true : null));
+                .selectAll("path.path-" + utils.getIdFromIp(traceroute.stateKey))
+                .attr("data-hover", ((hovered) ? true : null));
 
-            this._showDirection(path, highlighted);
-
+            this._showDirection(path, hovered);
         };
 
         this._computeLayout = function(mesh){
@@ -437,8 +493,6 @@ define([
             for (var node in mesh.nodes) {
                 nodeObj = mesh.nodes[node];
                 env.mainView.graph.addNode(nodeObj.getId(), {
-                    label: this.getNodeLabel(nodeObj),
-                    class: "node-host-" + utils.getIdFromIp(nodeObj.getId()),
                     width: config.graph.nodeRadius,
                     height: config.graph.nodeRadius
                 });
@@ -453,6 +507,12 @@ define([
             }
 
             env.mainView.graph.computeLayout();
+        };
+
+        this._getPathClass = function (pathView) {
+            var cssClass = "path path-" + pathView.id;
+
+            return cssClass;
         };
 
         this._getNodeClass = function(nodeView){
@@ -475,30 +535,27 @@ define([
             return classes;
         };
 
-        this._drawNodes = function(){
-            var nodesToDraw, d3Data;
 
-            nodesToDraw = $.map($this.nodes, function(node){
-                var nodeView = env.mainView.graph.getNode(node.getId());
-                nodeView.model = node;
-                return nodeView;
-            });
-
-            labelPlacement.setNodes(nodesToDraw);
-
-            for (var n=0,length=nodesToDraw.length; n<length; n++) {
-                $this._calculateLabelPosition(nodesToDraw[n]);
+        this._calculateLabelsPosition = function () {
+            for (var n=0,length=this.nodesArray.length; n<length; n++) {
+                $this._calculateLabelPosition(this.nodesArray[n]);
             }
+        };
 
-            $this._drawOrUpdateLabels(nodesToDraw);
+        this._drawNodes = function(){
+            var nodesSvg;
 
-            d3Data = env.mainView.nodesContainer
+            labelPlacement.setNodes(this.nodesArray);
+            this._calculateLabelsPosition();
+            this._drawOrUpdateLabels(this.nodesArray);
+
+            nodesSvg = env.mainView.nodesContainer
                 .selectAll("circle")
-                .data(nodesToDraw, function(element){
+                .data(this.nodesArray, function(element){
                     return element.id;
                 });
 
-            d3Data
+            nodesSvg
                 .exit()
                 .transition()
                 .duration(config.transitionsTimes.nodeRemoval)
@@ -507,15 +564,15 @@ define([
                     d3.select(this).remove();
                 });
 
-            d3Data
+            nodesSvg
                 .enter()
                 .append("circle")
                 .attr("data-container", "body")
                 .attr("data-toggle", "popover")
                 .attr("data-placement", "right")
                 .attr("data-html", "true")
-                .attr("title", function(d){
-                    return d.label;
+                .attr("title", function(node){
+                    return node.label;
                 })
                 .attr("data-content", function(d){
                     var asObj = d.model.getAutonomousSystem();
@@ -528,42 +585,34 @@ define([
                     }
                 });
 
-            d3Data
+            nodesSvg
                 .attr("class", this._getNodeClass)
-                .style("opacity", 1)
+                .attr("data-focus-out", function (node) {
+                    return node.focusOut;
+                })
                 .attr("r", config.graph.nodeRadius)
-                .attr("cx", function(d) { return d.x; })
-                .attr("cy", function(d) { return d.y; });
+                .attr("cx", function(node) { return node.x; })
+                .attr("cy", function(node) { return node.y; });
 
             env.parentDom
                 .find('[data-toggle="popover"]')
-                .popover({
-                    container: 'body'
-                    // trigger: 'focus'
-                });
+                .popover({ container: 'body' });
         };
 
         this._drawPaths = function(){
-            var edge, points, path, paths, d3Data, lineFunction;
+            var path, paths, d3Data;
 
             cache.edges = $.map(this.edges, function(edge){
                 return env.mainView.graph.getEdge(edge.start.getId(), edge.stop.getId());
             });
 
-            lineFunction = d3.svg.line()
-                .x(function(d) { return d.x; })
-                .y(function(d) { return d.y; })
-                .interpolate(config.graph.pathInterpolation);
-
             paths = $.map(this.traceroutes, function(path){
-                return {
-                    d: lineFunction(path.points),
-                    id: path.id
-                };
+                path.d = lineFunction(path.points);
+                return path;
             });
 
             d3Data = env.mainView.pathsContainer
-                .selectAll("path.path-normal")
+                .selectAll("path")
                 .data(paths, function(path){
                     return path.id;
                 })
@@ -586,36 +635,53 @@ define([
                 .append("path");
 
             d3Data
-                .attr("class", function(path){
-                    return "path path-normal path-" + path.id;
-                })
+                .attr("class", this._getPathClass)
+                .attr("data-focus-out", this._isPathFocusOut)
                 .transition()
                 .attr("d", function(path){
                     return path.d;
                 });
         };
 
+        this._isNodeFocusOut = function (node) {
+            if (currentSearch) {
+                for (var n=0,length=node.traceroutes.length; n<length; n++){
+
+                    if (currentSearch.in[node.traceroutes[n].id]){
+                        return null;
+                    }
+                }
+                return true;
+            }
+
+            return null;
+        };
+
+        this._isPathFocusOut = function (pathView) {
+            if (currentSearch) {
+                return ((!currentSearch.in[pathView.model.id])) ? true : null;
+            }
+
+            return null;
+        };
+
+
 
         this._animatePathChange = function (oldTraceroute, newTraceroute) {
-            var tracerouteId, element, lineFunction;
+            var tracerouteId, element;
 
             tracerouteId = utils.getIdFromIp(oldTraceroute.source.getId() + '-' + oldTraceroute.target.getId());
-
-            lineFunction = d3.svg.line()
-                .x(function(d) { return d.x; })
-                .y(function(d) { return d.y; })
-                .interpolate(config.graph.pathInterpolation);
 
             element = env.mainView.pathsContainer
                 .select("path.path-" + tracerouteId);
 
             setTimeout(function(){
                 element
-                    .attr("data-hover", null);
+                    .attr("data-animation", null);
             }, config.transitionsTimes.pathChange);
 
             element
-                .attr("data-hover", true)
+                .attr("data-animation", true)
                 .transition()
                 .duration(config.transitionsTimes.pathChange)
                 .ease("linear")

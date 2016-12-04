@@ -43,7 +43,6 @@ define([
                 if (!this.getNode(id)) {
                     graph.setNode(id, {
                         label: options.label,
-                        class: options.class,
                         width: options.width,
                         height: options.height
                     });
@@ -110,8 +109,7 @@ define([
                         id: id,
                         x: (node.x * $this.mult.x) + $this.margin.left,
                         y: (node.y * $this.mult.y) + $this.margin.top,
-                        label: node.label,
-                        class: node.class
+                        label: node.label
                     }
                 });
 

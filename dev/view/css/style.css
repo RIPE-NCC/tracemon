@@ -62,17 +62,39 @@
 .path {
     stroke: #C0C0C0;
     stroke-width: 6;
-    opacity: 0.5;
+    opacity: 0.6;
     fill: none;
 }
 
 .path[data-hover] {
-    stroke-width: 11px!important;
+    stroke-width: 14px!important;
     cursor: pointer;
-    opacity: 0.5!important;
+    opacity: 1!important;
 }
 .node[data-hover] {
-    opacity: 0.1;
+    opacity: 1!important;
+}
+
+.path[data-animation] {
+    stroke-width: 10px!important;
+    cursor: pointer;
+    opacity: 1!important;
+}
+
+.node[data-animation] {
+    opacity: 1!important;
+
+}
+
+
+.path[data-focus-out] {
+    opacity: 0.1!important;
+}
+.node[data-focus-out] {
+    opacity: 0.1!important;
+}
+.node-label[data-focus-out] {
+    opacity: 0.1!important;
 }
 
 .node-label {

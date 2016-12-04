@@ -48,6 +48,7 @@ define([], function(){
             nodeSelectedRadius: 10,
             notHighlightedOpacity: 0.2,
             highlightedOpacity: 0.7,
+
             normalOpacity: 1,
             verticalNodeDistance: 90,
 

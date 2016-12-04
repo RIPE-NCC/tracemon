@@ -23,22 +23,24 @@
 
      var BooleanSearchHelper = function(env){
 
-         this.search = function(searchKey){
-            var expression, traceroutes, traceroute, results;
+         this.search = function(searchKey, traceroutes){
+            var expression, traceroute, results;
 
-             results = [];
+             results = {
+                 in: {},
+                 out: {}
+             };
              expression = new Expression(searchKey);
 
-             for (var msm in env.mainView.drawnStatus){
-                 traceroutes = env.mainView.drawnStatus[msm];
+             for (var n=0,length=traceroutes.length; n<length; n++) {
+                 traceroute = traceroutes[n];
 
-                 for (var source in traceroutes){
-                     traceroute = traceroutes[source];
-
-                     if (expression.test(traceroute.getSingleLineString())){
-                        results.push(traceroute);
-                     }
+                 if (expression.test(traceroute.getSingleLineString())){
+                     results.in[traceroute.id] = traceroute;
+                 } else {
+                     results.out[traceroute.id] = traceroute;
                  }
+
              }
 
              return results;

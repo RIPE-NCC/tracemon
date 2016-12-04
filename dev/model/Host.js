@@ -38,25 +38,12 @@ define([
         return this._id;
     };
 
-
-
-
-
     Host.prototype.setAutonomousSystem = function(autonomousSystem) {
         this._autonomousSystem = autonomousSystem;
     };
 
     Host.prototype.getAutonomousSystem = function() {
         return this._autonomousSystem;
-    };
-
-
-    Host.prototype.setLabel = function(label){
-        this._label = label;
-    };
-
-    Host.prototype.getLabel = function(){
-        this._label || this.getId();
     };
 
 

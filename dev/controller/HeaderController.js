@@ -25,26 +25,59 @@ define([
 ], function(config, utils, SearchHelper){
 
     var HeaderController = function(env){
-        var searchHelper, andSymbol, orSymbol;
+        var searchHelper, andSymbol, orSymbol, results;
 
         searchHelper = new SearchHelper(env);
         orSymbol = "OR";
         andSymbol = "AND";
+        this.searchString = null;
 
         this._getSearchKey = function (searchArray) {
             return searchArray.join(' ' + orSymbol + ' ');
         };
 
-        this.search = function(searchString){
-            var results;
+        this.updateSearch = function () {
+            var out, newSet, searchKey, traceroute;
 
-            results = [];
-            if (searchString) {
-                results = searchHelper.search(this._getSearchKey(searchString));
+            if (this.searchString) {
+                out = {
+                    in: {},
+                    out: {}
+                };
 
-                for (var n=0,length=results.length; n<length; n++) {
-                    utils.observer.publish("view.traceroute:mousein", results[n]);
+                searchKey = this._getSearchKey(this.searchString);
+                newSet = env.mainView.getDrawnTraceroutes();
+                for (var n = 0, length = newSet.length; n < length; n++) {
+
+                    traceroute = newSet[n];
+                    if (results.in[traceroute.id]) { // Check if still valid
+                        out.in[traceroute.id] = traceroute;
+                    } else if (results.out[traceroute.id]) {
+                        out.out[traceroute.id] = traceroute;
+                    } else {
+                        results = searchHelper.search(searchKey, [traceroute]); // Check if it is in or out
+                        if (results.in[traceroute.id]) { // Merge the results
+                            out.in[traceroute.id] = traceroute;
+                        } else if (results.out[traceroute.id]) {
+                            out.out[traceroute.id] = traceroute;
+                        }
+                    }
                 }
+                results = out;
+                return out;
+            }
+
+            return null;
+        };
+
+        this.search = function(searchString){
+
+            this.searchString = searchString;
+            if (searchString) {
+                results = searchHelper.search(this._getSearchKey(this.searchString), env.mainView.getDrawnTraceroutes());
+                utils.observer.publish("view.traceroute.search:change", results);
+            } else {
+                results = null;
             }
 
             return results;

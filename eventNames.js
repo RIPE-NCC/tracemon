@@ -1,19 +1,6 @@
 
 /*
- * Copyright (c) 2016 RIPE NCC
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * This is just to keep track of the event names and their object types
  *
  */
 
@@ -23,8 +10,7 @@ utils.observer.publish("view:max-hops", Integer);
 utils.observer.publish("view.traceroute:mousein", Traceroute);
 utils.observer.publish("view.traceroute:mouseout", Traceroute);
 utils.observer.publish("view.traceroute:click", Traceroute);
-utils.observer.publish("view.traceroute:filter-in", Traceroute);
-utils.observer.publish("view.traceroute:filter-out", Traceroute);
+utils.observer.publish("view.traceroute.search:change", Traceroute);
 utils.observer.publish("view.status:change", {msm: {source:Tracroute}});
 utils.observer.publish("view.animation:stop", Moment);
 utils.observer.publish("view.animation:start", Moment);
