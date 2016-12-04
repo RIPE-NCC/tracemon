@@ -73,12 +73,8 @@ define([
         this.search = function(searchString){
 
             this.searchString = searchString;
-            if (searchString) {
-                results = searchHelper.search(this._getSearchKey(this.searchString), env.mainView.getDrawnTraceroutes());
-                utils.observer.publish("view.traceroute.search:change", results);
-            } else {
-                results = null;
-            }
+            results = (searchString) ? searchHelper.search(this._getSearchKey(this.searchString), env.mainView.getDrawnTraceroutes()) : null ;
+            utils.observer.publish("view.traceroute.search:change", results);
 
             return results;
         };

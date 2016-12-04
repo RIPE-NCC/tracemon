@@ -454,21 +454,12 @@ define([
 
             hosts = traceroute.getHostList();
 
-            // d3.selectAll(".node-label")
-            //     .style("opacity", ((!hovered) ? config.graph.normalOpacity : config.graph.notHighlightedOpacity));
-
             nodesToUpdate = $.map(hosts, function(node){
-                var nodeView = env.mainView.graph.getNode(node.getId());
-
-                // d3.selectAll(".node-label-" + utils.getIdFromIp(nodeView.id))
-                //     .style("opacity", config.graph.normalOpacity);
-
-                return nodeView;
+                return env.mainView.graph.getNode(node.getId());
             });
 
             nodes = env.mainView.nodesContainer
                 .selectAll("circle");
-                // .style("opacity", ((!hovered) ? config.graph.normalOpacity : config.graph.notHighlightedOpacity));
 
             nodes
                 .data(nodesToUpdate, function(element){
@@ -476,8 +467,6 @@ define([
                 })
                 .attr("data-hover", ((hovered) ? true : null))
                 .attr("r", ((hovered) ? config.graph.nodeSelectedRadius : config.graph.nodeRadius));
-
-            // .style("opacity", ((hovered) ? config.graph.highlightedOpacity : config.graph.normalOpacity))
 
             path = env.mainView.pathsContainer
                 .selectAll("path.path-" + utils.getIdFromIp(traceroute.stateKey))
@@ -646,7 +635,6 @@ define([
         this._isNodeFocusOut = function (node) {
             if (currentSearch) {
                 for (var n=0,length=node.traceroutes.length; n<length; n++){
-
                     if (currentSearch.in[node.traceroutes[n].id]){
                         return null;
                     }
