@@ -94,6 +94,11 @@ define([
                         onTimeRangeChange: function(start, stop){
                             env.main.setTimeRange(moment(start).utc().unix(), moment(stop).utc().unix())
                         },
+                        onTimeSelection: function (date) {
+                            var momentDate = moment(date).utc();
+                            env.historyManager.getStateAt(momentDate);
+                            utils.observer.publish("view.current-instant:change", momentDate);
+                        },
                         autoStartGrouping: true,
                         permalinkEnabled: false
                     }, {

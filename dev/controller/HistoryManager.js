@@ -67,7 +67,6 @@ define([
                     if ($this._historyTimeline[n] > emulationPosition){
                         var date = moment.unix($this._historyTimeline[n]).utc();
 
-                        emulationPosition = date.unix();
                         $this.getStateAt(date);
                         console.log("emulate");
                         utils.observer.publish("view.current-instant:change", date);
@@ -122,7 +121,7 @@ define([
             for (var msmId in env.main.loadedMeasurements) {
                 out[msmId] = env.main.loadedMeasurements[msmId].getStateAt(date);
             }
-
+            emulationPosition = date;
             utils.observer.publish("view.status:change", out);
 
             return out;
