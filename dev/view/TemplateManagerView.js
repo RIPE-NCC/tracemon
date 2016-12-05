@@ -143,23 +143,29 @@ define([
 
 
         this.getMonitoredTargets = function () {
-            return "TODO"; // TODO
+            var targets = [];
+
+            for (var msmKey in env.main.loadedMeasurements){
+                targets.push(env.main.loadedMeasurements[msmKey].target.ip);
+            }
+
+            return targets.join(",");
         };
 
         this.maxPossibleHops = function(){
             return 15; // Compute the maximum number of hops for the loaded traceroute
         };
 
-        this.getViews = function(){
-            return Object.keys(lang.views)
-                .map(function(key) {
-                    return lang.views[key];
-                })
-        };
-
-        this.getViewLabel = function () {
-            return lang.views[env.viewName];
-        };
+        // this.getViews = function(){
+        //     return Object.keys(lang.views)
+        //         .map(function(key) {
+        //             return lang.views[key];
+        //         })
+        // };
+        //
+        // this.getViewLabel = function () {
+        //     return lang.views[env.viewName];
+        // };
 
 
         this.populateProbeList = function(data){
@@ -421,7 +427,6 @@ define([
 
         };
 
-
         this.updateTimeSelectionCone = function (points) {
             var height, width, margin;
 
@@ -443,7 +448,6 @@ define([
                     {x: margin.left, y: height}
                 ]));
         };
-
 
         this.showTraceroute = function(traceroute){
             this.tracerouteDivDom.show();

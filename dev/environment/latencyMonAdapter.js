@@ -9,13 +9,27 @@ define([
 
         this.instance = null;
         this.shell = null;
+        this.measurementId = null; // Grouped ID
 
         this.setListeners = function(){
             utils.observer.subscribe("model.measurement:new", this.addMeasurement, this);
             utils.observer.subscribe("view.current-instant:change", this.updateTimeCursor, this);
             utils.observer.subscribe("view.time-selection:change", this.setTimeRange, this);
+            utils.observer.subscribe("view:probe-set", this.updateProbeSet, this);
+
         };
 
+        this.updateProbeSet = function (set) {
+            var interface;
+
+            try {
+                interface = this._getInterface();
+                interface.removeGroup("all");
+                interface.addGroup(this.measurementId, set, "all", "multi-probes");
+            }catch(e){
+
+            }
+        };
 
         this.updateTimeCursor = function (instant) {
             var interface;
@@ -69,6 +83,7 @@ define([
 
         this.init = function(whereClass, measurements, probes){
             if (initLatencymon){
+                this.measurementId = measurements.join("-");
                 this.instance = initLatencymon(
                     whereClass,
                     {
@@ -88,7 +103,7 @@ define([
                         dataFilter: "natural",
                         mergedMeasurements: [measurements],
                         groups: [{
-                            measurementId: measurements.join("-"),
+                            measurementId: this.measurementId,
                             probes: $.map(probes, function(probe){return parseInt(probe);}),
                             id: "all",
                             type: "multi-probes"
