@@ -10,13 +10,14 @@ define([
 ], function(utils, config, lang, $, d3, prefixUtils, LabelPlacement){
 
     var SingleHostView = function(env){
-        var $this, labelPlacement, cache, nodeBBox, currentSearch, lineFunction;
+        var $this, labelPlacement, cache, nodeBBox, currentSearch, lineFunction, cleanRedraw;
 
         $this = this;
         nodeBBox = (config.graph.nodeRadius * 2) + 5;
         labelPlacement = new LabelPlacement(nodeBBox, nodeBBox, 12);
         currentSearch = null;
         cache = {};
+        cleanRedraw = false;
         lineFunction = d3.svg.line()
             .x(function(d) { return d.x; })
             .y(function(d) { return d.y; })
@@ -35,6 +36,9 @@ define([
         };
 
         this._setListeners = function(){
+            utils.observer.subscribe("view:probe-set", function () {
+                cleanRedraw = true;
+            });
             utils.observer.subscribe("model.host:ixp", this._updateIxp, this);
             utils.observer.subscribe("view.traceroute:mousein", function(traceroute){
                 this._hoveredPath(traceroute, true);
@@ -484,9 +488,11 @@ define([
         };
 
         this._computeLayout = function(mesh){
-
             var nodeObj, edgeObj;
 
+            if (cleanRedraw){
+                env.mainView.graph.reset();
+            }
             for (var node in mesh.nodes) {
                 nodeObj = mesh.nodes[node];
                 env.mainView.graph.addNode(nodeObj.getId(), {

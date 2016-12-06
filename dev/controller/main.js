@@ -95,21 +95,6 @@ define([
         };
 
         this.setSources = function (sources) {
-
-            // if (utils.containsAll(this.shownSources, sources)){ // It's a subset
-            //
-            //     if (this.shownSources.length - sources.length > config.reloadSourcesDiff){ // Too much difference, reload and recompute the model graph
-            //         this.shownSources = sources;
-            //         this.updateCurrentData();
-            //     } else {
-            //         this.shownSources = sources;
-            //         // Dont' do anything at this level, hide the sources in the view level
-            //     }
-            // } else { // It's not a subset, we need more data
-            //     this.shownSources = sources;
-            //     this.updateCurrentData();
-            // }
-
             this.shownSources = sources;
             this.updateCurrentData();
             utils.observer.publish("view:probe-set", this.shownSources);

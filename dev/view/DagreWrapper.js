@@ -5,26 +5,40 @@ define([
 ], function(dagre, $){
 
     var DagreWrapper = function(env){
-        var graph, dirty, $this;
+        var graph, dirty, $this, imposedParams;
 
         $this = this;
-        dirty = true;
-        this.nodesIndexed = {};
-        this.edgesIndexed = {};
-        this.edgesInIndexed = {};
-        this.edgesOutIndexed = {};
+        imposedParams = {};
 
-        this.nodes = [];
-        this.edges = [];
+        this._setDefaults = function () {
+            dirty = true;
+            this.nodesIndexed = {};
+            this.edgesIndexed = {};
+            this.edgesInIndexed = {};
+            this.edgesOutIndexed = {};
 
-        this.width = 0;
-        this.height = 0;
-        this.mult = {x: 0, y: 0};
-        this.margin = { top: 0, bottom: 0, left: 0, right: 0 };
+            this.nodes = [];
+            this.edges = [];
+
+            this.width = 0;
+            this.height = 0;
+            this.options = {};
+            this.mult = {x: 0, y: 0};
+            this.margin = { top: 0, bottom: 0, left: 0, right: 0 };
+        };
+
+        this._setDefaults();
 
         this.initGraph = function(width, height, options){
+            imposedParams = {
+                width: width,
+                height: height,
+                options: options
+            };
+
             this.width = width;
             this.height = height;
+            this.options = options;
 
             this.margin.top = (options.margin && options.margin.top) ?  options.margin.top : this.margin.top;
             this.margin.bottom = (options.margin && options.margin.bottom) ?  options.margin.bottom : this.margin.bottom;
@@ -36,6 +50,11 @@ define([
                 .Graph({ multigraph: true })
                 .setGraph({ "rankDir": "TB", "nodesep": 100, "ranksep": 50, "edgesep": 50 })
                 .setDefaultEdgeLabel(function() { return {}; });
+        };
+
+        this.reset = function () {
+            this._setDefaults();
+            this.initGraph(imposedParams.width, imposedParams.height, imposedParams.options);
         };
 
         this.addNode = function(id, options){
