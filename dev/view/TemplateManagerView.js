@@ -146,16 +146,16 @@ define([
             return 15; // Compute the maximum number of hops for the loaded traceroute
         };
 
-        // this.getViews = function(){
-        //     return Object.keys(lang.views)
-        //         .map(function(key) {
-        //             return lang.views[key];
-        //         })
-        // };
-        //
-        // this.getViewLabel = function () {
-        //     return lang.views[env.viewName];
-        // };
+        this.getViews = function(){
+            return Object.keys(lang.views)
+                .map(function(key) {
+                    return lang.views[key];
+                })
+        };
+
+        this.getViewLabel = function () {
+            return lang.views[env.viewName];
+        };
 
 
         this._updateSetOfProbes = function (probeSet) {
