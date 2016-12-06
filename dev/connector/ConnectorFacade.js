@@ -48,10 +48,10 @@ define([
                     measurement.addTraceroutes(data);
                 });
 
-            getProbesPromise = this.getProbesInfo(measurement);
+            // getProbesPromise = this.getProbesInfo(measurement);
 
             deferredArray.push(initialDumpPromise); // Get initial dump
-            deferredArray.push(getProbesPromise); // Get info about the probes involved
+            // deferredArray.push(getProbesPromise); // Get info about the probes involved
 
             $.when
                 .apply($, deferredArray)
@@ -133,13 +133,17 @@ define([
         };
 
         this.getMeasurementInfo = function(ip){
-            var deferredCall;
+            var deferredCall, getProbesPromise, deferredArray, measurementInfoPromise;
 
+            deferredArray = [];
             deferredCall = $.Deferred();
 
             translationConnector.getMeasurementInfo(ip)
                 .done(function (data) {
-                    deferredCall.resolve(data);
+                    $this.getProbesInfo(data)
+                        .done(function () {
+                        deferredCall.resolve(data);
+                    });
                 });
 
             return deferredCall.promise();
@@ -157,6 +161,7 @@ define([
             return translationConnector.getProbeInfo(probeId);
         };
 
+
         this._enrichProbes = function(measurement){
             var replyingProbes, probesList;
 
@@ -167,11 +172,12 @@ define([
             }));
 
             // Check if all the probes are replying and mark them.
-            for (var n=0,length=probesList.length; n<length; n++) {
-                probesList[n].empty = (replyingProbes.indexOf(probesList[n].id) == -1);
+            for (var probeKey in probesList){
+                probesList[probeKey].empty = (replyingProbes.indexOf(probesList[probeKey].id) == -1);
             }
 
         };
+
 
         this.getProbesInfo = function(measurement){
             var deferredCall;
@@ -181,7 +187,16 @@ define([
             translationConnector
                 .getProbesInfo(measurement.id)
                 .done(function (data) {
-                    $this.loadedProbes = data;
+                    var probe;
+                    for (var n=0,length=data.length; n<length; n++) {
+                        probe = data[n];
+
+                        if ($this.loadedProbes[probe.id]){
+                            $this.loadedProbes[probe.id].measurements.push(probe);
+                        } else {
+                            $this.loadedProbes[probe.id] = probe;
+                        }
+                    }
                     deferredCall.resolve(data);
                 });
 

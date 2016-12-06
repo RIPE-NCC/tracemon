@@ -18,7 +18,6 @@ define([
         $this = this;
         this.hosts = {};
         this._oldStatus = {};
-        this.shownSources = {};
         this._drawnStatus = null;
         firstDraw = true;
         this.view = null;
@@ -29,7 +28,7 @@ define([
         this.setListeners = function(){
             utils.observer.subscribe("view.status:change", this.drawOrUpdate, this);
             utils.observer.subscribe("view:max-hops", this._cutHops, this);
-            utils.observer.subscribe("view:probe-set", this._updateShownSources, this);
+            // utils.observer.subscribe("view:probe-set", this._updateShownSources, this);
             utils.observer.subscribe("view.traceroute.search:change", this._applySearch, this);
         };
 
@@ -52,32 +51,25 @@ define([
             return traceroutes;
         };
 
-        this._updateShownSources = function(newSet){
-            this.shownSources = {};
-            for (var n=0,length=newSet.length; n<length; n++) {
-                this.shownSources[newSet[n]] = true;
-            }
-            env.historyManager.getLastState();
-        };
-
-        this.setInitialSources = function(){
-            for (var n=0,length=env.connector.loadedProbes.length; n<length && n < env.queryParams.numberOfProbes; n++) { // Just random first 8 probes
-                this.shownSources[env.connector.loadedProbes[n].id] = true;
-                env.connector.loadedProbes[n]["select"] = true;
-            }
-        };
+        // this._updateShownSources = function(newSet){
+        //     shownSources = {};
+        //     for (var n=0,length=newSet.length; n<length; n++) {
+        //         shownSources[newSet[n]] = true;
+        //     }
+        //     env.historyManager.getLastState();
+        // };
 
         this._filterBySources = function(status){
             var newStatus;
 
-            if (Object.keys(this.shownSources).length == 0){
+            if (env.main.shownSources.length == 0){
                 return status;
             } else {
                 newStatus = {};
                 for (var msm in status) {
                     newStatus[msm] = {};
                     for (var source in status[msm]) {
-                        if (this.shownSources[source]) {
+                        if (env.main.shownSources.indexOf(parseInt(source)) != -1) {
                             newStatus[msm][source] = status[msm][source];
                         }
                     }
@@ -88,30 +80,22 @@ define([
 
         this.drawOrUpdate = function(status){
 
-            this._drawnStatus = status;
+            this._drawnStatus = this._filterBySources(status);
+
             if (firstDraw){
-                this.setInitialSources();
-                status = this._filterBySources(status);
-                this._firstDraw(status);
+                this._firstDraw(this._drawnStatus);
                 firstDraw = false;
-                this.latencymon.init(".latencymon-chart", env.queryParams.measurements, Object.keys(this.shownSources));
+                this.latencymon.init(".latencymon-chart", env.queryParams.measurements, env.main.shownSources); // Init LatencyMON
             } else {
-                status = this._filterBySources(status);
-                this._update(status);
+                this._update(this._drawnStatus);
             }
 
         };
 
-        // this._partialUpdate = function(whatChanged){
-        //     env.main.getLastState();
-        //     this._updateProxy();
-        // };
 
         this._cutHops = function(hops){
             console.log("view:max-hops");
         };
-
-
 
 
         this._getView = function(){
@@ -251,18 +235,6 @@ define([
 
             return updatedTraceroute;
         };
-
-
-        // this._getDiff = function(before, now){
-        //     var hopsBefore, hopsAfter;
-        //
-        //     hopsBefore = before.getHops();
-        //     hopsAfter = now.getHops();
-        //
-        //     for (var n=0; n<length; n++) {
-        //
-        //     }
-        // };
 
 
         this._computeValidId = function(str){

@@ -310,6 +310,7 @@ define([
                     lastHost = host;
                 });
             }
+
         };
 
         this._updateNodesGraphAttributes = function(){
@@ -541,7 +542,7 @@ define([
             nodesSvg = env.mainView.nodesContainer
                 .selectAll("circle")
                 .data(this.nodesArray, function(element){
-                    return element.id;
+                    return utils.getIdFromIp(element.id);
                 });
 
             nodesSvg

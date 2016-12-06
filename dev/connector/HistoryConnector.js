@@ -11,12 +11,13 @@ define([
 ], function(config, utils, $) {
 
     var HistoryConnector = function (env) {
-        var requestsByIp, hostsResolutionByIp, geolocByIp, neighboursByAsn;
+        var hostsResolutionByIp, geolocByIp, neighboursByAsn, probesInfo, measurementInfo;
 
-        requestsByIp = {};
         hostsResolutionByIp = {};
         geolocByIp = {};
         neighboursByAsn = {};
+        probesInfo = {};
+        measurementInfo = {};
 
         this.getInitialDump = function (measurementId, options) {
             var queryParams;
@@ -28,13 +29,13 @@ define([
             queryParams = {
                 start: options.startDate.unix()
             };
-            
+
             if (options.stopDate) {
                 queryParams.stop = options.stopDate.unix();
             }
-            
+
             if (options.sources) {
-                queryParams.probe_sources = options.sources;
+                queryParams.probes = options.sources.join(',');
             }
 
             return $.ajax({
@@ -55,16 +56,19 @@ define([
 
         this.getMeasurementInfo = function (measurementId){
 
-            return $.ajax({
-                dataType: "jsonp",
-                cache: false,
-                url: env.dataApiMetadata.replace("0000", measurementId),
-                //data: {},
-                success: function (data) {
-                },
-                error: function (e) {
-                }
-            });
+            if (!measurementInfo[measurementId]){
+                measurementInfo[measurementId] =  $.ajax({
+                    dataType: "jsonp",
+                    cache: false,
+                    url: env.dataApiMetadata.replace("0000", measurementId),
+                    success: function (data) {
+                    },
+                    error: function (e) {
+                    }
+                });
+            }
+
+            return measurementInfo[measurementId];
         };
 
         // this.getAutonomousSystem = function (ip) {
@@ -138,17 +142,26 @@ define([
 
         this.getProbesInfo = function(measurementId){
 
-            return $.ajax({
-                dataType: "jsonp",
-                cache: false,
-                url: env.dataApiMetadata.replace("0000", measurementId),
-                data: {
-                    type: "jsonp"
-                },
-                error: function () {
-                    env.main.error("It is not possible to retrieve measurement information for this ID", "connection-fail");
-                }
-            });
+            if (measurementInfo[measurementId]){
+                return measurementInfo[measurementId]; // It's the same API, it may change in the future
+            }
+
+            if (!probesInfo[measurementId]){
+                probesInfo[measurementId] = $.ajax({
+                    dataType: "jsonp",
+                    cache: false,
+                    url: env.dataApiMetadata.replace("0000", measurementId),
+                    data: {
+                        type: "jsonp"
+                    },
+                    error: function () {
+                        env.main.error("It is not possible to retrieve measurement information for this ID", "connection-fail");
+                    }
+                });
+
+            }
+
+            return probesInfo[measurementId];
         };
 
 

@@ -37,6 +37,8 @@ define([], function(){
         historyEmulationEventDuration: 3000,
         templatesLocation: "http://localhost:63342/viz-atlas-tracemon/dev/view/html/",
 
+        reloadSourcesDiff: 3, // reload the dataset id the sources set changes of at least N probes
+
         transitionsTimes:{
             pathChange: 1600,
             nodeRemoval: 2000
@@ -46,8 +48,6 @@ define([], function(){
             pathInterpolation: "basis",
             nodeRadius: 7,
             nodeSelectedRadius: 10,
-            notHighlightedOpacity: 0.2,
-            highlightedOpacity: 0.7,
 
             normalOpacity: 1,
             verticalNodeDistance: 90,

@@ -18,6 +18,7 @@ define([
         var $this, now, firstTimeInit;
 
         $this = this;
+        this.shownSources = null;
 
         this.exposedMethods = ["setStringTimeRange", "setTimeRange", "addMeasurementAndGroup", "autoGroupMeasurements",
             "addMeasurement", "addProbes", "addProbe", "addGroup", "removeGroup", "removeProbe", "setDataFilter",
@@ -63,7 +64,7 @@ define([
                 measurementsToLoad = $.map(conf.measurements, function(item){
                     return { id: item };
                 });
-                this.updateData(measurementsToLoad, true);
+                this.updateData(measurementsToLoad);
             }
         };
 
@@ -78,11 +79,48 @@ define([
             this.updateData(measurementsToLoad);
         };
 
+
+        this.computeInitialSources = function(){
+            var out;
+
+            out = [];
+            for (var probeKey in env.connector.loadedProbes){
+                out.push(parseInt(probeKey));
+                if (out.length == env.queryParams.numberOfProbes){
+                    break;
+                }
+            }
+
+            return out;
+        };
+
+        this.setSources = function (sources) {
+
+            // if (utils.containsAll(this.shownSources, sources)){ // It's a subset
+            //
+            //     if (this.shownSources.length - sources.length > config.reloadSourcesDiff){ // Too much difference, reload and recompute the model graph
+            //         this.shownSources = sources;
+            //         this.updateCurrentData();
+            //     } else {
+            //         this.shownSources = sources;
+            //         // Dont' do anything at this level, hide the sources in the view level
+            //     }
+            // } else { // It's not a subset, we need more data
+            //     this.shownSources = sources;
+            //     this.updateCurrentData();
+            // }
+
+            this.shownSources = sources;
+            this.updateCurrentData();
+            utils.observer.publish("view:probe-set", this.shownSources);
+        };
+
         this.updateData = function(measurementsToLoad) {
 
             this.loadMeasurements(measurementsToLoad, function () { // 3749061, 4471092 (loop on *)
                 var deferredArray, deferredQuery;
 
+                $this.shownSources = $this.shownSources || $this.computeInitialSources();
                 // env.template.showLoadingImage(true);
                 deferredArray = [];
                 for (var msmId in $this.loadedMeasurements) {
@@ -90,7 +128,8 @@ define([
                     deferredQuery = env.connector
                         .getInitialDump($this.loadedMeasurements[msmId], {
                             startDate: env.startDate,
-                            stopDate: env.stopDate
+                            stopDate: env.stopDate,
+                            sources: $this.shownSources
                         }).done(function(measurement) {
                             env.historyManager.addMeasurement(measurement);
 
@@ -187,9 +226,9 @@ define([
             this.groups = {};
             firstTimeInit = true;
 
-            utils.observer.subscribe("init-status", function(){
-                firstTimeInit = false;
-            }, this);
+            // utils.observer.subscribe("init-status", function(){
+            //     firstTimeInit = false;
+            // }, this);
 
             this._startProcedure();
             env.template.init();

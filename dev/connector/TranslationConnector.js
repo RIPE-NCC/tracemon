@@ -25,7 +25,7 @@ define([
             Traceroute, prefixUtils, PeeringDbConnector, HostClassificationHelper, AsnLookupConnector) {
 
     var TranslationConnector = function (env) {
-        var historyConnector, $this, liveConnector, peeringDbConnector, hostHelper, asnLookupConnector;
+        var historyConnector, $this, liveConnector, peeringDbConnector, hostHelper, asnLookupConnector, selectedProbes;
 
         $this = this;
         historyConnector = new HistoryConnector(env);
@@ -124,6 +124,11 @@ define([
             for (var n1=0,length1 = tracerouteList.length; n1<length1; n1++) {
                 hops = [];
                 item = tracerouteList[n1];
+
+                // if (selectedProbes.indexOf(item["prb_id"]) == -1){
+                //     console.log("ALERT: the API is returning more results than what requested. Preformances may be affected.");
+                //     continue;
+                // }
                 errors = [];
                 hopList = item["result"];
 
@@ -220,6 +225,7 @@ define([
 
             deferredCall = $.Deferred();
 
+            selectedProbes = options.sources;
             historyConnector
                 .getInitialDump(measurement.id, options)
                 .done(function(data){
@@ -428,7 +434,7 @@ define([
                                 probeTmp = {
                                     id: probe.id,
                                     select: false,
-                                    msmid: measurementId,
+                                    measurements: [measurementId],
                                     cc: probe.country_code,
                                     asv4: probe.asn_v4,
                                     asv6: probe.asn_v6,
