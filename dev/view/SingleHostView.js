@@ -639,7 +639,15 @@ define([
                 .selectAll("path")
                 .data(paths, function(path){
                     return path.id;
-                })
+                });
+
+            d3Data
+                .exit()
+                .remove();
+
+            d3Data
+                .enter()
+                .append("path")
                 .on("mouseenter", function(path){
                     utils.observer.publish("view.traceroute:mousein", $this.traceroutes[path.id].model);
                 })
@@ -649,14 +657,6 @@ define([
                 .on("mousedown", function(path){
                     utils.observer.publish("view.traceroute:click", $this.traceroutes[path.id].model);
                 });
-
-            d3Data
-                .exit()
-                .remove();
-
-            d3Data
-                .enter()
-                .append("path");
 
             d3Data
                 .attr("class", this._getPathClass)
