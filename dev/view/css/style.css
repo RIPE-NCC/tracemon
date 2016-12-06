@@ -204,8 +204,7 @@
 }
 
 .tracemon-controller .controller-line {
-    margin-left: 10px;
-    margin-top: 5px;
+    margin: 5px 5px 5px 10px;
 }
 
 .padded-text {
