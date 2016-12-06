@@ -1,1 +1,0 @@
-.latencymon-container{

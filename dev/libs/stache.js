@@ -30,11 +30,15 @@
 /*jslint nomen: true */
 /*global define: false */
 
-define(["tracemon.lib.text", "tracemon.lib.mustache"], function (text, Mustache) {
+var mustacheDep = "tracemon.lib.mustache";
+
+define(["tracemon.lib.text", mustacheDep], function (text, Mustache) {
 
     var sourceMap = {},
         buildMap = {},
-        buildTemplateSource = "define('{pluginName}!{moduleName}', ['mustache'], function (Mustache) { var template = '{content}'; Mustache.parse( template ); return function( view ) { return Mustache.render( template, view ); } });\n";
+        buildTemplateSource = "define('{pluginName}!{moduleName}', ['" + mustacheDep + "'], function (Mustache) { " +
+            "var template = '{content}'; Mustache.parse( template ); " +
+            "return function( view, partials) { return Mustache.render( template, view, partials); } });\n";
 
     return {
         version: '0.0.3',

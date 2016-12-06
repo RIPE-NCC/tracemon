@@ -134,7 +134,7 @@ define([
 
 
         this._initChart = function(maxLengthTraceroute){
-            var svgHeight;
+            var svgHesvgHeightight;
 
             this.svg = d3
                 .select(env.template.dom.svg[0]);

@@ -1,22 +1,18 @@
 #!/bin/sh
 
+# TRACEMON BUILD
+
 # Set your directories here:
 css_location='dev/view/css/'
 css_dist_location='dev/view/css/'
-#deployment_dir='/Volumes/PersonalDisk/work/weir-dev-atlas/measurements/static/measurements/widgets/tracemon/'
 deployment_dir='/Volumes/PersonalDisk/work/git-workspace/atlas-ui/measurements/static/measurements/widgets/tracemon/'
 
-#if [ "$1" == "-css" ]; then
-#rm ${css_dist_location}style-lib-dist.min.css
-#rm ${css_dist_location}style-lib-dist.css
-#cat ${css_location}/*.css > ${css_location}style-lib-dist.tmp
-#cat ${css_location}style-lib-header.tpl ${css_location}style-lib-dist.tmp ${css_location}style-lib-footer.tpl > ${css_location}style-lib-dist.scss
-#rm ${css_location}style-lib-dist.tmp
-#
-#sass ${css_location}style-lib-dist.scss ${css_dist_location}style-lib-dist.css
-#rm ${css_location}style-lib-dist.scss
-#minify -o ${css_dist_location}style-lib-dist.min.css ${css_dist_location}style-lib-dist.css
-#fi
+rm ${css_dist_location}style-lib-dist.min.css
+rm ${css_dist_location}style-lib-dist.css
+lessc ${css_location}style-compiled.less ${css_dist_location}style-compiled.tmp.less
+lessc ${css_dist_location}style-compiled.tmp.less ${css_dist_location}style-lib-dist.css
+rm ${css_dist_location}style-compiled.tmp.less
+minify -o ${css_dist_location}style-lib-dist.min.css ${css_dist_location}style-lib-dist.css
 
 
 #r.js -o app.build.1.js

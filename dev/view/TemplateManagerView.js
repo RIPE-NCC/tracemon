@@ -33,7 +33,7 @@ define([
         this.values = {};
         this.dom = {
             playerButtons: {},
-            labelRadio: null,
+            labelRadio: null
         };
         blockListeners = false;
         lineFunction = d3.svg.line()

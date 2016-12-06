@@ -51,7 +51,7 @@ define([], function(){
             nodeSelectedRadius: 10,
 
             normalOpacity: 1,
-            verticalNodeDistance: 90,
+            verticalNodeDistance: 50,
 
             asColors: ["#ff0000", "#ffcc00", "#00ffaa", "#005299", "#f780ff", "#590000", "#594700", "#bfffea", "#bfe1ff",
                 "#590053", "#99574d", "#66644d", "#005947", "#001433", "#b3008f", "#992900", "#8f9900", "#00ffee", "#001f73",
