@@ -68,14 +68,16 @@ define([
             utils.observer.publish("view.animation:start", emulationPosition || $this._historyTimeline[0]);
 
             var emulate = function(){
-                console.log("emulating");
 
                 for (var n=0,length=$this._historyTimeline.length; n<length; n++){
 
                     if ($this._historyTimeline[n] > emulationPosition){
-                        var date = moment.unix($this._historyTimeline[n]).utc();
+                        var date, timestamp;
 
-                        $this.getStateAt(date);
+                        timestamp = $this._historyTimeline[n];
+                        date = moment.unix(timestamp).utc();
+
+                        $this.getStateAt(timestamp);
                         utils.observer.publish("view.current-instant:change", date);
 
                         if (env.emulationRunning) {
