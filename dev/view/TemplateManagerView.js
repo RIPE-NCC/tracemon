@@ -24,11 +24,10 @@ define([
      */
 
     var TemplateManagerView = function(env){
-        var $this, lineFunction, blockListeners, headerController, firstDraw, probeListPopulated;
+        var $this, lineFunction, blockListeners, headerController, firstDraw;
 
         $this = this;
         firstDraw = true;
-        probeListPopulated = false;
         this.lang = lang;
         this.env = env;
         this.values = {};
@@ -146,6 +145,7 @@ define([
             return 15; // Compute the maximum number of hops for the loaded traceroute
         };
 
+        // This metod is used by the mustache template
         this.getViews = function(){
             return Object.keys(lang.views)
                 .map(function(key) {
@@ -153,10 +153,10 @@ define([
                 })
         };
 
+        // This metod is used by the mustache template
         this.getViewLabel = function () {
             return lang.views[env.viewName];
         };
-
 
         this._updateSetOfProbes = function (probeSet) {
             env.main.setSources(probeSet);
@@ -168,9 +168,13 @@ define([
             parent = env.parentDom.find(".add-probe-panel");
             parent.show();
 
-            if (!probeListPopulated) {
-                probeListPopulated = true;
-                table = parent.find('.probe-list');
+            table = parent.find('.probe-list');
+
+
+            if (table.is(".table-condensed")) {
+                table.bootstrapTable('load', data)
+            } else {
+
                 parent
                     .find(".close-panel")
                     .on("mouseup", function () {
@@ -190,97 +194,94 @@ define([
                         parent.fadeOut();
                     });
 
-                if (table.is(".table-condensed")) {
-                    table.bootstrapTable('load', data)
-                } else {
-                    table
-                        .addClass("table-condensed")
-                        .bootstrapTable({
-                            striped: true,
-                            clickToSelect: true,
-                            checkboxHeader: true,
-                            sortOrder: "desc",
-                            sortName: "name",
-                            pagination: true,
-                            showPaginationSwitch: false,
-                            pageSize: 8,
-                            pageList: [],
-                            maintainSelected: true,
-                            smartDisplay: true,
-                            sidePagination: "client",
-                            dataShowPaginationSwitch: true,
-                            showFooter: false,
-                            sortable: true,
-                            search: true,
-                            checkedBooleanField: "checked",
-                            onCheckAll: function () {
-                                var groupName;
+                table
+                    .addClass("table-condensed")
+                    .bootstrapTable({
+                        striped: true,
+                        clickToSelect: true,
+                        checkboxHeader: true,
+                        sortOrder: "desc",
+                        sortName: "name",
+                        pagination: true,
+                        showPaginationSwitch: false,
+                        pageSize: 8,
+                        pageList: [],
+                        maintainSelected: true,
+                        smartDisplay: true,
+                        sidePagination: "client",
+                        dataShowPaginationSwitch: true,
+                        showFooter: false,
+                        sortable: true,
+                        search: true,
+                        checkedBooleanField: "checked",
+                        onCheckAll: function () {
+                            var groupName;
 
-                                groupName = env.parentDom.find(".group-name>input");
-                                if (groupName.is(":visible")) {
-                                    groupName.val(env.parentDom.find(".search > input").val()).trigger("keyup");
-                                }
+                            groupName = env.parentDom.find(".group-name>input");
+                            if (groupName.is(":visible")) {
+                                groupName.val(env.parentDom.find(".search > input").val()).trigger("keyup");
+                            }
+                        },
+                        columns: [
+                            {
+                                field: 'select',
+                                title: 'Select',
+                                checkbox: true
                             },
-                            columns: [
-                                {
-                                    field: 'select',
-                                    title: 'Select',
-                                    checkbox: true
-                                },
-                                {
-                                    field: 'id',
-                                    title: 'Probe ID',
-                                    sortable: true
-                                }, {
-                                    field: 'cc',
-                                    sortable: true,
-                                    title: 'Country'
-                                }, {
-                                    field: 'asv4',
-                                    sortable: true,
-                                    title: 'ASv4'
-                                }, {
-                                    field: 'asv6',
-                                    sortable: true,
-                                    title: 'ASv6'
-                                }, {
-                                    field: 'ipv4',
-                                    sortable: true,
-                                    title: 'IPv4'
-                                }, {
-                                    field: 'ipv6',
-                                    sortable: true,
-                                    title: 'IPv6'
-                                }
+                            {
+                                field: 'id',
+                                title: 'Probe ID',
+                                sortable: true
+                            }, {
+                                field: 'cc',
+                                sortable: true,
+                                title: 'Country'
+                            }, {
+                                field: 'asv4',
+                                sortable: true,
+                                title: 'ASv4'
+                            }, {
+                                field: 'asv6',
+                                sortable: true,
+                                title: 'ASv6'
+                            }, {
+                                field: 'ipv4',
+                                sortable: true,
+                                title: 'IPv4'
+                            }, {
+                                field: 'ipv6',
+                                sortable: true,
+                                title: 'IPv6'
+                            }
 
-                                // , {
-                                //     field: 'measurements',
-                                //     sortable: true,
-                                //     title: 'Measurement ID'
-                                // }
-                            ],
-                            data: data
-                        });
-                }
-
-
-                for (var n = 0, length = data.length; n < length; n++) {
-                    var element;
-
-                    element = table
-                        .find("tr[data-index]").find("td:eq(1):contains('" + data[n].id + "')")
-                        .closest("tr[data-index]");
-
-                    if (data[n].empty) {
-                        element
-                            .addClass("empty-probe");
-                    } else {
-                        element
-                            .removeClass("empty-probe");
-                    }
-
-                }
+                            // , {
+                            //     field: 'measurements',
+                            //     sortable: true,
+                            //     title: 'Measurement ID'
+                            // }
+                        ],
+                        data: data
+                    });
             }
+
+
+            for (var n = 0, length = data.length; n < length; n++) {
+                var element;
+
+                element = table
+                    .find("tr[data-index]").find("td:eq(1):contains('" + data[n].id + "')")
+                    .closest("tr[data-index]");
+
+                if (data[n].empty) {
+                    element
+                        .addClass("empty-probe");
+                } else {
+                    element
+                        .removeClass("empty-probe");
+                }
+
+            }
+
         };
 
 
@@ -403,9 +404,7 @@ define([
                 .find(".click-select-probe")
                 .on("click", function(){
                     $this.populateProbeList($.map(env.connector.loadedProbes, function(probe){
-                        if (env.main.shownSources.indexOf(probe.id) != -1){
-                            probe.select = true;
-                        }
+                        probe.select = (env.main.shownSources.indexOf(probe.id) != -1);
                         return [probe];
                     }));
                 });

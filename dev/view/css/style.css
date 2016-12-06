@@ -322,7 +322,7 @@
 }
 
 .empty-probe {
-    font-weight: bold;
+    text-decoration: line-through;
 }
 
 .range-timeline {

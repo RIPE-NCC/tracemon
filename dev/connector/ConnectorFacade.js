@@ -48,15 +48,12 @@ define([
                     measurement.addTraceroutes(data);
                 });
 
-            // getProbesPromise = this.getProbesInfo(measurement);
-
             deferredArray.push(initialDumpPromise); // Get initial dump
-            // deferredArray.push(getProbesPromise); // Get info about the probes involved
 
             $.when
                 .apply($, deferredArray)
                 .then(function(){
-                    $this._enrichProbes(measurement); // Enrich the probes (e.g. check if they replied) NOTE: it's ASYNC
+                    $this._enrichProbes(measurement, options.sources); // Enrich the probes (e.g. check if they replied) NOTE: it's ASYNC
                     deferredCall.resolve(measurement);
                     utils.observer.publish("model.history:new");
                 });
@@ -133,9 +130,8 @@ define([
         };
 
         this.getMeasurementInfo = function(ip){
-            var deferredCall, getProbesPromise, deferredArray, measurementInfoPromise;
+            var deferredCall, deferredArray;
 
-            deferredArray = [];
             deferredCall = $.Deferred();
 
             translationConnector.getMeasurementInfo(ip)
@@ -162,18 +158,19 @@ define([
         };
 
 
-        this._enrichProbes = function(measurement){
-            var replyingProbes, probesList;
+        this._enrichProbes = function(measurement, probesList){
+            var replyingProbes;
 
-            probesList = this.loadedProbes;
 
             replyingProbes = utils.arrayUnique($.map(measurement.getTraceroutes(), function(traceroute){
                 return traceroute.source.probeId;
             }));
 
+            console.log(replyingProbes);
+
             // Check if all the probes are replying and mark them.
-            for (var probeKey in probesList){
-                probesList[probeKey].empty = (replyingProbes.indexOf(probesList[probeKey].id) == -1);
+            for (var n=0,length=probesList.length; n<length; n++) {
+                this.loadedProbes[probesList[n]].empty = (replyingProbes.indexOf(probesList[n]) == -1);
             }
 
         };
