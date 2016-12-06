@@ -26,8 +26,8 @@ define([
         this.nodesArray = [];
         this.edges = {};
         this.traceroutes = {};
-
         env.labelLevel = "host";
+
 
         window.setLabelLevel = function(level){ // TEMPORARY
             env.labelLevel = level;
@@ -173,7 +173,7 @@ define([
             } else if (host.isProbe) {
                 return "Probe " + host.probeId + ((host.getAutonomousSystem()) ? " (AS" + host.getAutonomousSystem().id + ")" : "");
             } else if (host.ip == null){
-                return "* " + ((host.getAutonomousSystem()) ? " (AS" + host.getAutonomousSystem().id + ")" : "");
+                return "* " + ((host.getAutonomousSystem()) ? " (Guess: AS" + host.getAutonomousSystem().id + ")" : "");
             } else {
                 return host.ip + ((host.getAutonomousSystem()) ? " (AS" + host.getAutonomousSystem().id + ")" : "");
             }
@@ -337,6 +337,13 @@ define([
             this._updateNodesGraphAttributes();
             this._drawPaths();
             this._drawNodes();
+
+            env.parentDom.popover({
+                container: 'body',
+                trigger: 'click,focus',
+                selector: '[data-toggle="popover"]'
+            });
+
             callback();
         };
 
@@ -532,6 +539,37 @@ define([
             }
         };
 
+        this._getPopoverContent = function (node) {
+            var out, guess, asObj;
+
+            out = "";
+            guess = (node.model.isPrivate || !node.model.ip);
+            out += (!node.model.ip && node.model.multiplicity > 1) ? "Repeated " + node.model.multiplicity + " times<br>" : "";
+            out += (node.model.ip) ? "IP: " + node.model.ip + "<br>" : "";
+
+            if (node.model.isIxp) {
+                out += "IXP: " + node.model.ixp.name + ", " + node.model.ixp.city + ", " + node.model.ixp.country;
+                out += "<br>Lan: " + node.model.ixp.prefix;
+            }
+
+            asObj = node.model.getAutonomousSystem();
+            if (asObj) {
+                out += "<br><b>" + ((guess) ? "Best guess:" : "Routing info:") + "</b><br>";
+                out += "AS" + asObj.id + " - " + asObj.owner;
+                out += "<br><br><b>Registry info:</b>";
+
+                out += "<br> Announced: " + asObj.announced + "<br>";
+                for (var extra in asObj.extra) {
+                    out += extra.charAt(0).toUpperCase() + extra.slice(1) + ": " + asObj.extra[extra] + "<br>";
+                }
+            } else {
+                out += "<br>No AS information available for this node";
+            }
+
+            return out;
+        };
+
+
         this._drawNodes = function(){
             var nodesSvg;
 
@@ -560,20 +598,13 @@ define([
                 .attr("data-container", "body")
                 .attr("data-toggle", "popover")
                 .attr("data-placement", "right")
+                .attr("data-trigger", "focus")
+                .attr("tabindex", "0")
                 .attr("data-html", "true")
                 .attr("title", function(node){
                     return node.label;
                 })
-                .attr("data-content", function(d){
-                    var asObj = d.model.getAutonomousSystem();
-                    if (asObj){
-                        var out = asObj.owner + "<br> Announced: " + asObj.announced + "<br>";
-                        for (var extra in asObj.extra){
-                            out += extra.charAt(0).toUpperCase() + extra.slice(1) + ": " + asObj.extra[extra] + "<br>";
-                        }
-                        return out;
-                    }
-                });
+                .attr("data-content", this._getPopoverContent);
 
             nodesSvg
                 .attr("class", this._getNodeClass)
@@ -584,9 +615,6 @@ define([
                 .attr("cx", function(node) { return node.x; })
                 .attr("cy", function(node) { return node.y; });
 
-            env.parentDom
-                .find('[data-toggle="popover"]')
-                .popover({ container: 'body' });
         };
 
         this._drawPaths = function(){

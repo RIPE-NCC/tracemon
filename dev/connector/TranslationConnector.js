@@ -125,10 +125,10 @@ define([
                 hops = [];
                 item = tracerouteList[n1];
 
-                // if (selectedProbes.indexOf(item["prb_id"]) == -1){
-                //     console.log("ALERT: the API is returning more results than what requested. Preformances may be affected.");
-                //     continue;
-                // }
+                if (selectedProbes.indexOf(item["prb_id"]) == -1){
+                    console.log("ALERT: the API is returning more results than what requested. Preformances may be affected.");
+                    continue;
+                }
                 errors = [];
                 hopList = item["result"];
 
