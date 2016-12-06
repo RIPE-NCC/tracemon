@@ -28,7 +28,6 @@ define([
 
         $this = this;
         emulationPosition = null;
-        env.emulationEnabled = true;
         this._historyTimeline = [];
 
         this.reset = function(){
@@ -47,7 +46,6 @@ define([
                 }
             }
 
-            this.emulateHistory();
         };
 
         this.getTimeRange = function(){
@@ -57,10 +55,19 @@ define([
             }
         };
 
+
+        this.stopEmulation = function () {
+            env.emulationRunning = false;
+            console.log("emulation stopped");
+            utils.observer.publish("view.animation:stop", emulationPosition);
+        };
+
         this.emulateHistory = function(){
+            env.emulationRunning = true;
+            utils.observer.publish("view.animation:start", emulationPosition || $this._historyTimeline[0]);
 
             var emulate = function(){
-                console.log("emulate set");
+                console.log("emulating");
 
                 for (var n=0,length=$this._historyTimeline.length; n<length; n++){
 
@@ -68,16 +75,14 @@ define([
                         var date = moment.unix($this._historyTimeline[n]).utc();
 
                         $this.getStateAt(date);
-                        console.log("emulate");
                         utils.observer.publish("view.current-instant:change", date);
 
-                        if (env.emulationEnabled) {
+                        if (env.emulationRunning) {
                             if (n == length - 1){
-                                env.emulationEnabled = false;
+                                env.emulationRunning = false;
                                 console.log("animation stop");
                                 utils.observer.publish("view.animation:stop", $this._historyTimeline[n]);
                             } else {
-                                console.log("emulation scheduled");
                                 setTimeout(emulate, env.historyEmulationEventDuration);
                             }
                         }
@@ -94,7 +99,7 @@ define([
                 emulationPosition = $this._historyTimeline[0];
             }
 
-            if (env.emulationEnabled){
+            if (env.emulationRunning){
                 emulate();
             }
         };
@@ -113,6 +118,13 @@ define([
             return out;
         };
 
+        this.getFirstState = function () {
+            try {
+                return this.getStateAt(this._historyTimeline[0]);
+            } catch (e){
+                console.log("Possible timeline empty", e);
+            }
+        };
 
         this.getStateAt = function(date){
             var out;

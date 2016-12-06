@@ -130,7 +130,7 @@ define([
                 $.when
                     .apply($, deferredArray)
                     .then(function(){
-                        env.historyManager.getLastState();
+                        env.historyManager.getFirstState();
                         // env.template.showLoadingImage(false);
                     });
 

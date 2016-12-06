@@ -24,7 +24,7 @@ define([
      */
 
     var TemplateManagerView = function(env){
-        var $this, lineFunction, blockListeners, headerController, firstDraw;
+        var $this, lineFunction, blockListeners, headerController, firstDraw, playerButtons;
 
         $this = this;
         firstDraw = true;
@@ -32,6 +32,7 @@ define([
         this.env = env;
         this.values = {};
         this.dom = {};
+        playerButtons = {};
         blockListeners = false;
         lineFunction = d3.svg.line()
             .x(function(d) { return d.x; })
@@ -56,8 +57,20 @@ define([
             utils.observer.subscribe("model.history:change", this.updateTimeline, this);
             utils.observer.subscribe("view.time-selection:change", this.updateTimeline, this);
             utils.observer.subscribe("view.traceroute:click", this.showTraceroute, this);
+            utils.observer.subscribe("view.animation:start", this._updatePlayerButtons, this);
+            utils.observer.subscribe("view.animation:stop", this._updatePlayerButtons, this);
         };
 
+
+        this._updatePlayerButtons = function () {
+            if (env.emulationRunning){
+                playerButtons.play.hide();
+                playerButtons.pause.show();
+            } else {
+                playerButtons.play.show();
+                playerButtons.pause.hide();
+            }
+        };
 
         this.getSelectionDataset = function(){
             var out = [];
@@ -101,6 +114,9 @@ define([
                 env.parentDom.find('.value-target').text(this.values.target);
                 env.parentDom.find('.value-number-probes').text(this.values.numberProbes);
                 env.parentDom.find('.value-total-probes').text(this.values.totalProbes);
+                // if ()
+                //     env.parentDom.find('.play-button')
+                //         .text(this.values.totalProbes);
             }
         };
 
@@ -408,6 +424,34 @@ define([
                         return [probe];
                     }));
                 });
+
+            playerButtons.play = env.parentDom
+                .find(".play-button")
+                .on("click", function () {
+                    env.historyManager.emulateHistory();
+                });
+
+            playerButtons.pause = env.parentDom
+                .find(".pause-button")
+                .on("click", function () {
+                    env.historyManager.stopEmulation();
+                });
+
+            playerButtons.beginning = env.parentDom
+                .find(".bwd-button")
+                .on("click", function () {
+                    env.historyManager.getFirstState();
+                });
+
+            playerButtons.end = env.parentDom
+                .find(".ffwd-button")
+                .on("click", function () {
+                   env.historyManager.getLastState();
+                });
+
+
+            this._updatePlayerButtons();
+
 
             this.tracerouteDivDom = env.parentDom
                 .find(".traceroute-output")

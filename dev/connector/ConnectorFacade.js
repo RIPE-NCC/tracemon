@@ -166,8 +166,6 @@ define([
                 return traceroute.source.probeId;
             }));
 
-            console.log(replyingProbes);
-
             // Check if all the probes are replying and mark them.
             for (var n=0,length=probesList.length; n<length; n++) {
                 this.loadedProbes[probesList[n]].empty = (replyingProbes.indexOf(probesList[n]) == -1);
