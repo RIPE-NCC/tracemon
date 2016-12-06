@@ -20,8 +20,9 @@
 
 define([
     "tracemon.env.config",
-    "tracemon.env.utils"
-], function(config, utils){
+    "tracemon.env.utils",
+    "tracemon.lib.moment"
+], function(config, utils, moment){
 
     var HistoryManager = function(env){
         var $this, emulationPosition;

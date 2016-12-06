@@ -346,7 +346,7 @@ define([
             this._drawNodes();
 
             env.parentDom.popover({
-                container: 'body',
+                container: env.parentDom,
                 trigger: 'click,focus',
                 selector: '[data-toggle="popover"]'
             });

@@ -7,13 +7,14 @@ define([
     "tracemon.env.config",
     "tracemon.env.languages.en",
     "tracemon.lib.jquery-amd",
+    "tracemon.lib.moment",
     "tracemon.lib.d3-amd",
     "tracemon.controller.header",
     "tracemon.lib.stache!main",
     "tracemon.lib.stache!search",
     "tracemon.lib.stache!select-view",
     "tracemon.lib.stache!probes-selection"
-], function(utils, config, lang, $, d3, HeaderController, template, search, selectView, probesSelection){
+], function(utils, config, lang, $, moment, d3, HeaderController, template, search, selectView, probesSelection){
 
     /**
      * TemplateManagerView is the component in charge of creating and manipulating the HTML dom elements.
@@ -135,7 +136,8 @@ define([
 
             this.searchField
                 .select2({
-                    debug: true,
+                    dropdownParent: env.parentDom,
+                    debug: false,
                     tags: "true",
                     placeholder: "Focus on",
                     allowClear: true,
@@ -360,7 +362,8 @@ define([
             };
 
             html = $(template(this, partials));
-            env.parentDom.html(html);
+            env.parentDom.addClass("tracemon-container").html(html);
+
             this.dom.svg = html.find(".tracemon-svg");
 
             headerController = new HeaderController(env);

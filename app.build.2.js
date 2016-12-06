@@ -38,6 +38,7 @@
         "tracemon.lib.range-slider": "dev/libs/range-slider/js/ion.rangeSlider",
         "tracemon.lib.reparse": "dev/libs/reparse",
         "tracemon.lib.expression": "dev/libs/expression",
+        "tracemon.lib.moment": "dev/libs/moment",
 
         /* view */
         "tracemon.view.main": "dev/view/MainView",

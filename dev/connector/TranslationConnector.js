@@ -8,6 +8,7 @@ define([
     "tracemon.env.config",
     "tracemon.env.utils",
     "tracemon.lib.jquery-amd",
+    "tracemon.lib.moment",
     "tracemon.connector.history",
     "tracemon.connector.live",
     "tracemon.model.hop",
@@ -21,7 +22,7 @@ define([
     "tracemon.connector.host-helper",
     "tracemon.connector.asn"
 
-], function(config, utils, $, HistoryConnector, LiveConnector, Hop, Host, Attempt, AutonomousSystem, Measurement,
+], function(config, utils, $, moment, HistoryConnector, LiveConnector, Hop, Host, Attempt, AutonomousSystem, Measurement,
             Traceroute, prefixUtils, PeeringDbConnector, HostClassificationHelper, AsnLookupConnector) {
 
     var TranslationConnector = function (env) {

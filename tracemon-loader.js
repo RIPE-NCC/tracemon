@@ -39,6 +39,7 @@ requirejs.config({
         "tracemon.lib.range-slider": window.atlas._widgets.tracemon.urls.libs + "range-slider/js/ion.rangeSlider",
         "tracemon.lib.reparse": window.atlas._widgets.tracemon.urls.libs + "reparse",
         "tracemon.lib.expression": window.atlas._widgets.tracemon.urls.libs + "expression",
+        "tracemon.lib.moment": window.atlas._widgets.tracemon.urls.libs + "moment",
 
         /* view */
         "tracemon.view.main": window.atlas._widgets.tracemon.urls.view + "MainView",
@@ -181,27 +182,24 @@ define([
          * Check if stylesheets are loaded
          */
 
-        // if (!instanceParams.dev){
-        //     styleDownloads = [
-        //         // window.atlas._widgets.tracemon.urls.view + "css/style-lib-dist.min.css"
-        //     ];
-        // } else {
+        if (!instanceParams.dev){
+            styleDownloads = [
+                window.atlas._widgets.tracemon.urls.view + "css/style-lib-dist.min.css"
+            ];
+        } else {
+            styleDownloads = [
+                window.atlas._widgets.tracemon.urls.view + "css/style.css",
+                window.atlas._widgets.tracemon.urls.libs + "jquery/jquery-ui.min.css",
+                window.atlas._widgets.tracemon.urls.libs + "bootstrap/css/bootstrap.min.css",
+                window.atlas._widgets.tracemon.urls.libs + "bootstrap/css/bootstrap-theme.min.css",
+                window.atlas._widgets.tracemon.urls.libs + "bootstrap-table/bootstrap-table.min.css",
+                window.atlas._widgets.tracemon.urls.libs + "bootstrap-slider/css/bootstrap-slider.css",
+                window.atlas._widgets.tracemon.urls.libs + "bootstrap-select2/css/bootstrap-select.css",
+                window.atlas._widgets.tracemon.urls.libs + "range-slider/css/ion.rangeSlider.css",
+                window.atlas._widgets.tracemon.urls.libs + "range-slider/css/ion.rangeSlider.skinModern.css"
+            ];
 
-        styleDownloads = [
-            window.atlas._widgets.tracemon.urls.view + "css/style.css",
-            window.atlas._widgets.tracemon.urls.libs + "jquery/jquery-ui.min.css",
-            window.atlas._widgets.tracemon.urls.libs + "bootstrap/css/bootstrap.min.css",
-            window.atlas._widgets.tracemon.urls.libs + "bootstrap/css/bootstrap-theme.min.css",
-            window.atlas._widgets.tracemon.urls.libs + "bootstrap-table/bootstrap-table.min.css",
-            window.atlas._widgets.tracemon.urls.libs + "bootstrap-slider/css/bootstrap-slider.css",
-            // window.atlas._widgets.tracemon.urls.libs + "bootstrap-select/css/bootstrap-select.css",
-            window.atlas._widgets.tracemon.urls.libs + "bootstrap-select2/css/bootstrap-select.css",
-            // window.atlas._widgets.tracemon.urls.view + "css/bootstrap-search.css",
-            window.atlas._widgets.tracemon.urls.libs + "range-slider/css/ion.rangeSlider.css",
-            window.atlas._widgets.tracemon.urls.libs + "range-slider/css/ion.rangeSlider.skinModern.css"
-        ];
-
-        // }
+        }
 
 
         var objectToBeEnriched = {};

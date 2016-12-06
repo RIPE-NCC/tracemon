@@ -2,8 +2,9 @@
 define([
     "tracemon.env.utils",
     "tracemon.env.config",
-    "tracemon.lib.jquery-amd"
-], function(utils, config, $){
+    "tracemon.lib.jquery-amd",
+    "tracemon.lib.moment"
+], function(utils, config, $, moment){
 
     var latencyMonAdapter = function(env){
 
