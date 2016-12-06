@@ -27,19 +27,18 @@ define([
         this.nodesArray = [];
         this.edges = {};
         this.traceroutes = {};
-        env.labelLevel = "host";
-
-
-        window.setLabelLevel = function(level){ // TEMPORARY
-            env.labelLevel = level;
-            console.log("This function pollutes the global env. Remove this!");
-        };
 
         this._setListeners = function(){
             utils.observer.subscribe("view:probe-set", function () {
                 cleanRedraw = true;
             });
             utils.observer.subscribe("model.host:ixp", this._updateIxp, this);
+            utils.observer.subscribe("view.label-level:change", function () {
+                for (var n=0,length=this.nodesArray.length; n<length; n++) {
+                    $this._updateLabel($this.nodesArray[n].model);
+                }
+            }, this);
+
             utils.observer.subscribe("view.traceroute:mousein", function(traceroute){
                 this._hoveredPath(traceroute, true);
             }, this);
@@ -193,29 +192,33 @@ define([
                         env.connector
                             .getGeolocation(host)
                             .done(function(label){
-                                // try {
-                                //     $this._updateLabel(host);
-                                // }catch(e){
-                                // }
+                                try {
+                                    $this._updateLabel(host);
+                                }catch(e){
+                                }
                             });
                         return "loading";
                     }
 
                     break;
-                case "reverseLookup":
+                case "reverse-lookup":
                     if (host.reverseDns !== undefined){
                         return host.reverseDns || this._getDefaultNodeLabel(host);
                     } else {
                         env.connector
                             .getHostReverseDns(host)
                             .done(function(label){
-                                // try {
-                                //     $this._updateLabel(host);
-                                // }catch(e){
-                                // }
+                                try {
+                                    $this._updateLabel(host);
+                                }catch(e){
+                                }
                             });
                         return "loading";
                     }
+                    break;
+
+                case "ip":
+                    return this._getDefaultNodeLabel(host);
                     break;
                 default:
                     return this._getDefaultNodeLabel(host);
@@ -687,8 +690,6 @@ define([
 
             return null;
         };
-
-
 
         this._animatePathChange = function (oldTraceroute, newTraceroute) {
             var tracerouteId, element;

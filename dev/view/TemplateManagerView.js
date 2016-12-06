@@ -24,15 +24,17 @@ define([
      */
 
     var TemplateManagerView = function(env){
-        var $this, lineFunction, blockListeners, headerController, firstDraw, playerButtons;
+        var $this, lineFunction, blockListeners, headerController, firstDraw;
 
         $this = this;
         firstDraw = true;
         this.lang = lang;
         this.env = env;
         this.values = {};
-        this.dom = {};
-        playerButtons = {};
+        this.dom = {
+            playerButtons: {},
+            labelRadio: null,
+        };
         blockListeners = false;
         lineFunction = d3.svg.line()
             .x(function(d) { return d.x; })
@@ -64,11 +66,11 @@ define([
 
         this._updatePlayerButtons = function () {
             if (env.emulationRunning){
-                playerButtons.play.hide();
-                playerButtons.pause.show();
+                this.dom.playerButtons.play.hide();
+                this.dom.playerButtons.pause.show();
             } else {
-                playerButtons.play.show();
-                playerButtons.pause.hide();
+                this.dom.playerButtons.play.show();
+                this.dom.playerButtons.pause.hide();
             }
         };
 
@@ -114,9 +116,11 @@ define([
                 env.parentDom.find('.value-target').text(this.values.target);
                 env.parentDom.find('.value-number-probes').text(this.values.numberProbes);
                 env.parentDom.find('.value-total-probes').text(this.values.totalProbes);
-                // if ()
-                //     env.parentDom.find('.play-button')
-                //         .text(this.values.totalProbes);
+                this.dom.labelRadio
+                    .each(function () {
+                        $(this).prop("checked", $(this).val() == env.labelLevel);
+                    });
+
             }
         };
 
@@ -183,7 +187,6 @@ define([
 
             parent = env.parentDom.find(".add-probe-panel");
             parent.show();
-
             table = parent.find('.probe-list');
 
 
@@ -419,34 +422,41 @@ define([
             env.parentDom
                 .find(".click-select-probe")
                 .on("click", function(){
+
                     $this.populateProbeList($.map(env.connector.loadedProbes, function(probe){
                         probe.select = (env.main.shownSources.indexOf(probe.id) != -1);
                         return [probe];
                     }));
                 });
 
-            playerButtons.play = env.parentDom
+            this.dom.playerButtons.play = env.parentDom
                 .find(".play-button")
                 .on("click", function () {
                     env.historyManager.emulateHistory();
                 });
 
-            playerButtons.pause = env.parentDom
+            this.dom.playerButtons.pause = env.parentDom
                 .find(".pause-button")
                 .on("click", function () {
                     env.historyManager.stopEmulation();
                 });
 
-            playerButtons.beginning = env.parentDom
+            this.dom.playerButtons.beginning = env.parentDom
                 .find(".bwd-button")
                 .on("click", function () {
                     env.historyManager.getFirstState();
                 });
 
-            playerButtons.end = env.parentDom
+            this.dom.playerButtons.end = env.parentDom
                 .find(".ffwd-button")
                 .on("click", function () {
-                   env.historyManager.getLastState();
+                    env.historyManager.getLastState();
+                });
+
+            this.dom.labelRadio = env.parentDom
+                .find('.label-level')
+                .on("click", function () {
+                    env.mainView.setLabelLevel($(this).val());
                 });
 
 

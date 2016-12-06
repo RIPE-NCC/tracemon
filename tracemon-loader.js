@@ -160,6 +160,7 @@ define([
             "maxNumberHops": instanceParams.maxNumberHops || config.maxNumberHops,
             "templatesLocation": instanceParams.templatesLocation || config.templatesLocation,
             "reproductionSpeed":  instanceParams.reproductionSpeed || config.reproductionSpeed,
+            "labelLevel":  instanceParams.labelLevel || config.defaultLabelLevel,
             "parentDom": $(parentDom),
             "queryParams": queryParams
         };

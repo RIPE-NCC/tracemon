@@ -11,6 +11,12 @@ define([], function(){
         title: "Traceroute Route Visualisation",
         hostGroupedBy: "Hosts grouped by",
 
+        labelOptions: {
+          ip: "IP address",
+          reverseLookup: "Reverse lookup",
+          country: "Country code"
+        },
+
         views: {
             host: "IP",
             asn: "Autonomous System",

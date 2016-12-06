@@ -36,12 +36,18 @@
 
             </div>
         </div>
+        {{>probes-selection}}
+        <div class="tracemon-subheader">
+            <div class="controller-line-left">Traceroutes to <span class="value-target">{{values.target}}</span> from <span class="value-number-probes">{{values.numberProbes}}</span> of <span class="value-total-probes">{{values.totalProbes}}</span> probes (<span class="clickable click-select-probe">select</span>)</div>
 
-        <div class="tracemon-controller">
-            <div class="controller-line">Traceroutes to <span class="value-target">{{values.target}}</span> from <span class="value-number-probes">{{values.numberProbes}}</span> of <span class="value-total-probes">{{values.totalProbes}}</span> probes (<span class="clickable click-select-probe">select</span>)</div>
-            {{>probes-selection}}
 
-            <!--<div class="controller-line">{{lang.hostGroupedBy}} {{>select-view}}</div>-->
+            <div class="controller-line-right">
+                Nodes Label:
+                <label class="radio-inline"><input type="radio" class="label-level" name="optradio" value="ip">{{lang.labelOptions.ip}}</label>
+                <label class="radio-inline"><input type="radio" class="label-level" name="optradio" value="reverse-lookup">{{lang.labelOptions.reverseLookup}}</label>
+                <label class="radio-inline"><input type="radio" class="label-level" name="optradio" value="geo">{{lang.labelOptions.country}}</label>
+            </div>
+            <!--<div class="controller-line-left">{{lang.hostGroupedBy}} {{>select-view}}</div>-->
 
             <div class="traceroute-output">
                 <textarea class="traceroute-text"></textarea>

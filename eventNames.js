@@ -14,6 +14,7 @@ utils.observer.publish("view.traceroute.search:change", Traceroute);
 utils.observer.publish("view.status:change", {msm: {source:Tracroute}});
 utils.observer.publish("view.animation:stop", Moment);
 utils.observer.publish("view.animation:start", Moment);
+utils.observer.publish("view.label-level:change", Moment);
 utils.observer.publish("view.time-selection:change", { startDate: Moment, stopDate: Moment });
 utils.observer.publish("view.current-instant:change", Moment);
 

@@ -36,6 +36,7 @@ define([], function(){
         eventGroupingAntiFlood: 800,
         historyEmulationEventDuration: 3000,
         templatesLocation: "http://localhost:63342/viz-atlas-tracemon/dev/view/html/",
+        defaultLabelLevel: "ip",
 
         reloadSourcesDiff: 3, // reload the dataset id the sources set changes of at least N probes
 

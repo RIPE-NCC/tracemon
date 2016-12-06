@@ -155,9 +155,9 @@
 /*.ui-timepicker-rtl dl dd { margin: 0 45% 10px 10px; }*/
 
 /*.ui-icon-gripsmall-diagonal-se{ !*Workaround for jquery-ui bug*!*/
-    /*background-position: -64px -224px !important;*/
-    /*bottom: 0 !important;*/
-    /*right: 0 !important;*/
+/*background-position: -64px -224px !important;*/
+/*bottom: 0 !important;*/
+/*right: 0 !important;*/
 /*}*/
 
 .tracemon-footer{
@@ -199,12 +199,29 @@
     padding-top: 3px;
 }
 
-.tracemon-controller {
+.tracemon-subheader {
     border-bottom: 1px solid #c0c0c0;
+    position: relative;
+    overflow: auto;
 }
 
-.tracemon-controller .controller-line {
+.tracemon-subheader .controller-line-right {
     margin: 5px 5px 5px 10px;
+    float: right;
+    width: 45%;
+    text-align: right;
+}
+
+.tracemon-subheader .label-level{
+    margin-top: 0!important;  /*bootstrap fix*/
+}
+
+
+
+.tracemon-subheader .controller-line-left {
+    margin: 5px 5px 5px 10px;
+    float: left;
+    width: 45%;
 }
 
 .padded-text {

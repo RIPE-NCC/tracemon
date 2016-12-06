@@ -217,7 +217,6 @@ define([
 
             this._startProcedure();
             env.template.init();
-
         };
 
     };
