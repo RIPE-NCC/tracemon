@@ -262,6 +262,7 @@ define([
 
                     measurement.startDate = moment.unix(data["start_time"]).utc();
                     measurement.stopDate = (data["stop_time"]) ? moment.unix(data["stop_time"]).utc() : null;
+                    measurement.interval = data["native_sampling"];
                     $this.measurementById[measurement.id] = measurement;
 
                     if (!targetHost.isPrivate) { // TODO: ASN LOOKUP FOR TARGET

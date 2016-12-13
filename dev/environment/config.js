@@ -46,6 +46,8 @@ define([], function(){
         },
 
         graph: {
+            removeCycle: true,
+            combineNullHosts: false,
             pathInterpolation: "basis",
             nodeRadius: 7,
             nodeSelectedRadius: 10,

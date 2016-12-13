@@ -162,6 +162,7 @@ define([
             "templatesLocation": instanceParams.templatesLocation || config.templatesLocation,
             "reproductionSpeed":  instanceParams.reproductionSpeed || config.reproductionSpeed,
             "labelLevel":  instanceParams.labelLevel || config.defaultLabelLevel,
+            "onlyCore":  instanceParams.onlyCore,
             "parentDom": $(parentDom),
             "queryParams": queryParams
         };
@@ -215,7 +216,7 @@ define([
 
             function enrichMethod(methodName) {
                 objectToBeEnriched[methodName] = function () {
-                    env.main[methodName].apply(env.main, arguments);
+                    return env.main[methodName].apply(env.main, arguments);
                 }
             }
 

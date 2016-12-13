@@ -4,10 +4,11 @@ define([
     "tracemon.env.config",
     "tracemon.env.languages.en",
     "tracemon.lib.jquery-amd",
+    "tracemon.lib.moment",
     "tracemon.lib.d3-amd",
     "tracemon.lib.parsePrefix",
     "tracemon.view.label-placement"
-], function(utils, config, lang, $, d3, prefixUtils, LabelPlacement){
+], function(utils, config, lang, $, moment, d3, prefixUtils, LabelPlacement){
 
     var SingleHostView = function(env){
         var $this, labelPlacement, cache, nodeBBox, currentSearch, lineFunction, cleanRedraw;
@@ -16,7 +17,10 @@ define([
         nodeBBox = (config.graph.nodeRadius * 2) + 5;
         labelPlacement = new LabelPlacement(nodeBBox, nodeBBox, 12);
         currentSearch = null;
-        cache = {};
+        cache = {
+            nodes: [],
+            edges: []
+        };
         cleanRedraw = false;
         lineFunction = d3.svg.line()
             .x(function(d) { return d.x; })
@@ -33,6 +37,10 @@ define([
                 cleanRedraw = true;
             });
             utils.observer.subscribe("model.host:ixp", this._updateIxp, this);
+            // utils.observer.subscribe("model.history:new", function () {
+            //     console.log("first");
+            //     this._computeLayout(this._computeMeshGraph());
+            // }, this);
             utils.observer.subscribe("view.label-level:change", function () {
                 for (var n=0,length=this.nodesArray.length; n<length; n++) {
                     $this._updateLabel($this.nodesArray[n].model);
@@ -356,8 +364,9 @@ define([
 
         this.update = function(diff, callback){
 
+            console.log("second");
             currentSearch = env.headerController.updateSearch();
-            this._computeLayout(this._computeMeshGraph());
+            this._computeLayout(this._computeMeshGraph()); // This should be done only if there are new events in the history
             this.computeVisibleGraph(diff.status);
             env.mainView.graph.computeLayout();
             this._updateNodesGraphAttributes();
@@ -398,18 +407,31 @@ define([
         // };
 
         this._computeMeshGraph = function(){
-            var traceroutes, traceroute, edges, nodes, previousHost;
+            var traceroutes, traceroute, edges, nodes, previousHost, sourcesUsed, previousHostId;
 
             nodes = {};
             edges = {};
+            sourcesUsed = {};
 
             traceroutes = $.map(env.main.loadedMeasurements, function(item){
                 return item.getTraceroutes();
+                // var loadedDataRange, startDate, endDate;
+                //
+                //
+                // loadedDataRange = env.historyManager.getTimeRange();
+                // // console.log(env.startDate, env.startDate.clone().utc());
+                // startDate = moment.utc(loadedDataRange.startDate * 1000);
+                // endDate = moment.utc((loadedDataRange.startDate + (item.interval)) * 1000);
+                //
+                // console.log(item.getTraceroutesRange(startDate, endDate));
+                //
+                // return item.getTraceroutesRange(startDate, endDate);
             });
 
             for (var t=0,length = traceroutes.length; t<length; t++) {
                 traceroute = traceroutes[t];
                 previousHost = traceroute.source;
+
                 nodes[previousHost.getId()] = previousHost;
 
                 traceroute.forEachHop(function(hop){
@@ -420,7 +442,10 @@ define([
 
                     if (previousHost.getId() != host.getId()) {
                         nodes[host.getId()] = host;
-                        edges[previousHost.getId() + "-" + host.getId()] = [previousHost, host];
+                        if (!config.graph.removeCycle || !sourcesUsed[previousHost.getId()]) {
+                            sourcesUsed[previousHost.getId()] = true;
+                            edges[previousHost.getId() + "-" + host.getId()] = [previousHost, host];
+                        }
                         previousHost = host;
                     }
 
@@ -627,11 +652,15 @@ define([
         };
 
         this._drawPaths = function(){
-            var path, paths, d3Data;
+            var path, paths, d3Data, edge, edgeView;
 
-            cache.edges = $.map(this.edges, function(edge){
-                return env.mainView.graph.getEdge(edge.start.getId(), edge.stop.getId());
-            });
+            for (var edgeKey in this.edges){
+                edge = this.edges[edgeKey];
+                edgeView = env.mainView.graph.getEdge(edge.start.getId(), edge.stop.getId());
+                if (edgeView){
+                    cache.edges.push(edgeView);
+                }
+            }
 
             paths = $.map(this.traceroutes, function(path){
                 path.d = lineFunction(path.points);
@@ -714,14 +743,25 @@ define([
         };
 
         this._getPointsFromTraceroute = function(traceroute){
-            var edge, points, pathId, unifiedPathArray, hosts, edgeSet;
+            var edge, points, pathId, unifiedPathArray, hosts, edgeTmp;
 
             unifiedPathArray = [];
             hosts = traceroute.getHostList();
 
             for (var n=0,length=hosts.length; n<length-1; n++){
                 if (hosts[n].getId() != hosts[n + 1].getId()) {
-                    unifiedPathArray.push(env.mainView.graph.getEdge(hosts[n].getId(), hosts[n + 1].getId()));
+                    edgeTmp = env.mainView.graph.getEdge(hosts[n].getId(), hosts[n + 1].getId());
+                    if (edgeTmp){
+                        unifiedPathArray.push(edgeTmp);
+                    } else {
+                        unifiedPathArray.push({ // Virtual edge
+                            from: hosts[n].getId(),
+                            to: hosts[n + 1].getId(),
+                            points: [],
+                            id: hosts[n].getId() + "-" + hosts[n + 1].getId()
+                        });
+
+                    }
                 }
             }
 

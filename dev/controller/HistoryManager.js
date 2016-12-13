@@ -122,11 +122,11 @@ define([
         };
 
         this.getFirstState = function () {
-            try {
+            // try {
                 return this.getStateAt(this._historyTimeline[0]);
-            } catch (e){
-                console.log("Possible timeline empty", e);
-            }
+            // } catch (e){
+            //     console.log("Possible timeline empty", e);
+            // }
         };
 
         this.getStateAt = function(date){

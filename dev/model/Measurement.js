@@ -70,6 +70,25 @@ define([
         return this._traceroutes;
     };
 
+    Measurement.prototype.getTraceroutesRange = function(start, stop){
+        var traceroute, traceroutes;
+
+        traceroutes = [];
+        for (var n=0,length=this._traceroutes.length; n<length; n++) {
+            traceroute = this._traceroutes[n];
+            if (traceroute.date.diff(start) >= 0){
+                if (traceroute.date.diff(stop) <= 0) {
+                    traceroutes.push(traceroute);
+                } else {
+                    return traceroutes;
+                    break;
+                }
+            }
+        }
+
+        return traceroutes;
+    };
+
     Measurement.prototype.getStateAt = function(date){
         var currentTraceroutes, traceroute, traceroutesForThisSource;
 

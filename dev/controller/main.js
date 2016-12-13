@@ -16,14 +16,14 @@ define([
             HistoryManager, TemplateManagerView) {
 
     var main = function (env) {
-        var $this, now, firstTimeInit;
+        var $this, now, initCompleted;
 
         $this = this;
+        initCompleted = false;
         this.shownSources = null;
 
-        this.exposedMethods = ["setStringTimeRange", "setTimeRange", "addMeasurementAndGroup", "autoGroupMeasurements",
-            "addMeasurement", "addProbes", "addProbe", "addGroup", "removeGroup", "removeProbe", "setDataFilter",
-            "mergeMeasurements", "removeMeasurement", "init"];
+        this.exposedMethods = ["getModel", "getSources", "addMeasurement", "updateCurrentData", "loadMeasurements",
+            "applyConfiguration", "setSources", "addSource", "setTimeRange", "init"];
 
         this.error = function(message, type){
 
@@ -80,7 +80,6 @@ define([
             this.updateData(measurementsToLoad);
         };
 
-
         this.computeInitialSources = function(){
             var out;
 
@@ -99,6 +98,20 @@ define([
             this.shownSources = sources;
             this.updateCurrentData();
             utils.observer.publish("view:probe-set", this.shownSources);
+        };
+
+        this.getSources = function () {
+            return this.shownSources;
+        };
+
+        this.addSource = function (source) {
+            var currentSources = this.shownSources;
+            if (currentSources.indexOf(source) == -1){
+                currentSources.push(source);
+                this.setSources(currentSources);
+            } else {
+                throw "Source already selected";
+            }
         };
 
         this.updateData = function(measurementsToLoad) {
@@ -138,6 +151,18 @@ define([
             });
         };
 
+
+        this.addMeasurement = function(msmId){
+            var measurements;
+
+            measurements = Object.keys(this.loadedMeasurements);
+            if (measurements.indexOf(msmId) == -1){
+                measurements.push(msmId);
+            }else{
+                throw "Measurement already loaded"
+            }
+            this.updateData(measurements);
+        };
         /*
          * msmList format [{id: 81881, sources: [11,22,99]}]
          */
@@ -194,6 +219,14 @@ define([
             }
         };
 
+        this.getModel = function () {
+            if (initCompleted && Object.keys(this.loadedMeasurements).length > 0){
+                return env.historyManager.getLastState();
+            } else {
+                throw "You have to init the widget and load a measurement before to be able to get the model"
+            }
+        };
+
         this.setTimeRange = function(start, stop){ // Accept timestamps for public API
             env.startDate = moment.unix(start).utc();
             env.stopDate = moment.unix(stop).utc();
@@ -204,20 +237,18 @@ define([
         this.init = function(){
             env.connector = new Connector(env);
             env.historyManager = new HistoryManager(env);
-            env.template = new TemplateManagerView(env);
-            env.mainView = new MainView(env);
 
+            if (!env.onlyCore) {
+                env.template = new TemplateManagerView(env);
+                env.mainView = new MainView(env);
+            }
 
-            now = utils.getUTCDate();
-            this.groups = {};
-            firstTimeInit = true;
-
-            // utils.observer.subscribe("init-status", function(){
-            //     firstTimeInit = false;
-            // }, this);
-
+            initCompleted = true;
             this._startProcedure();
-            env.template.init();
+
+            if (!env.onlyCore) {
+                env.template.init();
+            }
         };
 
     };
