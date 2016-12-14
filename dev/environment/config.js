@@ -8,10 +8,9 @@ define([], function(){
     return {
         widgetPrefix: "lm",
         dataAPIs: {
-//            results: "https://atlas.ripe.net/api/v2/measurements/0000/results.jsonp",
-            results: "http://localhost/unified_api.php?id=0000",
+            results: "http://atlas.binatang.nl/api/v2/measurements/traceroute/0000/results/",
+            // results: "http://localhost/unified_api.php?id=0000",
             metadata: "https://atlas.ripe.net/api/v2/measurements/0000/routequake/meta/",
-            // dataApiAsAnnotation: "https://stat.ripe.net/data/network-info/data.json",
             dataApiAsAnnotation: "http://localhost/as_lookup.php",
             dataApiReverseDns: "https://stat.ripe.net/data/reverse-dns-ip/data.json",
             dataApiGeolocation: "https://stat.ripe.net/data/geoloc/data.json",
