@@ -11,26 +11,21 @@ define([
 
 
     var LiveConnector = function (env) {
-        var socket, callback, context, enabled;
+        var socket, callback, context;
 
-        enabled = false;
-        window.activateStreaming = function(active){ // TEMPORARY
-            enabled = active;
-            console.log("This function pollutes the global env. TEMPORARY, REMOVE THIS SHIT");
+        this.init = function(){
+            socket = io(config.streamingUrl, { path : "/stream/socket.io" });
+            socket.on("atlas_result", function(result){
+                if (callback){
+                    callback.call(context, result);
+                }
+            });
+
+            socket.on("atlas_error", function(result) {
+                console.log(result); // For now, after propagate bubbling up
+            });
         };
 
-        socket = io(config.streamingUrl, { path : "/stream/socket.io" });
-
-
-        socket.on("atlas_result", function(result){
-            if (callback && enabled){
-                callback.call(context, result);
-            }
-        });
-
-        socket.on("atlas_error", function(result) {
-            console.log(result); // For now, after propagate bubbling up
-        });
 
         this.subscribe = function(filtering, callbackA, contextA) {
             callback = callbackA;
@@ -38,6 +33,10 @@ define([
             socket.emit("atlas_subscribe", filtering); // possible: type, prb, msm, sourceAddress, sourcePrefix, destinationAddress, destinationPrefix
         };
 
+
+        if (env.realTimeUpdate) {
+            this.init();
+        }
 
         window.debugFakeSample = function(ip){
             var timestamp = parseInt(new Date().getTime()/1000);
