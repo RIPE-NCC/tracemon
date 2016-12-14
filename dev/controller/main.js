@@ -132,7 +132,7 @@ define([
                         }).done(function(measurement) {
                             env.historyManager.addMeasurement(measurement);
 
-                            if (config.checkRealtime) {
+                            if (env.realTimeUpdate) {
                                 env.connector.getRealTimeResults(measurement, { msm: measurement.id });
                             }
                         });
