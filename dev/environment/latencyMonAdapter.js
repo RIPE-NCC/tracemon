@@ -120,8 +120,6 @@ define([
                 console.log("LatencyMON not loaded: no RTT charts available");
             }
 
-
-            window.latencymon = this.instance;
         };
 
         this.setListeners();
