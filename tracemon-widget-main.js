@@ -21,7 +21,7 @@ window.atlas._widgets.tracemon.urls = window.atlas._widgets.tracemon.urls || {
 window.atlas._widgets.tracemon.instances = window.atlas._widgets.tracemon.instances || {
         requested: [],
         running: {},
-        callbacks: {}
+        callback: {}
     };
 
 
@@ -68,6 +68,7 @@ function initTracemon(domElement, instanceParams, queryParams){
         }
     };
 
+    window.atlas._widgets.tracemon.instances.callback[domElement] = [];
     window.atlas._widgets.tracemon.instances.requested
         .push({domElement: domElement, instanceParams: instanceParams, queryParams: queryParams, callbacks: {}});
 
@@ -84,6 +85,9 @@ function initTracemon(domElement, instanceParams, queryParams){
     }
 
     return {
+        ready: function(callback){
+            window.atlas._widgets.tracemon.instances.callback[domElement] = callback;
+        },
         shell: function(){
             var instance = window.atlas._widgets.tracemon.instances.running[domElement];
 

@@ -234,7 +234,9 @@ define([
             utils.observer.publish("view.time-selection:change", { startDate: env.startDate, stopDate: env.stopDate });
         };
 
-        this.on = utils.observer.subscribe;
+        this.on = function(event, callback){
+            utils.observer.subscribe(event, callback, this);
+        };
 
         this.init = function(){
             env.connector = new Connector(env);

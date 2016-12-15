@@ -131,7 +131,7 @@ define([
 ], function(utils, config, language, $, main){
 
     var Tracemon = function(instance){
-        var env, instanceParams, queryParams, parentDom, styleDownloads;
+        var env, instanceParams, queryParams, parentDom, styleDownloads, objectToBeEnriched;
 
         /*
          * Access to the instance
@@ -143,6 +143,7 @@ define([
         /*
          * Init Dependency Injection Vector
          */
+
         env = {
             "version": "16.12.14.2",
             "widgetUrl": TRACEMON_WIDGET_URL + "dev/",
@@ -205,7 +206,7 @@ define([
         }
 
 
-        var objectToBeEnriched = {};
+        objectToBeEnriched = {};
 
         utils.loadStylesheets(styleDownloads, function(){
             var n, length, methodName;
@@ -226,6 +227,8 @@ define([
                 methodName = env.main.exposedMethods[n];
                 enrichMethod(methodName);
             }
+
+            window.atlas._widgets.tracemon.instances.callback[parentDom](objectToBeEnriched);
         });
 
 
