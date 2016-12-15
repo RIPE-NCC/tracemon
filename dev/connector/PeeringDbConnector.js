@@ -117,7 +117,7 @@ define([
             return $.ajax({
                 dataType: "jsonp",
                 cache: false,
-                url: config.dataAPIs.peeringDb.ixps
+                url: env.peeringDb.ixps
             });
 
         };
@@ -127,7 +127,7 @@ define([
             return $.ajax({
                 dataType: "jsonp",
                 cache: false,
-                url: config.dataAPIs.peeringDb.lans
+                url: env.peeringDb.lans
             });
 
         };
@@ -136,7 +136,7 @@ define([
             return $.ajax({
                 dataType: "jsonp",
                 cache: false,
-                url: config.dataAPIs.peeringDb.prefixes
+                url: env.peeringDb.prefixes
             });
         };
 
