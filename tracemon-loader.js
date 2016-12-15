@@ -162,6 +162,7 @@ define([
             "templatesLocation": instanceParams.templatesLocation || config.templatesLocation,
             "reproductionSpeed":  instanceParams.reproductionSpeed || config.reproductionSpeed,
             "labelLevel":  instanceParams.labelLevel || config.defaultLabelLevel,
+            "peeringDb":  instanceParams.peeringDb || config.dataAPIs.peeringDb,
             "realTimeUpdate":  (instanceParams.realTimeUpdate != null) ? instanceParams.realTimeUpdate : config.realTimeUpdate,
             "onlyCore":  instanceParams.onlyCore,
             "parentDom": $(parentDom),

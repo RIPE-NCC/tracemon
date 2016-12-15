@@ -22,7 +22,7 @@ define([
         initCompleted = false;
         this.shownSources = null;
 
-        this.exposedMethods = ["getModel", "getSources", "addMeasurement", "updateCurrentData", "loadMeasurements",
+        this.exposedMethods = ["on", "getModel", "getSources", "addMeasurement", "updateCurrentData", "loadMeasurements",
             "applyConfiguration", "setSources", "addSource", "setTimeRange", "init"];
 
         this.error = function(message, type){
@@ -233,6 +233,8 @@ define([
             env.main.updateCurrentData();
             utils.observer.publish("view.time-selection:change", { startDate: env.startDate, stopDate: env.stopDate });
         };
+
+        this.on = utils.observer.subscribe;
 
         this.init = function(){
             env.connector = new Connector(env);
