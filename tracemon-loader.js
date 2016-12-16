@@ -209,7 +209,7 @@ define([
         objectToBeEnriched = {};
 
         utils.loadStylesheets(styleDownloads, function(){
-            var n, length, methodName;
+            var n, length, methodName, callbackReady;
 
             env.main = new main(env);
 
@@ -228,7 +228,10 @@ define([
                 enrichMethod(methodName);
             }
 
-            window.atlas._widgets.tracemon.instances.callback[parentDom](objectToBeEnriched);
+            callbackReady = window.atlas._widgets.tracemon.instances.callback[parentDom];
+            if (callbackReady){
+                callbackReady(objectToBeEnriched);
+            }
         });
 
 

@@ -68,7 +68,7 @@ function initTracemon(domElement, instanceParams, queryParams){
         }
     };
 
-    window.atlas._widgets.tracemon.instances.callback[domElement] = [];
+    window.atlas._widgets.tracemon.instances.callback[domElement] = null;
     window.atlas._widgets.tracemon.instances.requested
         .push({domElement: domElement, instanceParams: instanceParams, queryParams: queryParams, callbacks: {}});
 
