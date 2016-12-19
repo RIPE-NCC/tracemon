@@ -251,29 +251,37 @@ define([
                 .done(function(data){
                     var measurement, msmTarget, targetHost;
 
-                    msmTarget = data["target"];
-                    if ($this.hostByIp[msmTarget]){
-                        targetHost = $this.hostByIp[msmTarget];
+                    if (data["type"] == "traceroute"){
+                        msmTarget = data["target"];
+                        if ($this.hostByIp[msmTarget]){
+                            targetHost = $this.hostByIp[msmTarget];
+                        } else {
+                            targetHost = new Host(msmTarget);
+                        }
+
+                        measurement = new Measurement(measurementId, targetHost);
+
+                        measurement.startDate = moment.unix(data["start_time"]).utc();
+                        measurement.stopDate = (data["stop_time"]) ? moment.unix(data["stop_time"]).utc() : null;
+                        measurement.interval = data["native_sampling"];
+                        $this.measurementById[measurement.id] = measurement;
+
+                        if (!targetHost.isPrivate) { // TODO: ASN LOOKUP FOR TARGET
+                            // asnLookupConnector.enrich(targetHost);
+
+                            // if (config.ixpHostCheck) {
+                            //     $this._enrichIXP(targetHost);
+                            // }
+                        }
+
+                        deferredCall.resolve(measurement);
                     } else {
-                        targetHost = new Host(msmTarget);
+                        throw "The measurement added is not a traceroute"
                     }
 
-                    measurement = new Measurement(measurementId, targetHost);
-
-                    measurement.startDate = moment.unix(data["start_time"]).utc();
-                    measurement.stopDate = (data["stop_time"]) ? moment.unix(data["stop_time"]).utc() : null;
-                    measurement.interval = data["native_sampling"];
-                    $this.measurementById[measurement.id] = measurement;
-
-                    if (!targetHost.isPrivate) { // TODO: ASN LOOKUP FOR TARGET
-                        // asnLookupConnector.enrich(targetHost);
-
-                        // if (config.ixpHostCheck) {
-                        //     $this._enrichIXP(targetHost);
-                        // }
-                    }
-
-                    deferredCall.resolve(measurement);
+                })
+                .fail(function() {
+                    throw "The measurement added cannot be loaded, probably the ID doesn't exist";
                 });
 
             return deferredCall.promise();

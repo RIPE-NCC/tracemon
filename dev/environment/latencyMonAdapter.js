@@ -83,7 +83,7 @@ define([
         };
 
         this.init = function(whereClass, measurements, probes){
-            if (initLatencymon){
+            if (typeof window.initLatencymon != "undefined"){
                 this.measurementId = measurements.join("-");
                 this.instance = initLatencymon(
                     whereClass,

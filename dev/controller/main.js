@@ -54,7 +54,6 @@ define([
         };
 
         this.applyConfiguration = function(conf){
-            var measurementsToLoad;
 
             if (conf.startTimestamp && conf.stopTimestamp){
                 env.startDate = moment.unix(conf.startTimestamp).utc();
@@ -62,22 +61,14 @@ define([
             }
 
             if (conf.measurements) {
-                measurementsToLoad = $.map(conf.measurements, function(item){
-                    return { id: item };
-                });
-                this.updateData(measurementsToLoad);
+                this.updateData(conf.measurements);
             }
         };
 
         this.updateCurrentData = function() {
-            var measurementsToLoad;
-
             env.reset = true;
-            measurementsToLoad = $.map(Object.keys(this.loadedMeasurements), function(item){
-                return { id: item };
-            });
             env.historyManager.reset();
-            this.updateData(measurementsToLoad);
+            this.updateData(Object.keys(Object.keys(this.loadedMeasurements)));
         };
 
         this.computeInitialSources = function(){
@@ -114,9 +105,9 @@ define([
             }
         };
 
-        this.updateData = function(measurementsToLoad) {
+        this.updateData = function(measurementsIDtoLoad) {
 
-            this.loadMeasurements(measurementsToLoad, function () { // 3749061, 4471092 (loop on *)
+            this.loadMeasurements(measurementsIDtoLoad, function () { // 3749061, 4471092 (loop on *)
                 var deferredArray, deferredQuery;
 
                 $this.shownSources = $this.shownSources || $this.computeInitialSources();
@@ -155,7 +146,9 @@ define([
         this.addMeasurement = function(msmId){
             var measurements;
 
-            measurements = Object.keys(this.loadedMeasurements);
+            measurements = Object.keys($this.loadedMeasurements);
+
+            console.log(measurements);
             if (measurements.indexOf(msmId) == -1){
                 measurements.push(msmId);
             }else{
@@ -163,18 +156,15 @@ define([
             }
             this.updateData(measurements);
         };
-        /*
-         * msmList format [{id: 81881, sources: [11,22,99]}]
-         */
 
-        this.loadMeasurements = function (msmList, callback) {
+        this.loadMeasurements = function (msmsIDlist, callback) {
             this.loadedMeasurements = {}; // reset
 
-            $.when.apply($, $.map(msmList, function (msm){
+            $.when.apply($, $.map(msmsIDlist, function (msm){
                 return env.connector
-                    .getMeasurementInfo(msm.id, { sources: msm.sources })
+                    .getMeasurementInfo(parseInt(msm))
                     .done(function (measurement) {
-                        if (!env.meta){
+                        if (!env.meta) {
                             env.meta = {
                                 startDate: Infinity,
                                 stopDate: null

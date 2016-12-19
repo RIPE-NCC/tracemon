@@ -60,11 +60,7 @@ define([
                 measurementInfo[measurementId] =  $.ajax({
                     dataType: "jsonp",
                     cache: false,
-                    url: env.dataApiMetadata.replace("0000", measurementId),
-                    success: function (data) {
-                    },
-                    error: function (e) {
-                    }
+                    url: env.dataApiMetadata.replace("0000", measurementId)
                 });
             }
 
