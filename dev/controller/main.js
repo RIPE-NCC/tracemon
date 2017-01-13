@@ -113,29 +113,40 @@ define([
                 $this.shownSources = $this.shownSources || $this.computeInitialSources();
                 // env.template.showLoadingImage(true);
                 deferredArray = [];
-                for (var msmId in $this.loadedMeasurements) {
 
-                    deferredQuery = env.connector
-                        .getInitialDump($this.loadedMeasurements[msmId], {
-                            startDate: env.startDate,
-                            stopDate: env.stopDate,
-                            sources: $this.shownSources
-                        }).done(function(measurement) {
-                            env.historyManager.addMeasurement(measurement);
+                try {
+                    for (var msmId in $this.loadedMeasurements) {
 
-                            if (env.realTimeUpdate) {
-                                env.connector.getRealTimeResults(measurement, { msm: measurement.id });
-                            }
-                        });
+                        deferredQuery = env.connector
+                            .getInitialDump($this.loadedMeasurements[msmId], {
+                                startDate: env.startDate,
+                                stopDate: env.stopDate,
+                                sources: $this.shownSources
+                            }).done(function (measurement) {
+                                env.historyManager.addMeasurement(measurement);
 
-                    deferredArray
-                        .push(deferredQuery);
+                                if (env.realTimeUpdate) {
+                                    env.connector.getRealTimeResults(measurement, {msm: measurement.id});
+                                }
+                            });
+
+                        deferredArray
+                            .push(deferredQuery);
+                    }
+                } catch (error){
+                    var errorObj = (error.type) ? error : { type: "uncaught", message: error };
+                    utils.observer.publish("error", errorObj);
+                    console.log(errorObj);
                 }
 
                 $.when
                     .apply($, deferredArray)
                     .then(function(){
                         env.historyManager.getFirstState();
+                        if (!initCompleted){
+                            initCompleted = true;
+                            utils.observer.publish("model.ready", $this.getModel());
+                        }
                         // env.template.showLoadingImage(false);
                     });
 
@@ -228,6 +239,7 @@ define([
             utils.observer.subscribe(event, callback, this);
         };
 
+
         this.init = function(){
             env.connector = new Connector(env);
             env.historyManager = new HistoryManager(env);
@@ -237,7 +249,6 @@ define([
                 env.mainView = new MainView(env);
             }
 
-            initCompleted = true;
             this._startProcedure();
 
             if (!env.onlyCore) {
