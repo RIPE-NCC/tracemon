@@ -96,7 +96,7 @@ define([
 
 
         this._combinePrivateAndNullNodes = function(traceroute){
-            var hops, attempt, host, hostKey, hop, nextHop, nextHost;
+            var hops, attempt, host, hostKey, hop;
 
             hops = traceroute.getHops();
 
@@ -104,22 +104,10 @@ define([
                 hop = hops[n];
                 attempt = hop.getMainAttempt();
                 host = attempt.host;
-                hostKey = null;
 
-
-                if (hops[n + 1]) {
-                    nextHop = hops[n + 1];
-                    nextHost = hop.getMainAttempt().host;
-                }
-
-                if (host.getAutonomousSystem() && host.isPrivate){
-                    hostKey = host.ip + "-" + host.getAutonomousSystem().id;
-                } else if (config.graph.combineNullHosts && !host.ip && nextHost && nextHop.ip){
-                    hostKey =  "*-" + nextHost.ip + "-" + host.getAutonomousSystem().id;
-                }
-
-                if (hostKey) {
-                    if (uniqueHostAs[hostKey] && (uniqueHostAs[hostKey] != attempt.host)) { // Check if the same object instance
+                if (host.getAutonomousSystem() && (host.isPrivate || !host.ip)) {
+                    hostKey = (host.ip || "*") + "-" + host.getAutonomousSystem().id;
+                    if (uniqueHostAs[hostKey] && (uniqueHostAs[hostKey] != attempt.host)){ // Check if the same object instance
                         attempt.host = uniqueHostAs[hostKey]; // Reuse the same Host object
                     } else {
                         uniqueHostAs[hostKey] = host;

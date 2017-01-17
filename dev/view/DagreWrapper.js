@@ -48,7 +48,7 @@ define([
             graph = new dagre
                 .graphlib
                 .Graph({ multigraph: true })
-                .setGraph({ "rankDir": "TB", "nodesep": 100, "ranksep": 50, "edgesep": 50 })
+                .setGraph({ "rankDir": "BT", "nodesep": 100, "ranksep": 50, "edgesep": 50 })
                 .setDefaultEdgeLabel(function() { return {}; });
         };
 

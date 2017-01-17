@@ -130,7 +130,7 @@ define([
         };
 
         this.getMeasurementInfo = function(ip){
-            var deferredCall, deferredArray;
+            var deferredCall;
 
             deferredCall = $.Deferred();
 

@@ -41,16 +41,9 @@ define([
             return $.ajax({
                 dataType: "jsonp",
                 cache: false,
+                timeout: config.ajaxTimeout,
                 url: env.dataApiResults.replace("0000", measurementId),
-                data: queryParams,
-                success: function (data) {
-                    //clearTimeout(slowAnswerTimer);
-                    //callback.call(context, data);
-                },
-                error: function (e) {
-                    //clearTimeout(slowAnswerTimer);
-                    //env.main.error("It is not possible to download data from the API", "connection-fail");
-                }
+                data: queryParams
             });
         };
 
@@ -60,6 +53,7 @@ define([
                 measurementInfo[measurementId] =  $.ajax({
                     dataType: "jsonp",
                     cache: false,
+                    timeout: config.ajaxTimeout,
                     url: env.dataApiMetadata.replace("0000", measurementId)
                 });
             }
@@ -92,6 +86,7 @@ define([
                 hostsResolutionByIp[ip] = $.ajax({
                     dataType: "jsonp",
                     cache: false,
+                    timeout: config.ajaxTimeout,
                     url: env.dataApiReverseDns,
                     data: {
                         resource: ip
@@ -109,6 +104,7 @@ define([
                 geolocByIp[ip] = $.ajax({
                     dataType: "jsonp",
                     cache: false,
+                    timeout: config.ajaxTimeout,
                     url: env.dataApiGeolocation,
                     data: {
                         resource: ip
@@ -126,6 +122,7 @@ define([
                 neighboursByAsn[asn] = $.ajax({
                     dataType: "jsonp",
                     cache: false,
+                    timeout: config.ajaxTimeout,
                     url: env.dataApiAsnNeighbours,
                     data: {
                         resource: asn
@@ -146,6 +143,7 @@ define([
                 probesInfo[measurementId] = $.ajax({
                     dataType: "jsonp",
                     cache: false,
+                    timeout: config.ajaxTimeout,
                     url: env.dataApiMetadata.replace("0000", measurementId),
                     data: {
                         type: "jsonp"

@@ -35,11 +35,11 @@ define([], function(){
         historyEmulationEventDuration: 3000,
         templatesLocation: "http://localhost:63342/viz-atlas-tracemon/dev/view/html/",
         defaultLabelLevel: "ip",
-
+        ajaxTimeout: 50000,
         reloadSourcesDiff: 3, // reload the dataset id the sources set changes of at least N probes
 
         transitionsTimes:{
-            pathChange: 1600,
+            pathChange: 600,
             nodeRemoval: 2000
         },
 

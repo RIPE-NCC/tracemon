@@ -5,6 +5,8 @@
  */
 
 utils.observer.publish("ready", status);
+utils.observer.publish("error", { type: "", message: ""});
+
 
 utils.observer.publish("view:probe-set", [Probe]);
 utils.observer.publish("view:max-hops", Integer);
@@ -20,6 +22,7 @@ utils.observer.publish("view.time-selection:change", { startDate: Moment, stopDa
 utils.observer.publish("view.current-instant:change", Moment);
 
 
+utils.observer.publish("model.ready", return getModel());
 utils.observer.publish("model.host:as", ModelObject);
 utils.observer.publish("model.host:ixp", ModelObject);
 utils.observer.publish("model.host:new", Host);

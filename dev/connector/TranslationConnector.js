@@ -117,10 +117,21 @@ define([
 
         this.enrichDump = function(data, dump){
             var translated, hops, hop, item, hopList, attempts, attemptsList, hostObj, hopObj, attemptObj,
-                hostAddress, tmpHost, errors, hostAsn, tracerouteList, targetTraceroute;
+                hostAddress, tmpHost, errors, hostAsn, tracerouteList, targetTraceroute, asnObjs, asnTmp, asList;
 
-            $.extend(this.asList, data['ases']);
-            tracerouteList = data['traceroutes'];
+            asnObjs = {};
+            asList = data['asns'] || data['ases'];
+            for (var asKey in asList){
+                asnTmp = asList[asKey];
+                asnObjs[asKey] = {
+                    number: asKey,
+                    holder: asnTmp.holder,
+                    announced: asnTmp.announced,
+                    block: asnTmp.block
+                }
+            }
+            $.extend(this.asList, asnObjs);
+            tracerouteList = data['result'] || data['traceroutes'];
 
             for (var n1=0,length1 = tracerouteList.length; n1<length1; n1++) {
                 hops = [];
@@ -236,6 +247,9 @@ define([
                     $this.enrichDump(data, dump);
 
                     deferredCall.resolve(dump);
+                })
+                .fail(function (error) {
+                    throw "The results for the selected measurement cannot be retrieved (timeout)"
                 });
 
             return deferredCall.promise();
