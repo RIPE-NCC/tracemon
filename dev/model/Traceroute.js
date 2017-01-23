@@ -89,6 +89,19 @@ define([
         return this._hash;
     };
 
+    Traceroute.prototype.getBestPathHash = function(){
+        var hosts;
+
+        if (!this._b_hash) {
+            hosts = this.getHostList();
+            this._b_hash = "";
+            for (var n = 0, length = hosts.length; n < length; n++) {
+                this._b_hash +=  "-" + hosts[n].ip;
+            }
+        }
+        return this._b_hash;
+    };
+
 
     Traceroute.prototype.getSingleLineString = function () {
         var attempt, rtt, host, asObj;

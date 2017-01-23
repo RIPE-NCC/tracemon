@@ -38,6 +38,8 @@ define([], function(){
         ajaxTimeout: 50000,
         reloadSourcesDiff: 3, // reload the dataset id the sources set changes of at least N probes
 
+        filterRepeatedTraceroutes: true, // Filter traceroutes reporting the same results consecutively
+
         transitionsTimes:{
             pathChange: 600,
             nodeRemoval: 2000

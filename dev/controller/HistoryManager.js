@@ -31,20 +31,32 @@ define([
         emulationPosition = null;
         this._historyTimeline = [];
 
+
+        this._setListeners = function(){
+            utils.observer.subscribe("model.history:new", this.updateIndex, this);
+            utils.observer.subscribe("model.history:change", this.updateIndex, this);
+        };
+
         this.reset = function(){
             this._historyTimeline = [];
         };
 
+        this.updateIndex = function(){
+            var traceroutes, timestamp, measurement;
 
-        this.addMeasurement = function(measurement){
-            var traceroutes;
+            for (var msm in env.main.loadedMeasurements){
+                measurement = env.main.loadedMeasurements[msm];
 
-            traceroutes = measurement.getTraceroutes();
-
-            for (var n=0,length=traceroutes.length; n<length; n++){
-                if (this._historyTimeline.indexOf(traceroutes[n]) == -1){
-                    this._historyTimeline.push(traceroutes[n].date.unix());
+                traceroutes = measurement.getTraceroutes();
+                this.tmp = {};
+                for (var n=0,length=traceroutes.length; n<length; n++){
+                    timestamp = traceroutes[n].date.unix();
+                    if (this._historyTimeline.indexOf(timestamp) == -1){
+                        this._historyTimeline.push(timestamp);
+                        this.tmp[timestamp] = traceroutes[n];
+                    }
                 }
+
             }
 
         };
@@ -64,6 +76,7 @@ define([
         };
 
         this.emulateHistory = function(){
+            console.log($this._historyTimeline);
             env.emulationRunning = true;
             utils.observer.publish("view.animation:start", emulationPosition || $this._historyTimeline[0]);
 
@@ -78,13 +91,14 @@ define([
                         date = moment.unix(timestamp).utc();
 
                         $this.getStateAt(timestamp);
+                        console.log("showing: ", timestamp,  $this.tmp[timestamp].getHash());
                         utils.observer.publish("view.current-instant:change", date);
 
                         if (env.emulationRunning) {
                             if (n == length - 1){
-                                env.emulationRunning = false;
-                                console.log("animation stop");
-                                utils.observer.publish("view.animation:stop", $this._historyTimeline[n]);
+                                // env.emulationRunning = false;
+                                // console.log("animation stop");
+                                // utils.observer.publish("view.animation:stop", $this._historyTimeline[n]);
                             } else {
                                 setTimeout(emulate, env.historyEmulationEventDuration);
                             }
@@ -142,6 +156,8 @@ define([
             return out;
         };
 
+
+        this._setListeners();
     };
 
     return HistoryManager;

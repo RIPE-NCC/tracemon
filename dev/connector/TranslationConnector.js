@@ -45,7 +45,7 @@ define([
         this.measurementById = {};
         this.probesByMsm = {};
         this.probesById = {};
-
+        this.tracerouteBySourceTarget = {};
         this.asList = {};
 
 
@@ -216,8 +216,6 @@ define([
                     $this.hostByIp[item["from"]] = hostObj;
                 }
 
-
-
                 targetTraceroute = $this.measurementById[item["msm_id"]].target;
                 translated = new Traceroute(hostObj, targetTraceroute, moment.unix(item["timestamp"]).utc());
                 translated.parisId = item["paris_id"];
@@ -225,7 +223,11 @@ define([
                 translated.addHops(hops);
                 translated.errors = errors;
                 hostHelper.scanTraceroute(translated);
-                dump.push(translated);
+
+                if (!config.filterRepeatedTraceroutes || translated.getBestPathHash() != $this.tracerouteBySourceTarget[translated.stateKey]){
+                    dump.push(translated);
+                    $this.tracerouteBySourceTarget[translated.stateKey] = translated.getBestPathHash();
+                }
             }
             hostHelper.scanAllTraceroutes(dump);
 

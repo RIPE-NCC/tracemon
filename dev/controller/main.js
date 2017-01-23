@@ -21,6 +21,7 @@ define([
         $this = this;
         initCompleted = false;
         this.shownSources = null;
+        this.loadedMeasurements = {};
 
         this.exposedMethods = ["on", "getModel", "getSources", "addMeasurement", "updateCurrentData", "loadMeasurements",
             "applyConfiguration", "setSources", "addSource", "setTimeRange", "init"];
@@ -68,7 +69,7 @@ define([
         this.updateCurrentData = function() {
             env.reset = true;
             env.historyManager.reset();
-            this.updateData(Object.keys(Object.keys(this.loadedMeasurements)));
+            this.updateData(Object.keys(this.loadedMeasurements));
         };
 
         this.computeInitialSources = function(){
@@ -107,15 +108,16 @@ define([
 
         this.updateData = function(measurementsIDtoLoad) {
 
-            this.loadMeasurements(measurementsIDtoLoad, function () { // 3749061, 4471092 (loop on *)
-                var deferredArray, deferredQuery;
+            this.loadMeasurements(measurementsIDtoLoad, function (measurementsLoaded) { // 3749061, 4471092 (loop on *)
+                var deferredArray, deferredQuery, msmId;
 
                 $this.shownSources = $this.shownSources || $this.computeInitialSources();
                 // env.template.showLoadingImage(true);
                 deferredArray = [];
 
                 try {
-                    for (var msmId in $this.loadedMeasurements) {
+                    for (var n=0,length= measurementsLoaded.length; n<length; n++) { // Find the new measurements
+                        msmId = measurementsLoaded[n];
 
                         deferredQuery = env.connector
                             .getInitialDump($this.loadedMeasurements[msmId], {
@@ -123,11 +125,11 @@ define([
                                 stopDate: env.stopDate,
                                 sources: $this.shownSources
                             }).done(function (measurement) {
-                                env.historyManager.addMeasurement(measurement);
 
                                 if (env.realTimeUpdate) {
-                                    env.connector.getRealTimeResults(measurement, {msm: measurement.id});
+                                    env.connector.getRealTimeResults(measurement, { msm: measurement.id });
                                 }
+                                utils.observer.publish("model.measurement:new", measurement);
                             });
 
                         deferredArray
@@ -159,7 +161,6 @@ define([
 
             measurements = Object.keys($this.loadedMeasurements);
 
-            console.log(measurements);
             if (measurements.indexOf(msmId) == -1){
                 measurements.push(msmId);
             }else{
@@ -169,9 +170,18 @@ define([
         };
 
         this.loadMeasurements = function (msmsIDlist, callback) {
-            this.loadedMeasurements = {}; // reset
+            var newMeasurementsToLoad, msmId;
 
-            $.when.apply($, $.map(msmsIDlist, function (msm){
+            newMeasurementsToLoad = [];
+            for (var n=0,length= msmsIDlist.length; n<length; n++) { // Find the new measurements
+                msmId = msmsIDlist[n];
+
+                if (!this.loadedMeasurements[msmId]){
+                    newMeasurementsToLoad.push(msmId)
+                }
+            }
+
+            $.when.apply($, $.map(newMeasurementsToLoad, function (msm){
                 return env.connector
                     .getMeasurementInfo(parseInt(msm))
                     .done(function (measurement) {
@@ -189,7 +199,9 @@ define([
                         $this.loadedMeasurements[measurement.id] = measurement;
                     });
             }))
-                .done(callback);
+                .done(function(){
+                    callback(newMeasurementsToLoad);
+                });
         };
 
 
