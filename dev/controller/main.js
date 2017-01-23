@@ -167,7 +167,6 @@ define([
                 throw "Measurement already loaded"
             }
             this.updateData(measurements);
-            utils.publish('model.measurement:new', measurements);
         };
 
         this.loadMeasurements = function (msmsIDlist, callback) {
