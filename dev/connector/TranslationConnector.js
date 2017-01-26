@@ -224,9 +224,17 @@ define([
                 translated.errors = errors;
                 hostHelper.scanTraceroute(translated);
 
-                if (!config.filterRepeatedTraceroutes || translated.getBestPathHash() != $this.tracerouteBySourceTarget[translated.stateKey]){
+                if (
+                    !config.filterRepeatedTraceroutes
+                    || !$this.tracerouteBySourceTarget[translated.stateKey]
+                    || translated.getHash() != $this.tracerouteBySourceTarget[translated.stateKey].getHash()
+                ) {
                     dump.push(translated);
-                    $this.tracerouteBySourceTarget[translated.stateKey] = translated.getBestPathHash();
+                    $this.tracerouteBySourceTarget[translated.stateKey] = translated;
+                } else {
+                    if ($this.tracerouteBySourceTarget[translated.stateKey].validUpTo < translated.date){
+                        $this.tracerouteBySourceTarget[translated.stateKey].validUpTo = translated.date;
+                    }
                 }
             }
             hostHelper.scanAllTraceroutes(dump);

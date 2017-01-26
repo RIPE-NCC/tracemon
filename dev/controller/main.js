@@ -129,6 +129,7 @@ define([
                                 if (env.realTimeUpdate) {
                                     env.connector.getRealTimeResults(measurement, { msm: measurement.id });
                                 }
+
                                 utils.observer.publish("model.measurement:new", measurement);
                             });
 
@@ -203,20 +204,6 @@ define([
                     callback(newMeasurementsToLoad);
                 });
         };
-
-
-        // If you want to load only a set of traceroutes you need <msmId, sources> for each msmId involved
-        // c.getMeasurementInfo(2984884)
-        //     .done(function(measurement){
-        //
-        //
-        //         c.getInitialDump(measurement, {
-        //             startDate: utils.timestampToUTCDate(parseInt(new Date()/1000) - 3600)
-        //         }).done(function(measurement){
-        //
-        //             c.getRealTimeResults(measurement, {msm: measurement.id});
-        //         });
-        //     });
 
 
         this._startProcedure = function(){

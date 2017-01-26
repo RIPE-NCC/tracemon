@@ -20,10 +20,10 @@ define([
         asInOut = {};
 
         this._cutHopsLength = function (traceroute, length) {
-            var hops;
-
-            hops = traceroute.getHops();
-            traceroute._hops = hops.slice(Math.max(hops.length - length, 0));
+            // var hops;
+            //
+            // hops = traceroute.getHops();
+            // traceroute._hops = hops.slice(Math.max(hops.length - length, 0));
         };
 
         this._categorizePrivateAndNull = function (traceroute) {

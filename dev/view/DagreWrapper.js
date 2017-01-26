@@ -48,8 +48,18 @@ define([
             graph = new dagre
                 .graphlib
                 .Graph({ multigraph: true })
-                .setGraph({ "rankDir": "TB", "nodesep": 100, "ranksep": 50, "edgesep": 50 })
-                .setDefaultEdgeLabel(function() { return {}; });
+                .setGraph(
+                    {
+                        rankdir: "tb",
+                        // ranker: "longest-path",
+                        // marginy: 200000,
+                        // align:"UD",
+                        // "acyclicer": "greedy",
+                        nodesep: 20,
+                        ranksep: 50,
+                        edgesep: 50
+                    }
+                );
         };
 
         this.reset = function () {

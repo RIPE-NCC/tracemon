@@ -16,6 +16,7 @@ define([
         this.target = target;
         target.isTarget = true;
         this.date = date;
+        this.validUpTo = this.date;
         this._hash = null;
     };
 

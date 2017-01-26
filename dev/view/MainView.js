@@ -9,8 +9,9 @@ define([
     "tracemon.view.as-view",
     "tracemon.view.location-view",
     "tracemon.view.dagre-wrapper",
-    "tracemon.env.latencymon-adapter"
-], function(utils, config, lang, $, d3, SingleHostView, ASView, LocationView, GraphWrapper, LatencyMonAdapter){
+    "tracemon.env.latencymon-adapter",
+    "tracemon.lib.moment"
+], function(utils, config, lang, $, d3, SingleHostView, ASView, LocationView, GraphWrapper, LatencyMonAdapter, moment){
 
     var MainView = function(env){
         var $this, firstDraw;
@@ -92,7 +93,7 @@ define([
         };
 
 
-        this._cutHops = function(hops){
+        this._cutHops = function(hops) {
             console.log("view:max-hops");
         };
 
@@ -134,7 +135,7 @@ define([
 
 
         this._initChart = function(maxLengthTraceroute){
-            var svgHesvgHeightight;
+            var svgHeight;
 
             this.svg = d3
                 .select(env.template.dom.svg[0]);
@@ -176,6 +177,7 @@ define([
         this._computeDiff = function(oldStatus, newStatus) {
             var out;
 
+            console.log(oldStatus, newStatus);
             out = {
                 status: this._getStatus(newStatus),
                 newTraceroutes: this._getNewTraceroutes(oldStatus, newStatus),
@@ -222,11 +224,18 @@ define([
             var updatedTraceroute;
 
             updatedTraceroute = [];
+            console.log(oldStatus, newStatus);
             for (var msmId in newStatus) {
                 if (oldStatus[msmId]) { // It is an old measurement
                     for (var source in newStatus[msmId]) {
-                        if (newStatus[msmId][source] && oldStatus[msmId][source] && newStatus[msmId][source].getHash() != oldStatus[msmId][source].getHash()) {
+                        // updatedTraceroute.push({ now: newStatus[msmId][source], before: oldStatus[msmId][source] });
+
+                        if (newStatus[msmId][source] && oldStatus[msmId][source] && newStatus[msmId][source].getBestPathHash() != oldStatus[msmId][source].getBestPathHash()) {
                             updatedTraceroute.push({ now: newStatus[msmId][source], before: oldStatus[msmId][source] });
+                        } else {
+                            // if (newStatus[msmId][source].getHash() != oldStatus[msmId][source].getHash()){
+                            //
+                            // }
                         }
                     }
                 }
@@ -247,9 +256,20 @@ define([
 
             for (var msmId in oldStatus) {
 
-                if (!newStatus[msmId]) { // it has been deleted
+                if (!newStatus[msmId]) { // The entire measurement has been deleted
                     for (var source in oldStatus[msmId]) {
                         deletedTraceroutes.push(oldStatus[msmId][source]);
+                    }
+                }
+            }
+
+
+            for (var msmId in newStatus) {
+                for (var source in newStatus[msmId]) {
+
+                    if (newStatus[msmId][source].validUpTo < moment(env.currentInstant).subtract(env.main.loadedMeasurements[msmId].interval, 'seconds')) { // This is wrong they are all agoing to be deleted
+
+                        deletedTraceroutes.push(newStatus[msmId][source]);
                     }
                 }
             }

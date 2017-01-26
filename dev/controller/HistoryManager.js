@@ -25,10 +25,9 @@ define([
 ], function(config, utils, moment){
 
     var HistoryManager = function(env){
-        var $this, emulationPosition;
+        var $this;
 
         $this = this;
-        emulationPosition = null;
         this._historyTimeline = [];
 
 
@@ -48,6 +47,7 @@ define([
                 measurement = env.main.loadedMeasurements[msm];
 
                 traceroutes = measurement.getTraceroutes();
+                console.log("update index");
                 this.tmp = {};
                 for (var n=0,length=traceroutes.length; n<length; n++){
                     timestamp = traceroutes[n].date.unix();
@@ -72,33 +72,35 @@ define([
         this.stopEmulation = function () {
             env.emulationRunning = false;
             console.log("emulation stopped");
-            utils.observer.publish("view.animation:stop", emulationPosition);
+            utils.observer.publish("view.animation:stop", env.currentInstant);
         };
 
         this.emulateHistory = function(){
-            console.log($this._historyTimeline);
             env.emulationRunning = true;
-            utils.observer.publish("view.animation:start", emulationPosition || $this._historyTimeline[0]);
+
+            this._historyTimeline = this._historyTimeline.sort();
+            env.currentInstant = moment.unix($this._historyTimeline[0]).utc();
+            utils.observer.publish("view.animation:start", env.currentInstant);
 
             var emulate = function(){
 
                 for (var n=0,length=$this._historyTimeline.length; n<length; n++){
+                    var momentDate, timestamp;
 
-                    if ($this._historyTimeline[n] > emulationPosition){
-                        var date, timestamp;
+                    timestamp = $this._historyTimeline[n];
+                    momentDate = moment.unix(timestamp).utc();
 
-                        timestamp = $this._historyTimeline[n];
-                        date = moment.unix(timestamp).utc();
+                    if (momentDate > env.currentInstant){
 
-                        $this.getStateAt(timestamp);
+                        $this.getStateAt(momentDate);
                         console.log("showing: ", timestamp,  $this.tmp[timestamp].getHash());
-                        utils.observer.publish("view.current-instant:change", date);
+                        utils.observer.publish("view.current-instant:change", momentDate);
 
                         if (env.emulationRunning) {
                             if (n == length - 1){
-                                // env.emulationRunning = false;
-                                // console.log("animation stop");
-                                // utils.observer.publish("view.animation:stop", $this._historyTimeline[n]);
+                                env.emulationRunning = false;
+                                console.log("animation stop");
+                                utils.observer.publish("view.animation:stop", $this._historyTimeline[n]);
                             } else {
                                 setTimeout(emulate, env.historyEmulationEventDuration);
                             }
@@ -110,37 +112,29 @@ define([
 
             };
 
-            this._historyTimeline = this._historyTimeline.sort();
+            emulate();
 
-            if (emulationPosition == null){
-                emulationPosition = $this._historyTimeline[0];
-            }
-
-            if (env.emulationRunning){
-                emulate();
-            }
         };
 
 
         this.getLastState = function () {
-            var out;
+            var out, date, measurement;
 
             out = {};
             for (var msmId in env.main.loadedMeasurements) {
-                out[msmId] = env.main.loadedMeasurements[msmId].getLastState();
+                measurement = env.main.loadedMeasurements[msmId];
+                out[msmId] = measurement.getLastState();
+                date = (!date) ? measurement.getLastTraceroute().date : moment().max(measurement.getLastTraceroute().date, date);
             }
 
+            env.currentInstant = date;
             utils.observer.publish("view.status:change", out);
 
             return out;
         };
 
         this.getFirstState = function () {
-            // try {
-                return this.getStateAt(this._historyTimeline[0]);
-            // } catch (e){
-            //     console.log("Possible timeline empty", e);
-            // }
+            return this.getStateAt(moment.unix(this._historyTimeline[0]).utc());
         };
 
         this.getStateAt = function(date){
@@ -150,7 +144,7 @@ define([
             for (var msmId in env.main.loadedMeasurements) {
                 out[msmId] = env.main.loadedMeasurements[msmId].getStateAt(date);
             }
-            emulationPosition = date;
+            env.currentInstant = date;
             utils.observer.publish("view.status:change", out);
 
             return out;

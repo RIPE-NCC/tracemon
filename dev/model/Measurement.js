@@ -52,6 +52,14 @@ define([
         }
     };
 
+    Measurement.prototype.getLastTraceroute = function(){
+        return this._traceroutes[this._traceroutes.length - 1];
+    };
+
+    Measurement.prototype.getFirstTraceroute = function(){
+        return this._traceroutes[0];
+    };
+
     Measurement.prototype.getLastState = function(){
         var traceroutesForThisSource, out, lastItem;
 
@@ -92,16 +100,15 @@ define([
     Measurement.prototype.getStateAt = function(date){
         var currentTraceroutes, traceroute, traceroutesForThisSource;
 
+        console.log(date);
         currentTraceroutes = {};
         for (var source in this._traceroutesBySource){
             traceroutesForThisSource = this._traceroutesBySource[source];
 
             for (var n=0,length=traceroutesForThisSource.length; n<length; n++){
                 traceroute = traceroutesForThisSource[n];
-                currentTraceroutes[source] = traceroute; // Will be replaced by the next one as long as date < traceroute.date
-
-                if (traceroute.date > date){ // Last traceroute found
-                    break; // Move to the next source
+                if (traceroute.date <= date && (!currentTraceroutes[source] || traceroute.date > currentTraceroutes[source].date)){
+                    currentTraceroutes[source] = traceroute;
                 }
             }
         }

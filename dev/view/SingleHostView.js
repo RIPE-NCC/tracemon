@@ -364,7 +364,7 @@ define([
 
         this.update = function(diff, callback){
 
-            console.log("second");
+            console.log("new update", diff);
             currentSearch = env.headerController.updateSearch();
             this._computeLayout(this._computeMeshGraph()); // This should be done only if there are new events in the history
             this.computeVisibleGraph(diff.status);
