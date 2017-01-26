@@ -47,5 +47,10 @@ define([
     };
 
 
+    Host.prototype.getLocation = function() {
+        return this.location;
+    };
+
+
     return Host;
 });
