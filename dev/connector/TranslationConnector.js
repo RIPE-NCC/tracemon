@@ -212,9 +212,19 @@ define([
                 if (!hostObj) {
                     hostObj = new Host(item["from"]);
                     hostObj.setProbeId(item["prb_id"]);
+                    hostGeolocation = item["from_location"];
                     hostAsn = item["from_as"];
 
                     if (!hostObj.isPrivate) {
+
+                        if (hostGeolocation) {
+                            hostObj.location = {
+                                id: hostGeolocation["id"],
+                                type: hostGeolocation["type"]
+                            };
+                        } else {
+                            hostObj.location = {id: 1, type: "city"};
+                        }
 
                         if (hostAsn && this.asList[hostAsn]) {
                             asnLookupConnector.enrich(hostObj, this.asList[hostAsn]);
