@@ -175,14 +175,7 @@ define([
                                             asnLookupConnector.enrich(attemptObj.host, this.asList[hostAsn]);
                                         }
 
-                                        if (hostGeolocation) {
-                                            attemptObj.host.location = {
-                                                id: hostGeolocation["id"],
-                                                type: hostGeolocation["type"]
-                                            };
-                                        } else {
-                                            attemptObj.host.location = {id: 1, type: "city"};
-                                        }
+                                        attemptObj.host.location = this._getHostLocation(hostGeolocation);
 
                                         if (config.ixpHostCheck) {
                                             $this._enrichIXP(attemptObj.host);
@@ -217,14 +210,7 @@ define([
 
                     if (!hostObj.isPrivate) {
 
-                        if (hostGeolocation) {
-                            hostObj.location = {
-                                id: hostGeolocation["id"],
-                                type: hostGeolocation["type"]
-                            };
-                        } else {
-                            hostObj.location = {id: 1, type: "city"};
-                        }
+                        hostObj.location = this._getHostLocation(hostGeolocation);
 
                         if (hostAsn && this.asList[hostAsn]) {
                             asnLookupConnector.enrich(hostObj, this.asList[hostAsn]);
@@ -262,6 +248,26 @@ define([
 
         };
 
+        this._getHostLocation = function(data){
+            var id, type, out;
+
+            out = {};
+            data = { // Remove this when we have real data
+                id: 1,
+                type: "city"
+            };
+
+
+            if (data) {
+                out = {
+                    id: data["id"],
+                    type: data["type"]
+                };
+            }
+
+            return out;
+        };
+
 
         this.getInitialDump = function (measurement, options){
             var deferredCall;
@@ -275,9 +281,6 @@ define([
                     var dump;
 
                     dump = [];
-
-                    //Hack
-                    data["target_location"] = {id: 1, type: "city"};
 
                     $this.enrichDump(data, dump);
 
@@ -307,7 +310,7 @@ define([
                         } else {
                             targetHost = new Host(msmTarget);
 
-                            hostGeolocation = data["target_location"];
+                            hostGeolocation = $this._getHostLocation(data["target_location"]);
 
                             if (!targetHost.isPrivate) { // TODO: ASN LOOKUP FOR TARGET
                                 // asnLookupConnector.enrich(targetHost);
@@ -317,12 +320,7 @@ define([
                                 // }
                             }
 
-                            if (hostGeolocation) {
-                                targetHost.location = {
-                                    id: hostGeolocation["id"],
-                                    type: hostGeolocation["type"]
-                                };
-                            }
+                            targetHost.location = $this._getHostLocation(hostGeolocation);
                         }
 
                         measurement = new Measurement(measurementId, targetHost);
