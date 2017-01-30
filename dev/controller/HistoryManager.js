@@ -140,14 +140,13 @@ define([
             if (this._historyTimeline.length > 0){
                 return this.getStateAt(moment.unix(this._historyTimeline[0]).utc());
             } else {
-                throw "The hisory is empty";
+                throw "The history is empty";
             }
         };
 
         this.getStateAt = function(date){
             var out;
 
-            console.log(date);
             out = {};
             for (var msmId in env.main.loadedMeasurements) {
                 out[msmId] = env.main.loadedMeasurements[msmId].getStateAt(date);

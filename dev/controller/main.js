@@ -200,13 +200,15 @@ define([
                         if (!env.meta) {
                             env.meta = {
                                 startDate: Infinity,
-                                stopDate: null
+                                stopDate: -Infinity
                             };
                         }
 
                         env.meta.startDate = Math.min(measurement.startDate.unix(), env.meta.startDate);
                         if (measurement.stopDate) {
-                            env.meta.stopDate = Math.max(measurement.stopDate.unix(), env.meta.stopDate);
+                            env.meta.stopDate = Math.min(Math.max(measurement.stopDate.unix(), env.meta.stopDate), moment().utc().unix());
+                        } else {
+                            env.meta.stopDate = moment().utc().unix();
                         }
                         $this.loadedMeasurements[measurement.id] = measurement;
                     });
