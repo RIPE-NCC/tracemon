@@ -191,6 +191,8 @@ define([
                         } else {
                             $this.loadedProbes[probe.id] = probe;
                         }
+
+                        measurement.sources[probe.id] = probe;
                     }
                     deferredCall.resolve(data);
                 });

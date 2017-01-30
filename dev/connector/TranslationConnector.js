@@ -81,7 +81,6 @@ define([
             }, this);
         };
 
-
         this._enrichIXP = function(attemptObj){
 
             peeringDbConnector
@@ -268,7 +267,6 @@ define([
             return out;
         };
 
-
         this.getInitialDump = function (measurement, options){
             var deferredCall;
 
@@ -292,7 +290,6 @@ define([
 
             return deferredCall.promise();
         };
-
 
         this.getMeasurementInfo = function (measurementId){
             var deferredCall;
@@ -344,8 +341,6 @@ define([
 
         };
 
-
-
         this._getSamePrefixAs = function(ip){
             var encodedIp;
 
@@ -360,9 +355,6 @@ define([
 
             return false;
         };
-
-
-
 
         this.getHostReverseDns = function(ip){
             var deferredCall;
@@ -434,7 +426,6 @@ define([
             return deferredCall.promise();
         };
 
-
         this.getNeighbours = function(asn){
             var deferredCall;
 
@@ -469,11 +460,9 @@ define([
             return deferredCall.promise();
         };
 
-
         this.getProbeInfo = function(probeId){
             return $this.probesById[probeId];
         };
-
 
         this.getProbesInfo = function(measurementId){
             var deferredCall;
