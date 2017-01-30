@@ -115,14 +115,13 @@ define([
             deferredCall = $.Deferred();
 
             if (host.isPrivate || !host.ip) {
-                host.location = null;
-                deferredCall.resolve(host.location);
-            } else if (host.location){
-                deferredCall.resolve(host.location);
+                deferredCall.resolve(host.getLocation());
+            } else if (host.getLocation()){
+                deferredCall.resolve(host.getLocation());
             } else {
                 translationConnector.getGeolocation(host.ip)
                     .done(function (data) {
-                        host.location = data;
+                        host.setLocation(data);
                         deferredCall.resolve(data);
                     });
             }

@@ -174,7 +174,7 @@ define([
                                             asnLookupConnector.enrich(attemptObj.host, this.asList[hostAsn]);
                                         }
 
-                                        attemptObj.host.location = this._getHostLocation(hostGeolocation);
+                                        attemptObj.host.setLocation(this._getHostLocation(hostGeolocation));
 
                                         if (config.ixpHostCheck) {
                                             $this._enrichIXP(attemptObj.host);
@@ -209,7 +209,7 @@ define([
 
                     if (!hostObj.isPrivate) {
 
-                        hostObj.location = this._getHostLocation(hostGeolocation);
+                        hostObj.setLocation(this._getHostLocation(hostGeolocation));
 
                         if (hostAsn && this.asList[hostAsn]) {
                             asnLookupConnector.enrich(hostObj, this.asList[hostAsn]);
@@ -307,9 +307,12 @@ define([
                         } else {
                             targetHost = new Host(msmTarget);
 
-                            hostGeolocation = $this._getHostLocation(data["target_location"]);
 
                             if (!targetHost.isPrivate) { // TODO: ASN LOOKUP FOR TARGET
+
+                                targetHost.setLocation($this._getHostLocation(data["target_location"]));
+
+
                                 // asnLookupConnector.enrich(targetHost);
 
                                 // if (config.ixpHostCheck) {
@@ -317,7 +320,6 @@ define([
                                 // }
                             }
 
-                            targetHost.location = $this._getHostLocation(hostGeolocation);
                         }
 
                         measurement = new Measurement(measurementId, targetHost);

@@ -194,8 +194,8 @@ define([
 
             switch (env.labelLevel){
                 case "geo":
-                    if (host.location !== undefined){
-                        return (host.location) ? host.location.country : this._getDefaultNodeLabel(host) || this._getDefaultNodeLabel(host);
+                    if (host.getLocation() !== undefined){
+                        return (host.getLocation()) ? host.getLocation().country : this._getDefaultNodeLabel(host) || this._getDefaultNodeLabel(host);
                     } else {
                         env.connector
                             .getGeolocation(host)

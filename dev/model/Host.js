@@ -48,9 +48,13 @@ define([
 
 
     Host.prototype.getLocation = function() {
-        return this.location;
+        return this._location;
     };
 
+
+    Host.prototype.setLocation = function(locationObject) {
+        this._location = locationObject;
+    };
 
     return Host;
 });
