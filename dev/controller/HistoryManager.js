@@ -118,13 +118,16 @@ define([
 
 
         this.getLastState = function () {
-            var out, date, measurement;
+            var out, date, measurement, lastTraceroute;
 
             out = {};
             for (var msmId in env.main.loadedMeasurements) {
                 measurement = env.main.loadedMeasurements[msmId];
                 out[msmId] = measurement.getLastState();
-                date = (!date) ? measurement.getLastTraceroute().date : moment().max(measurement.getLastTraceroute().date, date);
+                lastTraceroute = measurement.getLastTraceroute();
+                if (lastTraceroute) {
+                    date = (!date && lastTraceroute) ? lastTraceroute.date : moment().max(lastTraceroute.date, date);
+                }
             }
 
             env.currentInstant = date;
