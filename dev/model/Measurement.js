@@ -38,6 +38,7 @@ define([
 
     Measurement.prototype._createIndex = function(list){
         this._traceroutesBySource = {};
+        this.sources = {};
         this._updateIndex(list);
     };
 
@@ -47,6 +48,7 @@ define([
         for (var n=0,length=list.length; n<length; n++){
             item = list[n];
 
+            this.sources[item.source.probeId] = item.source;
             this._traceroutesBySource[item.source.probeId] = this._traceroutesBySource[item.source.probeId] || [];
             this._traceroutesBySource[item.source.probeId].push(item);
         }

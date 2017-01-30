@@ -23,7 +23,7 @@ define([
         this.shownSources = null;
         this.loadedMeasurements = {};
 
-        this.exposedMethods = ["on", "getModel", "getSources", "addMeasurement", "updateCurrentData", "loadMeasurements",
+        this.exposedMethods = ["on", "getMeasurements", "getModel", "getSources", "addMeasurement", "updateCurrentData", "loadMeasurements",
             "applyConfiguration", "setSources", "addSource", "setTimeRange", "init"];
 
         this.error = function(message, type){
@@ -156,6 +156,9 @@ define([
             });
         };
 
+        this.getMeasurements = function(){
+            return this.loadedMeasurements;
+        };
 
         this.addMeasurement = function(msmId){
             var measurements;
