@@ -181,7 +181,7 @@ define([
         };
 
         this._updateSetOfProbes = function (probeSet) {
-            env.main.setSources(probeSet);
+            env.main.setShownSources(probeSet);
         };
 
         this.populateProbeList = function(data){

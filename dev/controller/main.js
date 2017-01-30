@@ -23,8 +23,8 @@ define([
         this.shownSources = null;
         this.loadedMeasurements = {};
 
-        this.exposedMethods = ["on", "getMeasurements", "getModel", "getSources", "addMeasurement", "updateCurrentData", "loadMeasurements",
-            "applyConfiguration", "setSources", "addSource", "setTimeRange", "init"];
+        this.exposedMethods = ["on", "getMeasurements", "getModel", "addMeasurement", "updateCurrentData", "loadMeasurements",
+            "applyConfiguration", "getShownSources", "setShownSources", "addShownSource", "getSources", "setTimeRange", "init"];
 
         this.error = function(message, type){
 
@@ -86,21 +86,25 @@ define([
             return out;
         };
 
-        this.setSources = function (sources) {
+        this.setShownSources = function (sources) {
             this.shownSources = sources;
             this.updateCurrentData();
             utils.observer.publish("view:probe-set", this.shownSources);
         };
 
-        this.getSources = function () {
+        this.getShownSources = function () {
             return this.shownSources;
         };
 
-        this.addSource = function (source) {
+        this.getSources = function(){
+         return env.connector.loadedProbes;
+        };
+
+        this.addShownSource = function (source) {
             var currentSources = this.shownSources;
             if (currentSources.indexOf(source) == -1){
                 currentSources.push(source);
-                this.setSources(currentSources);
+                this.setShownSources(currentSources);
             } else {
                 throw "Source already selected";
             }
@@ -112,6 +116,10 @@ define([
                 var deferredArray, deferredQuery, msmId;
 
                 $this.shownSources = $this.shownSources || $this.computeInitialSources();
+
+                for (var probeId in env.connector.loadedProbes){ // Update source selection boolean
+                    env.connector.loadedProbes[probeId].select = ($this.shownSources.indexOf(parseInt(probeId)) > -1);
+                }
                 // env.template.showLoadingImage(true);
                 deferredArray = [];
 
@@ -207,7 +215,6 @@ define([
                     callback(newMeasurementsToLoad);
                 });
         };
-
 
         this._startProcedure = function(){
             try {
