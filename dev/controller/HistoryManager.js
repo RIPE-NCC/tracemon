@@ -137,12 +137,17 @@ define([
         };
 
         this.getFirstState = function () {
-            return this.getStateAt(moment.unix(this._historyTimeline[0]).utc());
+            if (this._historyTimeline.length > 0){
+                return this.getStateAt(moment.unix(this._historyTimeline[0]).utc());
+            } else {
+                throw "The hisory is empty";
+            }
         };
 
         this.getStateAt = function(date){
             var out;
 
+            console.log(date);
             out = {};
             for (var msmId in env.main.loadedMeasurements) {
                 out[msmId] = env.main.loadedMeasurements[msmId].getStateAt(date);
