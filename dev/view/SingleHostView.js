@@ -428,6 +428,9 @@ define([
                 // return item.getTraceroutesRange(startDate, endDate);
             });
 
+            traceroutes = traceroutes.sort(function(a, b){return a.date.unix()-b.date.unix();}).reverse();
+
+
             for (var t=0,length = traceroutes.length; t<length; t++) {
                 traceroute = traceroutes[t];
                 previousHost = traceroute.source;
