@@ -41,17 +41,22 @@ requirejs.config({
         "tracemon.lib.expression": window.atlas._widgets.tracemon.urls.libs + "expression",
         "tracemon.lib.moment": window.atlas._widgets.tracemon.urls.libs + "moment",
 
+        "tracemon.lib.viz": window.atlas._widgets.tracemon.urls.libs + "viz",
+
+
         /* view */
         "tracemon.view.main": window.atlas._widgets.tracemon.urls.view + "MainView",
         "tracemon.view.single-host-view": window.atlas._widgets.tracemon.urls.view + "SingleHostView",
         "tracemon.view.as-view": window.atlas._widgets.tracemon.urls.view + "ASView",
         "tracemon.view.location-view": window.atlas._widgets.tracemon.urls.view + "LocationView",
-        "tracemon.view.dagre-wrapper": window.atlas._widgets.tracemon.urls.view + "DagreWrapper",
         "tracemon.view.label-placement": window.atlas._widgets.tracemon.urls.view + "LabelPlacementHelper",
         "tracemon.view.viewport": window.atlas._widgets.tracemon.urls.view + "ViewPort",
         "tracemon.view.chartManager": window.atlas._widgets.tracemon.urls.view + "ChartManager",
         "tracemon.view.templateManager": window.atlas._widgets.tracemon.urls.view + "TemplateManagerView",
         "tracemon.view.timeOverview": window.atlas._widgets.tracemon.urls.view + "TimeOverviewView",
+
+        "tracemon.view.dagre-wrapper": window.atlas._widgets.tracemon.urls.view + "layout/DagreWrapper",
+        "tracemon.view.graphviz-wrapper": window.atlas._widgets.tracemon.urls.view + "layout/GraphvizWrapper",
 
         /* view.svg */
         "tracemon.view.svg.chart": window.atlas._widgets.tracemon.urls.view + "svg/SvgChartView",

@@ -348,7 +348,7 @@ define([
             traceroutesToDraw = diff.newTraceroutes;
             this._computeLayout(this._computeMeshGraph());
             this.computeVisibleGraph(traceroutesToDraw);
-            env.mainView.graph.computeLayout();
+            // env.mainView.graph.computeLayout();
             this._updateNodesGraphAttributes();
             this._drawPaths();
             this._drawNodes();
@@ -368,7 +368,7 @@ define([
             currentSearch = env.headerController.updateSearch();
             this._computeLayout(this._computeMeshGraph()); // This should be done only if there are new events in the history
             this.computeVisibleGraph(diff.status);
-            env.mainView.graph.computeLayout();
+            // env.mainView.graph.computeLayout();
             this._updateNodesGraphAttributes();
 
             for (var change in diff.updatedTraceroutes) {
@@ -429,7 +429,6 @@ define([
             });
 
             traceroutes = traceroutes.sort(function(a, b){return a.date.unix()-b.date.unix();}).reverse();
-
 
             for (var t=0,length = traceroutes.length; t<length; t++) {
                 traceroute = traceroutes[t];
@@ -528,7 +527,8 @@ define([
                 nodeObj = mesh.nodes[node];
                 env.mainView.graph.addNode(nodeObj.getId(), {
                     width: config.graph.nodeRadius,
-                    height: config.graph.nodeRadius
+                    height: config.graph.nodeRadius,
+                    rank: (nodeObj.isProbe) ? "first": false
                 });
             }
 
@@ -754,6 +754,7 @@ define([
             for (var n=0,length=hosts.length; n<length-1; n++){
                 if (hosts[n].getId() != hosts[n + 1].getId()) {
                     edgeTmp = env.mainView.graph.getEdge(hosts[n].getId(), hosts[n + 1].getId());
+
                     if (edgeTmp){
                         unifiedPathArray.push(edgeTmp);
                     } else {

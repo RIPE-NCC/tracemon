@@ -152,6 +152,7 @@ define([
                 out[msmId] = env.main.loadedMeasurements[msmId].getStateAt(date);
             }
             env.currentInstant = date;
+            console.log(out);
             utils.observer.publish("view.status:change", out);
 
             return out;

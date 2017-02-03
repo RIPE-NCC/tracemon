@@ -8,7 +8,8 @@ define([
     "tracemon.view.single-host-view",
     "tracemon.view.as-view",
     "tracemon.view.location-view",
-    "tracemon.view.dagre-wrapper",
+    // "tracemon.view.dagre-wrapper",
+    "tracemon.view.graphviz-wrapper",
     "tracemon.env.latencymon-adapter",
     "tracemon.lib.moment"
 ], function(utils, config, lang, $, d3, SingleHostView, ASView, LocationView, GraphWrapper, LatencyMonAdapter, moment){

@@ -55,7 +55,7 @@ define([
                         // marginy: 200000,
                         // align:"UD",
                         // "acyclicer": "greedy",
-                        nodesep: 20,
+                        nodesep: 200,
                         ranksep: 50,
                         edgesep: 50
                     }

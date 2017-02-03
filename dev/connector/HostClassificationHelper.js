@@ -11,19 +11,18 @@ define([
 ], function(config, utils, $) {
 
     var HostClassificationHelper = function (env) {
-        var uniqueHostAs, bucketAses, asInOut, globalUniqueIn, globalUniqueOut, lastNullHop;
+        var uniqueHostAs, bucketAses, globalUniqueIn, globalUniqueOut, lastNullHop;
 
         uniqueHostAs = {};
         bucketAses = {};
         globalUniqueIn = {};
         globalUniqueOut = {};
-        asInOut = {};
 
         this._cutHopsLength = function (traceroute, length) {
-            // var hops;
-            //
-            // hops = traceroute.getHops();
-            // traceroute._hops = hops.slice(Math.max(hops.length - length, 0));
+            var hops;
+
+            hops = traceroute.getHops();
+            traceroute._hops = hops.slice(Math.max(hops.length - length, 0));
         };
 
         this._categorizePrivateAndNull = function (traceroute) {
@@ -66,7 +65,7 @@ define([
             }
         };
 
-        this._removeMultipleNull = function (traceroute) {
+        this._combineConsecutiveNullNodes = function (traceroute) {
             var hops, hop, attempt, host, previousHop, previousAttempt, previousHost, newHops;
 
             hops = traceroute.getHops();
@@ -95,38 +94,76 @@ define([
         };
 
 
-        this._combinePrivateAndNullNodes = function(traceroute){
-            var hops, attempt, host, hostKey, hop, nextHop, nextHost;
+        this._combinePrivateNodes = function(traceroute){
+            var hops, attempt, host, hostKey, hop, asObject;
 
             hops = traceroute.getHops();
 
-            for (var n=0,length=hops.length; n<length; n++){
+            for (var n=0,length=hops.length; n<length; n++) {
                 hop = hops[n];
                 attempt = hop.getMainAttempt();
                 host = attempt.host;
                 hostKey = null;
 
+                if (host.isPrivate){
+                    asObject = host.getAutonomousSystem();
 
-                if (hops[n + 1]) {
+                    if (asObject){
+                        hostKey = host.ip + "-" + asObject.id;
+                        if (uniqueHostAs[hostKey]) { // Check if the same object instance
+                            attempt.host = uniqueHostAs[hostKey]; // Reuse the same Host object
+                        } else {
+                            uniqueHostAs[hostKey] = host;
+                        }
+                    }
+
+                }
+
+            }
+
+        };
+
+        this._combineNullNodes = function(traceroute){
+            var hops, attempt, host, hostKey, hop, nextHop, nextHost, hostAs, prevHop, prevHost;
+
+            hops = traceroute.getHops();
+
+            for (var n=0,length=hops.length; n<length; n++) {
+                hop = hops[n];
+                attempt = hop.getMainAttempt();
+                host = attempt.host;
+
+                if (!host.ip && config.graph.combineNullHosts) {
+                    hostKey = null;
+                    nextHost = null;
                     nextHop = hops[n + 1];
-                    nextHost = hop.getMainAttempt().host;
-                }
+                    if (n > 0){
+                        prevHop = hops[n - 1];
+                        prevHost = prevHop.getMainAttempt().host;
+                    }
 
-                if (host.getAutonomousSystem() && host.isPrivate){
-                    hostKey = host.ip + "-" + host.getAutonomousSystem().id;
-                } else if (config.graph.combineNullHosts && !host.ip && nextHost && nextHop.ip){
-                    hostKey =  "*-" + nextHost.ip + "-" + host.getAutonomousSystem().id;
-                }
+                    nextHost = (nextHop) ? nextHop.getMainAttempt().host : null;
 
-                if (hostKey) {
-                    if (uniqueHostAs[hostKey] && (uniqueHostAs[hostKey] != attempt.host)) { // Check if the same object instance
-                        attempt.host = uniqueHostAs[hostKey]; // Reuse the same Host object
-                    } else {
-                        uniqueHostAs[hostKey] = host;
+                    hostAs = host.getAutonomousSystem();
+                    if (nextHost && !nextHost.isPrivate) { // Merge for next host
+                        hostKey = "*-" + nextHost.ip;
+                    } else if (prevHost && !prevHost.isPrivate){ // Merge for prev host
+                        hostKey = "*-" + prevHost.ip;
+                    } else if (config.graph.combineSameAsNullNode && hostAs) {
+                        hostKey = "*-" + hostAs.id;
+                    } else if (hostAs && nextHost && nextHost.isPrivate) { // is just private
+                        hostKey = "*-" + nextHost.ip + "-" + hostAs.id;
+                    }
+
+                    if (hostKey) {
+                        if (uniqueHostAs[hostKey]) { // Check if the same object instance
+                            attempt.host = uniqueHostAs[hostKey]; // Reuse the same Host object
+                        } else {
+                            uniqueHostAs[hostKey] = host;
+                        }
                     }
                 }
             }
-
         };
 
 
@@ -143,7 +180,7 @@ define([
                 attempt = hop.getMainAttempt();
                 host = attempt.host;
 
-                if (!host.ip && !host.getAutonomousSystem()) {
+                if (!host.ip && !host.getAutonomousSystem()) { // Doesn't have an AS yet
 
                     // Create a structure to calculate how many * exit or enter from each AS
                     if (previousHost || n > 0) {
@@ -180,10 +217,10 @@ define([
 
         this.scanTraceroute = function (traceroute) {
             this._categorizePrivateAndNull(traceroute);
-            this._removeMultipleNull(traceroute);
-
+            this._combineConsecutiveNullNodes(traceroute);
             this._preClassifyNullNodes(traceroute);
-            this._combinePrivateAndNullNodes(traceroute);
+            this._combinePrivateNodes(traceroute);
+            this._combineNullNodes(traceroute);
         };
 
         this._classifyNullNodes = function(traceroute){
@@ -294,16 +331,19 @@ define([
         this.scanAllTraceroutes = function(traceroutes){
             var traceroute;
 
-            for (var n=0,length=traceroutes.length; n<length; n++){
-
+            for (var n=0,length=traceroutes.length; n<length; n++) {
+                traceroute = traceroutes[n];
+                this._combineConsecutiveNullNodes(traceroute); // Group consecutive null nodes together
+                this._categorizePrivateAndNull(traceroute); // Set AS to private and null nodes
+                this._preClassifyNullNodes(traceroute); // Create the structures needed to try to guess the AS of a null node
+                this._combinePrivateNodes(traceroute); // Combine all the private IPs in the same AS
             }
 
 
             for (var n=0,length=traceroutes.length; n<length; n++) {
+                traceroute = traceroutes[n];
                 this._computeInOutRanks(traceroutes[n]);
             }
-
-
 
             for (var k in globalUniqueIn){
                 globalUniqueIn[k] = Object.keys(globalUniqueIn[k]).length;
@@ -313,12 +353,11 @@ define([
                 globalUniqueOut[k] = Object.keys(globalUniqueOut[k]).length;
             }
 
-
-
             for (var n=0,length=traceroutes.length; n<length; n++){
-                this._classifyNullNodes(traceroutes[n]);
-                this._combinePrivateAndNullNodes(traceroutes[n]);
-                this._cutHopsLength(traceroutes[n], env.maxNumberHops);
+                traceroute = traceroutes[n];
+                this._classifyNullNodes(traceroute); // Set AS to null nodes not yet classified (last attempt)
+                this._combineNullNodes(traceroute); // Guess the null nodes that are the same on the complete graph
+                this._cutHopsLength(traceroute, env.maxNumberHops);
             }
 
         };

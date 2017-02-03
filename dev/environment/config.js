@@ -29,7 +29,7 @@ define([], function(){
         reproductionSpeed: 5,
         maxReproductionSpeed: 10,
         ixpHostCheck: true,
-        maxNumberHops: 10,
+        maxNumberHops: 15,
         realTimeUpdate: true,
         eventGroupingAntiFlood: 800,
         historyEmulationEventDuration: 3000,
@@ -47,7 +47,8 @@ define([], function(){
 
         graph: {
             removeCycle: true,
-            combineNullHosts: false,
+            combineNullHosts: true,
+            combineSameAsNullNode: false,
             pathInterpolation: "basis",
             nodeRadius: 7,
             nodeSelectedRadius: 10,

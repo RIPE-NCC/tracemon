@@ -228,7 +228,7 @@ define([
                 translated.protocol = item["proto"];
                 translated.addHops(hops);
                 translated.errors = errors;
-                hostHelper.scanTraceroute(translated);
+                // hostHelper.scanTraceroute(translated);
 
                 if (
                     !config.filterRepeatedTraceroutes
