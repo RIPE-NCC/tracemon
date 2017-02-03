@@ -37,10 +37,6 @@ define([
                 cleanRedraw = true;
             });
             utils.observer.subscribe("model.host:ixp", this._updateIxp, this);
-            // utils.observer.subscribe("model.history:new", function () {
-            //     console.log("first");
-            //     this._computeLayout(this._computeMeshGraph());
-            // }, this);
             utils.observer.subscribe("view.label-level:change", function () {
                 for (var n=0,length=this.nodesArray.length; n<length; n++) {
                     $this._updateLabel($this.nodesArray[n].model);

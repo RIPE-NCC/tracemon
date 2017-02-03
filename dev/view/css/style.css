@@ -31,9 +31,8 @@
 
 .node {
     fill: #EDD37B;
-    stroke-dasharray: 4,4;
     stroke-width: 1;
-    stroke: #5A5D5E;
+    stroke: #93999a;
 }
 
 .node.ixp {
@@ -49,7 +48,8 @@
 }
 
 .node.private {
-    fill: rgba(255, 228, 135, 0.33);
+    stroke-dasharray: 4,4;
+    /*fill: rgba(255, 228, 135, 0.33);*/
 }
 
 .edge {
