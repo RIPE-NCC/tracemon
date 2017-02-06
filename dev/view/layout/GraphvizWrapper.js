@@ -266,6 +266,9 @@ define([
                         }
                     });
 
+                    points.shift(); // Remove first and last
+                    points.pop();
+
                     x = parseFloat(pos[0]);
                     y = parseFloat(pos[1]);
 
