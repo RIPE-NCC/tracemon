@@ -47,6 +47,7 @@ define([], function(){
 
         graph: {
             removeCycle: true,
+            groupCycles: true,
             combineNullHosts: true,
             combineSameAsNullNode: false,
             pathInterpolation: "basis",

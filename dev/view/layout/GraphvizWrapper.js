@@ -6,15 +6,19 @@ define([
 ], function(viz, $, utils){
 
     var GraphvizWrapper = function(env){
-        var dirty, $this, imposedParams, plainNodes, plainEdges, internalIds, externalIds, sameRank;
+        var dirty, $this, imposedParams, plainNodes, plainEdges, internalIds, externalIds, sameRank, sameCluster,
+            sameGroup, engine;
 
         $this = this;
+        engine = "dot";
         imposedParams = {};
         plainNodes = {};
         plainEdges = {};
         internalIds = {}; // external: internal
         externalIds = {}; // internal: external
         sameRank = {}; // Nodes at the same rank
+        sameCluster = {}; // Nodes in the same cluster
+        sameGroup = {}; // Nodes in the same group
 
 
         this._getInternalId = function(external){
@@ -58,25 +62,57 @@ define([
 
         this._setDefaults();
 
-        this._getDotNotation = function(){
-            var out, edge, node, from, to;
+        this._dottify = function (properties, sameLine) {
+            var list;
 
-            out = '' +
-                'size="10";\n' +
-                'ordering="out";\n' +
-                'center="false";\n' +
-                'splines= "false";\n' +
-                'ratio=0.1;\n' +
-                'ranksep="2";\n' +
-                'nodesep="2";\n' +
-                'node [label=""];\n' +
-                // 'edge [weight=1.2];\n' +
-                'rankdir="BT";\n' +
-                '\n\n';
+            list = [];
+            for (var propKey in properties){
+                list.push(propKey + '="' + properties[propKey] + '"');
+            }
+
+            return (sameLine) ? list.join(" ") : list.join(";\n") + ";\n";
+        };
+
+        this._getDotNotation = function(){
+            var out, edge, node, from, to, nodeProperties, edgeProperties, graphProperty, nodeProperties, edgeProperties;
+
+            graphProperty = {
+                size: 10,
+                ordering: "out",
+                center: false,
+                splines: "line",
+                overlap: false,
+                ratio: 0.1,
+                ranksep: 2,
+                nodesep: 2,
+                rankdir: "BT"
+            };
+
+            nodeProperties = {
+                label: ""
+            };
+
+            edgeProperties = {
+                shape: "none"
+            };
+
+            out = this._dottify(graphProperty, false);
+
+            out += 'node [' + this._dottify(nodeProperties, true) + '];\n';
+            out += 'edge [' + this._dottify(edgeProperties, true) + '];\n';
 
             for (var nodeKey in plainNodes){
                 node = plainNodes[nodeKey];
-                out += nodeKey + ' [id="' + nodeKey + '" label="' + this._getExternalId(nodeKey) + '"];\n';
+                nodeProperties = {
+                    id: nodeKey,
+                    label: this._getExternalId(nodeKey)
+                };
+
+                if (sameGroup[nodeKey]){
+                    nodeProperties.group = sameGroup[nodeKey];
+                }
+
+                out += nodeKey + ' [' + this._dottify(nodeProperties, true) + '];\n';
             }
 
             for (var rankKey in sameRank){
@@ -85,10 +121,22 @@ define([
 
             for (var edgeKey in plainEdges){
                 edge = plainEdges[edgeKey];
-                from =this._getInternalId(edge.from);
+                from = this._getInternalId(edge.from);
                 to = this._getInternalId(edge.to);
                 if (plainNodes[from] && plainNodes[to]) {
-                    out += from + ' -> ' + to + ' [id="' + edgeKey + '"]; \n';
+                    edgeProperties = {
+                        id: edgeKey,
+                        len: 1,
+                        dir: "none",
+                        arrowhead: "none",
+                        arrowtail: "none"
+                    };
+
+                    if (edge.options.weight){
+                        edgeProperties.weight = edge.options.weight;
+                    }
+
+                    out += from + ' -> ' + to + ' [' + this._dottify(edgeProperties, true) + ']; \n';
                 } else {
                     console.log("wtf");
                 }
@@ -142,6 +190,14 @@ define([
                     sameRank[options.rank] = sameRank[options.rank] || [];
                     sameRank[options.rank].push(internalId);
                 }
+
+                if (options.cluster){
+                    sameCluster[internalId] = options.cluster
+                }
+
+                if (options.group){
+                    sameGroup[internalId] = options.group;
+                }
             }
 
             dirty = true;
@@ -160,7 +216,8 @@ define([
                     from: node1,
                     to: node2,
                     options: {
-                        lineInterpolate: options.interpolation
+                        lineInterpolate: options.interpolation,
+                        weight: options.weight
                     }
                 };
             }
@@ -171,8 +228,10 @@ define([
         this.computeLayout = function(){
             var layout, node, x, y, pos, nodeObj, width, height, maxX, maxY, edge, points, edgeObj;
 
-            layout = Viz(this._getDotNotation(), { format: "json", engine: "dot", ordering: "out" });
+            layout = Viz(this._getDotNotation(), { format: "json", engine: engine, ordering: "out" });
             layout = JSON.parse(layout);
+
+            console.log(layout);
             maxX = -Infinity;
             maxY = -Infinity;
 
@@ -213,10 +272,10 @@ define([
                     edgeObj = plainEdges[edge.id];
 
                     edgeObj.points = points;
-                    edgeObj.start = {
-                        x: edge.x,
-                        y: edge.y
-                    };
+                    // edgeObj.start = {
+                    //     x: edge.x,
+                    //     y: edge.y
+                    // };
                 }
             }
 
@@ -283,10 +342,10 @@ define([
                         from: edge.from,
                         to: edge.to,
                         points: points,
-                        start: {
-                            x: (edge.x * $this.mult.x) + $this.margin.left,
-                            y: (edge.y * $this.mult.y) + $this.margin.top
-                        },
+                        // start: {
+                        //     x: (edge.x * $this.mult.x) + $this.margin.left,
+                        //     y: (edge.y * $this.mult.y) + $this.margin.top
+                        // },
                         options: edge.options
                     });
                 }
