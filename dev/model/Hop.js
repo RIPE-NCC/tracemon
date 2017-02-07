@@ -23,6 +23,12 @@ define([
         return this._attempts;
     };
 
+    Hop.prototype.forEachAttempt = function(fun){
+        for (var n=0,length=this._attempts.length; n<length; n++){
+            fun(this._attempts[n]);
+        }
+    };
+
     Hop.prototype.getMainAttempt = function(){
         // var hosts, count, sorted, main;
         //

@@ -4,8 +4,9 @@ define([
 ], function(utils){
 
     var LabelPlacementHelper = function(nodeWidth, nodeHeight, fontSizePixel){
-        var height, checkedNodes, labelBoxes, minLabelWidth, nodeHalfWidth, nodeHalfHeight;
+        var height, checkedNodes, labelBoxes, minLabelWidth, nodeHalfWidth, nodeHalfHeight, $this;
 
+        $this = this;
         minLabelWidth = 60;
         height = fontSizePixel + 5;
 
@@ -118,29 +119,30 @@ define([
         };
 
 
-        this.getLabelPosition = function(node, edges, label){
-            var boxTop, boxLeft, boxRight, checkIntersectionLabel, boxBottom, checkIntersectionAmongBoxes, width;
+        this.getLabelPosition = function(node, edges, label, checkingOrder) {
+            var boxTop, boxLeft, boxRight, checkIntersectionLabel, boxBottom, checkIntersectionAmongBoxes, width,
+                checkTop, checkRight, checkLeft, checkBottom, runcheck;
 
-            width = Math.max(label.length * (fontSizePixel/2), minLabelWidth);
+            width = Math.max(label.length * (fontSizePixel / 2), minLabelWidth);
             boxTop = this._getTopBox(node, width);
             boxLeft = this._getLeftBox(node, width);
             boxRight = this._getRightBox(node, width);
             boxBottom = this._getBottomBox(node, width);
 
-            checkIntersectionLabel = function(sidePoint1, sidePoint2, edges){
+            checkIntersectionLabel = function (sidePoint1, sidePoint2, edges) {
                 var intersection, edge;
 
                 intersection = false;
-                for (var n=0,length=edges.length; n<length; n++){
+                for (var n = 0, length = edges.length; n < length; n++) {
                     edge = edges[n];
 
-                    for (var i=0,lengthi=edge.length-1; i<lengthi; i++){
+                    for (var i = 0, lengthi = edge.length - 1; i < lengthi; i++) {
 
-                        if (utils.getLinesIntersection(sidePoint1, sidePoint2, edge[i], edge[i+1])) {
+                        if (utils.getLinesIntersection(sidePoint1, sidePoint2, edge[i], edge[i + 1])) {
                             return true;
                         }
                     }
-                    if (intersection){
+                    if (intersection) {
                         return true;
                     }
                 }
@@ -148,55 +150,109 @@ define([
                 return false;
             };
 
-            checkIntersectionAmongBoxes = function(box){
-                return labelBoxes.some(function(boxItem){
+            checkIntersectionAmongBoxes = function (box) {
+                return labelBoxes.some(function (boxItem) {
                     return utils.isThereAnIntersection(box, boxItem);
                 });
             };
 
-            if (!checkIntersectionLabel(boxTop[3], boxTop[1], edges) && !checkIntersectionAmongBoxes(boxTop)){ // Is there an intersection if I place the label on top?
-                labelBoxes.push(boxTop);
-                return {
-                    // alignment: "middle",
+            checkTop = function (force) {
+                if (force || !checkIntersectionLabel(boxTop[3], boxTop[1], edges) && !checkIntersectionAmongBoxes(boxTop)) { // Is there an intersection if I place the label on top?
+                    labelBoxes.push(boxTop);
+                    return {
+                        // alignment: "middle",
 
-                    alignment: "start",
-                    direction: "vertical",
-                    x: boxTop[3].x + (width/2),
-                    y: boxTop[3].y
-                };
-            }
-
-            if (!checkIntersectionLabel(boxRight[0], boxRight[1], edges) &&
-                !this._isNodeIntersection(node, boxRight)  &&
-                !checkIntersectionAmongBoxes(boxRight)){
-                labelBoxes.push(boxRight);
-
-                return {
-                    alignment: "start",
-                    x: boxRight[0].x,
-                    y: boxRight[0].y + (height + nodeHalfHeight)
-                };
-            }
-
-
-            if (!checkIntersectionLabel(boxLeft[0], boxLeft[1], edges) &&
-                !this._isNodeIntersection(node, boxLeft)
-                && !checkIntersectionAmongBoxes(boxLeft)){
-
-                labelBoxes.push(boxLeft);
-
-                return {
-                    alignment: "end",
-                    x: boxLeft[1].x,
-                    y: boxLeft[1].y + (nodeHalfHeight)
-                };
-            }
-
-            return {
-                alignment: "middle",
-                x: boxBottom[0].x + (width/2),
-                y: boxBottom[0].y
+                        alignment: "start",
+                        direction: "vertical",
+                        xOffset: (width / 2),
+                        x: boxTop[3].x,
+                        y: boxTop[3].y
+                    };
+                } else {
+                    return false;
+                }
             };
+
+            checkRight = function (force) {
+                if (force || !checkIntersectionLabel(boxRight[0], boxRight[1], edges) && !$this._isNodeIntersection(node, boxRight) && !checkIntersectionAmongBoxes(boxRight)) {
+                    labelBoxes.push(boxRight);
+
+                    return {
+                        alignment: "start",
+                        x: boxRight[0].x,
+                        y: boxRight[0].y + (height + nodeHalfHeight)
+                    };
+                } else {
+                    return false;
+                }
+            };
+
+            checkLeft = function (force) {
+
+                if (force || !checkIntersectionLabel(boxLeft[0], boxLeft[1], edges) && !$this._isNodeIntersection(node, boxLeft)
+                    && !checkIntersectionAmongBoxes(boxLeft)) {
+
+                    labelBoxes.push(boxLeft);
+
+                    return {
+                        alignment: "end",
+                        x: boxLeft[1].x,
+                        y: boxLeft[1].y + (nodeHalfHeight)
+                    };
+                } else {
+                    return false;
+                }
+            };
+
+            checkBottom = function (force) {
+                if (force || !checkIntersectionLabel(boxBottom[0], boxBottom[1], edges) && !$this._isNodeIntersection(node, boxBottom)
+                    && !checkIntersectionAmongBoxes(boxBottom)) {
+
+                    labelBoxes.push(boxLeft);
+                    return {
+                        alignment: "middle",
+                        x: boxBottom[0].x + (width / 2),
+                        y: boxBottom[0].y
+                    };
+                } else {
+                    return false;
+                }
+            };
+
+            runcheck = function(type, force){
+                switch (type){
+                    case "t":
+                        return checkTop(force);
+                        break;
+                    case "l":
+                        return checkLeft(force);
+                        break;
+                    case "r":
+                        return checkRight(force);
+                        break;
+                    case "b":
+                        return checkBottom(force);
+                        break;
+                    default:
+                        throw "An order must be specified";
+                }
+            };
+
+            for (var n=0,length=checkingOrder.length; n<length; n++){
+                var out;
+
+                if (n == length - 1){
+                    out = runcheck(checkingOrder[n], true);
+                } else {
+                    out = runcheck(checkingOrder[n], false);
+                }
+
+                if (out){
+                    return out;
+                }
+
+            }
+
         };
     };
 

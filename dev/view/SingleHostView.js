@@ -59,7 +59,7 @@ define([
                     return [nodeView.points];
                 });
             }
-            where = labelPlacement.getLabelPosition(node, cache.edgePoints, node.label);
+            where = labelPlacement.getLabelPosition(node, cache.edgePoints, node.label, config.graph.labelOrientationPreference);
 
             node.labelPosition = where;
         };
@@ -79,17 +79,17 @@ define([
 
             labelsSvg
                 .enter()
-                .append("text")
-                .attr("class", function(node){
-                    return "node-label node-label-" + utils.getIdFromIp(node.id);
-                });
+                .append("text");
 
             labelsSvg
+                .attr("class", this._getLabelClass)
                 .attr("data-focus-out", function (node) {
                     return node.focusOut;
                 })
                 .attr("x", function(node){
-                    return node.labelPosition.x;
+                    return (config.graph.allowRotatedLabels && node.labelPosition.direction ==  "vertical") ?
+                        (node.labelPosition.x + node.labelPosition.xOffset) :
+                        node.labelPosition.x;
                 })
                 .attr("y", function(node){
                     return node.labelPosition.y;
@@ -101,8 +101,8 @@ define([
                     return node.labelPosition.alignment;
                 })
                 .attr("transform", function(node){
-                    if (node.labelPosition.direction ==  "vertical"){
-                        return "rotate(-60," + node.labelPosition.x + "," + node.labelPosition.y + ")";
+                    if (config.graph.allowRotatedLabels && node.labelPosition.direction ==  "vertical"){
+                        return "rotate(-60," + (node.labelPosition.x + node.labelPosition.xOffset) + "," + node.labelPosition.y + ")";
                     }
                     return null;
                 })
@@ -117,6 +117,7 @@ define([
                 env.mainView
                     .svg
                     .selectAll(".node-label-" + utils.getIdFromIp(nodeView.id))
+                    .attr("class", this._getLabelClass)
                     .text(nodeView.label);
             } catch (e){
                 console.log(e);
@@ -229,7 +230,6 @@ define([
             }
 
         };
-
 
         this.applySearch = function (searchResults) {
             currentSearch = searchResults;
@@ -403,46 +403,50 @@ define([
         // };
 
         this._computeMeshGraph = function(){
-            var traceroutes, traceroute, edges, nodes, previousHost, sourcesUsed, previousHostId;
+            var traceroutes, traceroute, edges, nodes, previousHost, sourcesUsed, tracerouteLength, longestTraceroute,
+                globalLongestTraceroute;
 
             nodes = {};
             edges = {};
             sourcesUsed = {};
 
             traceroutes = $.map(env.main.loadedMeasurements, function(item){
+                longestTraceroute = item.getLongestTraceroute();
+
+                if (!globalLongestTraceroute || longestTraceroute.getLength() > globalLongestTraceroute.getLength()){
+                    globalLongestTraceroute = longestTraceroute;
+                }
+
                 return item.getTraceroutes();
-                // var loadedDataRange, startDate, endDate;
-                //
-                //
-                // loadedDataRange = env.historyManager.getTimeRange();
-                // // console.log(env.startDate, env.startDate.clone().utc());
-                // startDate = moment.utc(loadedDataRange.startDate * 1000);
-                // endDate = moment.utc((loadedDataRange.startDate + (item.interval)) * 1000);
-                //
-                // console.log(item.getTraceroutesRange(startDate, endDate));
-                //
-                // return item.getTraceroutesRange(startDate, endDate);
             });
 
             traceroutes = traceroutes.sort(function(a, b){return a.date.unix()-b.date.unix();}).reverse();
 
             for (var t=0,length = traceroutes.length; t<length; t++) {
                 traceroute = traceroutes[t];
+                tracerouteLength = traceroute.getLength();
                 previousHost = traceroute.source;
-
                 nodes[previousHost.getId()] = previousHost;
 
-                traceroute.forEachHop(function(hop){
-                    var attempt, host;
-
-                    attempt = hop.getMainAttempt();
-                    host = attempt.host;
+                traceroute.forEachHost(function(host){
+                    var edgeKey;
 
                     if (previousHost.getId() != host.getId()) {
+
+                        edgeKey = previousHost.getId() + "-" + host.getId();
                         nodes[host.getId()] = host;
-                        if (!config.graph.removeCycle || !sourcesUsed[previousHost.getId()]) {
+
+                        if (!edges[edgeKey] && (!config.graph.removeCycle || !sourcesUsed[previousHost.getId()])) {
                             sourcesUsed[previousHost.getId()] = true;
-                            edges[previousHost.getId() + "-" + host.getId()] = [previousHost, host];
+                            edges[edgeKey] = {
+                                from: previousHost,
+                                to: host
+                            };
+                            if (globalLongestTraceroute.id == traceroute.id) { // Random number, check them
+                                edges[edgeKey].weight = 4;
+                            } else {
+                                edges[edgeKey].weight = 1;
+                            }
                         }
                         previousHost = host;
                     }
@@ -450,7 +454,7 @@ define([
                 });
             }
 
-            return { nodes: nodes, edges: edges }
+            return { nodes: nodes, edges: edges };
         };
 
         this._showDirection = function (path, highlighted) {
@@ -488,7 +492,7 @@ define([
         };
 
         this._hoveredPath = function(traceroute, hovered){
-            var hosts, nodesToUpdate, nodes, path;
+            var hosts, nodesToUpdate, nodes, path, labels
 
             hosts = traceroute.getHostList();
 
@@ -510,6 +514,15 @@ define([
                 .selectAll("path.path-" + utils.getIdFromIp(traceroute.stateKey))
                 .attr("data-hover", ((hovered) ? true : null));
 
+            labels = env.mainView.svg
+                .selectAll(".node-label");
+
+            labels
+                .data(nodesToUpdate, function(element){
+                    return element.id;
+                })
+                .attr("data-hover", ((hovered) ? true : null));
+
             this._showDirection(path, hovered);
         };
 
@@ -524,15 +537,16 @@ define([
                 env.mainView.graph.addNode(nodeObj.getId(), {
                     width: config.graph.nodeRadius,
                     height: config.graph.nodeRadius,
-                    rank: (nodeObj.isProbe) ? "first": false
+                    rank: (nodeObj.isProbe) ? "first" : false
                 });
             }
 
             for (var edge in mesh.edges) {
                 edgeObj = mesh.edges[edge];
-                env.mainView.graph.addEdge(edgeObj[0].getId(), edgeObj[1].getId(), {
+                env.mainView.graph.addEdge(edgeObj.from.getId(), edgeObj.to.getId(), {
                     interpolation: 'basis',
-                    class: "edge-host"
+                    class: "edge-host",
+                    weight: edgeObj.weight
                 });
             }
 
@@ -565,6 +579,29 @@ define([
             return classes;
         };
 
+        this._getLabelClass = function(node){
+            var classOut;
+
+            classOut = "node-label node-label-" + utils.getIdFromIp(node.id);
+
+            if (node.model.isProbe){
+                classOut += " probe";
+            }
+
+            if (node.model.isIxp){
+                classOut += " ixp";
+            }
+
+            if (node.model.isTarget){
+                classOut += " target";
+            }
+
+            if (node.model.isLast){
+                classOut += " last";
+            }
+
+            return classOut;
+        };
 
         this._calculateLabelsPosition = function () {
             for (var n=0,length=this.nodesArray.length; n<length; n++) {
@@ -601,7 +638,6 @@ define([
 
             return out;
         };
-
 
         this._drawNodes = function(){
             var nodesSvg;

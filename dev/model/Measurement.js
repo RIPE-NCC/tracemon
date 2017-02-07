@@ -79,6 +79,20 @@ define([
         return this._traceroutes;
     };
 
+    Measurement.prototype.getLongestTraceroute = function () {
+        var traceroute, longest, lengthLongest;
+
+        lengthLongest = -Infinity;
+        for (var n=0,length=this._traceroutes.length; n<length; n++) {
+            traceroute = this._traceroutes[n];
+            if (traceroute.getLength() > lengthLongest){
+                longest = traceroute;
+            }
+        }
+
+        return longest;
+    };
+
     Measurement.prototype.getTraceroutesRange = function(start, stop){
         var traceroute, traceroutes;
 
@@ -101,7 +115,6 @@ define([
     Measurement.prototype.getStateAt = function(date){
         var currentTraceroutes, traceroute, traceroutesForThisSource;
 
-        console.log(date);
         currentTraceroutes = {};
         for (var source in this._traceroutesBySource){
             traceroutesForThisSource = this._traceroutesBySource[source];
