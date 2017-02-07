@@ -12,7 +12,7 @@ define([
         var translationConnector, $this;
 
         $this = this;
-        this.loadedProbes = {};
+        env.loadedSources = {};
         translationConnector = new TranslationConnector(env);
 
         this.getRealTimeResults = function(measurement, filtering){
@@ -167,7 +167,7 @@ define([
 
             // Check if all the probes are replying and mark them.
             for (var n=0,length=probesList.length; n<length; n++) {
-                this.loadedProbes[probesList[n]].empty = (replyingProbes.indexOf(probesList[n]) == -1);
+                env.loadedSources[probesList[n]].empty = (replyingProbes.indexOf(probesList[n]) == -1);
             }
 
         };
@@ -185,10 +185,10 @@ define([
                     for (var n=0,length=data.length; n<length; n++) {
                         probe = data[n];
 
-                        if ($this.loadedProbes[probe.id]){
-                            $this.loadedProbes[probe.id].measurements.push(probe);
+                        if (env.loadedSources[probe.id]){
+                            env.loadedSources[probe.id].measurements.push(probe);
                         } else {
-                            $this.loadedProbes[probe.id] = probe;
+                            env.loadedSources[probe.id] = probe;
                         }
 
                         measurement.sources[probe.id] = probe;

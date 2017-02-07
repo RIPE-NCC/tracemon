@@ -11,17 +11,19 @@ define([
     "tracemon.connector.facade",
     "tracemon.view.main",
     "tracemon.controller.history-manager",
-    "tracemon.view.templateManager"
+    "tracemon.view.templateManager",
+    "tracemon.controller.source-selection"
 ], function(config, utils, $, moment, AutonomousSystem, Hop, Host, Measurement, Traceroute, Connector, MainView,
-            HistoryManager, TemplateManagerView) {
+            HistoryManager, TemplateManagerView, SourceSelectionHelper) {
 
     var main = function (env) {
-        var $this, now, initCompleted;
+        var $this, sourceSelection, initCompleted;
 
         $this = this;
         initCompleted = false;
         this.shownSources = null;
         this.loadedMeasurements = {};
+        sourceSelection = new SourceSelectionHelper(env);
 
         this.exposedMethods = ["on", "getMeasurements", "getModel", "addMeasurement", "updateCurrentData", "loadMeasurements",
             "applyConfiguration", "getShownSources", "setShownSources", "addShownSource", "getSources", "setTimeRange", "init"];
@@ -71,19 +73,6 @@ define([
             this.updateData(Object.keys(this.loadedMeasurements));
         };
 
-        this.computeInitialSources = function(){
-            var out;
-
-            out = [];
-            for (var probeKey in env.connector.loadedProbes){
-                out.push(parseInt(probeKey));
-                if (out.length == env.queryParams.numberOfProbes){
-                    break;
-                }
-            }
-
-            return out;
-        };
 
         this.setShownSources = function (sources) {
             this.shownSources = sources;
@@ -96,7 +85,7 @@ define([
         };
 
         this.getSources = function(){
-         return env.connector.loadedProbes;
+         return env.loadedSources;
         };
 
         this.addShownSource = function (source) {
@@ -109,15 +98,25 @@ define([
             }
         };
 
+        this._checkInput = function(query){
+          if (query.startDate){
+
+          }
+        };
+
+        this.updateData2 = function(query){
+
+        };
+
         this.updateData = function(measurementsIDtoLoad) {
 
             this.loadMeasurements(measurementsIDtoLoad, function (measurementsLoaded) { // 3749061, 4471092 (loop on *)
                 var deferredArray, deferredQuery, msmId;
 
-                $this.shownSources = $this.shownSources || $this.computeInitialSources();
+                $this.shownSources = $this.shownSources || sourceSelection.getInitialSourcesSelection();
 
-                for (var probeId in env.connector.loadedProbes){ // Update source selection boolean
-                    env.connector.loadedProbes[probeId].select = ($this.shownSources.indexOf(parseInt(probeId)) > -1);
+                for (var probeId in env.loadedSources){ // Update source selection boolean
+                    env.loadedSources[probeId].select = ($this.shownSources.indexOf(parseInt(probeId)) > -1);
                 }
                 // env.template.showLoadingImage(true);
                 deferredArray = [];

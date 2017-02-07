@@ -76,6 +76,7 @@ requirejs.config({
         "tracemon.controller.history-manager": window.atlas._widgets.tracemon.urls.controller + "HistoryManager",
         "tracemon.controller.header": window.atlas._widgets.tracemon.urls.controller + "HeaderController",
         "tracemon.controller.boolean-search": window.atlas._widgets.tracemon.urls.controller + "BooleanSearchHelper",
+        "tracemon.controller.source-selection": window.atlas._widgets.tracemon.urls.controller + "SourcesSelectionHelper",
 
 
         /* connector */

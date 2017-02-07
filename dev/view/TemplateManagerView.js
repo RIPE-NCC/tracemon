@@ -110,7 +110,7 @@ define([
 
             if (!blockListeners) {
                 this.values.target = this.getMonitoredTargets();
-                this.values.totalProbes = Object.keys(env.connector.loadedProbes).length;
+                this.values.totalProbes = Object.keys(env.loadedSources).length;
                 this.values.numberProbes = env.main.shownSources.length;
                 this.values.probes = env.main.shownSources;
 
@@ -426,7 +426,7 @@ define([
                 .find(".click-select-probe")
                 .on("click", function(){
 
-                    $this.populateProbeList($.map(env.connector.loadedProbes, function(probe){
+                    $this.populateProbeList($.map(env.loadedSources, function(probe){
                         probe.select = (env.main.shownSources.indexOf(probe.id) != -1);
                         return [probe];
                     }));
