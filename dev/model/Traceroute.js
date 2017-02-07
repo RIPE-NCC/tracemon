@@ -31,7 +31,7 @@ define([
         return false;
     };
 
-    Traceroute.prototype.addHops = function(hops){
+    Traceroute.prototype.setHops = function(hops){
         this._hops = hops;
     };
 

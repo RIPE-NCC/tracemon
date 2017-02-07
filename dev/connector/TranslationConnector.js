@@ -226,9 +226,11 @@ define([
                 translated = new Traceroute(hostObj, targetTraceroute, moment.unix(item["timestamp"]).utc());
                 translated.parisId = item["paris_id"];
                 translated.protocol = item["proto"];
-                translated.addHops(hops);
+                hops[hops.length - 1].forEachAttempt(function(attempt){
+                    attempt.host.isLast = true;
+                });
+                translated.setHops(hops);
                 translated.errors = errors;
-                // hostHelper.scanTraceroute(translated);
 
                 if (
                     !config.filterRepeatedTraceroutes
@@ -307,7 +309,6 @@ define([
                         } else {
                             targetHost = new Host(msmTarget);
 
-
                             if (!targetHost.isPrivate) { // TODO: ASN LOOKUP FOR TARGET
 
                                 targetHost.setLocation($this._getHostLocation(data["target_location"]));
@@ -323,7 +324,7 @@ define([
                         }
 
                         measurement = new Measurement(measurementId, targetHost);
-
+                        targetHost.isTarget = true;
                         measurement.startDate = moment.unix(data["start_time"]).utc();
                         measurement.stopDate = (data["stop_time"]) ? moment.unix(data["stop_time"]).utc() : null;
                         measurement.interval = data["native_sampling"];

@@ -81,7 +81,13 @@ define([
                     previousAttempt = previousHop.getMainAttempt();
                     previousHost = previousAttempt.host;
                     if (!previousHost.ip) {
+                        hops.splice(n, 1);
+                        length--;
+                        n--;
                         previousHost.multiplicity++;
+                        if (host.isLast){
+                            previousHost.isLast = true;
+                        }
                     } else {
                         newHops.push(hop);
                     }

@@ -7,6 +7,8 @@ define([
         this.ip = ip;
         this.isProbe = false;
         this.multiplicity = 1;
+        this.isLast = false;
+        this.isTarget = false;
 
         if (this.ip) {
             this.isPrivate = utils.isPrivateIp(ip);

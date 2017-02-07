@@ -63,7 +63,7 @@ define([
                     return [nodeView.points];
                 });
             }
-            where = labelPlacement.getLabelPosition(node, cache.edgePoints, node.label);
+            where = labelPlacement.getLabelPosition(node, cache.edgePoints, node.label, config.graph.labelOrientationPreference);
 
             node.labelPosition = where;
         };
@@ -83,17 +83,17 @@ define([
 
             labelsSvg
                 .enter()
-                .append("text")
-                .attr("class", function(node){
-                    return "node-label node-label-" + utils.getIdFromIp(node.id);
-                });
+                .append("text");
 
             labelsSvg
+                .attr("class", this._getLabelClass)
                 .attr("data-focus-out", function (node) {
                     return node.focusOut;
                 })
                 .attr("x", function(node){
-                    return node.labelPosition.x;
+                    return (config.graph.allowRotatedLabels && node.labelPosition.direction ==  "vertical") ?
+                        (node.labelPosition.x + node.labelPosition.xOffset) :
+                        node.labelPosition.x;
                 })
                 .attr("y", function(node){
                     return node.labelPosition.y;
@@ -105,8 +105,8 @@ define([
                     return node.labelPosition.alignment;
                 })
                 .attr("transform", function(node){
-                    if (node.labelPosition.direction ==  "vertical"){
-                        return "rotate(-60," + node.labelPosition.x + "," + node.labelPosition.y + ")";
+                    if (config.graph.allowRotatedLabels && node.labelPosition.direction ==  "vertical"){
+                        return "rotate(-60," + (node.labelPosition.x + node.labelPosition.xOffset) + "," + node.labelPosition.y + ")";
                     }
                     return null;
                 })
@@ -121,6 +121,7 @@ define([
                 env.mainView
                     .svg
                     .selectAll(".node-label-" + utils.getIdFromIp(nodeView.id))
+                    .attr("class", this._getLabelClass)
                     .text(nodeView.label);
             } catch (e){
                 console.log(e);
@@ -233,7 +234,6 @@ define([
             }
 
         };
-
 
         this.applySearch = function (searchResults) {
             currentSearch = searchResults;
@@ -496,7 +496,7 @@ define([
         };
 
         this._hoveredPath = function(traceroute, hovered){
-            var hosts, nodesToUpdate, nodes, path;
+            var hosts, nodesToUpdate, nodes, path, labels
 
             hosts = traceroute.getHostList();
 
@@ -516,6 +516,15 @@ define([
 
             path = env.mainView.pathsContainer
                 .selectAll("path.path-" + utils.getIdFromIp(traceroute.stateKey))
+                .attr("data-hover", ((hovered) ? true : null));
+
+            labels = env.mainView.svg
+                .selectAll(".node-label");
+
+            labels
+                .data(nodesToUpdate, function(element){
+                    return element.id;
+                })
                 .attr("data-hover", ((hovered) ? true : null));
 
             this._showDirection(path, hovered);
@@ -574,6 +583,29 @@ define([
             return classes;
         };
 
+        this._getLabelClass = function(node){
+            var classOut;
+
+            classOut = "node-label node-label-" + utils.getIdFromIp(node.id);
+
+            if (node.model.isProbe){
+                classOut += " probe";
+            }
+
+            if (node.model.isIxp){
+                classOut += " ixp";
+            }
+
+            if (node.model.isTarget){
+                classOut += " target";
+            }
+
+            if (node.model.isLast){
+                classOut += " last";
+            }
+
+            return classOut;
+        };
 
         this._calculateLabelsPosition = function () {
             for (var n=0,length=this.nodesArray.length; n<length; n++) {
@@ -610,7 +642,6 @@ define([
 
             return out;
         };
-
 
         this._drawNodes = function(){
             var nodesSvg;

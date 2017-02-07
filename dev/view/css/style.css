@@ -75,6 +75,9 @@
 .node[data-hover] {
     opacity: 1!important;
 }
+.node-label[data-hover] {
+    opacity: 0.8!important;
+}
 
 .path[data-animation] {
     stroke-width: 10px!important;
@@ -99,10 +102,26 @@
 }
 
 .node-label {
-    opacity: 0.8;
+    opacity: 0;
     fill: #454545;
     font-weight: bold;
     font-size: 10px!important;
+}
+
+.node-label.probe {
+    opacity: 0.8;
+}
+
+.node-label.ixp {
+    opacity: 0.8;
+}
+
+.node-label.target {
+    opacity: 1!important;
+}
+
+.node-label.last {
+    opacity: 0.8;
 }
 
 .dot.direction {
