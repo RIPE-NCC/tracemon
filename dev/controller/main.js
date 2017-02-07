@@ -67,8 +67,7 @@ define([
         };
 
         this.updateCurrentData = function() {
-            env.reset = true;
-            env.historyManager.reset();
+            // env.historyManager.reset();
             this.updateData(Object.keys(this.loadedMeasurements));
         };
 

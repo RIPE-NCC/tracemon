@@ -52,14 +52,6 @@ define([
             return traceroutes;
         };
 
-        // this._updateShownSources = function(newSet){
-        //     shownSources = {};
-        //     for (var n=0,length=newSet.length; n<length; n++) {
-        //         shownSources[newSet[n]] = true;
-        //     }
-        //     env.historyManager.getLastState();
-        // };
-
         this._filterBySources = function(status){
             var newStatus;
 
@@ -156,7 +148,7 @@ define([
                 parseInt(this.svg.style("width").replace("px", "")),
                 parseInt(svgHeight),
                 {
-                    margin: { top: 100, bottom: 20, left: 150, right: 150 }
+                    margin: config.graph.margins
                 }
             );
 
