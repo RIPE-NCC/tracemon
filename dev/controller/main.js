@@ -22,7 +22,6 @@ define([
         $this = this;
         initCompleted = false;
         this.shownSources = null;
-        env.loadedMeasurements = {};
         sourceSelection = new SourceSelectionHelper(env);
 
         this.exposedMethods = ["on", "getMeasurements", "getModel", "addMeasurement", "updateCurrentData", "loadMeasurements",
@@ -195,18 +194,12 @@ define([
                 return env.connector
                     .getMeasurementInfo(parseInt(msm))
                     .done(function (measurement) {
-                        if (!env.meta) {
-                            env.meta = {
-                                startDate: Infinity,
-                                stopDate: -Infinity
-                            };
-                        }
 
-                        env.meta.startDate = Math.min(measurement.startDate.unix(), env.meta.startDate);
+                        env.metaData.startDate = Math.min(measurement.startDate.unix(), env.metaData.startDate);
                         if (measurement.stopDate) {
-                            env.meta.stopDate = Math.min(Math.max(measurement.stopDate.unix(), env.meta.stopDate), moment().utc().unix());
+                            env.metaData.stopDate = Math.min(Math.max(measurement.stopDate.unix(), env.metaData.stopDate), moment().utc().unix());
                         } else {
-                            env.meta.stopDate = moment().utc().unix();
+                            env.metaData.stopDate = moment().utc().unix();
                         }
                         env.loadedMeasurements[measurement.id] = measurement;
                     });

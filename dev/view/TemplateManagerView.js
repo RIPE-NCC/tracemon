@@ -316,8 +316,8 @@ define([
                     this.timeline
                         .data("ionRangeSlider")
                         .update({
-                            min: moment.unix(env.meta.startDate).utc().unix(),
-                            max: ((env.meta.stopDate) ? moment.unix(env.meta.stopDate).utc().unix() : moment().utc().unix()),
+                            min: moment.unix(env.metaData.startDate).utc().unix(),
+                            max: ((env.metaData.stopDate) ? moment.unix(env.metaData.stopDate).utc().unix() : moment().utc().unix()),
                             from: timeRange.startDate,
                             to: timeRange.stopDate
                         });
@@ -326,8 +326,8 @@ define([
                         .find(".timeline-controller")
                         .ionRangeSlider({
                             type: "double",
-                            min: moment.unix(env.meta.startDate).utc().unix(),
-                            max: ((env.meta.stopDate) ? moment.unix(env.meta.stopDate).utc().unix() : moment().utc().unix()),
+                            min: moment.unix(env.metaData.startDate).utc().unix(),
+                            max: ((env.metaData.stopDate) ? moment.unix(env.metaData.stopDate).utc().unix() : moment().utc().unix()),
                             from: timeRange.startDate,
                             to: timeRange.stopDate,
                             grid: true,

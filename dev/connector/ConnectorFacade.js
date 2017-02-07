@@ -12,7 +12,6 @@ define([
         var translationConnector, $this;
 
         $this = this;
-        env.loadedSources = {};
         translationConnector = new TranslationConnector(env);
 
         this.getRealTimeResults = function(measurement, filtering){

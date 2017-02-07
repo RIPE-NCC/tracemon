@@ -151,7 +151,7 @@ define([
          */
 
         env = {
-            "version": "17.01.30.2",
+            "version": "17.2.7.2",
             "widgetUrl": TRACEMON_WIDGET_URL + "dev/",
             "autoStart": (instanceParams.autoStart != undefined) ? instanceParams.autoStart : config.autoStart,
             "dataApiResults": instanceParams.dataApiResults || config.dataAPIs.results,
@@ -173,7 +173,16 @@ define([
             "realTimeUpdate":  (instanceParams.realTimeUpdate != null) ? instanceParams.realTimeUpdate : config.realTimeUpdate,
             "onlyCore":  instanceParams.onlyCore,
             "parentDom": $(parentDom),
-            "queryParams": queryParams
+            "queryParams": queryParams,
+
+            // Defaults for internal env parameters
+            "loadedMeasurements": {},
+            "loadedSources": {},
+            "finalQueryParams": {},
+            "metaData": {
+                startDate: Infinity,
+                stopDate: -Infinity
+            }
         };
 
         window.env = env; // TEMP: just for debugging
