@@ -410,7 +410,7 @@ define([
             edges = {};
             sourcesUsed = {};
 
-            traceroutes = $.map(env.main.loadedMeasurements, function(item){
+            traceroutes = $.map(env.loadedMeasurements, function(item){
                 longestTraceroute = item.getLongestTraceroute();
 
                 if (!globalLongestTraceroute || longestTraceroute.getLength() > globalLongestTraceroute.getLength()){

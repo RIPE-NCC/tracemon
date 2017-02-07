@@ -43,8 +43,8 @@ define([
         this.updateIndex = function(){
             var traceroutes, timestamp, measurement;
 
-            for (var msm in env.main.loadedMeasurements){
-                measurement = env.main.loadedMeasurements[msm];
+            for (var msm in env.loadedMeasurements){
+                measurement = env.loadedMeasurements[msm];
 
                 traceroutes = measurement.getTraceroutes();
                 console.log("update index");
@@ -121,8 +121,8 @@ define([
             var out, date, measurement, lastTraceroute;
 
             out = {};
-            for (var msmId in env.main.loadedMeasurements) {
-                measurement = env.main.loadedMeasurements[msmId];
+            for (var msmId in env.loadedMeasurements) {
+                measurement = env.loadedMeasurements[msmId];
                 out[msmId] = measurement.getLastState();
                 lastTraceroute = measurement.getLastTraceroute();
                 if (lastTraceroute) {
@@ -148,8 +148,8 @@ define([
             var out;
 
             out = {};
-            for (var msmId in env.main.loadedMeasurements) {
-                out[msmId] = env.main.loadedMeasurements[msmId].getStateAt(date);
+            for (var msmId in env.loadedMeasurements) {
+                out[msmId] = env.loadedMeasurements[msmId].getStateAt(date);
             }
             env.currentInstant = date;
             console.log(out);

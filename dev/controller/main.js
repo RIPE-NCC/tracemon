@@ -22,7 +22,7 @@ define([
         $this = this;
         initCompleted = false;
         this.shownSources = null;
-        this.loadedMeasurements = {};
+        env.loadedMeasurements = {};
         sourceSelection = new SourceSelectionHelper(env);
 
         this.exposedMethods = ["on", "getMeasurements", "getModel", "addMeasurement", "updateCurrentData", "loadMeasurements",
@@ -70,7 +70,7 @@ define([
 
         this.updateCurrentData = function() {
             // env.historyManager.reset();
-            this.updateData(Object.keys(this.loadedMeasurements));
+            this.updateData(Object.keys(env.loadedMeasurements));
         };
 
 
@@ -126,7 +126,7 @@ define([
                         msmId = measurementsLoaded[n];
 
                         deferredQuery = env.connector
-                            .getInitialDump($this.loadedMeasurements[msmId], {
+                            .getInitialDump(env.loadedMeasurements[msmId], {
                                 startDate: env.startDate,
                                 stopDate: env.stopDate,
                                 sources: $this.shownSources
@@ -163,13 +163,13 @@ define([
         };
 
         this.getMeasurements = function(){
-            return this.loadedMeasurements;
+            return env.loadedMeasurements;
         };
 
         this.addMeasurement = function(msmId){
             var measurements;
 
-            measurements = Object.keys($this.loadedMeasurements);
+            measurements = Object.keys(env.loadedMeasurements);
 
             if (measurements.indexOf(msmId) == -1){
                 measurements.push(msmId);
@@ -186,7 +186,7 @@ define([
             for (var n=0,length= msmsIDlist.length; n<length; n++) { // Find the new measurements
                 msmId = msmsIDlist[n];
 
-                if (!this.loadedMeasurements[msmId]){
+                if (!env.loadedMeasurements[msmId]){
                     newMeasurementsToLoad.push(msmId)
                 }
             }
@@ -208,7 +208,7 @@ define([
                         } else {
                             env.meta.stopDate = moment().utc().unix();
                         }
-                        $this.loadedMeasurements[measurement.id] = measurement;
+                        env.loadedMeasurements[measurement.id] = measurement;
                     });
             }))
                 .done(function(){
@@ -230,7 +230,7 @@ define([
         };
 
         this.getModel = function () {
-            if (initCompleted && Object.keys(this.loadedMeasurements).length > 0){
+            if (initCompleted && Object.keys(env.loadedMeasurements).length > 0){
                 return env.historyManager.getLastState();
             } else {
                 throw "You have to init the widget and load a measurement before to be able to get the model"

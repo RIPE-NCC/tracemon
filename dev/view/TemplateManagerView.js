@@ -156,8 +156,8 @@ define([
         this.getMonitoredTargets = function () {
             var targets = [];
 
-            for (var msmKey in env.main.loadedMeasurements){
-                targets.push(env.main.loadedMeasurements[msmKey].target.ip);
+            for (var msmKey in env.loadedMeasurements){
+                targets.push(env.loadedMeasurements[msmKey].target.ip);
             }
 
             return targets.join(",");

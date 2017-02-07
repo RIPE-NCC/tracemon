@@ -73,7 +73,7 @@ define([
             nodes = {};
             edges = {};
 
-            traceroutes = $.map(env.main.loadedMeasurements, function(item){
+            traceroutes = $.map(env.loadedMeasurements, function(item){
                 return item.getTraceroutes();
             });
 

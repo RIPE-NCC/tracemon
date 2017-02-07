@@ -260,7 +260,7 @@ define([
             for (var msmId in newStatus) {
                 for (var source in newStatus[msmId]) {
 
-                    if (newStatus[msmId][source].validUpTo < moment(env.currentInstant).subtract(env.main.loadedMeasurements[msmId].interval, 'seconds')) { // This is wrong they are all agoing to be deleted
+                    if (newStatus[msmId][source].validUpTo < moment(env.currentInstant).subtract(env.loadedMeasurements[msmId].interval, 'seconds')) { // This is wrong they are all agoing to be deleted
 
                         deletedTraceroutes.push(newStatus[msmId][source]);
                     }

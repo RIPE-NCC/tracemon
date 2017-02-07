@@ -63,7 +63,7 @@ define([
             try {
                 interface = this._getInterface();
                 interface.addMeasurement(measurement.id);
-                interface.mergeMeasurements(Object.keys(env.main.loadedMeasurements), false);
+                interface.mergeMeasurements(Object.keys(env.loadedMeasurements), false);
             } catch(e){
             }
             console.log("runned");
