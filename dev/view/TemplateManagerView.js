@@ -447,13 +447,15 @@ define([
             this.dom.playerButtons.beginning = env.parentDom
                 .find(".bwd-button")
                 .on("click", function () {
-                    env.historyManager.getFirstState();
+                    env.finalQueryParams.instant = env.finalQueryParams.startDate;
+                    env.historyManager.getCurrentState();
                 });
 
             this.dom.playerButtons.end = env.parentDom
                 .find(".ffwd-button")
                 .on("click", function () {
-                    env.historyManager.getLastState();
+                    env.finalQueryParams.instant = env.finalQueryParams.stopDate;
+                    env.historyManager.getCurrentState();
                 });
 
             this.dom.labelRadio = env.parentDom

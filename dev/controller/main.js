@@ -41,10 +41,15 @@ define([
 
                 startDate = (initialParams.startTimestamp) ?
                     moment.unix(initialParams.startTimestamp).utc() :
-                    moment(stopDate).substract(config.defaultLoadedResultSetWindow, "seconds");
+                    moment(stopDate).subtract(config.defaultLoadedResultSetWindow, "seconds");
 
-                if (!instant || !(startDate.isAfeter(instant) && instant.isBefore(stopDate))) {
+                if (!instant) {
                     instant = (config.startWithLastStatus) ? stopDate: startDate;
+                } else {
+
+                    if (instant.isBefore(startDate) || instant.isAfter(stopDate)) {
+                        throw "The selected instant is out of the selected time range";
+                    }
                 }
                 sourcesAmount = initialParams.defaultNumberOfDisplayedSources || config.defaultNumberOfDisplayedSources;
 
@@ -259,7 +264,7 @@ define([
             this.addMeasurements(env.queryParams.measurements, function(){
                 $this._updateFinalQueryParams();
                 $this.updateData(function(){
-                    env.historyManager.getStateAt(env.finalQueryParams.instant);
+                    env.historyManager.getCurrentState();
                 });
             });
         };

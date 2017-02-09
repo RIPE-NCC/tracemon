@@ -29,6 +29,7 @@ define([
 
         $this = this;
         this._historyTimeline = [];
+        previousInstant = null;
 
 
         this._setListeners = function(){
@@ -145,21 +146,20 @@ define([
         // };
 
         this.getCurrentState = function(){
-            return this.getStateAt(env.finalQueryParams.instant);
+            return this._getStateAt(env.finalQueryParams.instant);
         };
 
-        this.getStateAt = function(date){
+        this._getStateAt = function(date){
             var out;
 
-            console.log(date, this.getTimeRange(), env.metaData);
-
-            if (env.metaData.startDate < date && (!env.metaData.stopDate || date < env.metaData.stopDate)){
+            if ((env.metaData.startDate.isSameOrBefore(date))
+                && (!env.metaData.stopDate || env.metaData.stopDate.isSameOrAfter(date))){
                 out = {};
                 for (var msmId in env.loadedMeasurements) {
                     out[msmId] = env.loadedMeasurements[msmId].getStateAt(date);
                 }
 
-                if (previousInstant != date) {
+                if (!previousInstant || !previousInstant.isSame(date)) {
                     utils.observer.publish("view.status:change", out);
                 }
 
