@@ -25,7 +25,7 @@ define([
 
         this.exposedMethods = ["on", "getMeasurements", "getCurrentState", "addMeasurement", "updateCurrentData",
             "addMeasurements", "applyConfiguration", "getShownSources", "setShownSources", "addShownSource",
-            "getSources", "setTimeRange", "init"];
+            "getSources", "setTimeRange", "removeMeasurement", "init"];
 
         this._updateFinalQueryParams = function () {
             var initialParams, finalParams, startDate, stopDate, sourcesAmount, instant;
