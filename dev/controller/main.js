@@ -17,15 +17,178 @@ define([
             HistoryManager, TemplateManagerView, SourceSelectionHelper) {
 
     var main = function (env) {
-        var $this, sourceSelection, initCompleted;
+        var $this, sourceSelection, initialModelCreated;
 
         $this = this;
-        initCompleted = false;
-        this.shownSources = null;
+        initialModelCreated = false;
         sourceSelection = new SourceSelectionHelper(env);
 
-        this.exposedMethods = ["on", "getMeasurements", "getModel", "addMeasurement", "updateCurrentData", "loadMeasurements",
-            "applyConfiguration", "getShownSources", "setShownSources", "addShownSource", "getSources", "setTimeRange", "init"];
+        this.exposedMethods = ["on", "getMeasurements", "getCurrentState", "addMeasurement", "updateCurrentData",
+            "addMeasurements", "applyConfiguration", "getShownSources", "setShownSources", "addShownSource",
+            "getSources", "setTimeRange", "init"];
+
+        this._updateFinalQueryParams = function () {
+            var initialParams, finalParams, startDate, stopDate, sourcesAmount, instant;
+
+            if (Object.keys(env.loadedMeasurements).length > 0) {
+
+                initialParams = env.queryParams;
+                instant = initialParams.instant;
+
+                stopDate = (initialParams.stopTimestamp) ?
+                    moment.unix(initialParams.stopTimestamp).utc() :
+                    env.metaData.stopDate;
+
+                startDate = (initialParams.startTimestamp) ?
+                    moment.unix(initialParams.startTimestamp).utc() :
+                    moment(stopDate).substract(config.defaultLoadedResultSetWindow, "seconds");
+
+                if (!instant || !(startDate.isAfeter(instant) && instant.isBefore(stopDate))) {
+                    instant = (config.startWithLastStatus) ? stopDate: startDate;
+                }
+                sourcesAmount = initialParams.defaultNumberOfDisplayedSources || config.defaultNumberOfDisplayedSources;
+
+                finalParams = {
+                    startDate: startDate,
+                    stopDate: stopDate,
+                    sources: initialParams.sources || sourceSelection.getInitialSourcesSelection(sourcesAmount),
+                    measurements: initialParams.measurements,
+                    instant: instant
+                };
+
+                env.finalQueryParams = finalParams;
+                this._updateSelectedSources();
+            } else {
+                throw "To compute the final query params, at least one measurement must be loaded"
+            }
+        };
+
+        this._newResultsetLoaded = function(measurements){
+            var measurement;
+
+            if (!initialModelCreated){
+                initialModelCreated = true;
+                utils.observer.publish("model.ready");
+            }
+
+            for (var n=0,length=measurements.length; n<length; n++) {
+                measurement = measurements[n];
+                if (env.realTimeUpdate) {
+                    env.connector.getRealTimeResults(measurement);
+                }
+            }
+        };
+
+        this._updateSelectedSources = function(){
+
+            for (var probeId in env.loadedSources){ // Update source selection boolean
+                env.loadedSources[probeId].select = (env.finalQueryParams.sources.indexOf(parseInt(probeId)) > -1);
+            }
+        };
+
+        this._updateMetaData = function(){
+            var measurement;
+
+            for (var msmId in env.loadedMeasurements){
+                measurement = env.loadedMeasurements[msmId];
+
+                env.metaData = {
+                    startDate: (env.metaData.startDate) ?
+                        moment.min(measurement.startDate, env.metaData.startDate) :
+                        measurement.startDate,
+                    stopDate: (measurement.stopDate && env.metaData.stopDate) ?
+                        moment.max(measurement.stopDate, env.metaData.stopDate) : null // Null if no measurements have a stopDate
+                };
+            }
+
+        };
+
+        this._startProcedure = function(){
+            try {
+                this._applyUrl();
+                console.log("PermaLink applied");
+            } catch(notValidUrl) {
+                console.log(notValidUrl);
+                if (env.queryParams) {
+                    this.applyConfiguration(env.queryParams);
+                    console.log("Embed code configuration applied");
+                }
+            }
+        };
+
+        this._applyUrl = function(){
+            this.applyConfiguration(env.urlManager.getConfigurationFromUrl());
+        };
+
+        this.addMeasurements = function (msmsIDlist, callback) {
+            var newMeasurementsToLoad, msmId;
+
+            newMeasurementsToLoad = [];
+            for (var n=0,length= msmsIDlist.length; n<length; n++) { // Find the new measurements
+                msmId = msmsIDlist[n];
+
+                if (!env.loadedMeasurements[msmId]){
+                    newMeasurementsToLoad.push(msmId)
+                }
+            }
+
+            env.connector
+                .getMeasurements(newMeasurementsToLoad)
+                .done(function (measurements) {
+                    var measurement, source;
+
+                    for (var n=0,length=measurements.length; n<length; n++){
+                        measurement = measurements[n];
+                        env.loadedMeasurements[measurement.id] = measurement;
+
+                        for (var sourceKey in measurement.sources) {
+                            source = measurement.sources[sourceKey];
+                            env.loadedSources[source.id] = source;
+                        }
+                        utils.observer.publish("model.measurement:new", measurement);
+                    }
+
+                    $this._updateMetaData();
+                    if (callback){
+                        callback(msmsIDlist);
+                    }
+                });
+        };
+
+        this.updateData = function(callback) { // It must use the final params
+            var params, measurements;
+
+            params = env.finalQueryParams;
+
+            measurements = $.map(params.measurements, function(msmId){
+                return env.loadedMeasurements[msmId];
+            });
+
+            try {
+                env.connector
+                    .getMeasurementsResults(measurements, {
+                            startDate: params.startDate,
+                            stopDate: params.stopDate,
+                            sources: params.sources
+                        }
+                    ).done(function(measurements){
+                    $this._newResultsetLoaded(measurements);
+                    if (callback){
+                        callback(measurements);
+                    }
+                });
+
+            } catch (error){
+                var errorObj = (error.type) ? error : { type: "uncaught", message: error };
+                utils.observer.publish("error", errorObj);
+                console.log(errorObj);
+            }
+
+        };
+
+        this.getMeasurements = function(){
+            return env.loadedMeasurements;
+        };
 
         this.error = function(message, type){
 
@@ -51,31 +214,9 @@ define([
             }
         };
 
-        this.applyUrl = function(){
-            this.applyConfiguration(env.urlManager.getConfigurationFromUrl());
-        };
-
-        this.applyConfiguration = function(conf){
-
-            if (conf.startTimestamp && conf.stopTimestamp){
-                env.startDate = moment.unix(conf.startTimestamp).utc();
-                env.stopDate = moment.unix(conf.stopTimestamp).utc();
-            }
-
-            if (conf.measurements) {
-                this.updateData(conf.measurements);
-            }
-        };
-
-        this.updateCurrentData = function() {
-            // env.historyManager.reset();
-            this.updateData(Object.keys(env.loadedMeasurements));
-        };
-
-
         this.setShownSources = function (sources) {
             this.shownSources = sources;
-            this.updateCurrentData();
+            this.updateData();
             utils.observer.publish("view:probe-set", this.shownSources);
         };
 
@@ -84,7 +225,7 @@ define([
         };
 
         this.getSources = function(){
-         return env.loadedSources;
+            return env.loadedSources;
         };
 
         this.addShownSource = function (source) {
@@ -97,150 +238,50 @@ define([
             }
         };
 
-        this._checkInput = function(query){
-          if (query.startDate){
-
-          }
+        this.addMeasurement = function(msmId){
+            if (env.loadedMeasurements[msmId]){
+                throw "Measurement already loaded";
+            }
+            this.addMeasurements([msmId]);
         };
 
-        this.updateData2 = function(query){
-
+        this.removeMeasurement = function(msmId){
+            if (!env.loadedMeasurements[msmId]){
+                throw "The measurement is not loaded";
+            }
+            delete env.loadedMeasurements[msmId];
+            utils.observer.publish("model.measurement:remove", msmId);
         };
 
-        this.updateData = function(measurementsIDtoLoad) {
+        this.applyConfiguration = function(conf){
+            env.queryParams = conf;
 
-            this.loadMeasurements(measurementsIDtoLoad, function (measurementsLoaded) { // 3749061, 4471092 (loop on *)
-                var deferredArray, deferredQuery, msmId;
-
-                $this.shownSources = $this.shownSources || sourceSelection.getInitialSourcesSelection();
-
-                for (var probeId in env.loadedSources){ // Update source selection boolean
-                    env.loadedSources[probeId].select = ($this.shownSources.indexOf(parseInt(probeId)) > -1);
-                }
-                // env.template.showLoadingImage(true);
-                deferredArray = [];
-
-                try {
-                    for (var n=0,length= measurementsLoaded.length; n<length; n++) { // Find the new measurements
-                        msmId = measurementsLoaded[n];
-
-                        deferredQuery = env.connector
-                            .getInitialDump(env.loadedMeasurements[msmId], {
-                                startDate: env.startDate,
-                                stopDate: env.stopDate,
-                                sources: $this.shownSources
-                            }).done(function (measurement) {
-
-                                if (env.realTimeUpdate) {
-                                    env.connector.getRealTimeResults(measurement, { msm: measurement.id });
-                                }
-
-                                utils.observer.publish("model.measurement:new", measurement);
-                            });
-
-                        deferredArray
-                            .push(deferredQuery);
-                    }
-                } catch (error){
-                    var errorObj = (error.type) ? error : { type: "uncaught", message: error };
-                    utils.observer.publish("error", errorObj);
-                    console.log(errorObj);
-                }
-
-                $.when
-                    .apply($, deferredArray)
-                    .then(function(){
-                        env.historyManager.getFirstState();
-                        if (!initCompleted){
-                            initCompleted = true;
-                            utils.observer.publish("model.ready", $this.getModel());
-                        }
-                        // env.template.showLoadingImage(false);
-                    });
-
+            this.addMeasurements(env.queryParams.measurements, function(){
+                $this._updateFinalQueryParams();
+                $this.updateData(function(){
+                    env.historyManager.getStateAt(env.finalQueryParams.instant);
+                });
             });
         };
 
-        this.getMeasurements = function(){
-            return env.loadedMeasurements;
-        };
-
-        this.addMeasurement = function(msmId){
-            var measurements;
-
-            measurements = Object.keys(env.loadedMeasurements);
-
-            if (measurements.indexOf(msmId) == -1){
-                measurements.push(msmId);
-            }else{
-                throw "Measurement already loaded"
-            }
-            this.updateData(measurements);
-        };
-
-        this.loadMeasurements = function (msmsIDlist, callback) {
-            var newMeasurementsToLoad, msmId;
-
-            newMeasurementsToLoad = [];
-            for (var n=0,length= msmsIDlist.length; n<length; n++) { // Find the new measurements
-                msmId = msmsIDlist[n];
-
-                if (!env.loadedMeasurements[msmId]){
-                    newMeasurementsToLoad.push(msmId)
-                }
-            }
-
-            $.when.apply($, $.map(newMeasurementsToLoad, function (msm){
-                return env.connector
-                    .getMeasurementInfo(parseInt(msm))
-                    .done(function (measurement) {
-
-                        env.metaData.startDate = Math.min(measurement.startDate.unix(), env.metaData.startDate);
-                        if (measurement.stopDate) {
-                            env.metaData.stopDate = Math.min(Math.max(measurement.stopDate.unix(), env.metaData.stopDate), moment().utc().unix());
-                        } else {
-                            env.metaData.stopDate = moment().utc().unix();
-                        }
-                        env.loadedMeasurements[measurement.id] = measurement;
-                    });
-            }))
-                .done(function(){
-                    callback(newMeasurementsToLoad);
-                });
-        };
-
-        this._startProcedure = function(){
-            try {
-                this.applyUrl();
-                console.log("PermaLink applied");
-            } catch(notValidUrl) {
-                console.log(notValidUrl);
-                if (env.queryParams) {
-                    this.applyConfiguration(env.queryParams);
-                    console.log("Embed code configuration applied");
-                }
-            }
-        };
-
-        this.getModel = function () {
-            if (initCompleted && Object.keys(env.loadedMeasurements).length > 0){
-                return env.historyManager.getLastState();
+        this.getCurrentState = function () {
+            if (initialModelCreated && Object.keys(env.loadedMeasurements).length > 0){
+                return env.historyManager.getCurrentState();
             } else {
                 throw "You have to init the widget and load a measurement before to be able to get the model"
             }
         };
 
         this.setTimeRange = function(start, stop){ // Accept timestamps for public API
-            env.startDate = moment.unix(start).utc();
-            env.stopDate = moment.unix(stop).utc();
-            env.main.updateCurrentData();
+            env.finalQueryParams.startDate = moment.unix(start).utc();
+            env.finalQueryParams.stopDate = moment.unix(stop).utc();
+            env.main.updateData();
             utils.observer.publish("view.time-selection:change", { startDate: env.startDate, stopDate: env.stopDate });
         };
 
         this.on = function(event, callback){
             utils.observer.subscribe(event, callback, this);
         };
-
 
         this.init = function(){
             env.connector = new Connector(env);

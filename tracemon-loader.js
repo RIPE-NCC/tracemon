@@ -178,10 +178,16 @@ define([
             // Defaults for internal env parameters
             "loadedMeasurements": {},
             "loadedSources": {},
-            "finalQueryParams": {},
+            "finalQueryParams": {
+                startDate: null,
+                stopDate: null,
+                sources: null,
+                measurements: [],
+
+            },
             "metaData": {
-                startDate: Infinity,
-                stopDate: -Infinity
+                startDate: null,
+                stopDate: null
             }
         };
 

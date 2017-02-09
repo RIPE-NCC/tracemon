@@ -81,7 +81,7 @@ define([
             this.selectionDataset.source = {
                 text: 'Source',
                 order: 1,
-                children: $.map(env.main.shownSources, function (probeId) {
+                children: $.map(env.finalQueryParams.sources, function (probeId) {
                     return { id: 'source' + probeId, text: 'Probe ' + probeId };
                 })
             };
@@ -111,8 +111,8 @@ define([
             if (!blockListeners) {
                 this.values.target = this.getMonitoredTargets();
                 this.values.totalProbes = Object.keys(env.loadedSources).length;
-                this.values.numberProbes = env.main.shownSources.length;
-                this.values.probes = env.main.shownSources;
+                this.values.numberProbes = env.finalQueryParams.sources.length;
+                this.values.probes = env.finalQueryParams.sources;
 
                 env.parentDom.find('.value-target').text(this.values.target);
                 env.parentDom.find('.value-number-probes').text(this.values.numberProbes);
@@ -427,7 +427,7 @@ define([
                 .on("click", function(){
 
                     $this.populateProbeList($.map(env.loadedSources, function(probe){
-                        probe.select = (env.main.shownSources.indexOf(probe.id) != -1);
+                        probe.select = (env.finalQueryParams.sources.indexOf(probe.id) != -1);
                         return [probe];
                     }));
                 });

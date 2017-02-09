@@ -81,7 +81,7 @@ define([
 
         this.setMaxHop = function(maxHop){
             env.maxNumberHops = maxHop;
-            env.main.updateCurrentData();
+            env.main.updateData();
         };
 
         this.setReplaySpeed = function(speed){

@@ -19,7 +19,7 @@ define([
         probesInfo = {};
         measurementInfo = {};
 
-        this.getInitialDump = function (measurementId, options) {
+        this.getMeasurementResults = function (measurementId, options) {
             var queryParams;
 
             if (!options.startDate){

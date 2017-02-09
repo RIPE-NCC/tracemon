@@ -37,8 +37,14 @@ define([], function(){
         defaultLabelLevel: "ip",
         ajaxTimeout: 50000,
         reloadSourcesDiff: 3, // reload the dataset id the sources set changes of at least N probes
-
         filterRepeatedTraceroutes: true, // Filter traceroutes reporting the same results consecutively
+        defaultLoadedResultSetWindow: 3600 * 2, // Second
+        defaultNumberOfDisplayedSources: 8,
+
+        startWithLastStatus: true,
+
+        lateReportedResults: 200, // seconds of validity for a late reported result
+
 
         transitionsTimes:{
             pathChange: 600,
@@ -46,7 +52,7 @@ define([], function(){
         },
 
         graph: {
-            margins: { top: -100, bottom: 20, left: 150, right: 150 },
+            margins: { top: 10, bottom: 20, left: 150, right: 150 },
             removeCycle: true,
             groupCycles: true,
             combineNullHosts: true,

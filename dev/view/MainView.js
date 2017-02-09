@@ -55,14 +55,14 @@ define([
         this._filterBySources = function(status){
             var newStatus;
 
-            if (env.main.shownSources.length == 0){
+            if (env.finalQueryParams.sources.length == 0){
                 return status;
             } else {
                 newStatus = {};
                 for (var msm in status) {
                     newStatus[msm] = {};
                     for (var source in status[msm]) {
-                        if (env.main.shownSources.indexOf(parseInt(source)) != -1) {
+                        if (env.finalQueryParams.sources.indexOf(parseInt(source)) != -1) {
                             newStatus[msm][source] = status[msm][source];
                         }
                     }
@@ -78,7 +78,7 @@ define([
             if (firstDraw){
                 this._firstDraw(this._drawnStatus);
                 firstDraw = false;
-                this.latencymon.init(".latencymon-chart", env.queryParams.measurements, env.main.shownSources); // Init LatencyMON
+                this.latencymon.init(".latencymon-chart", env.queryParams.measurements, env.finalQueryParams.sources); // Init LatencyMON
             } else {
                 this._update(this._drawnStatus);
             }
@@ -170,7 +170,6 @@ define([
         this._computeDiff = function(oldStatus, newStatus) {
             var out;
 
-            console.log(oldStatus, newStatus);
             out = {
                 status: this._getStatus(newStatus),
                 newTraceroutes: this._getNewTraceroutes(oldStatus, newStatus),
@@ -217,7 +216,6 @@ define([
             var updatedTraceroute;
 
             updatedTraceroute = [];
-            console.log(oldStatus, newStatus);
             for (var msmId in newStatus) {
                 if (oldStatus[msmId]) { // It is an old measurement
                     for (var source in newStatus[msmId]) {

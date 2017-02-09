@@ -26,7 +26,8 @@ utils.observer.publish("model.ready", return getModel());
 utils.observer.publish("model.host:as", ModelObject);
 utils.observer.publish("model.host:ixp", ModelObject);
 utils.observer.publish("model.host:new", Host);
-utils.observer.publish("model.measurement:new", Measurement);
+utils.observer.publish("model.measurement:new", Measurement); // We have a new measurement metadata object (no results)
+utils.observer.publish("model.measurement:removed", Integer); // the msmId was removed (no obj instance anymore)
 utils.observer.publish("model.history:new", null);
 utils.observer.publish("model.history:change", null);
 

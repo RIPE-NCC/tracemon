@@ -4,9 +4,8 @@ define([
     "tracemon.env.utils",
     "tracemon.connector.translation"
 ], function(config, $, utils, TranslationConnector) {
-    var antiFloodTimerNewStatus, timelineEvents;
+    var antiFloodTimerNewStatus;
 
-    timelineEvents = [];
 
     var ConnectorFacade = function (env) {
         var translationConnector, $this;
@@ -15,8 +14,10 @@ define([
         translationConnector = new TranslationConnector(env);
 
         this.getRealTimeResults = function(measurement, filtering){
+            filtering = filtering || {};
             filtering.stream_type = "result";
             filtering.buffering = "true";
+            filtering.msm = measurement.id;
             translationConnector.getRealTimeResults(
                 filtering,
                 function(result){
@@ -28,33 +29,35 @@ define([
                 }, this);
         };
 
-        this.getInitialDump = function(measurement, options){
-            var deferredCall, deferredArray, initialDumpPromise, getProbesPromise;
+        this.getMeasurementsResults = function(measurements, options){
+            var deferredCall, deferredArray, resultsPromise,measurement;
 
             deferredCall = $.Deferred();
             deferredArray = [];
 
-            initialDumpPromise = translationConnector
-                .getInitialDump(measurement, options)
-                .done(function(data){
+            for (var n=0,length=measurements.length; n<length; n++){
+                measurement = measurements[n];
 
-                    for (var n=0,length=data.length; n<length; n++){
-                        if (timelineEvents.indexOf(data[n])){
-                            timelineEvents.push(data[n].date);
-                        }
-                    }
+                resultsPromise = translationConnector
+                    .getMeasurementResults(measurement, options);
 
-                    measurement.addTraceroutes(data);
-                });
+                deferredArray.push(resultsPromise); // Get results
+            }
 
-            deferredArray.push(initialDumpPromise); // Get initial dump
 
             $.when
                 .apply($, deferredArray)
                 .then(function(){
-                    $this._enrichProbes(measurement, options.sources); // Enrich the probes (e.g. check if they replied) NOTE: it's ASYNC
+                    var measurements, measurement;
+
+                    measurements = arguments;
+
+                    for (var n=0,length=measurements.length; n<length; n++){
+                        measurement = measurements[n];
+                        $this._enrichProbes(measurement, options.sources); // Enrich the probes (e.g. check if they replied) NOTE: it's ASYNC
+                    }
                     utils.observer.publish("model.history:new");
-                    deferredCall.resolve(measurement);
+                    deferredCall.resolve(measurements);
                 });
 
             return deferredCall.promise();
@@ -127,18 +130,28 @@ define([
             return deferredCall.promise();
         };
 
-        this.getMeasurementInfo = function(ip){
-            var deferredCall;
+        this.getMeasurements = function(measurementIds){
+            var deferredCall, measurementId, promises, deferredArray;
 
             deferredCall = $.Deferred();
+            deferredArray = [];
 
-            translationConnector.getMeasurementInfo(ip)
-                .done(function (data) {
-                    $this.getProbesInfo(data)
-                        .done(function () {
-                        deferredCall.resolve(data);
-                    });
+
+            for (var n=0,length=measurementIds.length; n<length; n++) {
+                measurementId = measurementIds[n];
+
+                promises = translationConnector
+                    .getMeasurementInfo(measurementId);
+
+                deferredArray.push(promises);
+            }
+
+            $.when
+                .apply($, deferredArray)
+                .then(function(){
+                    deferredCall.resolve(arguments);
                 });
+
 
             return deferredCall.promise();
         };
@@ -170,34 +183,6 @@ define([
             }
 
         };
-
-
-        this.getProbesInfo = function(measurement){
-            var deferredCall;
-
-            deferredCall = $.Deferred();
-
-            translationConnector
-                .getProbesInfo(measurement.id)
-                .done(function (data) {
-                    var probe;
-                    for (var n=0,length=data.length; n<length; n++) {
-                        probe = data[n];
-
-                        if (env.loadedSources[probe.id]){
-                            env.loadedSources[probe.id].measurements.push(probe);
-                        } else {
-                            env.loadedSources[probe.id] = probe;
-                        }
-
-                        measurement.sources[probe.id] = probe;
-                    }
-                    deferredCall.resolve(data);
-                });
-
-            return deferredCall.promise();
-        };
-
     };
 
     return ConnectorFacade;

@@ -87,6 +87,10 @@ define([
             return text;
         },
 
+        clone: function(obj){
+            return JSON.parse(JSON.striginfy(obj));
+        },
+
         lightClone: function (toBeCloned) {
             var cloned, isArray;
 

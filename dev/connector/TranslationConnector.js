@@ -35,13 +35,11 @@ define([
         asnLookupConnector = new AsnLookupConnector(env);
 
         this.autonomousSystemsByAs = {};
-        this.autonomousSystemsByIp = {};
         this.autonomousSystemsByPrefix = {};
         this.domainByIp = {};
         this.geolocByIp = {};
         this.neighboursByAs = {};
         this.hostByIp = {};
-        this.cacheDeferredCallsAS = {};
         this.measurementById = {};
         this.probesByMsm = {};
         this.probesById = {};
@@ -269,14 +267,14 @@ define([
             return out;
         };
 
-        this.getInitialDump = function (measurement, options){
+        this.getMeasurementResults = function (measurement, options){
             var deferredCall;
 
             deferredCall = $.Deferred();
 
             selectedProbes = options.sources;
             historyConnector
-                .getInitialDump(measurement.id, options)
+                .getMeasurementResults(measurement.id, options)
                 .done(function(data){
                     var dump;
 
@@ -284,7 +282,9 @@ define([
 
                     $this.enrichDump(data, dump);
 
-                    deferredCall.resolve(dump);
+                    measurement.addTraceroutes(dump);
+
+                    deferredCall.resolve(measurement);
                 })
                 .fail(function (error) {
                     throw "The results for the selected measurement cannot be retrieved (timeout)"
@@ -298,48 +298,63 @@ define([
 
             deferredCall = $.Deferred();
 
-            historyConnector.getMeasurementInfo(measurementId)
-                .done(function(data){
-                    var measurement, msmTarget, targetHost, hostGeolocation;
+            if (this.measurementById[measurementId]){ // TODO: Cache, it would be nice to move this somewhere else
+                return deferredCall.resolve(this.measurementById[measurementId]);
+            } else {
+                historyConnector.getMeasurementInfo(measurementId)
+                    .done(function (data) {
+                        var measurement, msmTarget, targetHost;
 
-                    if (data["type"] == "traceroute"){
-                        msmTarget = data["target"];
-                        if ($this.hostByIp[msmTarget]){
-                            targetHost = $this.hostByIp[msmTarget];
-                        } else {
-                            targetHost = new Host(msmTarget);
+                        if (data["type"] == "traceroute") {
+                            msmTarget = data["target"];
+                            if ($this.hostByIp[msmTarget]) {
+                                targetHost = $this.hostByIp[msmTarget];
+                            } else {
+                                targetHost = new Host(msmTarget);
 
-                            if (!targetHost.isPrivate) { // TODO: ASN LOOKUP FOR TARGET
+                                if (!targetHost.isPrivate) { // TODO: ASN LOOKUP FOR TARGET
 
-                                targetHost.setLocation($this._getHostLocation(data["target_location"]));
+                                    targetHost.setLocation($this._getHostLocation(data["target_location"]));
 
 
-                                // asnLookupConnector.enrich(targetHost);
+                                    // asnLookupConnector.enrich(targetHost);
 
-                                // if (config.ixpHostCheck) {
-                                //     $this._enrichIXP(targetHost);
-                                // }
+                                    // if (config.ixpHostCheck) {
+                                    //     $this._enrichIXP(targetHost);
+                                    // }
+                                }
+
                             }
 
+                            measurement = new Measurement(measurementId, targetHost);
+                            targetHost.isTarget = true;
+                            measurement.startDate = moment.unix(data["start_time"]).utc();
+                            measurement.stopDate = (data["stop_time"]) ? moment.unix(data["stop_time"]).utc() : null;
+                            measurement.interval = data["native_sampling"];
+                            $this.measurementById[measurement.id] = measurement;
+
+                            $this.getProbesInfo(measurement.id)
+                                .done(function(sources) {
+                                    var source;
+
+                                    for (var n = 0, length = sources.length; n < length; n++) {
+                                        source = sources[n];
+                                        source.measurements.push(measurement);
+                                        measurement.sources[source.id] = source;
+                                    }
+
+                                    deferredCall.resolve(measurement);
+                                });
+
+                        } else {
+                            throw "The measurement added is not a traceroute"
                         }
 
-                        measurement = new Measurement(measurementId, targetHost);
-                        targetHost.isTarget = true;
-                        measurement.startDate = moment.unix(data["start_time"]).utc();
-                        measurement.stopDate = (data["stop_time"]) ? moment.unix(data["stop_time"]).utc() : null;
-                        measurement.interval = data["native_sampling"];
-                        $this.measurementById[measurement.id] = measurement;
-
-                        deferredCall.resolve(measurement);
-                    } else {
-                        throw "The measurement added is not a traceroute"
-                    }
-
-                })
-                .fail(function() {
-                    throw "The measurement added cannot be loaded, probably the ID doesn't exist";
-                });
-
+                    })
+                    .fail(function () {
+                        throw "The measurement added cannot be loaded, probably the ID doesn't exist";
+                    });
+            }
             return deferredCall.promise();
 
         };
@@ -471,6 +486,7 @@ define([
             var deferredCall;
 
             deferredCall = $.Deferred();
+
 
             if (this.probesByMsm[measurementId]){
                 deferredCall.resolve(this.probesByMsm[measurementId]);

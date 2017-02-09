@@ -9,6 +9,7 @@ define([
         this.multiplicity = 1;
         this.isLast = false;
         this.isTarget = false;
+        this.measurements = [];
 
         if (this.ip) {
             this.isPrivate = utils.isPrivateIp(ip);

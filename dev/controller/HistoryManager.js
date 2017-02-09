@@ -25,7 +25,7 @@ define([
 ], function(config, utils, moment){
 
     var HistoryManager = function(env){
-        var $this;
+        var $this, previousInstant;
 
         $this = this;
         this._historyTimeline = [];
@@ -47,7 +47,6 @@ define([
                 measurement = env.loadedMeasurements[msm];
 
                 traceroutes = measurement.getTraceroutes();
-                console.log("update index");
                 this.tmp = {};
                 for (var n=0,length=traceroutes.length; n<length; n++){
                     timestamp = traceroutes[n].date.unix();
@@ -63,8 +62,8 @@ define([
 
         this.getTimeRange = function(){
             return {
-                startDate: this._historyTimeline[0],
-                stopDate: this._historyTimeline[this._historyTimeline.length - 1]
+                startDate: moment.unix(this._historyTimeline[0]).utc(),
+                stopDate: moment.unix(this._historyTimeline[this._historyTimeline.length - 1]).utc()
             }
         };
 
@@ -116,44 +115,59 @@ define([
 
         };
 
+        // this.getLastState = function () {
+        //     var out, date, measurement, lastTraceroute;
+        //
+        //     out = {};
+        //     for (var msmId in env.loadedMeasurements) {
+        //         measurement = env.loadedMeasurements[msmId];
+        //         out[msmId] = measurement.getLastState();
+        //         lastTraceroute = measurement.getLastTraceroute();
+        //         if (lastTraceroute) {
+        //             date = (!date && lastTraceroute) ? lastTraceroute.date : moment().max(lastTraceroute.date, date);
+        //         }
+        //     }
+        //
+        //     env.currentInstant = date;
+        //     this.currentState = out;
+        //
+        //     utils.observer.publish("view.status:change", out);
+        //
+        //     return out;
+        // };
 
-        this.getLastState = function () {
-            var out, date, measurement, lastTraceroute;
+        // this.getFirstState = function () {
+        //     if (this._historyTimeline.length > 0){
+        //         return this.getStateAt(moment.unix(this._historyTimeline[0]).utc());
+        //     } else {
+        //         throw "The history is empty";
+        //     }
+        // };
 
-            out = {};
-            for (var msmId in env.loadedMeasurements) {
-                measurement = env.loadedMeasurements[msmId];
-                out[msmId] = measurement.getLastState();
-                lastTraceroute = measurement.getLastTraceroute();
-                if (lastTraceroute) {
-                    date = (!date && lastTraceroute) ? lastTraceroute.date : moment().max(lastTraceroute.date, date);
-                }
-            }
-
-            env.currentInstant = date;
-            utils.observer.publish("view.status:change", out);
-
-            return out;
-        };
-
-        this.getFirstState = function () {
-            if (this._historyTimeline.length > 0){
-                return this.getStateAt(moment.unix(this._historyTimeline[0]).utc());
-            } else {
-                throw "The history is empty";
-            }
+        this.getCurrentState = function(){
+            return this.getStateAt(env.finalQueryParams.instant);
         };
 
         this.getStateAt = function(date){
             var out;
 
-            out = {};
-            for (var msmId in env.loadedMeasurements) {
-                out[msmId] = env.loadedMeasurements[msmId].getStateAt(date);
+            console.log(date, this.getTimeRange(), env.metaData);
+
+            if (env.metaData.startDate < date && (!env.metaData.stopDate || date < env.metaData.stopDate)){
+                out = {};
+                for (var msmId in env.loadedMeasurements) {
+                    out[msmId] = env.loadedMeasurements[msmId].getStateAt(date);
+                }
+
+                if (previousInstant != date) {
+                    utils.observer.publish("view.status:change", out);
+                }
+
+                previousInstant = date;
+            } else {
+                throw "The selected instant is out of the measurement lifespan";
             }
-            env.currentInstant = date;
-            console.log(out);
-            utils.observer.publish("view.status:change", out);
+
 
             return out;
         };
