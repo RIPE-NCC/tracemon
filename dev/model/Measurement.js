@@ -85,7 +85,7 @@ define([
             for (var n=0,length=traceroutesForThisSource.length; n<length; n++){
                 traceroute = traceroutesForThisSource[n];
 
-                if (traceroute.date.isBefore(date)){ // The last one before the date I want
+                if (traceroute.date.isSameOrBefore(date)){ // The last one before the date I want
                     currentTraceroutes[source] = traceroute;
                 } else {
                     break;
@@ -98,7 +98,7 @@ define([
             traceroute = currentTraceroutes[source];
 
             validUpTo = moment(traceroute.validUpTo)
-                .add(this.interval, "seconds");
+                .add(this.interval, "seconds").utc();
 
             if (validUpTo.isBefore(date)){
                 delete currentTraceroutes[source];

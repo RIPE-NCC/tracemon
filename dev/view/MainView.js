@@ -117,13 +117,22 @@ define([
 
             this._initChart(maxLengthTraceroute);
 
-            this._oldStatus = newStatus;
-
             this.view = this._getView();
 
-            this.view.draw(diff, function(){
+            this.view.draw(diff, function() { // Compute the layout and draw
                 console.log("drawn");
-            }); // Compute the layout and draw
+            });
+
+            this._oldStatus = newStatus;
+        };
+
+        this._update = function (newStatus){
+            var diff;
+
+            diff = this._computeDiff(this._oldStatus, newStatus);
+            this.view.update(diff, function(){
+            });
+            this._oldStatus = newStatus;
         };
 
 
@@ -154,16 +163,6 @@ define([
 
 
 
-        };
-
-
-        this._update = function (newStatus){
-            var diff;
-
-            diff = this._computeDiff(this._oldStatus, newStatus);
-            this.view.update(diff, function(){
-            });
-            this._oldStatus = newStatus;
         };
 
 
@@ -250,17 +249,6 @@ define([
                 if (!newStatus[msmId]) { // The entire measurement has been deleted
                     for (var source in oldStatus[msmId]) {
                         deletedTraceroutes.push(oldStatus[msmId][source]);
-                    }
-                }
-            }
-
-
-            for (var msmId in newStatus) {
-                for (var source in newStatus[msmId]) {
-
-                    if (newStatus[msmId][source].validUpTo < moment(env.currentInstant).subtract(env.loadedMeasurements[msmId].interval, 'seconds')) { // This is wrong they are all agoing to be deleted
-
-                        deletedTraceroutes.push(newStatus[msmId][source]);
                     }
                 }
             }

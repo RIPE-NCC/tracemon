@@ -12,39 +12,17 @@ define([
         $this = this;
         engine = "dot";
         imposedParams = {};
-        plainNodes = {};
-        plainEdges = {};
-        internalIds = {}; // external: internal
-        externalIds = {}; // internal: external
-        sameRank = {}; // Nodes at the same rank
-        sameCluster = {}; // Nodes in the same cluster
-        sameGroup = {}; // Nodes in the same group
-
-
-        this._getInternalId = function(external){
-            return internalIds[external];
-        };
-
-        this._getExternalId = function(internal){
-            return externalIds[internal];
-        };
-
-        this._generateInternalId = function (external) {
-            var internalId;
-
-            internalId = this._getInternalId(external);
-
-            if (!internalId){
-                internalId = Object.keys(internalIds).length;
-                internalIds[external] = internalId;
-                externalIds[internalId] = external;
-            }
-
-            return internalId;
-        };
 
         this._setDefaults = function () {
             dirty = true;
+            plainNodes = {};
+            plainEdges = {};
+            internalIds = {}; // external: internal
+            externalIds = {}; // internal: external
+            sameRank = {}; // Nodes at the same rank
+            sameCluster = {}; // Nodes in the same cluster
+            sameGroup = {}; // Nodes in the same group
+
             this.nodesIndexed = {};
             this.edgesIndexed = {};
             this.edgesInIndexed = {};
@@ -62,6 +40,28 @@ define([
 
         this._setDefaults();
 
+        this._getInternalId = function(external){
+            return internalIds[external];
+        };
+
+        this._getExternalId = function(internal){
+            return externalIds[internal];
+        };
+
+        this._generateInternalId = function (external) {
+            var internalId;
+
+            internalId = this._getInternalId(external);
+
+            if (internalId == null){
+                internalId = Object.keys(internalIds).length;
+                internalIds[external] = internalId;
+                externalIds[internalId] = external;
+            }
+
+            return internalId;
+        };
+
         this._dottify = function (properties, sameLine) {
             var list;
 
@@ -74,7 +74,7 @@ define([
         };
 
         this._getDotNotation = function(){
-            var out, edge, node, from, to, nodeProperties, edgeProperties, graphProperty, nodeProperties, edgeProperties;
+            var out, edge, node, from, to, nodeProperties, edgeProperties, graphProperty;
 
             graphProperty = {
                 size: 10,
@@ -137,8 +137,6 @@ define([
                     }
 
                     out += from + ' -> ' + to + ' [' + this._dottify(edgeProperties, true) + ']; \n';
-                } else {
-                    console.log("wtf");
                 }
             }
 
@@ -176,7 +174,6 @@ define([
             } catch(e){
                 internalId = Object.keys(plainNodes).length;
             }
-
 
             if (!plainNodes[internalId]) {
                 plainNodes[internalId] = {
@@ -230,8 +227,6 @@ define([
 
             layout = Viz(this._getDotNotation(), { format: "json", engine: engine, ordering: "out" });
             layout = JSON.parse(layout);
-
-            console.log(layout);
             maxX = -Infinity;
             maxY = -Infinity;
 
@@ -275,10 +270,6 @@ define([
                     edgeObj = plainEdges[edge.id];
 
                     edgeObj.points = points;
-                    // edgeObj.start = {
-                    //     x: edge.x,
-                    //     y: edge.y
-                    // };
                 }
             }
 
@@ -345,10 +336,6 @@ define([
                         from: edge.from,
                         to: edge.to,
                         points: points,
-                        // start: {
-                        //     x: (edge.x * $this.mult.x) + $this.margin.left,
-                        //     y: (edge.y * $this.mult.y) + $this.margin.top
-                        // },
                         options: edge.options
                     });
                 }

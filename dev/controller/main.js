@@ -23,9 +23,9 @@ define([
         initialModelCreated = false;
         sourceSelection = new SourceSelectionHelper(env);
 
-        this.exposedMethods = ["on", "getMeasurements", "getCurrentState", "addMeasurement", "updateCurrentData",
+        this.exposedMethods = ["on", "getMeasurements", "getCurrentState", "addMeasurement",
             "addMeasurements", "applyConfiguration", "getShownSources", "setShownSources", "addShownSource",
-            "getSources", "setTimeRange", "removeMeasurement", "init"];
+            "getSources", "setTimeRange", "removeMeasurement", "goTo", "init"];
 
         this._updateFinalQueryParams = function () {
             var initialParams, finalParams, startDate, stopDate, sourcesAmount, instant;
@@ -35,12 +35,15 @@ define([
                 initialParams = env.queryParams;
                 instant = initialParams.instant;
 
-                stopDate = (initialParams.stopTimestamp) ?
-                    moment.unix(initialParams.stopTimestamp).utc() :
-                    env.metaData.stopDate;
+                if (initialParams.stopTimestamp){
+                    stopDate = moment.unix(initialParams.stopTimestamp).utc()
+                } else if (env.metaData.stopDate){
+                    stopDate = moment(env.metaData.stopDate);
+                } else {
+                    stopDate = moment().utc();
+                }
 
-                startDate = (initialParams.startTimestamp) ?
-                    moment.unix(initialParams.startTimestamp).utc() :
+                startDate = (initialParams.startTimestamp) ? moment.unix(initialParams.startTimestamp).utc() :
                     moment(stopDate).subtract(config.defaultLoadedResultSetWindow, "seconds");
 
                 if (!instant) {
@@ -277,11 +280,19 @@ define([
             }
         };
 
+        this.goTo = function(timestamp){
+            env.finalQueryParams.instant = moment.unix(timestamp).utc();
+            env.historyManager.getCurrentState();
+        };
+
         this.setTimeRange = function(start, stop){ // Accept timestamps for public API
             env.finalQueryParams.startDate = moment.unix(start).utc();
             env.finalQueryParams.stopDate = moment.unix(stop).utc();
             env.main.updateData();
-            utils.observer.publish("view.time-selection:change", { startDate: env.startDate, stopDate: env.stopDate });
+            utils.observer.publish("view.time-selection:change", {
+                startDate: env.finalQueryParams.startDate,
+                stopDate: env.finalQueryParams.stopDate
+            });
         };
 
         this.on = function(event, callback){

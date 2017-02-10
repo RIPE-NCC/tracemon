@@ -115,7 +115,7 @@ define([
         this.enrichDump = function(data, dump){
             var translated, hops, hop, item, hopList, attempts, attemptsList, hostObj, hopObj, attemptObj,
                 hostAddress, tmpHost, errors, hostAsn, tracerouteList, targetTraceroute, asnObjs, asnTmp, asList,
-                hostGeolocation;
+                hostGeolocation, tracerouteDate;
 
             asnObjs = {};
             asList = data['asns'] || data['ases'];
@@ -135,10 +135,19 @@ define([
                 hops = [];
                 item = tracerouteList[n1];
 
+                tracerouteDate = moment.unix(item["timestamp"]).utc();
+
                 if (selectedProbes.indexOf(item["prb_id"]) == -1){
                     console.log("ALERT: the API is returning more results than what requested. Preformances may be affected.");
                     continue;
                 }
+
+                if (tracerouteDate.isAfter(env.finalQueryParams.stopDate)
+                    || tracerouteDate.isBefore(env.finalQueryParams.startDate)) {
+                    console.log("ALERT: the API is returning results out of the selected time range. They are skipped");
+                    continue;
+                }
+
                 errors = [];
                 hopList = item["result"];
 
@@ -221,7 +230,7 @@ define([
                 }
 
                 targetTraceroute = $this.measurementById[item["msm_id"]].target;
-                translated = new Traceroute(hostObj, targetTraceroute, moment.unix(item["timestamp"]).utc());
+                translated = new Traceroute(hostObj, targetTraceroute, tracerouteDate);
                 translated.parisId = item["paris_id"];
                 translated.protocol = item["proto"];
                 hops[hops.length - 1].forEachAttempt(function(attempt){

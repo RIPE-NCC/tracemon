@@ -32,6 +32,18 @@ define([
         previousInstant = null;
 
 
+        this._historyTimelineSort = function(a, b){
+            return a - b;
+        };
+
+        this._timestampToDate = function(timestamp){
+            return moment.unix(timestamp);
+        };
+
+        this._dateToTimestamp = function(date){
+            return date.unix();
+        };
+
         this._setListeners = function(){
             utils.observer.subscribe("model.history:new", this.updateIndex, this);
             utils.observer.subscribe("model.history:change", this.updateIndex, this);
@@ -50,21 +62,22 @@ define([
                 traceroutes = measurement.getTraceroutes();
                 this.tmp = {};
                 for (var n=0,length=traceroutes.length; n<length; n++){
-                    timestamp = traceroutes[n].date.unix();
+                    timestamp = this._dateToTimestamp(traceroutes[n].date);
                     if (this._historyTimeline.indexOf(timestamp) == -1){
                         this._historyTimeline.push(timestamp);
                         this.tmp[timestamp] = traceroutes[n];
                     }
                 }
-
             }
+
+            this._historyTimeline.sort(this._historyTimelineSort);
 
         };
 
         this.getTimeRange = function(){
             return {
-                startDate: moment.unix(this._historyTimeline[0]).utc(),
-                stopDate: moment.unix(this._historyTimeline[this._historyTimeline.length - 1]).utc()
+                startDate: this._timestampToDate(this._historyTimeline[0]),
+                stopDate: this._timestampToDate(this._historyTimeline[this._historyTimeline.length - 1])
             }
         };
 
@@ -72,35 +85,38 @@ define([
         this.stopEmulation = function () {
             env.emulationRunning = false;
             console.log("emulation stopped");
-            utils.observer.publish("view.animation:stop", env.currentInstant);
+            utils.observer.publish("view.animation:stop", env.finalQueryParams.instant);
         };
 
         this.emulateHistory = function(){
             env.emulationRunning = true;
 
-            this._historyTimeline = this._historyTimeline.sort();
-            env.currentInstant = moment.unix($this._historyTimeline[0]).utc();
-            utils.observer.publish("view.animation:start", env.currentInstant);
+            env.finalQueryParams.instant = env.finalQueryParams.startDate;
+            utils.observer.publish("view.animation:start", env.finalQueryParams.instant);
 
             var emulate = function(){
+                var history = [env.finalQueryParams.startDate.unix() + 1]
+                    .concat($this._historyTimeline)
+                    .concat([env.finalQueryParams.stopDate.unix()]);
 
-                for (var n=0,length=$this._historyTimeline.length; n<length; n++){
+                for (var n=0,length=history.length; n<length; n++){
                     var momentDate, timestamp;
 
-                    timestamp = $this._historyTimeline[n];
-                    momentDate = moment.unix(timestamp).utc();
+                    timestamp = history[n];
+                    momentDate = $this._timestampToDate(timestamp);
 
-                    if (momentDate > env.currentInstant){
+                    if (momentDate.isAfter(env.finalQueryParams.instant)){
 
-                        $this.getStateAt(momentDate);
-                        console.log("showing: ", timestamp,  $this.tmp[timestamp].getHash());
-                        utils.observer.publish("view.current-instant:change", momentDate);
+                        env.finalQueryParams.instant = momentDate;
+                        $this.getCurrentState();
+
+                        utils.observer.publish("view.current-instant:change", env.finalQueryParams.instant);
 
                         if (env.emulationRunning) {
                             if (n == length - 1){
                                 env.emulationRunning = false;
                                 console.log("animation stop");
-                                utils.observer.publish("view.animation:stop", $this._historyTimeline[n]);
+                                utils.observer.publish("view.animation:stop", env.finalQueryParams.instant);
                             } else {
                                 setTimeout(emulate, env.historyEmulationEventDuration);
                             }
@@ -113,37 +129,7 @@ define([
             };
 
             emulate();
-
         };
-
-        // this.getLastState = function () {
-        //     var out, date, measurement, lastTraceroute;
-        //
-        //     out = {};
-        //     for (var msmId in env.loadedMeasurements) {
-        //         measurement = env.loadedMeasurements[msmId];
-        //         out[msmId] = measurement.getLastState();
-        //         lastTraceroute = measurement.getLastTraceroute();
-        //         if (lastTraceroute) {
-        //             date = (!date && lastTraceroute) ? lastTraceroute.date : moment().max(lastTraceroute.date, date);
-        //         }
-        //     }
-        //
-        //     env.currentInstant = date;
-        //     this.currentState = out;
-        //
-        //     utils.observer.publish("view.status:change", out);
-        //
-        //     return out;
-        // };
-
-        // this.getFirstState = function () {
-        //     if (this._historyTimeline.length > 0){
-        //         return this.getStateAt(moment.unix(this._historyTimeline[0]).utc());
-        //     } else {
-        //         throw "The history is empty";
-        //     }
-        // };
 
         this.getCurrentState = function(){
             return this._getStateAt(env.finalQueryParams.instant);

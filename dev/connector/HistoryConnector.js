@@ -7,8 +7,9 @@
 define([
     "tracemon.env.config",
     "tracemon.env.utils",
-    "tracemon.lib.jquery-amd"
-], function(config, utils, $) {
+    "tracemon.lib.jquery-amd",
+    "tracemon.lib.moment"
+], function(config, utils, $, moment) {
 
     var HistoryConnector = function (env) {
         var hostsResolutionByIp, geolocByIp, neighboursByAsn, probesInfo, measurementInfo;
@@ -22,17 +23,14 @@ define([
         this.getMeasurementResults = function (measurementId, options) {
             var queryParams;
 
-            if (!options.startDate){
-                throw "The start date is required";
+            if (!options.startDate || !options.stopDate){
+                throw "To retrieve data, a time range is required";
             }
 
             queryParams = {
-                start: options.startDate.unix()
+                start: options.startDate.unix(),
+                stop: options.stopDate.unix()
             };
-
-            if (options.stopDate) {
-                queryParams.stop = options.stopDate.unix();
-            }
 
             if (options.sources) {
                 queryParams.probes = options.sources.join(',');
@@ -61,24 +59,6 @@ define([
             return measurementInfo[measurementId];
         };
 
-        // this.getAutonomousSystem = function (ip) {
-        //
-        //     if (!requestsByIp[ip]) {
-        //         requestsByIp[ip] = $.ajax({
-        //             dataType: "jsonp",
-        //             cache: false,
-        //             url: env.dataApiAsAnnotation,
-        //             data: {
-        //                 resources: ip
-        //             }
-        //         });
-        //     }
-        //     //requestsByIp[ip].done(function(){
-        //     //    delete requestsByIp[ip];
-        //     //});
-        //
-        //     return requestsByIp[ip];
-        // };
 
         this.getHostReverseDns = function (ip) {
 

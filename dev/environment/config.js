@@ -48,7 +48,7 @@ define([], function(){
 
         transitionsTimes:{
             pathChange: 600,
-            nodeRemoval: 2000
+            nodeRemoval: 1000
         },
 
         graph: {

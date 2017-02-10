@@ -338,13 +338,13 @@ define([
             }
         };
 
-        this.draw = function(diff, callback){
+        this.draw = function(diff, callback) {
             var traceroutesToDraw;
 
             traceroutesToDraw = diff.newTraceroutes;
+
             this._computeLayout(this._computeMeshGraph());
             this.computeVisibleGraph(traceroutesToDraw);
-            // env.mainView.graph.computeLayout();
             this._updateNodesGraphAttributes();
             this._drawPaths();
             this._drawNodes();
@@ -355,7 +355,9 @@ define([
                 selector: '[data-toggle="popover"]'
             });
 
-            callback();
+            if (callback){
+                callback();
+            }
         };
 
         this.update = function(diff, callback){
@@ -364,7 +366,6 @@ define([
             currentSearch = env.headerController.updateSearch();
             this._computeLayout(this._computeMeshGraph()); // This should be done only if there are new events in the history
             this.computeVisibleGraph(diff.status);
-            // env.mainView.graph.computeLayout();
             this._updateNodesGraphAttributes();
 
             for (var change in diff.updatedTraceroutes) {
@@ -373,85 +374,68 @@ define([
 
             this._drawPaths();
             this._drawNodes();
-            callback();
-        };
 
-        // this._drawAggregated = function () {
-        //     var nodeObj, edgeObj;
-        //
-        //     for (var node in this.nodes) {
-        //         nodeObj = this.nodes[node];
-        //         env.mainView
-        //             .graph
-        //             .addNode(node, {
-        //                 label: $this.getNodeLabel(nodeObj),
-        //                 class: "type-" + utils.getIdFromIp(nodeObj.getId()),
-        //                 width: config.graph.nodeRadius,
-        //                 height: config.graph.nodeRadius
-        //             });
-        //     }
-        //
-        //     for (var edge in this.edges) {
-        //         edgeObj = this.edges[edge];
-        //         env.mainView
-        //             .graph
-        //             .addEdge(edge.split("-")[0], edge.split("-")[1], {
-        //                 interpolation: 'basis'
-        //             });
-        //     }
-        //
-        // };
+            if (callback) {
+                callback();
+            }
+        };
 
         this._computeMeshGraph = function(){
             var traceroutes, traceroute, edges, nodes, previousHost, sourcesUsed, tracerouteLength, longestTraceroute,
-                globalLongestTraceroute;
+                globalLongestTraceroute, previousHostId, hosts;
 
             nodes = {};
             edges = {};
             sourcesUsed = {};
 
-            traceroutes = $.map(env.loadedMeasurements, function(item){
-                longestTraceroute = item.getLongestTraceroute();
+            traceroutes = [];
+            for (var msmId in env.loadedMeasurements){
+                var measurement = env.loadedMeasurements[msmId];
+                longestTraceroute = measurement.getLongestTraceroute();
 
                 if (!globalLongestTraceroute || longestTraceroute.getLength() > globalLongestTraceroute.getLength()){
                     globalLongestTraceroute = longestTraceroute;
                 }
 
-                return item.getTraceroutes();
-            });
+                traceroutes = traceroutes.concat(measurement.getTraceroutes());
+            }
 
-            traceroutes = traceroutes.sort(function(a, b){return a.date.unix()-b.date.unix();}).reverse();
+            traceroutes = traceroutes.sort(function(a, b){return b.date.diff(a.date);}); // reversed
 
             for (var t=0,length = traceroutes.length; t<length; t++) {
                 traceroute = traceroutes[t];
                 tracerouteLength = traceroute.getLength();
-                previousHost = traceroute.source;
-                nodes[previousHost.getId()] = previousHost;
+                hosts = traceroute.getHostList();
 
-                traceroute.forEachHost(function(host){
-                    var edgeKey;
+                nodes[hosts[0].getId()] = hosts[0];
 
-                    if (previousHost.getId() != host.getId()) {
+                for (var n=1,lengthn=hosts.length; n<lengthn; n++){
+                    var edgeKey, hostId, host;
 
-                        edgeKey = previousHost.getId() + "-" + host.getId();
-                        nodes[host.getId()] = host;
+                    host = hosts[n];
+                    previousHost = hosts[n - 1];
+                    previousHostId = previousHost.getId();
+                    hostId = host.getId();
 
-                        if (!edges[edgeKey] && (!config.graph.removeCycle || !sourcesUsed[previousHost.getId()])) {
-                            sourcesUsed[previousHost.getId()] = true;
-                            edges[edgeKey] = {
-                                from: previousHost,
-                                to: host
-                            };
-                            if (globalLongestTraceroute.id == traceroute.id) { // Random number, check them
-                                edges[edgeKey].weight = 4;
-                            } else {
-                                edges[edgeKey].weight = 1;
+                    if (previousHostId != hostId) { // No cycles on the same node
+
+                        edgeKey = previousHostId + "-" + hostId;
+                        nodes[hostId] = host;
+
+                        if (!edges[edgeKey]){
+                            if (!config.graph.removeCycle || !sourcesUsed[previousHostId]) {
+                                sourcesUsed[previousHostId] = true;
+                                edges[edgeKey] = {
+                                    from: previousHost,
+                                    to: host,
+                                    weight: (globalLongestTraceroute.id == traceroute.id) ? 4 : 1
+                                };
                             }
                         }
-                        previousHost = host;
+
                     }
 
-                });
+                }
             }
 
             return { nodes: nodes, edges: edges };
@@ -492,7 +476,7 @@ define([
         };
 
         this._hoveredPath = function(traceroute, hovered){
-            var hosts, nodesToUpdate, nodes, path, labels
+            var hosts, nodesToUpdate, nodes, path, labels;
 
             hosts = traceroute.getHostList();
 
@@ -529,9 +513,8 @@ define([
         this._computeLayout = function(mesh){
             var nodeObj, edgeObj;
 
-            if (cleanRedraw){
-                env.mainView.graph.reset();
-            }
+            env.mainView.graph.reset();
+
             for (var node in mesh.nodes) {
                 nodeObj = mesh.nodes[node];
                 env.mainView.graph.addNode(nodeObj.getId(), {
@@ -554,9 +537,7 @@ define([
         };
 
         this._getPathClass = function (pathView) {
-            var cssClass = "path path-" + pathView.id;
-
-            return cssClass;
+            return "path path-" + pathView.id;
         };
 
         this._getNodeClass = function(nodeView){

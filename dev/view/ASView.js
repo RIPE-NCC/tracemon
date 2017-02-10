@@ -17,15 +17,16 @@ define([
         assignedColors = {};
 
         this.draw = function(traceroutesToDraw, callback){
+            console.log("here");
             this._computeLayout(this._computeMeshGraph());
             this.computeVisibleGraph(traceroutesToDraw);
-
-            env.mainView.graph.computeLayout();
 
             this._drawEdges();
             this._drawNodes();
 
-            // callback();
+            if (callback) {
+                callback();
+            }
         };
 
         this._getAsColor = function(asObj){

@@ -455,6 +455,7 @@ define([
                 .find(".ffwd-button")
                 .on("click", function () {
                     env.finalQueryParams.instant = env.finalQueryParams.stopDate;
+                    console.log(env.finalQueryParams.stopDate);
                     env.historyManager.getCurrentState();
                 });
 
