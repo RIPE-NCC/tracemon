@@ -86,6 +86,9 @@
         "tracemon.connector.host-helper": "dev/connector/HostClassificationHelper",
         "tracemon.connector.asn": "dev/connector/AsnLookupConnector",
 
+        /* PeeringDB cache - Remove when we have API*/
+        "tracemon.connector.local.peering-db": "dev/connector/local/peeringDb",
+
     },
     shim:{
 

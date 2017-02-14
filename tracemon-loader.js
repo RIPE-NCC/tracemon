@@ -88,6 +88,8 @@ requirejs.config({
         "tracemon.connector.host-helper": window.atlas._widgets.tracemon.urls.connector + "HostClassificationHelper",
         "tracemon.connector.asn": window.atlas._widgets.tracemon.urls.connector + "AsnLookupConnector",
 
+        "tracemon.connector.local.peering-db": window.atlas._widgets.tracemon.urls.connector + "local/peeringDb",
+
         /* session */
         "tracemon.session.facade": window.atlas._widgets.tracemon.urls.session + "SessionManager"
     },

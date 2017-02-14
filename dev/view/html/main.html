@@ -1,5 +1,5 @@
 <div class="tracemon-content">
-    <img src="dev/view/img/loading2.gif" class="loading-image" style="left: 50%; top: 50%; display: none;">
+    <img src="{{env.widgetUr}}view/img/loading2.gif" class="loading-image" style="left: 50%; top: 50%; display: none;">
     <div class="error-message"></div>
     <div class="blubble bubble-one">
         <div class="tracemon-header">
@@ -60,9 +60,9 @@
         </div>
         <svg class="tracemon-svg"></svg>
         <div class="legend_latencymon">
-            <span><img src="dev/view/img/legend_normal.jpg"> {{lang.latency}}</span>
-            <span><img src="dev/view/img/legend_ps.jpg"> {{lang.traceroutesDontReach}}</span>
-            <span><img src="dev/view/img/legend_compps.jpg"> {{lang.allTraceroutesDontReach}}</span>
+            <span><img src="{{env.widgetUr}}view/img/legend_normal.jpg"> {{lang.latency}}</span>
+            <span><img src="{{env.widgetUr}}view/img/legend_ps.jpg"> {{lang.traceroutesDontReach}}</span>
+            <span><img src="{{env.widgetUr}}view/img/legend_compps.jpg"> {{lang.allTraceroutesDontReach}}</span>
         </div>
         <div class="latencymon-chart"></div>
     </div>

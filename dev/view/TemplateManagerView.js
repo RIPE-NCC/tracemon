@@ -340,7 +340,6 @@ define([
                         });
                 } else {
 
-                    console.log(env.metaData, env.finalQueryParams);
                     this.timeline = env.parentDom
                         .find(".timeline-controller")
                         .ionRangeSlider({

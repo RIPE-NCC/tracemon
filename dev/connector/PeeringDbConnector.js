@@ -8,8 +8,9 @@ define([
     "tracemon.env.config",
     "tracemon.env.utils",
     "tracemon.lib.jquery-amd",
-    "tracemon.lib.parsePrefix"
-], function(config, utils, $, prefixUtils) {
+    "tracemon.lib.parsePrefix",
+    "tracemon.connector.local.peering-db" // TMP: REMOVE WHEN WE HAVE API
+], function(config, utils, $, prefixUtils, localCache) {
 
     var PeeringDbConnector = function (env) {
         var $this, index, cache, oldDeferredCall;
@@ -18,6 +19,42 @@ define([
         index = null;
         cache = {};
         oldDeferredCall = null;
+
+        this._createPrefixIndex = function(ixps, lans, prefixes){
+            var ixpList, ixpIndex, ixpItem, lansList, lansIndex, lansItem, prefixList, prefixIndex, prefixItem;
+
+            ixpList = ixps[0]["data"];
+            ixpIndex = {};
+
+            lansList = lans[0]["data"];
+            lansIndex = {};
+
+            prefixList = prefixes[0]["data"];
+            prefixIndex = {};
+
+            for (var n = 0, length = ixpList.length; n < length; n++) {
+                ixpItem = ixpList[n];
+                ixpIndex[ixpItem.id] = ixpItem;
+            }
+
+            for (var n = 0, length = lansList.length; n < length; n++) {
+                lansItem = lansList[n];
+
+                lansItem["ixp"] = ixpIndex[lansItem["ix_id"]];
+                delete lansItem["ix_id"];
+                lansIndex[lansItem.id] = lansItem;
+            }
+
+            for (var n = 0, length = prefixList.length; n < length; n++) {
+                prefixItem = prefixList[n];
+
+                prefixItem["lan"] = lansIndex[prefixItem["ixlan_id"]];
+                delete prefixItem["ixlan_id"];
+                prefixIndex[prefixUtils.encodePrefix(prefixItem["prefix"])] = prefixItem;
+            }
+
+            return prefixIndex;
+        };
 
         this.createIndex = function(){
 
@@ -28,42 +65,14 @@ define([
 
                 deferredCall = $.Deferred();
 
-                $.when(this.getIxps(), this.getIxpLans(), this.getIxpPrefixes())
-                    .done(function (ixps, lans, prefixes) {
-                        var ixpList, ixpIndex, ixpItem, lansList, lansIndex, lansItem, prefixList, prefixIndex, prefixItem;
-
-                        ixpList = ixps[0]["data"];
-                        ixpIndex = {};
-
-                        lansList = lans[0]["data"];
-                        lansIndex = {};
-
-                        prefixList = prefixes[0]["data"];
-                        prefixIndex = {};
-
-                        for (var n = 0, length = ixpList.length; n < length; n++) {
-                            ixpItem = ixpList[n];
-                            ixpIndex[ixpItem.id] = ixpItem;
-                        }
-
-                        for (var n = 0, length = lansList.length; n < length; n++) {
-                            lansItem = lansList[n];
-
-                            lansItem["ixp"] = ixpIndex[lansItem["ix_id"]];
-                            delete lansItem["ix_id"];
-                            lansIndex[lansItem.id] = lansItem;
-                        }
-
-                        for (var n = 0, length = prefixList.length; n < length; n++) {
-                            prefixItem = prefixList[n];
-
-                            prefixItem["lan"] = lansIndex[prefixItem["ixlan_id"]];
-                            delete prefixItem["ixlan_id"];
-                            prefixIndex[prefixUtils.encodePrefix(prefixItem["prefix"])] = prefixItem;
-                        }
-
-                        deferredCall.resolve(prefixIndex);
-                    });
+                if (localCache) {
+                    deferredCall.resolve($this._createPrefixIndex([localCache.ixps], [localCache.lans], [localCache.prefixes]));
+                } else {
+                    $.when(this.getIxps(), this.getIxpLans(), this.getIxpPrefixes())
+                        .done(function (ixps, lans, prefixes) {
+                            deferredCall.resolve($this._createPrefixIndex(ixps, lans, prefixes));
+                        });
+                }
 
                 oldDeferredCall = deferredCall.promise();
 
@@ -124,6 +133,7 @@ define([
 
 
         this.getIxpLans = function () {
+
             return $.ajax({
                 dataType: "jsonp",
                 cache: false,
