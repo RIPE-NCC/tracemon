@@ -10,6 +10,7 @@ define([
         this.target = target;
         this.sources = {};
         this.interval = null;
+        this._longestTraceroute = null;
     };
 
     Measurement.prototype._tracerouteSort = function(traceroute1, traceroute2){
@@ -49,7 +50,13 @@ define([
 
             this._traceroutesBySource[sourceId] = this._traceroutesBySource[sourceId] || [];
             this._traceroutesBySource[sourceId].push(item);
+
+            if (!this._longestTraceroute || item.getLength() > this._longestTraceroute.getLength()){
+                this._longestTraceroute = item;
+            }
         }
+
+
     };
 
     Measurement.prototype.getLastTraceroute = function(){
@@ -61,17 +68,7 @@ define([
     };
 
     Measurement.prototype.getLongestTraceroute = function () {
-        var traceroute, longest, lengthLongest;
-
-        lengthLongest = -Infinity;
-        for (var n=0,length=this._traceroutes.length; n<length; n++) {
-            traceroute = this._traceroutes[n];
-            if (traceroute.getLength() > lengthLongest){
-                longest = traceroute;
-            }
-        }
-
-        return longest;
+        return this._longestTraceroute;
     };
 
     Measurement.prototype.getStateAt = function(date){

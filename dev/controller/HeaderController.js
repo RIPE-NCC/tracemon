@@ -84,9 +84,6 @@ define([
             env.main.updateData();
         };
 
-        this.setReplaySpeed = function(speed){
-            env.historyEmulationEventDuration = (speed/2) * 1000
-        };
     };
 
     return HeaderController;

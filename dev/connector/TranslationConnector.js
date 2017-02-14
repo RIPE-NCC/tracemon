@@ -262,14 +262,16 @@ define([
             out = {};
             data = { // Remove this when we have real data
                 id: 1,
-                type: "city"
+                type: "city",
+                country: "Somewhere"
             };
 
 
             if (data) {
                 out = {
                     id: data["id"],
-                    type: data["type"]
+                    type: data["type"],
+                    country: data["country"]
                 };
             }
 

@@ -61,9 +61,7 @@ define([
     };
 
     Traceroute.prototype.getLength = function(){
-        var hosts = this.getHostList();
-
-        return hosts.length;
+        return this.getHostList().length;
     };
 
     Traceroute.prototype.forEachHost = function(fun){

@@ -10,6 +10,7 @@ define([
         this.isLast = false;
         this.isTarget = false;
         this.measurements = [];
+        this._location = null;
 
         if (this.ip) {
             this.isPrivate = utils.isPrivateIp(ip);

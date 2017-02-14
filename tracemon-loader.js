@@ -160,7 +160,6 @@ define([
             "dataApiReverseDns": instanceParams.dataApiReverseDns || config.dataAPIs.dataApiReverseDns,
             "dataApiGeolocation": instanceParams.dataApiGeolocation || config.dataAPIs.dataApiGeolocation,
             "dataApiAsnNeighbours": instanceParams.dataApiAsnNeighbours || config.dataAPIs.dataApiAsnNeighbours,
-            "historyEmulationEventDuration": instanceParams.historyEmulationEventDuration || config.historyEmulationEventDuration,
             "streamingUrl": instanceParams.streamingHost || config.streamingUrl,
             "viewName": instanceParams.view || config.defaultViewName,
             "aggregateIPv4": instanceParams.aggregateIPv4 || config.defaultAggregationIPv4,

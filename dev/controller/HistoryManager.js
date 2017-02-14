@@ -25,11 +25,14 @@ define([
 ], function(config, utils, moment){
 
     var HistoryManager = function(env){
-        var $this, previousInstant;
+        var $this, previousQuery;
 
         $this = this;
         this._historyTimeline = [];
-        previousInstant = null;
+        previousQuery = {
+            instant: null,
+            sources: []
+        };
 
 
         this._historyTimelineSort = function(a, b){
@@ -88,6 +91,10 @@ define([
             utils.observer.publish("view.animation:stop", env.finalQueryParams.instant);
         };
 
+        this.getEmulationSpeed = function () {
+            return Math.abs(env.reproductionSpeed - (config.maxReproductionSpeed + 1)) * config.reproductionSpeedUnit;
+        };
+
         this.emulateHistory = function(){
             env.emulationRunning = true;
 
@@ -118,7 +125,7 @@ define([
                                 console.log("animation stop");
                                 utils.observer.publish("view.animation:stop", env.finalQueryParams.instant);
                             } else {
-                                setTimeout(emulate, env.historyEmulationEventDuration);
+                                setTimeout(emulate, $this.getEmulationSpeed());
                             }
                         }
 
@@ -131,12 +138,28 @@ define([
             emulate();
         };
 
+        this._isStatusChanged = function (newQuery) {
+            var hashSources1, hashSources2;
+
+            hashSources1 = JSON.stringify(previousQuery.sources.sort());
+            hashSources2 = JSON.stringify(newQuery.sources.sort());
+
+            return !previousQuery.instant
+                || !previousQuery.instant.isSame(newQuery.instant)
+                || hashSources1 != hashSources2;
+        };
+
         this.getCurrentState = function(){
             return this._getStateAt(env.finalQueryParams.instant);
         };
 
         this._getStateAt = function(date){
-            var out;
+            var out, newQuery;
+
+            newQuery = {
+                instant: date,
+                sources: env.finalQueryParams.sources
+            };
 
             if ((env.metaData.startDate.isSameOrBefore(date))
                 && (!env.metaData.stopDate || env.metaData.stopDate.isSameOrAfter(date))){
@@ -145,11 +168,14 @@ define([
                     out[msmId] = env.loadedMeasurements[msmId].getStateAt(date);
                 }
 
-                if (!previousInstant || !previousInstant.isSame(date)) {
+                if (this._isStatusChanged(newQuery)) {
                     utils.observer.publish("view.status:change", out);
+                } else {
+                    console.log("no changes in the status");
                 }
 
-                previousInstant = date;
+                previousQuery = newQuery;
+
             } else {
                 throw "The selected instant is out of the measurement lifespan";
             }

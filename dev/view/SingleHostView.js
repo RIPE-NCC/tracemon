@@ -112,6 +112,7 @@ define([
         this._updateLabel = function(host){
             var nodeView = env.mainView.graph.getNode(host.getId());
 
+
             try {
                 nodeView.label = this.getNodeLabel(host);
                 env.mainView
@@ -120,6 +121,8 @@ define([
                     .attr("class", this._getLabelClass)
                     .text(nodeView.label);
             } catch (e){
+                console.log(host, nodeView);
+
                 console.log(e);
             }
         };
@@ -130,49 +133,6 @@ define([
                 .attr("class", this._getNodeClass);
             this._updateLabel(host);
         };
-
-        // this._aggregate = function(){
-        //     var nodeObj, edgeObj, finalNodes, nodeKey, edgeKey1, edgeKey2, finalEdges, edgeKey, subnet;
-        //
-        //     finalNodes = {};
-        //     finalEdges = {};
-        //
-        //     subnet = env.aggregateIPv4;
-        //
-        //     for (var node in this.nodes){
-        //
-        //         nodeObj = this.nodes[node];
-        //
-        //         if (nodeObj.ip) {
-        //             nodeKey = prefixUtils.encodePrefix(nodeObj.ip).substring(0, subnet + 1);
-        //
-        //             if (finalNodes[nodeKey]) {
-        //                 finalNodes[nodeKey].multiplicity++;
-        //             } else {
-        //                 finalNodes[nodeKey] = nodeObj;
-        //             }
-        //         }
-        //     }
-        //
-        //     for (var edge in this.edges){
-        //         edgeObj = this.edges[edge];
-        //
-        //         if (edgeObj[0].ip && edgeObj[1].ip) {
-        //
-        //             edgeKey1 = prefixUtils.encodePrefix(edgeObj[0].ip).substring(0, subnet + 1);
-        //             edgeKey2 = prefixUtils.encodePrefix(edgeObj[1].ip).substring(0, subnet + 1);
-        //
-        //             edgeKey = edgeKey1 + "-" + edgeKey2;
-        //
-        //             if (edgeObj[0] && edgeObj[1] && edgeKey1 != edgeKey2) {
-        //                 finalEdges[edgeKey] = edgeObj;
-        //             }
-        //         }
-        //     }
-        //
-        //     this.nodes = finalNodes;
-        //     this.edges = finalEdges;
-        // };
 
         this._getDefaultNodeLabel = function(host){
 
@@ -189,10 +149,11 @@ define([
 
         this.getNodeLabel = function (host){
 
+
             switch (env.labelLevel){
                 case "geo":
                     if (host.getLocation() !== undefined){
-                        return (host.getLocation()) ? host.getLocation().country : this._getDefaultNodeLabel(host) || this._getDefaultNodeLabel(host);
+                        return (host.getLocation()) ? host.getLocation().country : this._getDefaultNodeLabel(host);
                     } else {
                         env.connector
                             .getGeolocation(host)
@@ -362,7 +323,6 @@ define([
 
         this.update = function(diff, callback){
 
-            console.log("new update", diff);
             currentSearch = env.headerController.updateSearch();
             this._computeLayout(this._computeMeshGraph()); // This should be done only if there are new events in the history
             this.computeVisibleGraph(diff.status);
@@ -381,7 +341,7 @@ define([
         };
 
         this._computeMeshGraph = function(){
-            var traceroutes, traceroute, edges, nodes, previousHost, sourcesUsed, tracerouteLength, longestTraceroute,
+            var traceroutes, traceroute, edges, nodes, previousHost, sourcesUsed, tracerouteLength,
                 globalLongestTraceroute, previousHostId, hosts;
 
             nodes = {};
@@ -389,14 +349,10 @@ define([
             sourcesUsed = {};
 
             traceroutes = [];
+
+            globalLongestTraceroute = env.metaData.longestTraceroute;
             for (var msmId in env.loadedMeasurements){
                 var measurement = env.loadedMeasurements[msmId];
-                longestTraceroute = measurement.getLongestTraceroute();
-
-                if (!globalLongestTraceroute || longestTraceroute.getLength() > globalLongestTraceroute.getLength()){
-                    globalLongestTraceroute = longestTraceroute;
-                }
-
                 traceroutes = traceroutes.concat(measurement.getTraceroutes());
             }
 
@@ -636,7 +592,9 @@ define([
             nodesSvg
                 .exit()
                 .transition()
-                .duration(config.transitionsTimes.nodeRemoval)
+                .duration(function(){
+                    return $this._getAnimationTransitionTime("nodeRemoval");
+                })
                 .style("opacity", 0.1)
                 .each("end", function(){
                     d3.select(this).remove();
@@ -691,7 +649,14 @@ define([
 
             d3Data
                 .exit()
-                .remove();
+                .transition()
+                .duration(function(){
+                    return $this._getAnimationTransitionTime("pathRemoval");
+                })
+                .style("opacity", 0.1)
+                .each("end", function(){
+                    d3.select(this).remove();
+                });
 
             d3Data
                 .enter()
@@ -747,15 +712,42 @@ define([
             setTimeout(function(){
                 element
                     .attr("data-animation", null);
-            }, config.transitionsTimes.pathChange);
+            }, $this._getAnimationTransitionTime("pathChange"));
 
             element
                 .attr("data-animation", true)
                 .transition()
-                .duration(config.transitionsTimes.pathChange)
+                .duration(function(){
+                    return $this._getAnimationTransitionTime("pathChange");
+                })
                 .ease("linear")
                 .attr("d", lineFunction(this._getPointsFromTraceroute(newTraceroute)));
 
+        };
+
+        this._getAnimationTransitionTime = function(type){
+            var speed, emulationSpeedPercentage;
+
+            emulationSpeedPercentage = env.historyManager.getEmulationSpeed() * 0.8;
+            switch (type){
+                case "pathChange":
+                    speed = config.transitionsTimes.pathChange;
+                    break;
+
+                case "pathRemoval":
+                    speed = config.transitionsTimes.pathRemoval;
+                    break;
+
+                case "nodeRemoval":
+                    speed = config.transitionsTimes.nodeRemoval;
+                    break;
+
+                default:
+                    throw "It was not possible to establish the animation transition time";
+
+            }
+
+            return Math.min(speed, emulationSpeedPercentage);
         };
 
         this._getPointsFromTraceroute = function(traceroute){

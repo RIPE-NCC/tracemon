@@ -114,6 +114,20 @@ define([
                 this.values.numberProbes = env.finalQueryParams.sources.length;
                 this.values.probes = env.finalQueryParams.sources;
 
+                console.log("here", this.maxPossibleHops());
+
+
+                var slider;
+
+                slider = env.parentDom
+                    .find('.hops-number>input');
+
+                console.log(slider);
+                slider.data('slider').max = this.maxPossibleHops();
+                slider.slider('setValue', slider.data('slider').getValue());
+
+                env.parentDom.find('.hops-number .value-slider').text(this.maxPossibleHops());
+
                 env.parentDom.find('.value-target').text(this.values.target);
                 env.parentDom.find('.value-number-probes').text(this.values.numberProbes);
                 env.parentDom.find('.value-total-probes').text(this.values.totalProbes);
@@ -164,7 +178,7 @@ define([
         };
 
         this.maxPossibleHops = function(){
-            return 15; // Compute the maximum number of hops for the loaded traceroute
+            return (env.metaData.longestTraceroute) ? env.metaData.longestTraceroute.getLength() : 0;
         };
 
         // This metod is used by the mustache template
@@ -384,7 +398,7 @@ define([
                         .find(".value-slider")
                         .text(slideEvt.value);
 
-                    headerController.setReplaySpeed(slideEvt.value);
+                    env.reproductionSpeed = parseInt(slideEvt.value);
                 });
 
             env.parentDom
@@ -396,14 +410,15 @@ define([
 
                 });
 
-            env.parentDom
+            window.ccc = env.parentDom
                 .find('.hops-number>input')
                 .slider({
                     value: env.maxNumberHops,
                     step: 1,
                     min: 1,
                     max: this.maxPossibleHops()
-                })
+                });
+            window.ccc
                 .on("slide", function(slideEvt) {
                     $(slideEvt.target)
                         .closest(".bootstrap-slider")

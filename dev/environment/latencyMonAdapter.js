@@ -66,7 +66,6 @@ define([
                 interface.mergeMeasurements(Object.keys(env.loadedMeasurements), false);
             } catch(e){
             }
-            console.log("runned");
         };
 
         this.setTimeRange = function(range){

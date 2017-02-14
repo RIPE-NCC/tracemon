@@ -26,13 +26,13 @@ define([], function(){
         defaultAggregationIPv6: false, //
         streamingUrl: "https://atlas-stream.ripe.net:443",
         viewsEnabled: ["host", "as"],
-        reproductionSpeed: 5,
-        maxReproductionSpeed: 10,
+        reproductionSpeed: 5, // Default speed of the reproduction between 1 and maxReproductionSpeed
+        maxReproductionSpeed: 10, // Maximum speed of the reproduction
+        reproductionSpeedUnit: 200, // milliseconds - Reduce or increase this value to speed up or slow down the reproduction speed keeping the scale intact
         ixpHostCheck: true,
         maxNumberHops: 15,
         realTimeUpdate: true,
         eventGroupingAntiFlood: 800,
-        historyEmulationEventDuration: 3000,
         templatesLocation: "http://localhost:63342/viz-atlas-tracemon/dev/view/html/",
         defaultLabelLevel: "ip",
         ajaxTimeout: 50000,
@@ -48,6 +48,7 @@ define([], function(){
 
         transitionsTimes:{
             pathChange: 600,
+            pathRemoval: 600,
             nodeRemoval: 1000
         },
 

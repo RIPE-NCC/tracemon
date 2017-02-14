@@ -85,6 +85,8 @@ define([
                     env.connector.getRealTimeResults(measurement);
                 }
             }
+
+            $this._updateMetaData();
         };
 
         this._updateSelectedSources = function(){
@@ -95,17 +97,24 @@ define([
         };
 
         this._updateMetaData = function(){
-            var measurement;
+            var measurement, longestTraceroute, longestTracerouteTmp;
 
+            longestTraceroute = null;
             for (var msmId in env.loadedMeasurements){
                 measurement = env.loadedMeasurements[msmId];
+
+                longestTracerouteTmp = measurement.getLongestTraceroute();
+                longestTraceroute = (longestTraceroute && longestTracerouteTmp && longestTracerouteTmp.getLength() < longestTraceroute.getLength())
+                    ? longestTraceroute
+                    : longestTracerouteTmp;
 
                 env.metaData = {
                     startDate: (env.metaData.startDate) ?
                         moment.min(measurement.startDate, env.metaData.startDate) :
                         measurement.startDate,
                     stopDate: (measurement.stopDate && env.metaData.stopDate) ?
-                        moment.max(measurement.stopDate, env.metaData.stopDate) : null // Null if no measurements have a stopDate
+                        moment.max(measurement.stopDate, env.metaData.stopDate) : null, // Null if no measurements have a stopDate
+                    longestTraceroute: longestTraceroute
                 };
             }
 
@@ -223,9 +232,11 @@ define([
         };
 
         this.setShownSources = function (sources) {
-            this.shownSources = sources;
-            this.updateData();
-            utils.observer.publish("view:probe-set", this.shownSources);
+            env.finalQueryParams.sources = sources;
+            this.updateData(function(){
+                env.historyManager.getCurrentState();
+            });
+            utils.observer.publish("view:probe-set", env.finalQueryParams.sources);
         };
 
         this.getShownSources = function () {
