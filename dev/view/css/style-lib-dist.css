@@ -42,7 +42,7 @@
   /* support bootstrap 3 */
   /* calculate scrollbar width */
   /*! =======================================================
-                      VERSION  9.2.0
+                      VERSION  9.7.2
 ========================================================= */
   /*! =========================================================
  * bootstrap-slider.js
@@ -56,18 +56,31 @@
  *			- Github:  rovolution
  *
  * =========================================================
+  *
+ * bootstrap-slider is released under the MIT License
+ * Copyright (c) 2017 Kyle Kemp, Rohit Kalkur, and contributors
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ *
  * ========================================================= */
   /* Ion.RangeSlider
 // css version 2.0.3
@@ -93,6 +106,9 @@
   box-sizing: content-box !important;
   min-width: 860px!important;
 }
+.tracemon-container .watermark-color {
+  fill: #FFFFFF!important;
+}
 .tracemon-container .blubble {
   border-radius: 4px;
   border: 1px solid #C0C0C0;
@@ -111,9 +127,8 @@
 }
 .tracemon-container .node {
   fill: #EDD37B;
-  stroke-dasharray: 4,4;
   stroke-width: 1;
-  stroke: #5A5D5E;
+  stroke: #878c8d;
 }
 .tracemon-container .node.ixp {
   fill: #6C8CEB;
@@ -125,7 +140,8 @@
   fill: #c9c9c9;
 }
 .tracemon-container .node.private {
-  fill: rgba(255, 228, 135, 0.33);
+  stroke-dasharray: 4,4;
+  /*fill: rgba(255, 228, 135, 0.33);*/
 }
 .tracemon-container .edge {
   stroke: #C0C0C0;
@@ -147,6 +163,9 @@
 .tracemon-container .node[data-hover] {
   opacity: 1!important;
 }
+.tracemon-container .node-label[data-hover] {
+  opacity: 0.8!important;
+}
 .tracemon-container .path[data-animation] {
   stroke-width: 10px!important;
   cursor: pointer;
@@ -165,10 +184,22 @@
   opacity: 0.1!important;
 }
 .tracemon-container .node-label {
-  opacity: 0.8;
+  opacity: 0;
   fill: #454545;
   font-weight: bold;
   font-size: 10px!important;
+}
+.tracemon-container .node-label.probe {
+  opacity: 0.8;
+}
+.tracemon-container .node-label.ixp {
+  opacity: 0.8;
+}
+.tracemon-container .node-label.target {
+  opacity: 1!important;
+}
+.tracemon-container .node-label.last {
+  opacity: 0.8;
 }
 .tracemon-container .dot.direction {
   fill: white;
@@ -181,6 +212,11 @@
 .tracemon-container .tracemon-svg {
   width: 100%;
   height: 200px;
+  background-image: url('../img/tracemon_watermark.svg');
+  background-repeat: no-repeat;
+  background-position: 10px 10px;
+  background-size: 100px 30px;
+  background-color: transparent!important;
 }
 .tracemon-container .error-message {
   text-align: center;
@@ -271,7 +307,7 @@
   display: inline;
   margin-left: 10px;
   height: 100%;
-  min-width: 120px;
+  min-width: 100px;
 }
 .tracemon-container .value-slider {
   font-weight: normal;
@@ -8320,11 +8356,9 @@
   display: inline-block;
   /*vertical-align: middle;*/
   position: relative;
-  bottom: 0;
-  /*margin-top: 20px;*/
 }
 .tracemon-container .slider.slider-horizontal {
-  width: 210px;
+  width: 160px;
   height: 20px;
 }
 .tracemon-container .slider.slider-horizontal .slider-track {
@@ -8343,7 +8377,7 @@
 }
 .tracemon-container .slider.slider-horizontal .slider-tick,
 .tracemon-container .slider.slider-horizontal .slider-handle {
-  margin-left: -7px;
+  margin-left: -10px;
 }
 .tracemon-container .slider.slider-horizontal .slider-tick.triangle,
 .tracemon-container .slider.slider-horizontal .slider-handle.triangle {
@@ -8371,6 +8405,19 @@
   padding-top: 4px;
   display: inline-block;
   text-align: center;
+}
+.tracemon-container .slider.slider-horizontal.slider-rtl .slider-track {
+  left: initial;
+  right: 0;
+}
+.tracemon-container .slider.slider-horizontal.slider-rtl .slider-tick,
+.tracemon-container .slider.slider-horizontal.slider-rtl .slider-handle {
+  margin-left: initial;
+  margin-right: -10px;
+}
+.tracemon-container .slider.slider-horizontal.slider-rtl .slider-tick-container {
+  left: initial;
+  right: 0;
 }
 .tracemon-container .slider.slider-vertical {
   height: 210px;
@@ -8404,7 +8451,9 @@
   width: 1px;
   height: 1px;
   border-left-color: #0480be;
+  border-right-color: #0480be;
   margin-left: 0;
+  margin-right: 0;
 }
 .tracemon-container .slider.slider-vertical .slider-tick-label-container {
   white-space: nowrap;
@@ -8412,12 +8461,30 @@
 .tracemon-container .slider.slider-vertical .slider-tick-label-container .slider-tick-label {
   padding-left: 4px;
 }
+.tracemon-container .slider.slider-vertical.slider-rtl .slider-track {
+  left: initial;
+  right: 25%;
+}
+.tracemon-container .slider.slider-vertical.slider-rtl .slider-selection {
+  left: initial;
+  right: 0;
+}
+.tracemon-container .slider.slider-vertical.slider-rtl .slider-tick.triangle,
+.tracemon-container .slider.slider-vertical.slider-rtl .slider-handle.triangle {
+  border-width: 10px 10px 10px 0;
+}
+.tracemon-container .slider.slider-vertical.slider-rtl .slider-tick-label-container .slider-tick-label {
+  padding-left: initial;
+  padding-right: 4px;
+}
 .tracemon-container .slider.slider-disabled .slider-handle {
   background-image: -webkit-linear-gradient(top, #dfdfdf 0%, #bebebe 100%);
   background-image: -o-linear-gradient(top, #dfdfdf 0%, #bebebe 100%);
   background-image: linear-gradient(to bottom, #dfdfdf 0%, #bebebe 100%);
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffdfdfdf', endColorstr='#ffbebebe', GradientType=0);
+  width: 10px;
+  height: 10px;
 }
 .tracemon-container .slider.slider-disabled .slider-track {
   background-image: -webkit-linear-gradient(top, #e5e5e5 0%, #e9e9e9 100%);
@@ -8484,9 +8551,9 @@
 }
 .tracemon-container .slider-handle {
   position: absolute;
-  top: -2px;
-  width: 15px;
-  height: 15px;
+  top: 0;
+  width: 20px;
+  height: 20px;
   background-color: #337ab7;
   background-image: -webkit-linear-gradient(top, #149bdf 0%, #0480be 100%);
   background-image: -o-linear-gradient(top, #149bdf 0%, #0480be 100%);

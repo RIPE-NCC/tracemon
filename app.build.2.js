@@ -39,13 +39,16 @@
         "tracemon.lib.reparse": "dev/libs/reparse",
         "tracemon.lib.expression": "dev/libs/expression",
         "tracemon.lib.moment": "dev/libs/moment",
+        "tracemon.lib.viz": "dev/libs/viz",
+
 
         /* view */
         "tracemon.view.main": "dev/view/MainView",
         "tracemon.view.single-host-view": "dev/view/SingleHostView",
         "tracemon.view.as-view": "dev/view/ASView",
         "tracemon.view.location-view": "dev/view/LocationView",
-        "tracemon.view.dagre-wrapper": "dev/view/DagreWrapper",
+        "tracemon.view.dagre-wrapper": "dev/view/layout/DagreWrapper",
+        "tracemon.view.graphviz-wrapper": "dev/view/layout/GraphvizWrapper",
         "tracemon.view.label-placement": "dev/view/LabelPlacementHelper",
         "tracemon.view.viewport": "dev/view/ViewPort",
         "tracemon.view.chartManager": "dev/view/ChartManager",
@@ -70,6 +73,8 @@
         "tracemon.controller.history-manager": "dev/controller/HistoryManager",
         "tracemon.controller.header": "dev/controller/HeaderController",
         "tracemon.controller.boolean-search": "dev/controller/BooleanSearchHelper",
+        "tracemon.controller.source-selection": "dev/controller/SourcesSelectionHelper",
+
 
 
         /* connector */

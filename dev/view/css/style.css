@@ -35,11 +35,8 @@
 
 .node {
     fill: #EDD37B;
-
-    /*stroke-dasharray: 4,4;*/
     stroke-width: 1;
     stroke: #878c8d;
->>>>>>> labelhover
 }
 
 .node.ixp {

@@ -15,7 +15,7 @@ rm ${css_dist_location}style-compiled.tmp.less
 minify -o ${css_dist_location}style-lib-dist.min.css ${css_dist_location}style-lib-dist.css
 
 
-#r.js -o app.build.1.js
+r.js -o app.build.1.js
 r.js -o app.build.2.js
 
 cp -fR * ${deployment_dir}
