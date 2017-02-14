@@ -8,7 +8,7 @@ define([], function(){
         latency: "Latency",
         traceroutesDontReach: "Some traceroutes don't reach the target",
         allTraceroutesDontReach: "All the traceroutes don't reach the target",
-        title: "Traceroute Route Visualisation",
+        title: "Traceroute Visualisation (BETAgit ad)",
         hostGroupedBy: "Hosts grouped by",
 
         labelOptions: {
