@@ -299,6 +299,12 @@ define([
         this.setTimeRange = function(start, stop){ // Accept timestamps for public API
             env.finalQueryParams.startDate = moment.unix(start).utc();
             env.finalQueryParams.stopDate = moment.unix(stop).utc();
+            if (env.finalQueryParams.instant.isBefore(env.finalQueryParams.startDate)){
+                env.historyManager.setCurrentInstant(env.finalQueryParams.startDate);
+            }
+            if (env.finalQueryParams.instant.isAfter(env.finalQueryParams.stopDate)){
+                env.historyManager.setCurrentInstant(env.finalQueryParams.stopDate);
+            }
             env.main.updateData();
             utils.observer.publish("view.time-selection:change", {
                 startDate: env.finalQueryParams.startDate,

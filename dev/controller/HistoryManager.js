@@ -114,10 +114,8 @@ define([
 
                     if (momentDate.isAfter(env.finalQueryParams.instant)){
 
-                        env.finalQueryParams.instant = momentDate;
+                        $this.setCurrentInstant(momentDate);
                         $this.getCurrentState();
-
-                        utils.observer.publish("view.current-instant:change", env.finalQueryParams.instant);
 
                         if (env.emulationRunning) {
                             if (n == length - 1){
@@ -151,6 +149,11 @@ define([
 
         this.getCurrentState = function(){
             return this._getStateAt(env.finalQueryParams.instant);
+        };
+
+        this.setCurrentInstant = function(instant){
+            env.finalQueryParams.instant = instant;
+            utils.observer.publish("view.current-instant:change", env.finalQueryParams.instant);
         };
 
         this._getStateAt = function(date){

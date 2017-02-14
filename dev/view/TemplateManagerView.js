@@ -125,6 +125,8 @@ define([
                 env.parentDom.find('.value-target').text(this.values.target);
                 env.parentDom.find('.value-number-probes').text(this.values.numberProbes);
                 env.parentDom.find('.value-total-probes').text(this.values.totalProbes);
+                env.parentDom.find('.current-instant').text(env.finalQueryParams.instant.format('MMMM Do YYYY, h:mm:ss') + ' UTC');
+
                 this.dom.labelRadio
                     .each(function () {
                         $(this).prop("checked", $(this).val() == env.labelLevel);
@@ -321,27 +323,32 @@ define([
         this.updateTimeline = function(){
             var timeRange;
 
-            if (!blockListeners) {
-                timeRange = env.historyManager.getTimeRange();
+            timeRange = {
+                startDate: env.metaData.startDate,
+                stopDate: (env.metaData.stopDate) ? env.metaData.stopDate : moment().utc()
+            };
 
+            if (!blockListeners) {
                 if (this.timeline) {
                     this.timeline
                         .data("ionRangeSlider")
                         .update({
-                            min: moment.unix(env.metaData.startDate).utc().unix(),
-                            max: ((env.metaData.stopDate) ? moment.unix(env.metaData.stopDate).utc().unix() : moment().utc().unix()),
-                            from: timeRange.startDate,
-                            to: timeRange.stopDate
+                            min: timeRange.startDate.unix(),
+                            max: timeRange.stopDate.unix(),
+                            from: env.finalQueryParams.startDate.unix(),
+                            to: env.finalQueryParams.stopDate.unix()
                         });
                 } else {
+
+                    console.log(env.metaData, env.finalQueryParams);
                     this.timeline = env.parentDom
                         .find(".timeline-controller")
                         .ionRangeSlider({
                             type: "double",
-                            min: moment.unix(env.metaData.startDate).utc().unix(),
-                            max: ((env.metaData.stopDate) ? moment.unix(env.metaData.stopDate).utc().unix() : moment().utc().unix()),
-                            from: timeRange.startDate,
-                            to: timeRange.stopDate,
+                            min: timeRange.startDate.unix(),
+                            max: timeRange.stopDate.unix(),
+                            from: env.finalQueryParams.startDate.unix(),
+                            to: env.finalQueryParams.stopDate.unix(),
                             grid: true,
                             prettify: function (num) {
                                 return moment.unix(num).utc().format("Do MMMM, HH:mm");
@@ -461,15 +468,14 @@ define([
             this.dom.playerButtons.beginning = env.parentDom
                 .find(".bwd-button")
                 .on("click", function () {
-                    env.finalQueryParams.instant = env.finalQueryParams.startDate;
+                    env.historyManager.setCurrentInstant(env.finalQueryParams.startDate);
                     env.historyManager.getCurrentState();
                 });
 
             this.dom.playerButtons.end = env.parentDom
                 .find(".ffwd-button")
                 .on("click", function () {
-                    env.finalQueryParams.instant = env.finalQueryParams.stopDate;
-                    console.log(env.finalQueryParams.stopDate);
+                    env.historyManager.setCurrentInstant(env.finalQueryParams.stopDate);
                     env.historyManager.getCurrentState();
                 });
 

@@ -32,12 +32,12 @@ define([
             }
         };
 
-        this.updateTimeCursor = function (instant) {
+        this.updateTimeCursor = function () {
             var interface;
 
             try {
                 interface = this._getInterface();
-                interface.updateExternalTimeCursor(instant.unix());
+                interface.updateExternalTimeCursor(env.finalQueryParams.instant.unix());
             } catch(e){
                 console.log(e);
             }
@@ -68,11 +68,11 @@ define([
             }
         };
 
-        this.setTimeRange = function(range){
+        this.setTimeRange = function(){
             var interface, start, stop;
 
-            start = range.startDate;
-            stop = range.stopDate;
+            start = env.finalQueryParams.startDate;
+            stop = env.finalQueryParams.stopDate;
             try {
                 interface = this._getInterface();
                 interface.setTimeRange(start.toDate(), stop.toDate());
@@ -95,15 +95,14 @@ define([
                             env.main.setTimeRange(moment(start).utc().unix(), moment(stop).utc().unix())
                         },
                         onTimeSelection: function (date) {
-                            var momentDate = moment(date).utc();
-                            env.historyManager.getStateAt(momentDate);
-                            utils.observer.publish("view.current-instant:change", momentDate);
+                            env.historyManager.setCurrentInstant(moment(date).utc());
+                            env.historyManager.getCurrentState();
                         },
                         autoStartGrouping: true,
                         permalinkEnabled: false
                     }, {
-                        startTimestamp: env.startDate.unix(),
-                        stopTimestamp: env.stopDate.unix(),
+                        startTimestamp: env.finalQueryParams.startDate.unix(),
+                        stopTimestamp: env.finalQueryParams.stopDate.unix(),
                         measurements: measurements,
                         dataFilter: "natural",
                         mergedMeasurements: [measurements],
