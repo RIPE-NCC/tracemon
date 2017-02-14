@@ -114,19 +114,13 @@ define([
                 this.values.numberProbes = env.finalQueryParams.sources.length;
                 this.values.probes = env.finalQueryParams.sources;
 
-                console.log("here", this.maxPossibleHops());
+                env.parentDom
+                    .find('.hops-number-slider')
+                    .bootstrapSlider('setAttribute', 'max', this.maxPossibleHops())
+                    .bootstrapSlider('setValue', this.getNumberHops());
 
-
-                var slider;
-
-                slider = env.parentDom
-                    .find('.hops-number>input');
-
-                console.log(slider);
-                slider.data('slider').max = this.maxPossibleHops();
-                slider.slider('setValue', slider.data('slider').getValue());
-
-                env.parentDom.find('.hops-number .value-slider').text(this.maxPossibleHops());
+                env.parentDom.find('.hops-number .value-slider')
+                    .text(this.getNumberHops());
 
                 env.parentDom.find('.value-target').text(this.values.target);
                 env.parentDom.find('.value-number-probes').text(this.values.numberProbes);
@@ -175,6 +169,10 @@ define([
             }
 
             return targets.join(",");
+        };
+
+        this.getNumberHops = function () {
+            return Math.min(this.maxPossibleHops(), env.maxNumberHops);
         };
 
         this.maxPossibleHops = function(){
@@ -385,13 +383,14 @@ define([
 
             env.parentDom
                 .find('.reproduction-speed>input')
-                .slider({
+                .bootstrapSlider({
                     value: env.reproductionSpeed,
                     step: 1,
                     min: 1,
-                    max: config.maxReproductionSpeed
+                    max: config.maxReproductionSpeed,
+                    tooltip: 'hide'
                 })
-                .on("slide", function(slideEvt) {
+                .on("slideStop", function(slideEvt) {
 
                     $(slideEvt.target)
                         .closest(".bootstrap-slider")
@@ -410,16 +409,16 @@ define([
 
                 });
 
-            window.ccc = env.parentDom
-                .find('.hops-number>input')
-                .slider({
-                    value: env.maxNumberHops,
+            env.parentDom
+                .find('.hops-number-slider')
+                .bootstrapSlider({
+                    value: this.getNumberHops(),
                     step: 1,
                     min: 1,
-                    max: this.maxPossibleHops()
-                });
-            window.ccc
-                .on("slide", function(slideEvt) {
+                    max: this.maxPossibleHops(),
+                    tooltip: 'hide'
+                })
+                .on("slideStop", function(slideEvt) {
                     $(slideEvt.target)
                         .closest(".bootstrap-slider")
                         .find(".value-slider")

@@ -30,7 +30,7 @@ define([], function(){
         maxReproductionSpeed: 10, // Maximum speed of the reproduction
         reproductionSpeedUnit: 200, // milliseconds - Reduce or increase this value to speed up or slow down the reproduction speed keeping the scale intact
         ixpHostCheck: true,
-        maxNumberHops: 15,
+        maxNumberHops: 8,
         realTimeUpdate: true,
         eventGroupingAntiFlood: 800,
         templatesLocation: "http://localhost:63342/viz-atlas-tracemon/dev/view/html/",
@@ -53,7 +53,7 @@ define([], function(){
         },
 
         graph: {
-            margins: { top: 10, bottom: 20, left: 150, right: 150 },
+            margins: { top: 20, bottom: 20, left: 150, right: 150 },
             removeCycle: true,
             groupCycles: true,
             combineNullHosts: true,

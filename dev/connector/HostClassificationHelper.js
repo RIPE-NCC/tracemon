@@ -21,8 +21,9 @@ define([
         this._cutHopsLength = function (traceroute, length) {
             var hops;
 
-            hops = traceroute.getHops();
-            traceroute._hops = hops.slice(Math.max(hops.length - length, 0));
+            // hops = traceroute.getHops();
+            // traceroute._hops = hops.slice(Math.max(hops.length - length, 0));
+            return traceroute;
         };
 
         this._categorizePrivateAndNull = function (traceroute) {

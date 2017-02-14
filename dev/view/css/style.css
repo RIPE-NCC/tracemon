@@ -31,9 +31,11 @@
 
 .node {
     fill: #EDD37B;
+
     /*stroke-dasharray: 4,4;*/
     stroke-width: 1;
     stroke: #878c8d;
+>>>>>>> labelhover
 }
 
 .node.ixp {
@@ -264,7 +266,7 @@
     display: inline;
     margin-left: 10px;
     height: 100%;
-    min-width: 120px;
+    min-width: 100px;
 }
 
 .value-slider {
