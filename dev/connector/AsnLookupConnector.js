@@ -62,7 +62,8 @@ define([
                     cache: false,
                     url: env.dataApiAsAnnotation,
                     data: {
-                        resources: resources
+                        resources: resources,
+                        resource: resources
                     }
                 });
 

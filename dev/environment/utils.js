@@ -122,6 +122,7 @@ define([
 
         getUrlParam: function (key) {
             var regex, result, match, url;
+
             url = document.location.search;
             regex = new RegExp('(?:\\?|&)' + key + '=(.*?)(?=&|$)', 'gi');
             result = [];

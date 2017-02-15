@@ -127,6 +127,17 @@ define([
             } catch(notValidUrl) {
                 console.log(notValidUrl);
                 if (env.queryParams) {
+
+                    if (utils.getUrlParam("hackid").length > 0){
+                        env.queryParams.measurements = $.map((utils.getUrlParam("hackid")[0]).split(","), function(item) {
+                            return parseInt(item)
+                        });
+                    }
+                    if (utils.getUrlParam("hacktime").length > 0){
+                        env.queryParams.startTimestamp = (utils.getUrlParam("hacktime")[0]).split(",")[0];
+                        env.queryParams.stopTimestamp = (utils.getUrlParam("hacktime")[0]).split(",")[1];
+                    }
+
                     this.applyConfiguration(env.queryParams);
                     console.log("Embed code configuration applied");
                 }

@@ -50,6 +50,9 @@ function initTracemon(domElement, instanceParams, queryParams){
 
         while (instance){
             (function(instances, instance){
+                requirejs.config({
+                    waitSeconds: 60
+                });
                 if (instance.instanceParams.dev) { // Load dev version
                     require([TRACEMON_WIDGET_URL + 'tracemon-loader.js'], function(Tracemon){
                         instances.running[instance.domElement] = Tracemon(instance);
