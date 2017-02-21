@@ -64,7 +64,7 @@ define([
             node.labelPosition = where;
         };
 
-        this._drawOrUpdateLabels = function(nodes){
+        this._drawOrUpdateLabels = function(nodes, hovered){
             var labelsSvg;
 
             labelsSvg = env.mainView.svg
@@ -112,7 +112,6 @@ define([
         this._updateLabel = function(host){
             var nodeView = env.mainView.graph.getNode(host.getId());
 
-
             try {
                 nodeView.label = this.getNodeLabel(host);
                 env.mainView
@@ -148,7 +147,6 @@ define([
         };
 
         this.getNodeLabel = function (host){
-
 
             switch (env.labelLevel){
                 case "geo":
@@ -436,34 +434,43 @@ define([
 
             hosts = traceroute.getHostList();
 
-            nodesToUpdate = $.map(hosts, function(node){
-                return env.mainView.graph.getNode(node.getId());
-            });
+            if (!currentSearch || currentSearch.in[traceroute.id]){
 
-            nodes = env.mainView.nodesContainer
-                .selectAll("circle");
+                nodesToUpdate = $.map(hosts, function(node){
+                    for (var n=0,length=$this.nodesArray.length; n<length; n++){
+                        if ($this.nodesArray[n].id == node.getId()){
+                            return $this.nodesArray[n];
+                        }
+                    }
+                });
 
-            nodes
-                .data(nodesToUpdate, function(element){
-                    return element.id;
-                })
-                .attr("data-hover", ((hovered) ? true : null))
-                .attr("r", ((hovered) ? config.graph.nodeSelectedRadius : config.graph.nodeRadius));
+                nodes = env.mainView.nodesContainer
+                    .selectAll("circle");
 
-            path = env.mainView.pathsContainer
-                .selectAll("path.path-" + utils.getIdFromIp(traceroute.stateKey))
-                .attr("data-hover", ((hovered) ? true : null));
+                nodes
+                    .data(nodesToUpdate, function(element){
+                        return element.id;
+                    })
+                    .attr("data-hover", (hovered) ? true : null)
+                    .attr("r", (hovered) ? config.graph.nodeSelectedRadius : config.graph.nodeRadius);
 
-            labels = env.mainView.svg
-                .selectAll(".node-label");
+                path = env.mainView.pathsContainer
+                    .selectAll("path.path-" + utils.getIdFromIp(traceroute.stateKey))
+                    .attr("data-hover", ((hovered) ? true : null));
 
-            labels
-                .data(nodesToUpdate, function(element){
-                    return element.id;
-                })
-                .attr("data-hover", ((hovered) ? true : null));
+                labels = env.mainView.svg
+                    .selectAll(".node-label");
 
-            this._showDirection(path, hovered);
+                labels
+                    .data(nodesToUpdate, function(element){
+                        return element.id;
+                    })
+                    .attr("data-hover", function(node){
+                        return (hovered && !node.focusOut) ? true : null;
+                    });
+
+                this._showDirection(path, hovered);
+            }
         };
 
         this._computeLayout = function(mesh){
