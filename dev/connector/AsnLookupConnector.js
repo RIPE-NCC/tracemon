@@ -9,15 +9,18 @@ define([
     "tracemon.env.utils",
     "tracemon.lib.jquery-amd",
     "tracemon.model.autonomousSystem",
-    "tracemon.lib.parsePrefix"
-], function(config, utils, $, AutonomousSystem, prefixUtils) {
+    "tracemon.lib.parsePrefix",
+    "tracemon.connector.short-name"
+
+], function(config, utils, $, AutonomousSystem, prefixUtils, ShortNameConnector) {
 
     var AsnLookupConnector = function (env) {
-        var hosts, $this, lookups;
+        var hosts, $this, lookups, shortNameConnector;
 
         hosts = {};
         lookups = {};
         $this = this;
+        shortNameConnector = new ShortNameConnector(env);
         this.autonomousSystemsByAs = {};
         this.autonomousSystemsByPrefix = {};
 
@@ -120,15 +123,9 @@ define([
                 autonomousSystemObj.owner = asnData["holder"];
                 autonomousSystemObj.announced = asnData["announced"];
                 autonomousSystemObj.extra = asnData["block"];
+                shortNameConnector.enrichShortName(autonomousSystemObj);
                 this.autonomousSystemsByAs[asn] = autonomousSystemObj; // Store it
             }
-
-            // autonomousSystemObj.addPrefix(annotation["prefix"]); // Annotate the object with the new prefix
-            // encodedPrefix = "" + prefixUtils.encodePrefix(annotation["prefix"]); // Index the new prefix
-            // if (!this.autonomousSystemsByPrefix[encodedPrefix]){
-            //     this.autonomousSystemsByPrefix[encodedPrefix] = [];
-            // }
-            // this.autonomousSystemsByPrefix[encodedPrefix].push(autonomousSystemObj);
 
             return autonomousSystemObj;
 

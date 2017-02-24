@@ -101,11 +101,11 @@
     opacity: 0.1!important;
 }
 .node-label[data-focus-out] {
-    opacity: 0.1!important;
+    opacity:0!important;
 }
 
 .node-label {
-    opacity: 0;
+    opacity: 0.4;
     fill: #454545;
     font-weight: bold;
     font-size: 10px!important;

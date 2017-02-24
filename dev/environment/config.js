@@ -8,12 +8,14 @@ define([], function(){
     return {
         widgetPrefix: "lm",
         dataAPIs: {
-            results: "http://localhost/unified_api.php?id=0000",
+            // results: "http://localhost/unified_api.php?id=0000",
+            results: "http://massimo.ripe.net/tracemon/unified_api.php?id=0000",
             metadata: "https://atlas.ripe.net/api/v2/measurements/0000/routequake/meta/",
             dataApiAsAnnotation: "http://localhost/as_lookup.php",
             dataApiReverseDns: "https://stat.ripe.net/data/reverse-dns-ip/data.json",
             dataApiGeolocation: "https://stat.ripe.net/data/geoloc/data.json",
             dataApiAsnNeighbours: "https://stat.ripe.net/data/asn-neighbours/data.json",
+            shortAsNamesApi: "http://massimo.ripe.net/tracemon/short_names.php",
             peeringDb: {
                 lans: "http://localhost/peering_db.php?type=ixlan",
                 ixps: "http://localhost/peering_db.php?type=ix",
@@ -59,7 +61,7 @@ define([], function(){
             combineNullHosts: true,
             allowRotatedLabels: false,
             combineSameAsNullNode: false,
-            labelOrientationPreference: ["r", "t", "l", "b"],
+            labelOrientationPreference: ["r", "t", "l"], // "b" no bottom positioning
             pathInterpolation: "basis",
             nodeRadius: 7,
             nodeSelectedRadius: 10,

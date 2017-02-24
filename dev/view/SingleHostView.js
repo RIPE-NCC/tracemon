@@ -87,9 +87,11 @@ define([
                     return node.focusOut;
                 })
                 .attr("x", function(node){
-                    return (config.graph.allowRotatedLabels && node.labelPosition.direction ==  "vertical") ?
-                        (node.labelPosition.x + node.labelPosition.xOffset) :
-                        node.labelPosition.x;
+                    // return (config.graph.allowRotatedLabels && node.labelPosition.direction ==  "vertical") ?
+                    //     (node.labelPosition.x + node.labelPosition.xOffset) :
+                    //     node.labelPosition.x;
+
+                    return node.labelPosition.x;
                 })
                 .attr("y", function(node){
                     return node.labelPosition.y;
@@ -99,13 +101,13 @@ define([
                 })
                 .style("text-anchor", function(node){
                     return node.labelPosition.alignment;
-                })
-                .attr("transform", function(node){
-                    if (config.graph.allowRotatedLabels && node.labelPosition.direction ==  "vertical"){
-                        return "rotate(-60," + (node.labelPosition.x + node.labelPosition.xOffset) + "," + node.labelPosition.y + ")";
-                    }
-                    return null;
-                })
+                });
+                // .attr("transform", function(node){
+                //     if (config.graph.allowRoedLabels && node.labelPosition.direction ==  "vertical"){
+                //         return "rotate(-60," + (node.labelPosition.x + node.labelPosition.xOffset) + "," + node.labelPosition.y + ")";
+                //     }
+                //     return null;
+                // })
 
         };
 
@@ -134,16 +136,22 @@ define([
         };
 
         this._getDefaultNodeLabel = function(host){
+            var label;
 
-            if (host.isIxp){
-                return host.ixp.name;
+            if (host.isIxp && host.ixp.name){
+                label = host.ixp.name;
+                if (host.getAutonomousSystem()){
+                    label += ' (AS' + host.getAutonomousSystem().id + ')';
+                }
             } else if (host.isProbe) {
-                return "Probe " + host.probeId + ((host.getAutonomousSystem()) ? " (AS" + host.getAutonomousSystem().id + ")" : "");
+                label = "Probe " + host.probeId + ((host.getAutonomousSystem()) ? " (AS" + host.getAutonomousSystem().id + ")" : "");
             } else if (host.ip == null){
-                return "* " + ((host.getAutonomousSystem()) ? " (Guess: AS" + host.getAutonomousSystem().id + ")" : "");
+                label = "* " + ((host.getAutonomousSystem()) ? " (Guess: AS" + host.getAutonomousSystem().id + ")" : "");
             } else {
-                return host.ip + ((host.getAutonomousSystem()) ? " (AS" + host.getAutonomousSystem().id + ")" : "");
+                label = host.ip + ((host.getAutonomousSystem()) ? " (AS" + host.getAutonomousSystem().id + ")" : "");
             }
+
+            return label;
         };
 
         this.getNodeLabel = function (host){
@@ -186,6 +194,32 @@ define([
                     break;
                 default:
                     return this._getDefaultNodeLabel(host);
+            }
+
+        };
+
+
+        this.getNodeShortLabel = function (host){
+            var label;
+
+            switch (env.labelLevel){
+                case "geo":
+                    break;
+
+                case "reverse-lookup":
+                    break;
+
+                case "ip":
+                    if (host.isIxp && host.ixp.name){
+                        return host.ixp.name;
+                    } else if (host.getAutonomousSystem()){
+                        return (host.getAutonomousSystem().shortName)
+                            ? host.getAutonomousSystem().shortName
+                            : "AS" + host.getAutonomousSystem().id;
+                    } else {
+                        return "";
+                    }
+                    break;
             }
 
         };
@@ -293,6 +327,7 @@ define([
                 node.y = graphAttributes.y;
                 node.id = node.model.getId();
                 node.label = this.getNodeLabel(node.model);
+                node.shortLabel = this.getNodeShortLabel(node.model);
                 node.focusOut = this._isNodeFocusOut(node);
             }
         };
@@ -434,43 +469,45 @@ define([
 
             hosts = traceroute.getHostList();
 
-            if (!currentSearch || currentSearch.in[traceroute.id]){
-
-                nodesToUpdate = $.map(hosts, function(node){
-                    for (var n=0,length=$this.nodesArray.length; n<length; n++){
-                        if ($this.nodesArray[n].id == node.getId()){
-                            return $this.nodesArray[n];
-                        }
+            nodesToUpdate = $.map(hosts, function(node){
+                for (var n=0,length=$this.nodesArray.length; n<length; n++){
+                    if ($this.nodesArray[n].id == node.getId()){
+                        return $this.nodesArray[n];
                     }
+                }
+            });
+
+            nodes = env.mainView.nodesContainer
+                .selectAll("circle");
+
+            nodes
+                .data(nodesToUpdate, function(element){
+                    return element.id;
+                })
+                .attr("data-hover", function(node){
+                    return (hovered && !node.focusOut) ? true : null;
+                })
+                .attr("r", (hovered) ? config.graph.nodeSelectedRadius : config.graph.nodeRadius);
+
+            path = env.mainView.pathsContainer
+                .selectAll("path.path-" + utils.getIdFromIp(traceroute.stateKey))
+                .attr("data-hover", ((hovered) ? true : null));
+
+            labels = env.mainView.svg
+                .selectAll(".node-label");
+
+            labels
+                .data(nodesToUpdate, function(element){
+                    return element.id;
+                })
+                .attr("data-hover", function(node){
+                    return (hovered && !node.focusOut) ? true : null;
+                })
+                .text(function(node){
+                    return (hovered && !node.focusOut) ? node.label : node.shortLabel;
                 });
 
-                nodes = env.mainView.nodesContainer
-                    .selectAll("circle");
-
-                nodes
-                    .data(nodesToUpdate, function(element){
-                        return element.id;
-                    })
-                    .attr("data-hover", (hovered) ? true : null)
-                    .attr("r", (hovered) ? config.graph.nodeSelectedRadius : config.graph.nodeRadius);
-
-                path = env.mainView.pathsContainer
-                    .selectAll("path.path-" + utils.getIdFromIp(traceroute.stateKey))
-                    .attr("data-hover", ((hovered) ? true : null));
-
-                labels = env.mainView.svg
-                    .selectAll(".node-label");
-
-                labels
-                    .data(nodesToUpdate, function(element){
-                        return element.id;
-                    })
-                    .attr("data-hover", function(node){
-                        return (hovered && !node.focusOut) ? true : null;
-                    });
-
-                this._showDirection(path, hovered);
-            }
+            this._showDirection(path, hovered);
         };
 
         this._computeLayout = function(mesh){

@@ -87,6 +87,7 @@ requirejs.config({
         "tracemon.connector.peering-db": window.atlas._widgets.tracemon.urls.connector + "PeeringDbConnector",
         "tracemon.connector.host-helper": window.atlas._widgets.tracemon.urls.connector + "HostClassificationHelper",
         "tracemon.connector.asn": window.atlas._widgets.tracemon.urls.connector + "AsnLookupConnector",
+        "tracemon.connector.short-name": window.atlas._widgets.tracemon.urls.connector + "ShortNameConnector",
 
         "tracemon.connector.local.peering-db": window.atlas._widgets.tracemon.urls.connector + "local/peeringDb",
 
@@ -161,6 +162,7 @@ define([
             "dataApiAsAnnotation": instanceParams.dataApiAsAnnotation || config.dataAPIs.dataApiAsAnnotation,
             "dataApiReverseDns": instanceParams.dataApiReverseDns || config.dataAPIs.dataApiReverseDns,
             "dataApiGeolocation": instanceParams.dataApiGeolocation || config.dataAPIs.dataApiGeolocation,
+            "shortAsNamesApi": instanceParams.shortAsNamesApi || config.dataAPIs.shortAsNamesApi,
             "dataApiAsnNeighbours": instanceParams.dataApiAsnNeighbours || config.dataAPIs.dataApiAsnNeighbours,
             "streamingUrl": instanceParams.streamingHost || config.streamingUrl,
             "viewName": instanceParams.view || config.defaultViewName,

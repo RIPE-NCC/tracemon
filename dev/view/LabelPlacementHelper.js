@@ -160,12 +160,10 @@ define([
                 if (force || !checkIntersectionLabel(boxTop[3], boxTop[1], edges) && !checkIntersectionAmongBoxes(boxTop)) { // Is there an intersection if I place the label on top?
                     labelBoxes.push(boxTop);
                     return {
-                        // alignment: "middle",
-
-                        alignment: "start",
-                        direction: "vertical",
-                        xOffset: (width / 2),
-                        x: boxTop[3].x,
+                        alignment: "middle",
+                        // direction: "vertical",
+                        // xOffset: (width / 2),
+                        x: boxTop[3].x + (width / 2),
                         y: boxTop[3].y
                     };
                 } else {
