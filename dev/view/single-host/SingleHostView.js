@@ -38,13 +38,12 @@ define([
             utils.observer.subscribe("view:probe-set", function () {
                 cleanRedraw = true;
             });
-            utils.observer.subscribe("model.host:ixp", this._updateIxp, this);
-            utils.observer.subscribe("view.label-level:change", function () {
-                for (var n=0,length=this.nodesArray.length; n<length; n++) {
-                    $this._updateLabel($this.nodesArray[n].model);
-                }
+            utils.observer.subscribe("model.host:change", function(host){
+                this._drawLabels({
+                    nodes: [$this.nodes[host.getId()]]
+                });
             }, this);
-
+            utils.observer.subscribe("view.label-level:change", this._drawLabels, this);
             utils.observer.subscribe("view.traceroute:mousein", function(traceroute){
                 this.dryUpdate();
                 this._showDirection(traceroute, true);
@@ -53,7 +52,6 @@ define([
                 this.dryUpdate();
                 this._showDirection(traceroute, false);
             }, this);
-
             utils.observer.subscribe("view.traceroute.search:new", this.dryUpdate, this);
             utils.observer.subscribe("view.traceroute.search:change", this.dryUpdate, this);
         };
@@ -71,30 +69,30 @@ define([
             labelView.y = position.y;
             labelView.alignment = position.alignment;
             labelView.offset = position.offset;
-
         };
 
-        this._drawLabels = function(){
-            var labelsSvg, labels;
+        this._drawLabels = function(externalOption){
+            var labelsSvg, labels, nodes, options;
 
             labels = [];
+            options = externalOption || {};
+            nodes = options.nodes || this.nodesArray;
 
-            labelPlacement.setNodes(this.nodesArray);
-            this._calculateLabelsPosition();
-
-            for (var n=0,length=this.nodesArray.length; n<length; n++) {
-                labels.push(this.nodesArray[n].label);
+            for (var n=0,length=nodes.length; n<length; n++) {
+                labels.push(nodes[n].label);
             }
 
             labelsSvg = env.mainView.svg
                 .selectAll("text.node-label")
-                .data(labels, function(element){
-                    return element.id;
+                .data(labels, function(labelView){
+                    return labelView.id;
                 });
 
-            labelsSvg
-                .exit()
-                .remove();
+            if (!options.nodes) {
+                labelsSvg
+                    .exit()
+                    .remove();
+            }
 
             labelsSvg
                 .enter()
@@ -127,23 +125,6 @@ define([
                 });
         };
 
-        this._updateLabel = function(host){
-            var nodeView = env.mainView.graph.getNode(host.getId());
-
-            try {
-                nodeView.label = this.getNodeLabel(host);
-                env.mainView
-                    .svg
-                    .selectAll(".node-label-" + utils.getIdFromIp(nodeView.id))
-                    .attr("class", this._getLabelClass)
-                    .text(nodeView.label);
-            } catch (e){
-                console.log(host, nodeView);
-
-                console.log(e);
-            }
-        };
-
         this._updateIxp = function(host){
             env.mainView.svg
                 .select(".node-" + utils.getIdFromIp(host.getId()))
@@ -156,6 +137,7 @@ define([
             this._updateNodesGraphAttributes();
             this._drawPaths();
             this._drawNodes();
+            this._calculateLabelsPosition();
             this._drawLabels();
 
         };
@@ -222,6 +204,7 @@ define([
                 });
             }
 
+            labelPlacement.setNodes(this.nodesArray);
         };
 
         this._updateNodesGraphAttributes = function(){
@@ -392,7 +375,7 @@ define([
 
         this._calculateLabelsPosition = function () {
             for (var n=0,length=this.nodesArray.length; n<length; n++) {
-                $this._calculateLabelPosition(this.nodesArray[n].label);
+                this._calculateLabelPosition(this.nodesArray[n].label);
             }
         };
 

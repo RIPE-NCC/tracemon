@@ -107,7 +107,7 @@ define([
                                 multicastSupport: ixp.lan.ixp.proto_multicast
                             }
                         };
-                        utils.observer.publish("model.host:ixp", attemptObj);
+                        utils.observer.publish("model.host:change", attemptObj);
                     }
                 });
 

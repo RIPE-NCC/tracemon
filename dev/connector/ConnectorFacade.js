@@ -93,18 +93,26 @@ define([
                     .done(function (data) {
                         var reverseArray, reverse;
 
-                        try {
-                            reverseArray = data.split(".");
-                            reverse = [
-                                reverseArray[reverseArray.length - 3],
-                                reverseArray[reverseArray.length - 2],
-                                reverseArray[reverseArray.length - 1]
-                            ].join(".");
-                        }catch(e){
-                            reverse = data;
+                        if (data != null) {
+                            try {
+                                reverseArray = data.split(".");
+                                reverse = [
+                                    reverseArray[reverseArray.length - 3],
+                                    reverseArray[reverseArray.length - 2],
+                                    reverseArray[reverseArray.length - 1]
+                                ].join(".");
+                            } catch (e) {
+                                reverse = data;
+                            }
+                            host.reverseDns = {
+                                short: reverse,
+                                complete: data
+                            };
+                        } else {
+                            host.reverseDns = null;
                         }
-                        host.reverseDns = reverse;
-                        deferredCall.resolve(reverse);
+                        deferredCall.resolve(host.reverseDns);
+                        utils.observer.publish("model.host:change", host);
                     });
             }
 

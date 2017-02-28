@@ -8,16 +8,17 @@ define([
         this.x = null;
         this.y = null;
         this.alignment = null;
+        this._cache = {};
     };
 
 
     LabelView.prototype = {
         isVisible: function(){
-          return !(this.isFocusOut() || (env.mainView.view.hoveredPath != null && !this.isHovered()));
+            return !(this.isFocusOut() || (env.mainView.view.hoveredPath != null && !this.isHovered()));
         },
-        
+
         isHovered: function(){
-          return this.node.isHovered();
+            return this.node.isHovered();
         },
 
         update: function(){
@@ -28,20 +29,6 @@ define([
             // };
 
             // Update the svg involved
-        },
-
-        isFocusOut: function () {
-            if (env.currentSearchResults) {
-                var traceroutes = this.model.traceroutes;
-                for (var n=0,length=traceroutes.length; n<length; n++){
-                    if (env.currentSearchResults.in[traceroutes[n].id]){
-                        return false;
-                    }
-                }
-                return true;
-            }
-
-            return false;
         },
 
         _getDefaultLabel: function(){
@@ -75,31 +62,25 @@ define([
 
 
         getText: function(){
-            var label, host;
+            var label;
 
             switch (env.labelLevel){
                 case "geo":
                     if (this.node.model.getLocation() !== undefined){
                         label = this.node.model.getLocation().country;
-                    } else {
-                        env.connector
-                            .getGeolocation(this.node)
-                            .done(function(label){
-                                // Update locally stored SVG
-                            });
+                    } else if (!this._cache.geoLoading){
+                        this._cache.geoLoading = env.connector
+                            .getGeolocation(this.node.model);
                         label = "loading...";
                     }
                     break;
 
                 case "reverse-lookup":
                     if (this.node.model.reverseDns !== undefined){
-                        label = this.node.model.reverseDns;
-                    } else {
-                        env.connector
-                            .getHostReverseDns(host)
-                            .done(function(label){
-                                // Update locally stored SVG
-                            });
+                        label = (this.node.model.reverseDns) ? this.node.model.reverseDns.complete : "";
+                    } else if (!this._cache.reverseLoading) {
+                        this._cache.reverseLoading = env.connector
+                            .getHostReverseDns(this.node.model);
                         label = "loading...";
                     }
                     break;
@@ -112,7 +93,7 @@ define([
             return this.node.isFocusOut();
         },
 
-        
+
         getShortText: function(){
             var label, nodeAs;
 
@@ -120,9 +101,17 @@ define([
             nodeAs = this.node.model.getAutonomousSystem();
             switch (env.labelLevel){
                 case "geo":
+                    label = this.getText();
                     break;
 
                 case "reverse-lookup":
+                    if (this.node.model.reverseDns !== undefined){
+                        label = (this.node.model.reverseDns) ? this.node.model.reverseDns.short : "";
+                    } else if (!this._cache.reverseLoading) {
+                        this._cache.reverseLoading = env.connector
+                            .getHostReverseDns(this.node.model);
+                        label = "loading...";
+                    }
                     break;
 
                 case "ip":

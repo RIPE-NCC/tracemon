@@ -123,7 +123,7 @@ define([
     };
 
     Traceroute.prototype.toString = function(){
-        var attempts, host, reverse, rtt, stringLine, lineNumber;
+        var attempts, host, reverse, rtt, stringLine, lineNumber, attempt;
 
         if (!this._string) {
             this._string = "";
@@ -133,10 +133,10 @@ define([
                 attempts = attempts.sort(function(a, b){return a.rtt-b.rtt});
                 stringLine = [];
                 for (var n1 = 0, length1 = attempts.length; n1 < length1; n1++) {
-
-                    host = attempts[n1].host.ip || '*';
-                    reverse = attempts[n1].host.reverseDns || attempts[n1].host.ip;
-                    rtt = attempts[n1].rtt;
+                    attempt = attempts[n1];
+                    host = attempt.host.ip || '*';
+                    reverse = (attempt.host.reverseDns) ? attempt.host.reverseDns.complete : attempts[n1].host.ip;
+                    rtt = attempt.rtt;
 
                     stringLine.push(
                         host
