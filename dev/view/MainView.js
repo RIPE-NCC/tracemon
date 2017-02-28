@@ -5,7 +5,7 @@ define([
     "tracemon.env.languages.en",
     "tracemon.lib.jquery-amd",
     "tracemon.lib.d3-amd",
-    "tracemon.view.single-host-view",
+    "tracemon.view.single-host.single-host-view",
     "tracemon.view.as-view",
     "tracemon.view.location-view",
     // "tracemon.view.dagre-wrapper",
@@ -30,12 +30,6 @@ define([
         this.setListeners = function(){
             utils.observer.subscribe("view.status:change", this.drawOrUpdate, this);
             utils.observer.subscribe("view:max-hops", this._cutHops, this);
-            utils.observer.subscribe("view.traceroute.search:change", this._applySearch, this);
-        };
-
-
-        this._applySearch = function (searchResults) {
-            this.view.applySearch(searchResults);
         };
 
         this.getDrawnTraceroutes = function(){

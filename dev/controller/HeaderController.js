@@ -25,7 +25,7 @@ define([
 ], function(config, utils, SearchHelper){
 
     var HeaderController = function(env){
-        var searchHelper, andSymbol, orSymbol, results;
+        var searchHelper, andSymbol, orSymbol;
 
         searchHelper = new SearchHelper(env);
         orSymbol = "OR";
@@ -50,20 +50,21 @@ define([
                 for (var n = 0, length = newSet.length; n < length; n++) {
 
                     traceroute = newSet[n];
-                    if (results.in[traceroute.id]) { // Check if still valid
+                    if (env.currentSearchResults.in[traceroute.id]) { // Check if still valid
                         out.in[traceroute.id] = traceroute;
-                    } else if (results.out[traceroute.id]) {
+                    } else if (env.currentSearchResults.out[traceroute.id]) {
                         out.out[traceroute.id] = traceroute;
                     } else {
-                        results = searchHelper.search(searchKey, [traceroute]); // Check if it is in or out
-                        if (results.in[traceroute.id]) { // Merge the results
+                        env.currentSearchResults = searchHelper.search(searchKey, [traceroute]); // Check if it is in or out
+                        if (env.currentSearchResults.in[traceroute.id]) { // Merge the results
                             out.in[traceroute.id] = traceroute;
-                        } else if (results.out[traceroute.id]) {
+                        } else if (env.currentSearchResults.out[traceroute.id]) {
                             out.out[traceroute.id] = traceroute;
                         }
                     }
                 }
-                results = out;
+                env.currentSearchResults = out;
+                utils.observer.publish("view.traceroute.search-results:change"); // Don't send anything to force other module using env variables
                 return out;
             }
 
@@ -73,10 +74,11 @@ define([
         this.search = function(searchString){
 
             this.searchString = searchString;
-            results = (searchString) ? searchHelper.search(this._getSearchKey(this.searchString), env.mainView.getDrawnTraceroutes()) : null ;
-            utils.observer.publish("view.traceroute.search:change", results);
+            env.currentSearchResults = (searchString) ? searchHelper.search(this._getSearchKey(this.searchString), env.mainView.getDrawnTraceroutes()) : null ;
+            utils.observer.publish("view.traceroute.search-results:new"); // Don't send anything to force other module using env variables
+            utils.observer.publish("view.traceroute.search:new", searchString);
 
-            return results;
+            return env.currentSearchResults;
         };
 
         this.setMaxHop = function(maxHop){

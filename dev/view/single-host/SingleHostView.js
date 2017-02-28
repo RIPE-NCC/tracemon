@@ -7,19 +7,21 @@ define([
     "tracemon.lib.moment",
     "tracemon.lib.d3-amd",
     "tracemon.lib.parsePrefix",
-    "tracemon.view.label-placement"
-], function(utils, config, lang, $, moment, d3, prefixUtils, LabelPlacement){
+    "tracemon.view.label-placement",
+    "tracemon.view.single-host.path-view",
+    "tracemon.view.single-host.node-view"
+], function(utils, config, lang, $, moment, d3, prefixUtils, LabelPlacement, PathView, NodeView){
 
     var SingleHostView = function(env){
-        var $this, labelPlacement, cache, nodeBBox, currentSearch, lineFunction, cleanRedraw;
+        var $this, labelPlacement, cache, nodeBBox, lineFunction, cleanRedraw;
 
         $this = this;
         nodeBBox = (config.graph.nodeRadius * 2) + 5;
         labelPlacement = new LabelPlacement(nodeBBox, nodeBBox, 12);
-        currentSearch = null;
         cache = {
             nodes: [],
-            edges: []
+            edges: [],
+            paths: {}
         };
         cleanRedraw = false;
         lineFunction = d3.svg.line()
@@ -44,32 +46,49 @@ define([
             }, this);
 
             utils.observer.subscribe("view.traceroute:mousein", function(traceroute){
-                this._hoveredPath(traceroute, true);
+                this.dryUpdate();
+                this._showDirection(traceroute, true);
             }, this);
             utils.observer.subscribe("view.traceroute:mouseout", function(traceroute){
-                this._hoveredPath(traceroute, false);
+                this.dryUpdate();
+                this._showDirection(traceroute, false);
             }, this);
+
+            utils.observer.subscribe("view.traceroute.search:new", this.dryUpdate, this);
+            utils.observer.subscribe("view.traceroute.search:change", this.dryUpdate, this);
         };
 
-        this._calculateLabelPosition = function(node){
-            var where;
+        this._calculateLabelPosition = function(labelView){
+            var position;
 
             if (!cache.edgePoints) {
                 cache.edgePoints = $.map(cache.edges, function (nodeView) {
                     return [nodeView.points];
                 });
             }
-            where = labelPlacement.getLabelPosition(node, cache.edgePoints, node.label, config.graph.labelOrientationPreference);
+            position = labelPlacement.getLabelPosition(labelView.node, cache.edgePoints, labelView.getDynamicText(), config.graph.labelOrientationPreference);
+            labelView.x = position.x;
+            labelView.y = position.y;
+            labelView.alignment = position.alignment;
+            labelView.offset = position.offset;
 
-            node.labelPosition = where;
         };
 
-        this._drawOrUpdateLabels = function(nodes, hovered){
-            var labelsSvg;
+        this._drawLabels = function(){
+            var labelsSvg, labels;
+
+            labels = [];
+
+            labelPlacement.setNodes(this.nodesArray);
+            this._calculateLabelsPosition();
+
+            for (var n=0,length=this.nodesArray.length; n<length; n++) {
+                labels.push(this.nodesArray[n].label);
+            }
 
             labelsSvg = env.mainView.svg
                 .selectAll("text.node-label")
-                .data(nodes, function(element){
+                .data(labels, function(element){
                     return element.id;
                 });
 
@@ -82,33 +101,30 @@ define([
                 .append("text");
 
             labelsSvg
-                .attr("class", this._getLabelClass)
-                .attr("data-focus-out", function (node) {
-                    return node.focusOut;
+                .attr("class", function(labelView){
+                    return labelView.getClass();
                 })
-                .attr("x", function(node){
-                    // return (config.graph.allowRotatedLabels && node.labelPosition.direction ==  "vertical") ?
-                    //     (node.labelPosition.x + node.labelPosition.xOffset) :
-                    //     node.labelPosition.x;
-
-                    return node.labelPosition.x;
+                .attr("data-hover", function(labelView){
+                    return (labelView.isHovered()) ? true : null;
                 })
-                .attr("y", function(node){
-                    return node.labelPosition.y;
+                .attr("data-focus-out", function (labelView) {
+                    return (labelView.isFocusOut()) ? true : null;
                 })
-                .text(function(node){
-                    return node.label;
+                .attr("data-hidden", function (labelView) {
+                    return (!labelView.isVisible()) ? true : null;
                 })
-                .style("text-anchor", function(node){
-                    return node.labelPosition.alignment;
+                .attr("x", function(labelView){
+                    return labelView.x;
+                })
+                .attr("y", function(labelView){
+                    return labelView.y;
+                })
+                .text(function(labelView){
+                    return labelView.getDynamicText();
+                })
+                .style("text-anchor", function(labelView){
+                    return labelView.alignment;
                 });
-                // .attr("transform", function(node){
-                //     if (config.graph.allowRoedLabels && node.labelPosition.direction ==  "vertical"){
-                //         return "rotate(-60," + (node.labelPosition.x + node.labelPosition.xOffset) + "," + node.labelPosition.y + ")";
-                //     }
-                //     return null;
-                // })
-
         };
 
         this._updateLabel = function(host){
@@ -135,131 +151,26 @@ define([
             this._updateLabel(host);
         };
 
-        this._getDefaultNodeLabel = function(host){
-            var label;
+        this.dryUpdate = function () {
+            console.log("dry update");
+            this._updateNodesGraphAttributes();
+            this._drawPaths();
+            this._drawNodes();
+            this._drawLabels();
 
-            if (host.isIxp && host.ixp.name){
-                label = host.ixp.name;
-                if (host.getAutonomousSystem()){
-                    label += ' (AS' + host.getAutonomousSystem().id + ')';
-                }
-            } else if (host.isProbe) {
-                label = "Probe " + host.probeId + ((host.getAutonomousSystem()) ? " (AS" + host.getAutonomousSystem().id + ")" : "");
-            } else if (host.ip == null){
-                label = "* " + ((host.getAutonomousSystem()) ? " (Guess: AS" + host.getAutonomousSystem().id + ")" : "");
-            } else {
-                label = host.ip + ((host.getAutonomousSystem()) ? " (AS" + host.getAutonomousSystem().id + ")" : "");
-            }
-
-            return label;
-        };
-
-        this.getNodeLabel = function (host){
-
-            switch (env.labelLevel){
-                case "geo":
-                    if (host.getLocation() !== undefined){
-                        return (host.getLocation()) ? host.getLocation().country : this._getDefaultNodeLabel(host);
-                    } else {
-                        env.connector
-                            .getGeolocation(host)
-                            .done(function(label){
-                                try {
-                                    $this._updateLabel(host);
-                                }catch(e){
-                                }
-                            });
-                        return "loading";
-                    }
-
-                    break;
-                case "reverse-lookup":
-                    if (host.reverseDns !== undefined){
-                        return host.reverseDns || this._getDefaultNodeLabel(host);
-                    } else {
-                        env.connector
-                            .getHostReverseDns(host)
-                            .done(function(label){
-                                try {
-                                    $this._updateLabel(host);
-                                }catch(e){
-                                }
-                            });
-                        return "loading";
-                    }
-                    break;
-
-                case "ip":
-                    return this._getDefaultNodeLabel(host);
-                    break;
-                default:
-                    return this._getDefaultNodeLabel(host);
-            }
-
-        };
-
-
-        this.getNodeShortLabel = function (host){
-            var label;
-
-            switch (env.labelLevel){
-                case "geo":
-                    break;
-
-                case "reverse-lookup":
-                    break;
-
-                case "ip":
-                    if (host.isIxp && host.ixp.name){
-                        return host.ixp.name;
-                    } else if (host.getAutonomousSystem()){
-                        return (host.getAutonomousSystem().shortName)
-                            ? host.getAutonomousSystem().shortName
-                            : "AS" + host.getAutonomousSystem().id;
-                    } else {
-                        return "";
-                    }
-                    break;
-            }
-
-        };
-
-        this.applySearch = function (searchResults) {
-            currentSearch = searchResults;
-
-            if (currentSearch) {
-                this._updateNodesGraphAttributes();
-                this._drawPaths();
-                this._drawNodes();
-            } else {
-                env.mainView.svg
-                    .selectAll(".node-label")
-                    .attr("data-focus-out", null);
-
-                env.mainView.nodesContainer
-                    .selectAll(".node")
-                    .attr("data-focus-out", null);
-
-                env.mainView.pathsContainer
-                    .selectAll(".path")
-                    .attr("data-focus-out", null);
-            }
         };
 
         this._createNodeView = function(host, traceroute){
             var nodeKey, nodeObj;
 
             nodeKey = host.getId();
-            if (this.nodes[nodeKey]) { // The node exists already
-                this.nodes[nodeKey].traceroutes.push(traceroute);
-            } else {
-                nodeObj = {
-                    model: host,
-                    traceroutes: [traceroute]
-                };
+            if (!this.nodes[nodeKey]) { // The node exists already
+                nodeObj = new NodeView(env, host);
                 this.nodes[nodeKey] = nodeObj;
                 this.nodesArray.push(nodeObj);
             }
+
+            this.nodes[nodeKey].traceroutes.push(traceroute);
         };
 
         this._createEdgeView = function (start, stop, traceroute) {
@@ -276,14 +187,10 @@ define([
         };
 
         this._createPathView = function (traceroute) {
-            var tracerouteId;
+            var patView;
 
-            tracerouteId = utils.getIdFromIp(traceroute.stateKey);
-            this.traceroutes[tracerouteId] = {
-                model: traceroute,
-                points: this._getPointsFromTraceroute(traceroute),
-                id: tracerouteId
-            };
+            patView = new PathView(env, traceroute, this._getPointsFromTraceroute(traceroute));
+            this.traceroutes[patView.id] = patView;
         };
 
         this.computeVisibleGraph = function(traceroutesToDraw){
@@ -318,17 +225,8 @@ define([
         };
 
         this._updateNodesGraphAttributes = function(){
-            var node, graphAttributes;
-
             for (var n=0,length=this.nodesArray.length; n<length; n++){
-                node = this.nodesArray[n];
-                graphAttributes = env.mainView.graph.getNode(node.model.getId());
-                node.x = graphAttributes.x;
-                node.y = graphAttributes.y;
-                node.id = node.model.getId();
-                node.label = this.getNodeLabel(node.model);
-                node.shortLabel = this.getNodeShortLabel(node.model);
-                node.focusOut = this._isNodeFocusOut(node);
+                this.nodesArray[n].update();
             }
         };
 
@@ -339,9 +237,8 @@ define([
 
             this._computeLayout(this._computeMeshGraph());
             this.computeVisibleGraph(traceroutesToDraw);
-            this._updateNodesGraphAttributes();
-            this._drawPaths();
-            this._drawNodes();
+
+            this.dryUpdate();
 
             env.parentDom.popover({
                 container: env.parentDom,
@@ -356,17 +253,16 @@ define([
 
         this.update = function(diff, callback){
 
-            currentSearch = env.headerController.updateSearch();
+            env.headerController.updateSearch();
             this._computeLayout(this._computeMeshGraph()); // This should be done only if there are new events in the history
             this.computeVisibleGraph(diff.status);
-            this._updateNodesGraphAttributes();
+            // this._updateNodesGraphAttributes(); Can it be removed?
 
             for (var change in diff.updatedTraceroutes) {
                 this._animatePathChange(diff.updatedTraceroutes[change]["before"], diff.updatedTraceroutes[change]["now"]);
             }
 
-            this._drawPaths();
-            this._drawNodes();
+            this.dryUpdate();
 
             if (callback) {
                 callback();
@@ -430,14 +326,17 @@ define([
             return { nodes: nodes, edges: edges };
         };
 
-        this._showDirection = function (path, highlighted) {
-            var marker;
+        this._showDirection = function (traceroute, hovered) {
+            var marker, path;
 
             env.mainView.svg
                 .selectAll(".dot.direction")
                 .remove();
 
-            if (highlighted) {
+            if (hovered) {
+                path = env.mainView.pathsContainer
+                    .select(this.traceroutes[utils.getIdFromIp(traceroute.stateKey)].getClass(true));
+
                 marker = env.mainView.svg
                     .append("circle")
                     .attr("class", "dot direction");
@@ -450,7 +349,7 @@ define([
                 marker
                     .transition()
                     .duration(3000)
-                    .attrTween("transform", translateAlong(path.node()));
+                    .attrTween("transform", translateAlong(path.node()))
             }
 
             function translateAlong(path) {
@@ -462,52 +361,6 @@ define([
                     }
                 }
             }
-        };
-
-        this._hoveredPath = function(traceroute, hovered){
-            var hosts, nodesToUpdate, nodes, path, labels;
-
-            hosts = traceroute.getHostList();
-
-            nodesToUpdate = $.map(hosts, function(node){
-                for (var n=0,length=$this.nodesArray.length; n<length; n++){
-                    if ($this.nodesArray[n].id == node.getId()){
-                        return $this.nodesArray[n];
-                    }
-                }
-            });
-
-            nodes = env.mainView.nodesContainer
-                .selectAll("circle");
-
-            nodes
-                .data(nodesToUpdate, function(element){
-                    return element.id;
-                })
-                .attr("data-hover", function(node){
-                    return (hovered && !node.focusOut) ? true : null;
-                })
-                .attr("r", (hovered) ? config.graph.nodeSelectedRadius : config.graph.nodeRadius);
-
-            path = env.mainView.pathsContainer
-                .selectAll("path.path-" + utils.getIdFromIp(traceroute.stateKey))
-                .attr("data-hover", ((hovered) ? true : null));
-
-            labels = env.mainView.svg
-                .selectAll(".node-label");
-
-            labels
-                .data(nodesToUpdate, function(element){
-                    return element.id;
-                })
-                .attr("data-hover", function(node){
-                    return (hovered && !node.focusOut) ? true : null;
-                })
-                .text(function(node){
-                    return (hovered && !node.focusOut) ? node.label : node.shortLabel;
-                });
-
-            this._showDirection(path, hovered);
         };
 
         this._computeLayout = function(mesh){
@@ -536,101 +389,21 @@ define([
             env.mainView.graph.computeLayout();
         };
 
-        this._getPathClass = function (pathView) {
-            return "path path-" + pathView.id;
-        };
-
-        this._getNodeClass = function(nodeView){
-            var classes, host;
-
-            host = nodeView.model;
-            classes = "node node-" + utils.getIdFromIp(host.getId()) + " ";
-            if (host.isIxp){
-                classes += "ixp";
-            } else if (host.isProbe) {
-                classes += "source";
-            } else if (host.isPrivate) {
-                classes += "private";
-            } else if (host.isTarget) {
-                classes += "target";
-            } else if (!host.ip) {
-                classes += "null";
-            }
-
-            return classes;
-        };
-
-        this._getLabelClass = function(node){
-            var classOut;
-
-            classOut = "node-label node-label-" + utils.getIdFromIp(node.id);
-
-            if (node.model.isProbe){
-                classOut += " probe";
-            }
-
-            if (node.model.isIxp){
-                classOut += " ixp";
-            }
-
-            if (node.model.isTarget){
-                classOut += " target";
-            }
-
-            if (node.model.isLast){
-                classOut += " last";
-            }
-
-            return classOut;
-        };
 
         this._calculateLabelsPosition = function () {
             for (var n=0,length=this.nodesArray.length; n<length; n++) {
-                $this._calculateLabelPosition(this.nodesArray[n]);
+                $this._calculateLabelPosition(this.nodesArray[n].label);
             }
         };
 
-        this._getPopoverContent = function (node) {
-            var out, guess, asObj;
-
-            out = "";
-            guess = (node.model.isPrivate || !node.model.ip);
-            out += (!node.model.ip && node.model.multiplicity > 1) ? "Repeated " + node.model.multiplicity + " times<br>" : "";
-            out += (node.model.ip) ? "IP: " + node.model.ip + "<br>" : "";
-
-            if (node.model.isIxp) {
-                out += "IXP: " + node.model.ixp.name + ", " + node.model.ixp.city + ", " + node.model.ixp.country;
-                out += "<br>Lan: " + node.model.ixp.prefix;
-            }
-
-            asObj = node.model.getAutonomousSystem();
-            if (asObj) {
-                out += "<br><b>" + ((guess) ? "Best guess:" : "Routing info:") + "</b><br>";
-                out += "AS" + asObj.id + " - " + asObj.owner;
-                out += "<br><br><b>Registry info:</b>";
-
-                out += "<br> Announced: " + asObj.announced + "<br>";
-                for (var extra in asObj.extra) {
-                    out += extra.charAt(0).toUpperCase() + extra.slice(1) + ": " + asObj.extra[extra] + "<br>";
-                }
-            } else {
-                out += "<br>No AS information available for this node";
-            }
-
-            return out;
-        };
 
         this._drawNodes = function(){
             var nodesSvg;
 
-            labelPlacement.setNodes(this.nodesArray);
-            this._calculateLabelsPosition();
-            this._drawOrUpdateLabels(this.nodesArray);
-
             nodesSvg = env.mainView.nodesContainer
                 .selectAll("circle")
-                .data(this.nodesArray, function(element){
-                    return utils.getIdFromIp(element.id);
+                .data($this.nodesArray, function(nodeView){
+                    return nodeView.id;
                 });
 
             nodesSvg
@@ -653,24 +426,45 @@ define([
                 .attr("data-trigger", "focus")
                 .attr("tabindex", "0")
                 .attr("data-html", "true")
-                .attr("title", function(node){
-                    return node.label;
+                .attr("title", function(nodeView){
+                    return nodeView.label.getText();
                 })
-                .attr("data-content", this._getPopoverContent);
+                .attr("data-content", function (nodeView) {
+                    return nodeView.getInfo();
+                });
 
             nodesSvg
-                .attr("class", this._getNodeClass)
-                .attr("data-focus-out", function (node) {
-                    return node.focusOut;
+                .attr("class", function(nodeView){
+                    return nodeView.getClass();
                 })
-                .attr("r", config.graph.nodeRadius)
-                .attr("cx", function(node) { return node.x; })
-                .attr("cy", function(node) { return node.y; });
+                .attr("data-focus-out", function (nodeView) {
+                    return (nodeView.isFocusOut()) ? true : null;
+                })
+                .attr("data-hover", function(nodeView){
+                    return (nodeView.isHovered()) ? true : null;
+                })
+                .attr("r", function(nodeView){
+                    return nodeView.getRadius();
+                })
+                .attr("cx", function(nodeView) {
+                    return nodeView.x;
+                })
+                .attr("cy", function(nodeView) {
+                    return nodeView.y;
+                });
 
         };
 
-        this._drawPaths = function(){
-            var path, paths, d3Data, edge, edgeView;
+        this._filterChangedPaths = function (pathView) {
+            return (cache.paths[pathView.id]) ? pathView.equalsTo(cache.paths[pathView.id]) : true;
+        };
+
+        this._drawPaths = function(options){
+            var path, paths, d3Paths, edge, edgeView, traceroutes, pathItem;
+            var options = options || {};
+            paths = [];
+
+            traceroutes = options.traceroutes || this.traceroutes;
 
             for (var edgeKey in this.edges){
                 edge = this.edges[edgeKey];
@@ -680,18 +474,18 @@ define([
                 }
             }
 
-            paths = $.map(this.traceroutes, function(path){
-                path.d = lineFunction(path.points);
-                return path;
-            });
+            for (var tracerouteKey in traceroutes){
+                pathItem = traceroutes[tracerouteKey];
+                paths.push(pathItem);
+            }
 
-            d3Data = env.mainView.pathsContainer
+            d3Paths = env.mainView.pathsContainer
                 .selectAll("path")
-                .data(paths, function(path){
+                .data(paths.filter(this._filterChangedPaths), function(path){
                     return path.id;
                 });
 
-            d3Data
+            d3Paths
                 .exit()
                 .transition()
                 .duration(function(){
@@ -702,53 +496,63 @@ define([
                     d3.select(this).remove();
                 });
 
-            d3Data
+            d3Paths
                 .enter()
                 .append("path")
-                .on("mouseenter", function(path){
-                    utils.observer.publish("view.traceroute:mousein", $this.traceroutes[path.id].model);
-                })
-                .on("mouseout", function(path){
-                    utils.observer.publish("view.traceroute:mouseout", $this.traceroutes[path.id].model);
-                })
-                .on("mousedown", function(path){
-                    utils.observer.publish("view.traceroute:click", $this.traceroutes[path.id].model);
-                });
+                .on("mouseenter", function(pathView){
+                    var nodeViews, nodeView;
+                    if (!pathView.isFocusOut()) {
 
-            d3Data
-                .attr("class", this._getPathClass)
-                .attr("data-focus-out", this._isPathFocusOut)
-                .transition()
-                .attr("d", function(path){
-                    return path.d;
-                });
-        };
+                        $this.hoveredPath = pathView;
+                        pathView.isHovered(true);
+                        nodeViews = pathView.getNodeViews();
+                        for (var n = 0, length = nodeViews.length; n < length; n++) {
+                            nodeView = nodeViews[n];
+                            nodeView.isHovered(true);
+                        }
 
-        this._isNodeFocusOut = function (node) {
-            if (currentSearch) {
-                for (var n=0,length=node.traceroutes.length; n<length; n++){
-                    if (currentSearch.in[node.traceroutes[n].id]){
-                        return null;
+                        utils.observer.publish("view.traceroute:mousein", pathView.model);
                     }
-                }
-                return true;
-            }
+                })
+                .on("mouseout", function(pathView){
+                    var nodeViews;
 
-            return null;
-        };
+                    if (!pathView.isFocusOut()) {
+                        $this.hoveredPath = null;
+                        pathView.isHovered(false);
+                        nodeViews = pathView.getNodeViews();
+                        for (var n = 0, length = nodeViews.length; n < length; n++) {
+                            nodeViews[n].isHovered(false);
+                        }
+                        utils.observer.publish("view.traceroute:mouseout", pathView.model);
+                    }
+                })
+                .on("mousedown", function(pathView){
+                    if (!pathView.isFocusOut()) {
+                        utils.observer.publish("view.traceroute:click", pathView.model);
+                    }
+                });
 
-        this._isPathFocusOut = function (pathView) {
-            if (currentSearch) {
-                return ((!currentSearch.in[pathView.model.id])) ? true : null;
-            }
-
-            return null;
+            d3Paths
+                .attr("class", function(pathView){
+                    return pathView.getClass();
+                })
+                .attr("data-hover", function(pathView){
+                    return (pathView.isHovered()) ? true : null;
+                })
+                .attr("data-focus-out", function(pathView){
+                    return (pathView.isFocusOut()) ? true : null;
+                })
+                .transition()
+                .attr("d", function(pathView){
+                    return lineFunction(pathView.points);
+                });
         };
 
         this._animatePathChange = function (oldTraceroute, newTraceroute) {
             var tracerouteId, element;
 
-            tracerouteId = utils.getIdFromIp(oldTraceroute.source.getId() + '-' + oldTraceroute.target.getId());
+            tracerouteId = utils.getIdFromIp(oldTraceroute.stateKey);
 
             element = env.mainView.pathsContainer
                 .select("path.path-" + tracerouteId);

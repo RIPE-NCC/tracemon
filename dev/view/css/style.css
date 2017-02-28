@@ -100,7 +100,7 @@
 .node[data-focus-out] {
     opacity: 0.1!important;
 }
-.node-label[data-focus-out] {
+.node-label[data-hidden] {
     opacity:0!important;
 }
 

@@ -46,7 +46,6 @@ requirejs.config({
 
         /* view */
         "tracemon.view.main": window.atlas._widgets.tracemon.urls.view + "MainView",
-        "tracemon.view.single-host-view": window.atlas._widgets.tracemon.urls.view + "SingleHostView",
         "tracemon.view.as-view": window.atlas._widgets.tracemon.urls.view + "ASView",
         "tracemon.view.location-view": window.atlas._widgets.tracemon.urls.view + "LocationView",
         "tracemon.view.label-placement": window.atlas._widgets.tracemon.urls.view + "LabelPlacementHelper",
@@ -58,8 +57,10 @@ requirejs.config({
         "tracemon.view.dagre-wrapper": window.atlas._widgets.tracemon.urls.view + "layout/DagreWrapper",
         "tracemon.view.graphviz-wrapper": window.atlas._widgets.tracemon.urls.view + "layout/GraphvizWrapper",
 
-        /* view.svg */
-        "tracemon.view.svg.chart": window.atlas._widgets.tracemon.urls.view + "svg/SvgChartView",
+        "tracemon.view.single-host.single-host-view": window.atlas._widgets.tracemon.urls.view + "single-host/SingleHostView",
+        "tracemon.view.single-host.path-view": window.atlas._widgets.tracemon.urls.view + "single-host/PathView",
+        "tracemon.view.single-host.node-view": window.atlas._widgets.tracemon.urls.view + "single-host/NodeView",
+        "tracemon.view.single-host.label-view": window.atlas._widgets.tracemon.urls.view + "single-host/LabelView",
 
         /* model*/
         "tracemon.model.host": window.atlas._widgets.tracemon.urls.model + "Host",
