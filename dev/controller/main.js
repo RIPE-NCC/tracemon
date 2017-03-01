@@ -25,7 +25,7 @@ define([
 
         this.exposedMethods = ["on", "getMeasurements", "getCurrentState", "addMeasurement",
             "addMeasurements", "applyConfiguration", "getShownSources", "setShownSources", "addShownSource",
-            "getSources", "setTimeRange", "removeMeasurement", "goTo", "init"];
+            "getSources", "setTimeRange", "removeMeasurement", "goTo", "init", "getVersion"];
 
         this._updateFinalQueryParams = function () {
             var initialParams, finalParams, startDate, stopDate, sourcesAmount, instant;
@@ -321,6 +321,10 @@ define([
                 startDate: env.finalQueryParams.startDate,
                 stopDate: env.finalQueryParams.stopDate
             });
+        };
+        
+        this.getVersion = function(){
+          return env.version;  
         };
 
         this.on = function(event, callback){
