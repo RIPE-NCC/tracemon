@@ -250,13 +250,13 @@ define([
                 p3x = d.x,
                 p3y = d.y,
 
-                /// calc difference between the coords
+            /// calc difference between the coords
                 d1x = p1x - p0x,
                 d1y = p1y - p0y,
                 d2x = p3x - p2x,
                 d2y = p3y - p2y,
 
-                /// determinator
+            /// determinator
                 d = d1x * d2y - d2x * d1y,
 
                 px, py,
@@ -730,11 +730,19 @@ define([
                 }
             },
 
-            subscribe: function (event, callback, context){
-                if (!this.subscriptions[event]){
-                    this.subscriptions[event] = [];
+            subscribe: function (eventName, callback, context){
+                var events, event;
+
+                events = (eventName.indexOf(",") != -1) ? [eventName] : eventName.split(",");
+
+                for (var n=0,length=events.length; n<length; n++){
+                    event = events[n];
+                    if (!this.subscriptions[event]){
+                        this.subscriptions[event] = [];
+                    }
+                    this.subscriptions[event].push({ callback: callback, context: context });
                 }
-                this.subscriptions[event].push({ callback: callback, context: context })
+
             }
         },
 
