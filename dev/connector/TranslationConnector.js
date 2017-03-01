@@ -328,11 +328,11 @@ define([
                                     targetHost.setLocation($this._getHostLocation(data["target_location"]));
 
 
-                                    // asnLookupConnector.enrich(targetHost);
+                                    asnLookupConnector.enrich(targetHost);
 
-                                    // if (config.ixpHostCheck) {
-                                    //     $this._enrichIXP(targetHost);
-                                    // }
+                                    if (config.ixpHostCheck) {
+                                        $this._enrichIXP(targetHost);
+                                    }
                                 }
 
                             }
