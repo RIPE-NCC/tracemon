@@ -186,8 +186,7 @@ define([
                 startDate: null,
                 stopDate: null,
                 sources: null,
-                measurements: [],
-
+                measurements: []
             },
             "metaData": {
                 startDate: null,

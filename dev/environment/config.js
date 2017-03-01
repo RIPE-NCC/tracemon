@@ -55,6 +55,7 @@ define([], function(){
         },
 
         graph: {
+            showTargetNodeIfNotReached: true,
             margins: { top: 20, bottom: 20, left: 150, right: 150 },
             removeCycle: true,
             groupCycles: true,

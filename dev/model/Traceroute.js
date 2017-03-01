@@ -20,15 +20,17 @@ define([
         this._hash = null;
     };
 
+    Traceroute.prototype.getReachedHost = function(){
+        var hostList = this.getHostList();
+        return (hostList.length > 0 ) ? hostList[hostList.length - 1] : null;
+    };
+
     Traceroute.prototype.reachesTarget = function(){
-        var lastHop;
+        var lastHost;
 
-        lastHop = this._hops[this._hops.length - 1];
-        if (lastHop){
-            return (lastHop.getMainAttempt().host.ip == this.target.ip);
-        }
-
-        return false;
+        lastHost = this.getReachedHost();
+        
+        return (lastHost) ? (lastHost.ip == this.target.ip) : false;
     };
 
     Traceroute.prototype.setHops = function(hops){
@@ -71,7 +73,6 @@ define([
         }
     };
 
-
     Traceroute.prototype.getHash = function(){
         var attempts;
 
@@ -100,7 +101,6 @@ define([
         }
         return this._b_hash;
     };
-
 
     Traceroute.prototype.getSingleLineString = function () {
         var attempt, rtt, host, asObj;

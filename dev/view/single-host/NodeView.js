@@ -33,9 +33,12 @@ define([
             this.id = utils.getIdFromIp(this.model.getId());
             this._graphNode = env.mainView.graph.getNode(this.model.getId());
 
-            this.x = this._graphNode.x;
-            this.y = this._graphNode.y;
-
+            if (this._graphNode) {
+                this.x = this._graphNode.x;
+                this.y = this._graphNode.y;
+            } else {
+                throw "The node " + this.id + " is not in the graph";
+            }
             // Update the svg involved
         },
 

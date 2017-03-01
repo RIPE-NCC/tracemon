@@ -133,13 +133,6 @@ define([
                 });
         };
 
-        this._updateIxp = function(host){
-            env.mainView.svg
-                .select(".node-" + utils.getIdFromIp(host.getId()))
-                .attr("class", this._getNodeClass);
-            this._updateLabel(host);
-        };
-
         this.dryUpdate = function () {
             console.log("dry update");
             this._updateNodesGraphAttributes();
@@ -210,6 +203,16 @@ define([
 
                     lastHost = host;
                 });
+
+                if (config.graph.showTargetNodeIfNotReached && !traceroute.reachesTarget()){
+                    lastHost = traceroute.getReachedHost();
+                    $this._createNodeView(traceroute.target, traceroute);
+
+                    if (lastHost){
+                        $this._createEdgeView(lastHost, traceroute.target, traceroute);
+                    }
+                }
+
             }
 
             labelPlacement.setNodes(this.nodesArray);
@@ -312,6 +315,24 @@ define([
                     }
 
                 }
+                
+                if (config.graph.showTargetNodeIfNotReached && !traceroute.reachesTarget()){ // add the disconnected target
+
+                    previousHost = traceroute.getReachedHost();
+                    host = traceroute.target;
+                    hostId = host.getId();
+
+                    edgeKey = previousHost.getId() + "-" + hostId;
+                    nodes[hostId] = host;
+
+                    if (!edges[edgeKey]) {
+                        edges[edgeKey] = {
+                            from: previousHost,
+                            to: host,
+                            weight: 8
+                        };
+                    }
+                }
             }
 
             return { nodes: nodes, edges: edges };
@@ -380,13 +401,11 @@ define([
             env.mainView.graph.computeLayout();
         };
 
-
         this._calculateLabelsPosition = function () {
             for (var n=0,length=this.nodesArray.length; n<length; n++) {
                 this._calculateLabelPosition(this.nodesArray[n].label);
             }
         };
-
 
         this._drawNodes = function(){
             var nodesSvg;
@@ -594,6 +613,8 @@ define([
 
             unifiedPathArray = [];
             hosts = traceroute.getHostList();
+
+            // hosts.push(traceroute.target);
 
             for (var n=0,length=hosts.length; n<length-1; n++){
                 if (hosts[n].getId() != hosts[n + 1].getId()) {
