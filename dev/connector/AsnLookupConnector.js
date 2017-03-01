@@ -125,6 +125,7 @@ define([
                 autonomousSystemObj.extra = asnData["block"];
                 shortNameConnector.enrichShortName(autonomousSystemObj);
                 this.autonomousSystemsByAs[asn] = autonomousSystemObj; // Store it
+                utils.observer.publish("model.as:new", autonomousSystemObj);
             }
 
             return autonomousSystemObj;

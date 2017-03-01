@@ -43,6 +43,14 @@ define([
                     nodes: [$this.nodes[host.getId()]]
                 });
             }, this);
+
+            utils.observer.subscribe("model.as:change", function(asObj){
+                this._drawLabels({
+                    nodes: $.map(asObj.getHosts(),function(host){
+                        return $this.nodes[host.getId()];
+                    })
+                });
+            }, this);
             utils.observer.subscribe("view.label-level:change", this._drawLabels, this);
             utils.observer.subscribe("view.traceroute:mousein", function(traceroute){
                 this.dryUpdate();

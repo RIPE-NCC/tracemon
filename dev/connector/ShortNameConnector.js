@@ -46,6 +46,8 @@ define([
                     name = names[asObj.id];
                     if (name) {
                         asObj.shortName = names[asObj.id];
+                        utils.observer.publish("model.as:change", asObj);
+                        console.log(asObj.shortName);
                     }
                 }
                 nextQuery = null;

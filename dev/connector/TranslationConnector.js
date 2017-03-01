@@ -26,8 +26,7 @@ define([
             Traceroute, prefixUtils, PeeringDbConnector, HostClassificationHelper, AsnLookupConnector) {
 
     var TranslationConnector = function (env) {
-        var historyConnector, $this, liveConnector, peeringDbConnector, hostHelper, asnLookupConnector, selectedProbes,
-            shortNameConnector;
+        var historyConnector, $this, liveConnector, peeringDbConnector, hostHelper, asnLookupConnector, selectedProbes;
 
         $this = this;
         historyConnector = new HistoryConnector(env);

@@ -43,6 +43,7 @@ define([
     };
 
     Host.prototype.setAutonomousSystem = function(autonomousSystem) {
+        autonomousSystem.addHost(this);
         this._autonomousSystem = autonomousSystem;
     };
 

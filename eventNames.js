@@ -27,6 +27,8 @@ utils.observer.publish("view.current-instant:change", Moment);
 utils.observer.publish("model.ready", return getModel());
 utils.observer.publish("model.host:new", Host);
 utils.observer.publish("model.host:change", Host);
+utils.observer.publish("model.as:new", AutonomousSystem);
+utils.observer.publish("model.as:change", AutonomousSystem);
 utils.observer.publish("model.measurement:new", Measurement); // We have a new measurement metadata object (no results)
 utils.observer.publish("model.measurement:removed", Integer); // the msmId was removed (no obj instance anymore)
 utils.observer.publish("model.history:new", null);
