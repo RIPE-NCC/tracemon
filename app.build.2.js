@@ -55,6 +55,12 @@
         "tracemon.view.templateManager": "dev/view/TemplateManagerView",
         "tracemon.view.timeOverview": "dev/view/TimeOverviewView",
 
+        /* Single host view mode*/
+        "tracemon.view.single-host.single-host-view": "dev/view/single-host/SingleHostView",
+        "tracemon.view.single-host.path-view": "dev/view/single-host/PathView",
+        "tracemon.view.single-host.node-view": "dev/view/single-host/NodeView",
+        "tracemon.view.single-host.label-view": "dev/view/single-host/LabelView",
+
         /* view.svg */
         "tracemon.view.svg.chart": "dev/view/svg/SvgChartView",
 
@@ -85,6 +91,8 @@
         "tracemon.connector.peering-db": "dev/connector/PeeringDbConnector",
         "tracemon.connector.host-helper": "dev/connector/HostClassificationHelper",
         "tracemon.connector.asn": "dev/connector/AsnLookupConnector",
+        "tracemon.connector.short-name": "dev/connector/ShortNameConnector",
+
 
         /* PeeringDB cache - Remove when we have API*/
         "tracemon.connector.local.peering-db": "dev/connector/local/peeringDb",

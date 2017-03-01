@@ -180,11 +180,11 @@
 .tracemon-container .node[data-focus-out] {
   opacity: 0.1!important;
 }
-.tracemon-container .node-label[data-focus-out] {
-  opacity: 0.1!important;
+.tracemon-container .node-label[data-hidden] {
+  opacity: 0!important;
 }
 .tracemon-container .node-label {
-  opacity: 0;
+  opacity: 0.4;
   fill: #454545;
   font-weight: bold;
   font-size: 10px!important;
