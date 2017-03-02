@@ -78,9 +78,22 @@
 .node[data-hover] {
     opacity: 1!important;
 }
-.node-label[data-hover] {
+
+
+.path[data-selected] {
+    stroke-width: 14px!important;
+    cursor: pointer;
+    opacity: 1!important;
+}
+.node[data-selected] {
+    opacity: 1!important;
+}
+.node-label[data-selected] {
     opacity: 0.8!important;
 }
+
+
+
 
 .path[data-animation] {
     stroke-width: 10px!important;

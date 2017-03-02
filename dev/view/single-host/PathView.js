@@ -6,17 +6,41 @@ define([
         this.id = utils.getIdFromIp(model.stateKey);
         this.model = model;
         this.points = points;
+        this.type = "pathView";
         this._hovered = false;
+        this._selected = false;
     };
 
 
     PathView.prototype = {
 
+        isSelected: function(selected){
+            if (selected === undefined){
+                return this._selected && !this.isFocusOut();
+            } else if (!this.isFocusOut()){
+                var nodeViews;
+
+                this._selected = selected;
+                nodeViews = this.getNodeViews();
+                for (var n = 0, length = nodeViews.length; n < length; n++) {
+                    nodeViews[n].isSelected(selected);
+                }
+            }
+        },
+
         isHovered: function(hovered){
+
             if (hovered === undefined){
                 return this._hovered && !this.isFocusOut();
-            } else {
+            } else if (!this.isFocusOut()) {
+                var nodeViews, nodeView;
+
                 this._hovered = hovered;
+                nodeViews = this.getNodeViews();
+                for (var n = 0, length = nodeViews.length; n < length; n++) {
+                    nodeView = nodeViews[n];
+                    nodeView.isSelected(hovered);
+                }
             }
         },
 

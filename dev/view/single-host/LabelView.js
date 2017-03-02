@@ -5,6 +5,7 @@ define([
     var LabelView = function(env, nodeView) {
         this.id = nodeView.id;
         this.node = nodeView;
+        this.type = "labelView";
         this.x = null;
         this.y = null;
         this.alignment = null;
@@ -13,8 +14,24 @@ define([
 
 
     LabelView.prototype = {
+
+
+        isSelected: function(){
+            return this.node.isSelected();
+        },
+
         isVisible: function(){
-            return !(this.isFocusOut() || (env.mainView.view.hoveredPath != null && !this.isHovered()));
+            var isVisible;
+
+            isVisible = !this.isFocusOut()
+                && (this.isSelected()
+                    || this.isHovered()
+                    || !env.mainView.view.hoveredObject
+                );
+
+
+
+            return isVisible;
         },
 
         isHovered: function(){
@@ -23,11 +40,6 @@ define([
 
         update: function(){
             this.id = this.node.id;
-            // this._coordinates = {
-            //     x: this._graphNode.x,
-            //     y: this._graphNode.y
-            // };
-
             // Update the svg involved
         },
 
@@ -126,13 +138,6 @@ define([
             return label;
         },
 
-        getCoordinates: function(){
-            if (!this._coordinates){
-                this.update();
-            }
-            return this._coordinates;
-        },
-
         getClass: function(selector){
             var classes;
 
@@ -154,11 +159,11 @@ define([
                 classes.push("last");
             }
 
-            return (selector) ? classes.join(".") : classes.join(" ");;
+            return (selector) ? classes.join(".") : classes.join(" ");
         },
 
         getDynamicText: function(){
-            return (this.node.isHovered()) ? this.getText() : this.getShortText();
+            return (this.node.isHovered() || this.node.isPathHovered()) ? this.getText() : this.getShortText();
         }
 
     };

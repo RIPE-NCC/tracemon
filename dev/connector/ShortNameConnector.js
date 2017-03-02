@@ -24,7 +24,7 @@ define([
         asnToBePopulated = null;
 
         this._translate = function(data){
-            return data.data;
+            return data.data || {};
         };
 
         this._performQuery = function(nextQuery, deferredCall){

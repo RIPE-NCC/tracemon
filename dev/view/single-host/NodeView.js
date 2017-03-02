@@ -8,7 +8,9 @@ define([
         this.id = utils.getIdFromIp(model.getId());
         this.model = model;
         this.traceroutes = [];
+        this.type = "nodeView";
         this._hovered = false;
+        this._selected = false;
         this._graphNode = null;
         this.label = new LabelView(env, this);
         this.x = null;
@@ -17,16 +19,44 @@ define([
 
 
     NodeView.prototype = {
+        isPathHovered: function(){
+            var hoveredPath;
+
+            hoveredPath = env.mainView.view.hoveredObject;
+            if (hoveredPath && hoveredPath.type == "pathView"){
+                for (var n=0,length=this.traceroutes.length; n<length; n++){
+                    if (this.traceroutes[n].model.stateKey == hoveredPath.model.stateKey){
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        },
+
+        isSelected: function (selected) {
+            if (selected === undefined){
+                return this._selected && !this.isFocusOut();
+            } else {
+                this._selected = selected;
+            }
+        },
+
         isHovered: function(hovered){
+
             if (hovered === undefined){
                 return this._hovered && !this.isFocusOut();
-            } else {
+            } else if (!this.isFocusOut()){
                 this._hovered = hovered;
+                for (var n=0,length=this.traceroutes.length; n<length; n++){
+                    this.traceroutes[n].isSelected(hovered);
+                }
+
             }
         },
 
         getRadius: function(){
-            return (this.isHovered()) ? config.graph.nodeSelectedRadius : config.graph.nodeRadius;
+            return (this.isHovered() || this.isSelected()) ? config.graph.nodeSelectedRadius : config.graph.nodeRadius;
         },
 
         update: function(){
@@ -46,7 +76,7 @@ define([
             if (env.currentSearchResults) {
                 var traceroutes = this.traceroutes;
                 for (var n=0,length=traceroutes.length; n<length; n++){
-                    if (env.currentSearchResults.in[traceroutes[n].id]){
+                    if (env.currentSearchResults.in[traceroutes[n].model.id]){
                         return false;
                     }
                 }

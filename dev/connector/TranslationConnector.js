@@ -323,11 +323,9 @@ define([
                             } else {
                                 targetHost = new Host(msmTarget);
 
-                                if (!targetHost.isPrivate) { // TODO: ASN LOOKUP FOR TARGET
+                                if (!targetHost.isPrivate) {
 
                                     targetHost.setLocation($this._getHostLocation(data["target_location"]));
-
-
                                     asnLookupConnector.enrich(targetHost);
 
                                     if (config.ixpHostCheck) {

@@ -33,6 +33,7 @@ define([
         this.nodesArray = [];
         this.edges = {};
         this.traceroutes = {};
+        this.hoveredObject = null;
 
         this._setListeners = function(){
             utils.observer.subscribe("view:probe-set", function () {
@@ -113,6 +114,9 @@ define([
                 .attr("data-hover", function(labelView){
                     return (labelView.isHovered()) ? true : null;
                 })
+                .attr("data-selected", function(labelView){
+                    return (labelView.isSelected()) ? true : null;
+                })
                 .attr("data-focus-out", function (labelView) {
                     return (labelView.isFocusOut()) ? true : null;
                 })
@@ -143,7 +147,7 @@ define([
 
         };
 
-        this._createNodeView = function(host, traceroute){
+        this._createNodeView = function(host, pathView){
             var nodeKey, nodeObj;
 
             nodeKey = host.getId();
@@ -153,7 +157,9 @@ define([
                 this.nodesArray.push(nodeObj);
             }
 
-            this.nodes[nodeKey].traceroutes.push(traceroute);
+            this.nodes[nodeKey].traceroutes.push(pathView);
+
+            return nodeObj;
         };
 
         this._createEdgeView = function (start, stop, traceroute) {
@@ -174,10 +180,12 @@ define([
 
             patView = new PathView(env, traceroute, this._getPointsFromTraceroute(traceroute));
             this.traceroutes[patView.id] = patView;
+
+            return patView;
         };
 
         this.computeVisibleGraph = function(traceroutesToDraw){
-            var traceroute, host, attempt, lastHost;
+            var traceroute, host, attempt, lastHost, pathView;
 
             this.nodes = {};
             this.nodesArray = [];
@@ -189,13 +197,14 @@ define([
                 traceroute = traceroutesToDraw[n];
                 lastHost = traceroute.source;
 
-                this._createNodeView(lastHost, traceroute);
-                this._createPathView(traceroute);
+                pathView = this._createPathView(traceroute);
+                this._createNodeView(lastHost, pathView);
+
 
                 traceroute.forEachHop(function(hop){
                     attempt = hop.getMainAttempt();
                     host = attempt.host;
-                    $this._createNodeView(host, traceroute);
+                    $this._createNodeView(host, pathView);
 
                     if (lastHost){
                         $this._createEdgeView(lastHost, host, traceroute);
@@ -206,7 +215,7 @@ define([
 
                 if (config.graph.showTargetNodeIfNotReached && !traceroute.reachesTarget()){
                     lastHost = traceroute.getReachedHost();
-                    $this._createNodeView(traceroute.target, traceroute);
+                    $this._createNodeView(traceroute.target, pathView);
 
                     if (lastHost){
                         $this._createEdgeView(lastHost, traceroute.target, traceroute);
@@ -315,7 +324,7 @@ define([
                     }
 
                 }
-                
+
                 if (config.graph.showTargetNodeIfNotReached && !traceroute.reachesTarget()){ // add the disconnected target
 
                     previousHost = traceroute.getReachedHost();
@@ -441,6 +450,18 @@ define([
                 })
                 .attr("data-content", function (nodeView) {
                     return nodeView.getInfo();
+                })
+                .on("mouseenter", function(nodeView){
+                    nodeView.isHovered(true);
+                    $this.hoveredObject = nodeView;
+                    $this.dryUpdate();
+                    utils.observer.publish("view.host:mousein", nodeView.model);
+                })
+                .on("mouseout", function(nodeView){
+                    nodeView.isHovered(false);
+                    $this.hoveredObject = null;
+                    $this.dryUpdate();
+                    utils.observer.publish("view.host:mouseout", nodeView.model);
                 });
 
             nodesSvg
@@ -452,6 +473,9 @@ define([
                 })
                 .attr("data-hover", function(nodeView){
                     return (nodeView.isHovered()) ? true : null;
+                })
+                .attr("data-selected", function(nodeView){
+                    return (nodeView.isSelected()) ? true : null;
                 })
                 .attr("r", function(nodeView){
                     return nodeView.getRadius();
@@ -510,30 +534,16 @@ define([
                 .enter()
                 .append("path")
                 .on("mouseenter", function(pathView){
-                    var nodeViews, nodeView;
                     if (!pathView.isFocusOut()) {
-
-                        $this.hoveredPath = pathView;
+                        $this.hoveredObject = pathView;
                         pathView.isHovered(true);
-                        nodeViews = pathView.getNodeViews();
-                        for (var n = 0, length = nodeViews.length; n < length; n++) {
-                            nodeView = nodeViews[n];
-                            nodeView.isHovered(true);
-                        }
-
                         utils.observer.publish("view.traceroute:mousein", pathView.model);
                     }
                 })
                 .on("mouseout", function(pathView){
-                    var nodeViews;
-
                     if (!pathView.isFocusOut()) {
-                        $this.hoveredPath = null;
+                        $this.hoveredObject = null;
                         pathView.isHovered(false);
-                        nodeViews = pathView.getNodeViews();
-                        for (var n = 0, length = nodeViews.length; n < length; n++) {
-                            nodeViews[n].isHovered(false);
-                        }
                         utils.observer.publish("view.traceroute:mouseout", pathView.model);
                     }
                 })
@@ -549,6 +559,9 @@ define([
                 })
                 .attr("data-hover", function(pathView){
                     return (pathView.isHovered()) ? true : null;
+                })
+                .attr("data-selected", function(pathView){
+                    return (pathView.isSelected()) ? true : null;
                 })
                 .attr("data-focus-out", function(pathView){
                     return (pathView.isFocusOut()) ? true : null;
