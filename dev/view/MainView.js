@@ -140,6 +140,10 @@ define([
                 .append("g")
                 .attr("class", "edges");
 
+            this.edgesContainer = this.svg
+                .append("g")
+                .attr("class", "edges");
+            
             this.nodesContainer = this.svg
                 .append("g")
                 .attr("class", "nodes");

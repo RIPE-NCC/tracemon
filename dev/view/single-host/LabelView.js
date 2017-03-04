@@ -58,9 +58,9 @@ define([
                     label += ' (AS' + nodeAs.id + ')';
                 }
             } else if (this.node.model.ip == null){
-                label = "* ";
+                label = "✱ ";
                 if (nodeAs){
-                    label += ' (Guess: AS' + nodeAs.id + ')';
+                    label += ' (Guess AS' + nodeAs.id + ')';
                 }
             } else {
                 label = this.node.model.ip;
@@ -129,9 +129,12 @@ define([
                 case "ip":
                     if (this.node.model.isIxp && this.node.model.ixp.name){
                         label = this.node.model.ixp.name;
-                    } else if (nodeAs){
+                    } else if (nodeAs && this.node.model.ip){
                         label = (nodeAs.shortName) ? nodeAs.shortName : "AS" + nodeAs.id;
+                    } else if (!this.node.model.ip){
+                        label = "✱" + ((this.node.model.multiplicity > 1) ? "x" + this.node.model.multiplicity : "");
                     }
+
                     break;
             }
 

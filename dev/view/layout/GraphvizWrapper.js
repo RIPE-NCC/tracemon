@@ -135,6 +135,9 @@ define([
                     if (edge.options.weight){
                         edgeProperties.weight = edge.options.weight;
                     }
+                    if (edge.options.minlen){
+                        edgeProperties.minlen = edge.options.minlen;
+                    }
 
                     out += from + ' -> ' + to + ' [' + this._dottify(edgeProperties, true) + ']; \n';
                 }
@@ -214,7 +217,8 @@ define([
                     to: node2,
                     options: {
                         lineInterpolate: options.interpolation,
-                        weight: options.weight
+                        weight: options.weight,
+                        minlen: options.minlen
                     }
                 };
             }

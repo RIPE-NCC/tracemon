@@ -61,6 +61,7 @@ requirejs.config({
         "tracemon.view.single-host.path-view": window.atlas._widgets.tracemon.urls.view + "single-host/PathView",
         "tracemon.view.single-host.node-view": window.atlas._widgets.tracemon.urls.view + "single-host/NodeView",
         "tracemon.view.single-host.label-view": window.atlas._widgets.tracemon.urls.view + "single-host/LabelView",
+        "tracemon.view.single-host.edge-view": window.atlas._widgets.tracemon.urls.view + "single-host/EdgeView",
 
         /* model*/
         "tracemon.model.host": window.atlas._widgets.tracemon.urls.model + "Host",

@@ -2,10 +2,11 @@ define([
     "tracemon.env.utils"
 ], function(utils){
 
-    var PathView = function(env, model, points) {
+    var PathView = function(env, model) {
         this.id = utils.getIdFromIp(model.stateKey);
         this.model = model;
-        this.points = points;
+        this._edges = [];
+        this._edgesMap = {};
         this.type = "pathView";
         this._hovered = false;
         this._selected = false;
@@ -13,6 +14,30 @@ define([
 
 
     PathView.prototype = {
+        
+        getPoints: function(){
+            var points, unifiedPathArray;
+
+            unifiedPathArray = this.getEdges();
+            points = [];
+
+            for (var n=0,length=unifiedPathArray.length; n<length; n++){
+                points = points.concat(unifiedPathArray[n].getPoints());
+            }
+
+            return points;
+        },
+
+        addEdge: function(edgeView){
+            if (!this._edgesMap[edgeView.id]){
+                this._edges.push(edgeView);
+                this._edgesMap[edgeView.id] = true;
+            }
+        },
+
+        getEdges: function () {
+            return this._edges.filter(function(edge){return !edge.isDisconnected();});
+        },
 
         isSelected: function(selected){
             if (selected === undefined){

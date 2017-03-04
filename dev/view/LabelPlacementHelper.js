@@ -8,7 +8,7 @@ define([
 
         $this = this;
         minLabelWidth = 60;
-        height = fontSizePixel + 5;
+        height = fontSizePixel;
 
         checkedNodes = [];
         labelBoxes = [];

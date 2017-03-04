@@ -9,15 +9,16 @@ define([
     "tracemon.lib.parsePrefix",
     "tracemon.view.label-placement",
     "tracemon.view.single-host.path-view",
-    "tracemon.view.single-host.node-view"
-], function(utils, config, lang, $, moment, d3, prefixUtils, LabelPlacement, PathView, NodeView){
+    "tracemon.view.single-host.node-view",
+    "tracemon.view.single-host.edge-view"
+], function(utils, config, lang, $, moment, d3, prefixUtils, LabelPlacement, PathView, NodeView, EdgeView){
 
     var SingleHostView = function(env){
         var $this, labelPlacement, cache, nodeBBox, lineFunction, cleanRedraw;
 
         $this = this;
         nodeBBox = (config.graph.nodeRadius * 2) + 5;
-        labelPlacement = new LabelPlacement(nodeBBox, nodeBBox, 12);
+        labelPlacement = new LabelPlacement(nodeBBox, nodeBBox, 14);
         cache = {
             nodes: [],
             edges: [],
@@ -32,6 +33,7 @@ define([
         this.nodes = {};
         this.nodesArray = [];
         this.edges = {};
+        this.mergedEdges = {};
         this.traceroutes = {};
         this.hoveredObject = null;
 
@@ -66,14 +68,15 @@ define([
         };
 
         this._calculateLabelPosition = function(labelView){
-            var position;
+            var position, edges;
 
-            if (!cache.edgePoints) {
-                cache.edgePoints = $.map(cache.edges, function (nodeView) {
-                    return [nodeView.points];
-                });
+            // if (!cache.edgePoints) {
+            edges = [];
+            for (var edgeKey in this.mergedEdges){
+                edges.push([$.map(this.mergedEdges[edgeKey].getPoints(), function(point){return [point.x, point.y]})]);
             }
-            position = labelPlacement.getLabelPosition(labelView.node, cache.edgePoints, labelView.getDynamicText(), config.graph.labelOrientationPreference);
+            // }
+            position = labelPlacement.getLabelPosition(labelView.node, edges, labelView.getDynamicText(), config.graph.labelOrientationPreference);
             labelView.x = position.x;
             labelView.y = position.y;
             labelView.alignment = position.alignment;
@@ -141,6 +144,7 @@ define([
             console.log("dry update");
             this._updateNodesGraphAttributes();
             this._drawPaths();
+            this._drawEdges();
             this._drawNodes();
             this._calculateLabelsPosition();
             this._drawLabels();
@@ -162,23 +166,35 @@ define([
             return nodeObj;
         };
 
-        this._createEdgeView = function (start, stop, traceroute) {
-            var edgeId;
+        this._createEdgeView = function (from, to, pathView, disconnected) {
+            var fromId, toId;
 
-            if (start.getId() != stop.getId()) {
-                edgeId = start.getId() + '-' + stop.getId();
-                this.edges[edgeId] = {
-                    start: start,
-                    stop: stop,
-                    traceroute: traceroute
-                };
+            fromId = from.getId();
+            toId = to.getId();
+
+            if (fromId != toId) {
+                var edgeId, edge;
+
+                edge = new EdgeView(env, from, to);
+                edge.isDisconnected(disconnected);
+                edgeId = edge.getStateKey();
+
+                if (!this.mergedEdges[edgeId]){
+                    this.mergedEdges[edgeId] = edge;
+                }
+
+                this.mergedEdges[edgeId].addPathView(pathView);
+
+                return this.mergedEdges[edgeId];
             }
+
+            return null;
         };
 
         this._createPathView = function (traceroute) {
             var patView;
 
-            patView = new PathView(env, traceroute, this._getPointsFromTraceroute(traceroute));
+            patView = new PathView(env, traceroute);
             this.traceroutes[patView.id] = patView;
 
             return patView;
@@ -190,6 +206,7 @@ define([
             this.nodes = {};
             this.nodesArray = [];
             this.edges = {};
+            this.mergedEdges = {};
             this.traceroutes = {};
 
             for (var n=0,length=traceroutesToDraw.length; n<length; n++){
@@ -207,7 +224,7 @@ define([
                     $this._createNodeView(host, pathView);
 
                     if (lastHost){
-                        $this._createEdgeView(lastHost, host, traceroute);
+                        $this._createEdgeView(lastHost, host, pathView, false);
                     }
 
                     lastHost = host;
@@ -218,7 +235,7 @@ define([
                     $this._createNodeView(traceroute.target, pathView);
 
                     if (lastHost){
-                        $this._createEdgeView(lastHost, traceroute.target, traceroute);
+                        $this._createEdgeView(lastHost, traceroute.target, pathView, true);
                     }
                 }
 
@@ -338,6 +355,7 @@ define([
                         edges[edgeKey] = {
                             from: previousHost,
                             to: host,
+                            minlen: "3",
                             weight: 8
                         };
                     }
@@ -400,10 +418,12 @@ define([
 
             for (var edge in mesh.edges) {
                 edgeObj = mesh.edges[edge];
+
                 env.mainView.graph.addEdge(edgeObj.from.getId(), edgeObj.to.getId(), {
                     interpolation: 'basis',
                     class: "edge-host",
-                    weight: edgeObj.weight
+                    weight: edgeObj.weight,
+                    minlen: edgeObj.minlen
                 });
             }
 
@@ -414,6 +434,59 @@ define([
             for (var n=0,length=this.nodesArray.length; n<length; n++) {
                 this._calculateLabelPosition(this.nodesArray[n].label);
             }
+        };
+
+        this._drawEdges = function(){
+            var path, edges, d3Edges, edgeView;
+
+            edges = [];
+            for (var edgeKey in this.mergedEdges){
+                edgeView = $this.mergedEdges[edgeKey];
+                if (edgeView.isDisconnected()) {
+                    edges.push(edgeView);
+                }
+            }
+
+            d3Edges = env.mainView.edgesContainer
+                .selectAll("path")
+                .data(edges, function(edge){
+                    return edge.id;
+                });
+
+            d3Edges
+                .exit()
+                .remove();
+
+            d3Edges
+                .enter()
+                .append("path")
+                .on("mouseenter", function(edgeView){
+                    edgeView.isHovered(true);
+                    $this.hoveredObject = edgeView;
+                    $this.dryUpdate();
+                })
+                .on("mouseout", function(edgeView){
+                    edgeView.isHovered(false);
+                    $this.hoveredObject = null;
+                    $this.dryUpdate();
+                });
+
+            d3Edges
+                .attr("class", function(edge){
+                    return edge.getClass();
+                })
+                .attr("data-focus-out", function (edgeView) {
+                    return (edgeView.isFocusOut()) ? true : null;
+                })
+                .attr("data-hover", function(edgeView){
+                    return (edgeView.isHovered()) ? true : null;
+                })
+                .attr("data-selected", function(edgeView){
+                    return (edgeView.isSelected()) ? true : null;
+                })
+                .attr("d", function(edgeView){
+                    return lineFunction(edgeView.getPoints());
+                });
         };
 
         this._drawNodes = function(){
@@ -490,7 +563,8 @@ define([
         };
 
         this._filterChangedPaths = function (pathView) {
-            return (cache.paths[pathView.id]) ? pathView.equalsTo(cache.paths[pathView.id]) : true;
+            return true;
+            // return (cache.paths[pathView.id]) ? pathView.equalsTo(cache.paths[pathView.id]) : true;
         };
 
         this._drawPaths = function(options){
@@ -500,13 +574,13 @@ define([
 
             traceroutes = options.traceroutes || this.traceroutes;
 
-            for (var edgeKey in this.edges){
-                edge = this.edges[edgeKey];
-                edgeView = env.mainView.graph.getEdge(edge.start.getId(), edge.stop.getId());
-                if (edgeView){
-                    cache.edges.push(edgeView);
-                }
-            }
+            // for (var edgeKey in this.edges){
+            //     edge = this.edges[edgeKey];
+            //     edgeView = env.mainView.graph.getEdge(edge.from.getId(), edge.to.getId());
+            //     if (edgeView){
+            //         cache.edges.push(edgeView);
+            //     }
+            // }
 
             for (var tracerouteKey in traceroutes){
                 pathItem = traceroutes[tracerouteKey];
@@ -568,31 +642,32 @@ define([
                 })
                 .transition()
                 .attr("d", function(pathView){
-                    return lineFunction(pathView.points);
+                    return lineFunction(pathView.getPoints());
                 });
         };
 
         this._animatePathChange = function (oldTraceroute, newTraceroute) {
-            var tracerouteId, element;
+            var duration, element;
 
-            tracerouteId = utils.getIdFromIp(oldTraceroute.stateKey);
+            oldTraceroute = new PathView(env, oldTraceroute);
+            newTraceroute = this.traceroutes[utils.getIdFromIp(newTraceroute.stateKey)];
+
+            duration = $this._getAnimationTransitionTime("pathChange");
 
             element = env.mainView.pathsContainer
-                .select("path.path-" + tracerouteId);
+                .select(oldTraceroute.getClass(true));
 
             setTimeout(function(){
                 element
                     .attr("data-animation", null);
-            }, $this._getAnimationTransitionTime("pathChange"));
+            }, duration);
 
             element
                 .attr("data-animation", true)
                 .transition()
-                .duration(function(){
-                    return $this._getAnimationTransitionTime("pathChange");
-                })
+                .duration(duration)
                 .ease("linear")
-                .attr("d", lineFunction(this._getPointsFromTraceroute(newTraceroute)));
+                .attr("d", lineFunction(newTraceroute.getPoints()));
 
         };
 
@@ -619,45 +694,6 @@ define([
             }
 
             return Math.min(speed, emulationSpeedPercentage);
-        };
-
-        this._getPointsFromTraceroute = function(traceroute){
-            var edge, points, pathId, unifiedPathArray, hosts, edgeTmp;
-
-            unifiedPathArray = [];
-            hosts = traceroute.getHostList();
-
-            // hosts.push(traceroute.target);
-
-            for (var n=0,length=hosts.length; n<length-1; n++){
-                if (hosts[n].getId() != hosts[n + 1].getId()) {
-                    edgeTmp = env.mainView.graph.getEdge(hosts[n].getId(), hosts[n + 1].getId());
-
-                    if (edgeTmp){
-                        unifiedPathArray.push(edgeTmp);
-                    } else {
-                        unifiedPathArray.push({ // Virtual edge
-                            from: hosts[n].getId(),
-                            to: hosts[n + 1].getId(),
-                            points: [],
-                            id: hosts[n].getId() + "-" + hosts[n + 1].getId()
-                        });
-
-                    }
-                }
-            }
-
-            points = [];
-            for (var n=0,length=unifiedPathArray.length; n<length; n++){
-                edge = unifiedPathArray[n];
-
-                points.push(env.mainView.graph.getNode(edge.from));
-                points = points.concat(edge.points);
-                points.push(env.mainView.graph.getNode(edge.to));
-                pathId = utils.getIdFromIp(edge.id);
-            }
-
-            return points;
         };
 
         this._setListeners();

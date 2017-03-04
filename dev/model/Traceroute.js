@@ -134,15 +134,23 @@ define([
                 stringLine = [];
                 for (var n1 = 0, length1 = attempts.length; n1 < length1; n1++) {
                     attempt = attempts[n1];
-                    host = attempt.host.ip || '*';
-                    reverse = (attempt.host.reverseDns) ? attempt.host.reverseDns.complete : attempts[n1].host.ip;
-                    rtt = attempt.rtt;
 
-                    stringLine.push(
-                        host
-                        + ((reverse) ? ' (' + reverse + ') ' : '')
-                        + ((rtt) ? rtt : '')
-                    );
+                    if (attempt.host.ip) {
+                        host = attempt.host.ip;
+                        reverse = (attempt.host.reverseDns) ? attempt.host.reverseDns.complete : attempts[n1].host.ip;
+                        rtt = attempt.rtt;
+
+                        stringLine.push(
+                            host
+                            + ((reverse) ? ' (' + reverse + ') ' : '')
+                            + ((rtt) ? rtt : '')
+                        );
+                    } else {
+                        console.log(attempt.host.multiplicity);
+                        for (var m=attempt.host.multiplicity-1; m>=0; m--){
+                            stringLine.push("*" + ((attempt.host.multiplicity > 1) ? "m" : "-"));
+                        }
+                    }
                 }
 
                 this._string += lineNumber + "    " + stringLine.join("\n      ") + "\n";

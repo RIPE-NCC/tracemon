@@ -64,8 +64,9 @@ define([], function(){
             combineSameAsNullNode: false,
             labelOrientationPreference: ["r", "t", "l"], // "b" no bottom positioning
             pathInterpolation: "basis",
-            nodeRadius: 7,
-            nodeSelectedRadius: 10,
+            drawSingleEdges: true,
+            nodeRadius: 6,
+            nodeSelectedRadius: 8,
 
             normalOpacity: 1,
             verticalNodeDistance: 30,
