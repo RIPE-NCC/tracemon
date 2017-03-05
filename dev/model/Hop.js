@@ -13,6 +13,17 @@ define([
         this._attemptIndex = {};
     };
 
+    Hop.prototype.areAllNullHosts = function(){
+
+        for (var n=0,length=this._attempts.length; n<length; n++){
+            if (this._attempts[n].host.ip){
+                return false;
+            }
+        }
+
+        return true;
+    };
+
 
     Hop.prototype.addAttempt = function(attempt){
         this._attempts.push(attempt);
@@ -46,6 +57,51 @@ define([
         // }
 
         return this._attempts[0]; // Easy for now
+    };
+
+    Hop.prototype.toString = function(hopNumber){
+        var out, unique, item, outString, mss, indentation;
+
+        out = [];
+        unique = {};
+        outString = '';
+
+        this.forEachAttempt(function(attempt){
+            var key = attempt.host.ip || "*";
+            if (!unique[key]) {
+                item = {
+                    host: attempt.host.toString(),
+                    ms: []
+                };
+                if (attempt.rtt){
+                    item.ms.push(attempt.rtt);
+                }
+                unique[key] = item;
+                out.push(item);
+            } else if (attempt.rtt){
+                unique[key].ms.push(attempt.rtt);
+            }
+        });
+
+        for (var n=0; n<out.length; n++){
+            item = out[n];
+            mss = item.ms.sort(function(a, b){return a - b});
+            if (hopNumber) {
+                indentation = '      ';
+                if (n == 0){
+                    outString += hopNumber + indentation.substring(0, (indentation.length - ('' + hopNumber).length * 2));
+                } else {
+                    outString += indentation;
+                }
+            }
+            outString += item.host + '  ';
+            for (var m=0; m<mss.length; m++){
+                outString += '  ' + mss[m] + ' ms';
+            }
+            outString += '\n';
+        }
+
+        return outString;
     };
 
     return Hop;

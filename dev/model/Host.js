@@ -61,5 +61,15 @@ define([
         this._location = locationObject;
     };
 
+    Host.prototype.toString = function() {
+
+        if (this.ip) {
+            return this.ip + ' (' + ((this.reverseDns) ? this.reverseDns.complete : this.ip) + ')';
+        } else {
+            return "*";
+        }
+    };
+
+
     return Host;
 });

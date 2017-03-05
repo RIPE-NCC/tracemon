@@ -14,6 +14,8 @@ define([
         this.id = this.stateKey + '-' + date.unix();
         this.source = source;
         this.target = target;
+        this.maxHopsAllowed = "[NO DATA]";
+        this.packetSize = "[NO DATA]";
         target.isTarget = true;
         this.date = date;
         this.validUpTo = this.date;
@@ -123,38 +125,11 @@ define([
     };
 
     Traceroute.prototype.toString = function(){
-        var attempts, host, reverse, rtt, stringLine, lineNumber, attempt;
 
         if (!this._string) {
             this._string = "";
-            lineNumber = 0;
             for (var n = 0, length = this._hops.length; n < length; n++) {
-                attempts = this._hops[n].getAttempts();
-                attempts = attempts.sort(function(a, b){return a.rtt-b.rtt});
-                stringLine = [];
-                for (var n1 = 0, length1 = attempts.length; n1 < length1; n1++) {
-                    attempt = attempts[n1];
-
-                    if (attempt.host.ip) {
-                        host = attempt.host.ip;
-                        reverse = (attempt.host.reverseDns) ? attempt.host.reverseDns.complete : attempts[n1].host.ip;
-                        rtt = attempt.rtt;
-
-                        stringLine.push(
-                            host
-                            + ((reverse) ? ' (' + reverse + ') ' : '')
-                            + ((rtt) ? rtt : '')
-                        );
-                    } else {
-                        console.log(attempt.host.multiplicity);
-                        for (var m=attempt.host.multiplicity-1; m>=0; m--){
-                            stringLine.push("*" + ((attempt.host.multiplicity > 1) ? "m" : "-"));
-                        }
-                    }
-                }
-
-                this._string += lineNumber + "    " + stringLine.join("\n      ") + "\n";
-                lineNumber ++;
+                this._string += this._hops[n].toString(n+1);
             }
         }
 

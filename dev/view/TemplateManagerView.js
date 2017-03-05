@@ -529,9 +529,18 @@ define([
         };
 
         this.showTraceroute = function(traceroute){
+            var textualContent;
+
+            textualContent = "Traceroute to ";
+            textualContent += (traceroute.target.reverseDns)
+                ? traceroute.target.reverseDns.complete + " (" + traceroute.target.ip + ")"
+                : traceroute.target.ip;
+            textualContent += ", " + traceroute.maxHopsAllowed + " hops max, " + traceroute.packetSize + " byte packets\n";
+
+            textualContent += traceroute.toString();
             this.tracerouteDivDom.show();
             this.tracerouteDivDom.find("textarea")
-                .text(traceroute.toString());
+                .text(textualContent);
         }
 
     };

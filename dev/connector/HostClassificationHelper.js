@@ -67,8 +67,8 @@ define([
         };
 
         /* Bug: if the main attempts list contains a series of wildcards but the other attempts at the same
-        * hops not... the other hops will be compressed too (so some valid nodes will disappear)
-        * A possible partial fix is to prefer valid nodes when computing the mainAttempt list */
+         * hops not... the other hops will be compressed too (so some valid nodes will disappear)
+         * A possible partial fix is to prefer valid nodes when computing the mainAttempt list */
         this._combineConsecutiveNullNodes = function (traceroute) {
             var hops, hop, attempt, host, previousHop, previousAttempt, previousHost, newHops;
 
@@ -77,28 +77,33 @@ define([
 
             for (var n=0,length=hops.length; n<length; n++){
                 hop = hops[n];
+
                 attempt = hop.getMainAttempt();
                 host = attempt.host;
+                previousHop = hops[n - 1];
 
-                if (n > 0 && !host.ip){
-                    previousHop = hops[n-1];
+                if (previousHop && hop.areAllNullHosts() && previousHop.areAllNullHosts()) {
                     previousAttempt = previousHop.getMainAttempt();
                     previousHost = previousAttempt.host;
-                    if (!previousHost.ip) {
-                        hops.splice(n, 1);
-                        length--;
-                        n--;
-                        previousHost.multiplicity++;
-                        if (host.isLast){
-                            previousHost.isLast = true;
+
+                    hops.splice(n, 1);
+                    length--;
+                    n--;
+                    previousHop.forEachAttempt(function(attempt){
+                        var hostTmp;
+
+                        hostTmp = attempt.host;
+                        hostTmp.multiplicity++;
+                        if (host.isLast) {
+                            hostTmp.isLast = true;
                         }
-                    } else {
-                        newHops.push(hop);
-                    }
+                    });
+
                 } else {
                     newHops.push(hop);
                 }
             }
+
 
             traceroute._hops = newHops;
         };
