@@ -125,15 +125,29 @@ define([
     };
 
     Traceroute.prototype.toString = function(){
+        var hop, lineNumber;
 
+        lineNumber = 1;
         if (!this._string) {
             this._string = "";
             for (var n = 0, length = this._hops.length; n < length; n++) {
-                this._string += this._hops[n].toString(n+1);
+                hop = this._hops[n];
+                this._string += hop.toString(lineNumber);
+                lineNumber += hop.multiplicity;
             }
         }
 
         return this._string;
+    };
+
+    Traceroute.prototype.getHop = function(host){
+        for (var n=0,length=this._hops.length; n<length; n++){
+            if (this._hops[n].containsHost(host)){
+                return this._hops[n];
+            }
+        }
+        
+        return null;
     };
 
     return Traceroute;

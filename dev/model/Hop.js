@@ -10,7 +10,7 @@ define([
 
     var Hop = function () {
         this._attempts = [];
-        this._attemptIndex = {};
+        this.multiplicity = 1;
     };
 
     Hop.prototype.areAllNullHosts = function(){
@@ -80,28 +80,45 @@ define([
                 out.push(item);
             } else if (attempt.rtt){
                 unique[key].ms.push(attempt.rtt);
+            } else if (key == "*"){
+                unique[key].host += ' ' + attempt.host.toString();
             }
         });
 
-        for (var n=0; n<out.length; n++){
-            item = out[n];
-            mss = item.ms.sort(function(a, b){return a - b});
-            if (hopNumber) {
-                indentation = '      ';
-                if (n == 0){
-                    outString += hopNumber + indentation.substring(0, (indentation.length - ('' + hopNumber).length * 2));
-                } else {
-                    outString += indentation;
+        for (var t=this.multiplicity; t>0; t--) {
+            for (var n = 0; n < out.length; n++) {
+                item = out[n];
+                mss = item.ms.sort(function (a, b) {
+                    return a - b
+                });
+                if (hopNumber) {
+                    indentation = '      ';
+                    if (n == 0) {
+                        outString += hopNumber + indentation.substring(0, (indentation.length - ('' + hopNumber).length * 2));
+                    } else {
+                        outString += indentation;
+                    }
                 }
+                outString += item.host + '  ';
+                for (var m = 0; m < mss.length; m++) {
+                    outString += '  ' + mss[m] + ' ms';
+                }
+                outString += '\n';
             }
-            outString += item.host + '  ';
-            for (var m=0; m<mss.length; m++){
-                outString += '  ' + mss[m] + ' ms';
-            }
-            outString += '\n';
+            hopNumber++;
         }
 
         return outString;
+    };
+
+    Hop.prototype.containsHost = function(host){
+        for (var n=0,length=this._attempts.length; n<length; n++){
+            if (this._attempts[n].host.getId() == host.getId()){
+                return true;
+            }
+        }
+
+        return false;
     };
 
     return Hop;

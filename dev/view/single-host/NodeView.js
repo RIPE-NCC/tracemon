@@ -111,12 +111,30 @@ define([
                 && nodeView.x;
         },
 
+        getMultiplicity: function(){
+            var sameMultiplicity, hop;
+
+            hop = this.traceroutes[0].model.getHop(this.model);
+            sameMultiplicity = (hop) ? hop.multiplicity : null;
+            for (var n=1; n<this.traceroutes.length; n++){
+                hop = this.traceroutes[n].model.getHop(this.model);
+                if (!sameMultiplicity && hop){
+                    sameMultiplicity = hop.multiplicity;
+                }
+                sameMultiplicity = (hop && hop.multiplicity != sameMultiplicity) ? false : sameMultiplicity;
+            }
+
+            return sameMultiplicity;
+        },
+
         getInfo: function () {
-            var out, guess, asObj;
+            var out, guess, asObj, multiplicity;
 
             out = "";
+
+            multiplicity = this.getMultiplicity();
             guess = (this.model.isPrivate || !this.model.ip);
-            out += (!this.model.ip && this.model.multiplicity > 1) ? "Repeated " + this.model.multiplicity + " times<br>" : "";
+            out += (!this.model.ip && multiplicity && multiplicity > 1) ? "Repeated " + multiplicity + " times<br>" : "";
             out += (this.model.ip) ? "IP: " + this.model.ip + "<br>" : "";
 
             if (this.model.isIxp) {

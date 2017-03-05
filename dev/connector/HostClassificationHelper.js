@@ -66,7 +66,7 @@ define([
             }
         };
 
-        /* Bug: if the main attempts list contains a series of wildcards but the other attempts at the same
+        /* [FIXED] Bug: if the main attempts list contains a series of wildcards but the other attempts at the same
          * hops not... the other hops will be compressed too (so some valid nodes will disappear)
          * A possible partial fix is to prefer valid nodes when computing the mainAttempt list */
         this._combineConsecutiveNullNodes = function (traceroute) {
@@ -89,13 +89,13 @@ define([
                     hops.splice(n, 1);
                     length--;
                     n--;
+                    /* NOTE: They are all null nodes, so they don't have any additional value
+                    * to distinguish them. Each attempt has rtt=null etc. Incrementing the
+                    * multiplicity is enough */
+                    previousHop.multiplicity++;
                     previousHop.forEachAttempt(function(attempt){
-                        var hostTmp;
-
-                        hostTmp = attempt.host;
-                        hostTmp.multiplicity++;
                         if (host.isLast) {
-                            hostTmp.isLast = true;
+                            attempt.host.isLast = true;
                         }
                     });
 

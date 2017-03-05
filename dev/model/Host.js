@@ -6,7 +6,6 @@ define([
     var Host = function (ip) { // Proxy
         this.ip = ip;
         this.isProbe = false;
-        this.multiplicity = 1;
         this.isLast = false;
         this.isTarget = false;
         this.measurements = [];

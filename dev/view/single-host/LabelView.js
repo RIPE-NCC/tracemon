@@ -40,7 +40,6 @@ define([
 
         update: function(){
             this.id = this.node.id;
-            // Update the svg involved
         },
 
         _getDefaultLabel: function(){
@@ -107,7 +106,7 @@ define([
 
 
         getShortText: function(){
-            var label, nodeAs;
+            var label, nodeAs, multiplicity;
 
             label = ""; // Empty if no short label available!
             nodeAs = this.node.model.getAutonomousSystem();
@@ -132,7 +131,8 @@ define([
                     } else if (nodeAs && this.node.model.ip){
                         label = (nodeAs.shortName) ? nodeAs.shortName : "AS" + nodeAs.id;
                     } else if (!this.node.model.ip){
-                        label = "✱" + ((this.node.model.multiplicity > 1) ? "x" + this.node.model.multiplicity : "");
+                        multiplicity = this.node.getMultiplicity();
+                        label = "✱" + ((multiplicity && multiplicity > 1) ? "x" + multiplicity : "");
                     }
 
                     break;
