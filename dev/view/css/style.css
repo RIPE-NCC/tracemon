@@ -106,7 +106,7 @@
 
 
 .path[data-selected] {
-    stroke-width: 14px!important;
+    stroke-width: 6px!important;
     cursor: pointer;
     opacity: 1!important;
 }

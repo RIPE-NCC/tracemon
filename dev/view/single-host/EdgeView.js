@@ -3,7 +3,7 @@ define([
 ], function(utils){
 
     var EdgeView = function(env, fromNodeView, toNodeView) {
-        this.id = utils.getIdFromIp(fromNodeView.getId()) + "-" + utils.getIdFromIp(toNodeView.getId());
+        this.id = utils.getIdFromIp(fromNodeView.model.getId()) + "-" + utils.getIdFromIp(toNodeView.model.getId());
         this.from = fromNodeView;
         this.to = toNodeView;
         this.type = "edgeView";
@@ -35,14 +35,16 @@ define([
         },
 
         getPoints: function(){
-            var points, edge, edgePoints;
+            var points, edge, edgePoints, fromId, toId;
 
             points = [];
-            edge = env.mainView.graph.getEdge(this.from.getId(), this.to.getId());
+            fromId = this.from.model.getId();
+            toId = this.to.model.getId();
+            edge = env.mainView.graph.getEdge(fromId, toId);
             edgePoints = (edge) ? edge.points : [];
-            points.push(env.mainView.graph.getNode(this.from.getId()));
+            points.push(env.mainView.graph.getNode(fromId));
             points = points.concat(edgePoints);
-            points.push(env.mainView.graph.getNode(this.to.getId()));
+            points.push(env.mainView.graph.getNode(toId));
 
             return points;
         },

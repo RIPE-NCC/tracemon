@@ -62,8 +62,10 @@ define([
 
     Host.prototype.toString = function() {
 
-        if (this.ip) {
-            return this.ip + ' (' + ((this.reverseDns) ? this.reverseDns.complete : this.ip) + ')';
+        if (this.ip && this.reverseDns) {
+            return this.reverseDns.complete + " (" + this.ip + ")";
+        } else if (this.ip){
+            return this.ip + " (" + this.ip + ")";
         } else {
             return "*";
         }

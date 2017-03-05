@@ -26,7 +26,7 @@ define([
             isVisible = !this.isFocusOut()
                 && (this.isSelected()
                     || this.isHovered()
-                    || !env.mainView.view.hoveredObject
+                    || (!env.mainView.view.hoveredObject || env.mainView.view.hoveredObject.isFocusOut())
                 );
 
 

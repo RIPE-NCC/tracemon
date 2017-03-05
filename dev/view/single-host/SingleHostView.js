@@ -175,7 +175,7 @@ define([
             if (fromId != toId) {
                 var edgeId, edge;
 
-                edge = new EdgeView(env, from, to);
+                edge = new EdgeView(env, this.nodes[fromId], this.nodes[toId]);
                 edge.isDisconnected(disconnected);
                 edgeId = edge.getStateKey();
 

@@ -97,7 +97,7 @@ define([
                             try {
                                 reverseArray = data.split(".");
                                 reverse = [
-                                    reverseArray[reverseArray.length - 3],
+                                    // reverseArray[reverseArray.length - 3],
                                     reverseArray[reverseArray.length - 2],
                                     reverseArray[reverseArray.length - 1]
                                 ].join(".");
