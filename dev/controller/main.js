@@ -28,7 +28,7 @@ define([
             "getSources", "setTimeRange", "removeMeasurement", "goTo", "init", "getVersion"];
 
         this._updateFinalQueryParams = function () {
-            var initialParams, finalParams, startDate, stopDate, sourcesAmount, instant;
+            var initialParams, finalParams, startDate, stopDate, sourcesAmount, instant, currentTimestamp;
 
             if (Object.keys(env.loadedMeasurements).length > 0) {
 
@@ -40,7 +40,8 @@ define([
                 } else if (env.metaData.stopDate){
                     stopDate = moment(env.metaData.stopDate);
                 } else {
-                    stopDate = moment().utc();
+                    currentTimestamp = moment().utc().unix();
+                    stopDate = moment.unix(parseInt(currentTimestamp / config.defaultTimeRangeGranularity) * config.defaultTimeRangeGranularity).utc();
                 }
 
                 startDate = (initialParams.startTimestamp) ? moment.unix(initialParams.startTimestamp).utc() :

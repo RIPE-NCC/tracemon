@@ -46,7 +46,7 @@ define([], function(){
         startWithLastStatus: true,
 
         lateReportedResults: 200, // seconds of validity for a late reported result
-
+        defaultTimeRangeGranularity: 60 * 5, // Seconds
 
         transitionsTimes:{
             pathChange: 600,
