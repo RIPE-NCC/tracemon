@@ -11,7 +11,7 @@ define([], function(){
             // results: "http://localhost/unified_api.php?id=0000",
             results: "http://massimo.ripe.net/tracemon/unified_api.php?id=0000",
             metadata: "https://atlas.ripe.net/api/v2/measurements/0000/routequake/meta/",
-            dataApiAsAnnotation: "http://localhost/as_lookup.php",
+            dataApiAsAnnotation: "http://massimo.ripe.net/tracemon/as_lookup.php",
             dataApiReverseDns: "https://stat.ripe.net/data/reverse-dns-ip/data.json",
             dataApiGeolocation: "https://stat.ripe.net/data/geoloc/data.json",
             dataApiAsnNeighbours: "https://stat.ripe.net/data/asn-neighbours/data.json",
