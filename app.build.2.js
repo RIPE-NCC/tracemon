@@ -55,11 +55,13 @@
         "tracemon.view.templateManager": "dev/view/TemplateManagerView",
         "tracemon.view.timeOverview": "dev/view/TimeOverviewView",
 
+
         /* Single host view mode*/
         "tracemon.view.single-host.single-host-view": "dev/view/single-host/SingleHostView",
         "tracemon.view.single-host.path-view": "dev/view/single-host/PathView",
         "tracemon.view.single-host.node-view": "dev/view/single-host/NodeView",
         "tracemon.view.single-host.label-view": "dev/view/single-host/LabelView",
+        "tracemon.view.single-host.edge-view": "dev/view/single-host/EdgeView",
 
         /* view.svg */
         "tracemon.view.svg.chart": "dev/view/svg/SvgChartView",
