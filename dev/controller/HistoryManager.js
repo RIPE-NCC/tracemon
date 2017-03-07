@@ -102,35 +102,34 @@ define([
             utils.observer.publish("view.animation:start", env.finalQueryParams.instant);
 
             var emulate = function(){
-                var history = [env.finalQueryParams.startDate.unix() + 1]
-                    .concat($this._historyTimeline)
-                    .concat([env.finalQueryParams.stopDate.unix()]);
+                if (env.emulationRunning) {
+                    var history = [env.finalQueryParams.startDate.unix() + 1]
+                        .concat($this._historyTimeline)
+                        .concat([env.finalQueryParams.stopDate.unix()]);
 
-                for (var n=0,length=history.length; n<length; n++){
-                    var momentDate, timestamp;
+                    for (var n = 0, length = history.length; n < length; n++) {
+                        var momentDate, timestamp;
 
-                    timestamp = history[n];
-                    momentDate = $this._timestampToDate(timestamp);
+                        timestamp = history[n];
+                        momentDate = $this._timestampToDate(timestamp);
 
-                    if (momentDate.isAfter(env.finalQueryParams.instant)){
+                        if (momentDate.isAfter(env.finalQueryParams.instant)) {
 
-                        $this.setCurrentInstant(momentDate);
-                        $this.getCurrentState();
+                            $this.setCurrentInstant(momentDate);
+                            $this.getCurrentState();
 
-                        if (env.emulationRunning) {
-                            if (n == length - 1){
+                            if (n == length - 1) {
                                 env.emulationRunning = false;
                                 console.log("animation stop");
                                 utils.observer.publish("view.animation:stop", env.finalQueryParams.instant);
                             } else {
                                 setTimeout(emulate, $this.getEmulationSpeed());
                             }
-                        }
 
-                        break;
+                            break;
+                        }
                     }
                 }
-
             };
 
             emulate();

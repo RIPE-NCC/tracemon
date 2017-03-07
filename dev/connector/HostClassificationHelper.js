@@ -90,8 +90,8 @@ define([
                     length--;
                     n--;
                     /* NOTE: They are all null nodes, so they don't have any additional value
-                    * to distinguish them. Each attempt has rtt=null etc. Incrementing the
-                    * multiplicity is enough */
+                     * to distinguish them. Each attempt has rtt=null etc. Incrementing the
+                     * multiplicity is enough */
                     previousHop.multiplicity++;
                     previousHop.forEachAttempt(function(attempt){
                         if (host.isLast) {
@@ -138,43 +138,53 @@ define([
 
         };
 
+        /* During the classification of the null nodes, tt's important to keep track if we set the AS of the node
+        before or after. Otherwise all the null nodes in the same AS are going to be merged creating weird loops*/
         this._combineNullNodes = function(traceroute){
             var hops, attempt, host, hostKey, hop, nextHop, nextHost, hostAs, prevHop, prevHost;
 
-            hops = traceroute.getHops();
+            if (config.graph.combineNullHosts){
 
-            for (var n=0,length=hops.length; n<length; n++) {
-                hop = hops[n];
-                attempt = hop.getMainAttempt();
-                host = attempt.host;
+                hops = traceroute.getHops();
+                for (var n=0,length=hops.length; n<length; n++) {
+                    hop = hops[n];
+                    attempt = hop.getMainAttempt();
+                    host = attempt.host;
 
-                if (!host.ip && config.graph.combineNullHosts) {
-                    hostKey = null;
-                    nextHost = null;
-                    nextHop = hops[n + 1];
-                    if (n > 0){
-                        prevHop = hops[n - 1];
-                        prevHost = prevHop.getMainAttempt().host;
-                    }
+                    if (!host.ip) {
+                        hostKey = null;
+                        nextHost = null;
+                        nextHop = hops[n + 1];
+                        if (n > 0) {
+                            prevHop = hops[n - 1];
+                            prevHost = prevHop.getMainAttempt().host;
+                        }
 
-                    nextHost = (nextHop) ? nextHop.getMainAttempt().host : null;
+                        nextHost = (nextHop) ? nextHop.getMainAttempt().host : null;
 
-                    hostAs = host.getAutonomousSystem();
-                    if (nextHost && !nextHost.isPrivate) { // Merge for next host
-                        hostKey = "*-" + nextHost.ip;
-                    } else if (prevHost && !prevHost.isPrivate){ // Merge for prev host
-                        hostKey = "*-" + prevHost.ip;
-                    } else if (config.graph.combineSameAsNullNode && hostAs) {
-                        hostKey = "*-" + hostAs.id;
-                    } else if (hostAs && nextHost && nextHost.isPrivate) { // is just private
-                        hostKey = "*-" + nextHost.ip + "-" + hostAs.id;
-                    }
+                        hostAs = host.getAutonomousSystem();
+                        if (nextHost && !nextHost.isPrivate && nextHost.ip) { // Merge for next host
+                            hostKey = "*-" + nextHost.ip;
+                        } else if (prevHost && !prevHost.isPrivate && prevHost.ip) { // Merge for prev host
+                            hostKey = prevHost.ip + "-*";
+                        } else if (hostAs) {
+                            if (config.graph.combineSameAsNullNode){
+                                hostKey = "*-" + hostAs.id;
+                            } else if (this._selectedAs == "previous"){
+                                hostKey = hostAs.id + "-*";
+                            } else {
+                                hostKey = "*-" + hostAs.id;
+                            }
+                        } else if (hostAs && nextHost && nextHost.isPrivate) { // is just private
+                            hostKey = "*-" + nextHost.ip + "-" + hostAs.id;
+                        }
 
-                    if (hostKey) {
-                        if (uniqueHostAs[hostKey]) { // Check if the same object instance
-                            attempt.host = uniqueHostAs[hostKey]; // Reuse the same Host object
-                        } else {
-                            uniqueHostAs[hostKey] = host;
+                        if (hostKey) {
+                            if (uniqueHostAs[hostKey]) { // Check if the same object instance
+                                attempt.host = uniqueHostAs[hostKey]; // Reuse the same Host object
+                            } else {
+                                uniqueHostAs[hostKey] = host;
+                            }
                         }
                     }
                 }
@@ -283,8 +293,10 @@ define([
                         } else {
                             if (bucketAses[bucketKey1] == globalUniqueOut[previousAs.id]) {
                                 host.setAutonomousSystem(previousAs);
+                                host._selectedAs = "previous";
                             } else if (bucketAses[bucketKey2] == globalUniqueOut[nextAs.id]) {
                                 host.setAutonomousSystem(nextAs);
+                                host._selectedAs = "next";
                             } else {
                                 bestBucket = Math.min(
                                     Math.max(bucketAses[bucketKey1], globalUniqueIn[nextAs.id]),
@@ -292,8 +304,10 @@ define([
                                 );
                                 if (bucketAses[bucketKey1] == bestBucket){
                                     host.setAutonomousSystem(previousAs);
+                                    host._selectedAs = "previous";
                                 } else {
                                     host.setAutonomousSystem(nextAs);
+                                    host._selectedAs = "next";
                                 }
                             }
                         }
@@ -349,7 +363,7 @@ define([
             for (var n=0,length=traceroutes.length; n<length; n++) {
                 traceroute = traceroutes[n];
                 this._combineConsecutiveNullNodes(traceroute); // Group consecutive null nodes together
-                this._categorizePrivateAndNull(traceroute); // Set AS to private and null nodes
+                this._categorizePrivateAndNull(traceroute); // Set AS to private and null nodes, only if surrounded by the same AS
                 this._preClassifyNullNodes(traceroute); // Create the structures needed to try to guess the AS of a null node
                 this._combinePrivateNodes(traceroute); // Combine all the private IPs in the same AS
             }

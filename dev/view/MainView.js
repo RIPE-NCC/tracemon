@@ -71,8 +71,6 @@ define([
 
             if (firstDraw){
                 this._firstDraw(this._drawnStatus);
-                firstDraw = false;
-                this.latencymon.init(".latencymon-chart", env.queryParams.measurements, env.finalQueryParams.sources); // Init LatencyMON
             } else {
                 this._update(this._drawnStatus);
             }
@@ -105,18 +103,23 @@ define([
             var diff, maxLengthTraceroute;
 
             diff = this._computeDiff(this._oldStatus, newStatus);
-            maxLengthTraceroute = Math.max.apply(null, $.map(diff.newTraceroutes, function(item){
-                return item.getLength();
-            }));
+            
+            if (diff.status.length > 0) { // Something to draw
+                maxLengthTraceroute = Math.max.apply(null, $.map(diff.newTraceroutes, function (item) {
+                    return item.getLength();
+                }));
 
-            this._initChart(maxLengthTraceroute);
+                this._initChart(maxLengthTraceroute);
 
-            this.view = this._getView();
+                this.view = this._getView();
 
-            this.view.draw(diff, function() { // Compute the layout and draw
-                console.log("drawn");
-            });
+                this.view.draw(diff, function () { // Compute the layout and draw
+                    console.log("drawn");
+                });
 
+                firstDraw = false;
+                this.latencymon.init(".latencymon-chart", env.queryParams.measurements, env.finalQueryParams.sources); // Init LatencyMON
+            }
             this._oldStatus = newStatus;
         };
 
@@ -124,8 +127,11 @@ define([
             var diff;
 
             diff = this._computeDiff(this._oldStatus, newStatus);
-            this.view.update(diff, function(){
-            });
+
+            if (diff.status.length > 0) { // Something to update
+                this.view.update(diff, function () {
+                });
+            }
             this._oldStatus = newStatus;
         };
 

@@ -105,9 +105,9 @@ define([
                 measurement = env.loadedMeasurements[msmId];
 
                 longestTracerouteTmp = measurement.getLongestTraceroute();
-                longestTraceroute = (longestTraceroute && longestTracerouteTmp && longestTracerouteTmp.getLength() < longestTraceroute.getLength())
+                longestTraceroute = ((longestTraceroute && longestTracerouteTmp && longestTracerouteTmp.getLength() < longestTraceroute.getLength())
                     ? longestTraceroute
-                    : longestTracerouteTmp;
+                    : longestTracerouteTmp) || 0;
 
                 env.metaData = {
                     startDate: (env.metaData.startDate) ?
@@ -323,9 +323,9 @@ define([
                 stopDate: env.finalQueryParams.stopDate
             });
         };
-        
+
         this.getVersion = function(){
-          return env.version;  
+          return env.version;
         };
 
         this.on = function(event, callback){
