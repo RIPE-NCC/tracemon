@@ -20,19 +20,21 @@ define([
     Measurement.prototype.addTraceroutes = function(traceroutes){
         var isSetConsecutive;
 
-        traceroutes = traceroutes.sort(this._tracerouteSort);
-        isSetConsecutive = this._traceroutes && this._traceroutes.length > 0
-            && this.getLastTraceroute().date.isBefore(traceroutes[0].date);
+        if (traceroutes.length > 0) {
+            traceroutes = traceroutes.sort(this._tracerouteSort);
+            isSetConsecutive = this._traceroutes && this._traceroutes.length > 0
+                && this.getLastTraceroute().date.isBefore(traceroutes[0].date);
 
 
-        if (isSetConsecutive){ // The two sets are sorted and consecutive
-            this._traceroutes = this._traceroutes.concat(traceroutes);
-            this._updateIndex(traceroutes); // Update index
-        } else { // Ok, no optimisation, concat and sort everything
-            this._traceroutes = this._traceroutes
-                .concat(traceroutes)
-                .sort(this._tracerouteSort);
-            this._createIndex(this._traceroutes); // Reset the index
+            if (isSetConsecutive) { // The two sets are sorted and consecutive
+                this._traceroutes = this._traceroutes.concat(traceroutes);
+                this._updateIndex(traceroutes); // Update index
+            } else { // Ok, no optimisation, concat and sort everything
+                this._traceroutes = this._traceroutes
+                    .concat(traceroutes)
+                    .sort(this._tracerouteSort);
+                this._createIndex(this._traceroutes); // Reset the index
+            }
         }
     };
 

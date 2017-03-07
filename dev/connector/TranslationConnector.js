@@ -241,11 +241,14 @@ define([
 
                 targetTraceroute = $this.measurementById[item["msm_id"]].target;
                 translated = new Traceroute(hostObj, targetTraceroute, tracerouteDate);
-                translated.parisId = item["paris_id"];
-                translated.protocol = item["proto"];
-                hops[hops.length - 1].forEachAttempt(function(attempt){
-                    attempt.host.isLast = true;
-                });
+                // translated.parisId = item["paris_id"]; In measurement
+                // translated.protocol = item["proto"];
+
+                if (hops.length > 0) {
+                    hops[hops.length - 1].forEachAttempt(function (attempt) {
+                        attempt.host.isLast = true;
+                    });
+                }
                 translated.setHops(hops);
                 translated.errors = errors;
 
