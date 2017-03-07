@@ -14,8 +14,6 @@ define([
         this.id = this.stateKey + '-' + date.unix();
         this.source = source;
         this.target = target;
-        this.maxHopsAllowed = "[NO DATA]";
-        this.packetSize = "[NO DATA]";
         target.isTarget = true;
         this.date = date;
         this.validUpTo = this.date;

@@ -44,6 +44,7 @@ define([], function(){
         defaultNumberOfDisplayedSources: 8,
 
         startWithLastStatus: true,
+        filterLateAnswers: true,
 
         lateReportedResults: 200, // seconds of validity for a late reported result
         defaultTimeRangeGranularity: 60 * 5, // Seconds

@@ -116,7 +116,7 @@ define([
             }
 
             for (var rankKey in sameRank){
-                out += '{rank=same; ' + sameRank[rankKey].join(" ") + '}; \n';
+                out += '{rank=' + rankKey.split("-")[0] + '; ' + sameRank[rankKey].join(" ") + '}; \n';
             }
 
             for (var edgeKey in plainEdges){

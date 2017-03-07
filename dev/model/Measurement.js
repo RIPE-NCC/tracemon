@@ -46,6 +46,7 @@ define([
 
         for (var n=0,length=list.length; n<length; n++){
             item = list[n];
+            item.measurement = this;
             sourceId = item.source.probeId;
 
             this._traceroutesBySource[sourceId] = this._traceroutesBySource[sourceId] || [];

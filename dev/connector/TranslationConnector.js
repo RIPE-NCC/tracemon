@@ -112,10 +112,15 @@ define([
 
         };
 
+        /* Issue: Sometimes the same IP appears twice on the traceroute due to...(BGP conversion, traceroute anomalities)
+         * this creates cycles destroying the layout.
+         * Solutions:
+         * 1) prefer to return as getBestAttempts only "new" nodes for that traceroute
+         * 2) create a new different host for the second time the same IP appears*/
         this.enrichDump = function(data, dump){
             var translated, hops, hop, item, hopList, attempts, attemptsList, hostObj, hopObj, attemptObj,
                 hostAddress, tmpHost, errors, hostAsn, tracerouteList, targetTraceroute, asnObjs, asnTmp, asList,
-                hostGeolocation, tracerouteDate;
+                hostGeolocation, tracerouteDate, attemptTmp;
 
             asnObjs = {};
             asList = data['asns'] || data['ases'];
@@ -163,10 +168,15 @@ define([
                         hopObj.number = hop["hop"];
 
                         for (var n3 = 0, length3 = attemptsList.length; n3 < length3; n3++) {
+                            attemptTmp = attemptsList[n3];
+
+                            if (config.filterLateAnswers && attemptTmp["from"] && !attemptTmp["rtt"]) { // Skip late answers or resending
+                                continue;
+                            }
                             attemptObj = new Attempt();
-                            hostAddress = attemptsList[n3]["from"];
-                            hostAsn = attemptsList[n3]["as"];
-                            hostGeolocation = attemptsList[n3]["location"];
+                            hostAddress = attemptTmp["from"];
+                            hostAsn = attemptTmp["as"];
+                            hostGeolocation = attemptTmp["location"];
                             tmpHost = $this.hostByIp[hostAddress];
 
                             if (tmpHost && !tmpHost.isPrivate) {
@@ -196,10 +206,10 @@ define([
                                 }
                             }
 
-                            if (attemptsList[n3]["rtt"]) {
-                                attemptObj.rtt = attemptsList[n3]["rtt"];
-                                attemptObj.size = attemptsList[n3]["size"];
-                                attemptObj.ttl = attemptsList[n3]["ttl"];
+                            if (attemptTmp["rtt"]) {
+                                attemptObj.rtt = attemptTmp["rtt"];
+                                attemptObj.size = attemptTmp["size"];
+                                attemptObj.ttl = attemptTmp["ttl"];
                             }
                             hopObj.addAttempt(attemptObj);
                         }
@@ -314,14 +324,16 @@ define([
             } else {
                 historyConnector.getMeasurementInfo(measurementId)
                     .done(function (data) {
-                        var measurement, msmTarget, targetHost;
+                        var measurement, msmTarget, targetHost, extra;
 
                         if (data["type"] == "traceroute") {
-                            msmTarget = data["target"];
+                            extra = data["extra"] || {};
+                            msmTarget = data["target_ip"] || data["target"]; // Remove data["target"] asap
                             if ($this.hostByIp[msmTarget]) {
                                 targetHost = $this.hostByIp[msmTarget];
                             } else {
                                 targetHost = new Host(msmTarget);
+                                targetHost.name = data["target"];
 
                                 if (!targetHost.isPrivate) {
 
@@ -337,6 +349,16 @@ define([
 
                             measurement = new Measurement(measurementId, targetHost);
                             targetHost.isTarget = true;
+
+                            // Extra information
+                            measurement.timeout = extra["response_timeout"];
+                            measurement.protocol = extra["protocol"];
+                            measurement.parisId = extra["paris"];
+                            measurement.numberOfPackets = extra["packets"];
+                            measurement.startFromHop = extra["firsthop"];
+                            measurement.maxHopsAllowed = extra["maxhops"] || "[NO DATA]";
+                            measurement.packetSize = extra["size"] || "[NO DATA]";
+
                             measurement.startDate = moment.unix(data["start_time"]).utc();
                             measurement.stopDate = (data["stop_time"]) ? moment.unix(data["stop_time"]).utc() : null;
                             measurement.interval = data["native_sampling"];

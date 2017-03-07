@@ -402,6 +402,19 @@ define([
             }
         };
 
+
+        this._getNodeRank = function(node){
+            if (node.isTarget){
+                return "same-1";
+            } else if (node.isProbe){
+                return "same-2";
+            } else if (node.isTarget){
+                return "sink";
+            }
+
+            return false;
+        };
+
         this._computeLayout = function(mesh){
             var nodeObj, edgeObj;
 
@@ -412,7 +425,7 @@ define([
                 env.mainView.graph.addNode(nodeObj.getId(), {
                     width: config.graph.nodeRadius,
                     height: config.graph.nodeRadius,
-                    rank: (nodeObj.isProbe) ? "first" : false
+                    rank: this._getNodeRank(nodeObj)
                 });
             }
 

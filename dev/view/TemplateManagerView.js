@@ -535,7 +535,7 @@ define([
             textualContent += (traceroute.target.reverseDns)
                 ? traceroute.target.reverseDns.complete + " (" + traceroute.target.ip + ")"
                 : traceroute.target.ip;
-            textualContent += ", " + traceroute.maxHopsAllowed + " hops max, " + traceroute.packetSize + " byte packets\n";
+            textualContent += ", " + traceroute.measurement.maxHopsAllowed + " hops max, " + traceroute.measurement.packetSize + " byte packets\n";
 
             textualContent += traceroute.toString();
             this.tracerouteDivDom.show();
