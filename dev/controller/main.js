@@ -45,7 +45,7 @@ define([
                 }
 
                 startDate = (initialParams.startTimestamp) ? moment.unix(initialParams.startTimestamp).utc() :
-                    moment(stopDate).subtract(config.defaultLoadedResultSetWindow, "seconds");
+                    moment(stopDate).subtract(config.defaultLoadedPeriod * env.metaData.interval, "seconds");
 
                 if (!instant) {
                     instant = (config.startWithLastStatus) ? stopDate: startDate;
@@ -115,7 +115,10 @@ define([
                         measurement.startDate,
                     stopDate: (measurement.stopDate && env.metaData.stopDate) ?
                         moment.max(measurement.stopDate, env.metaData.stopDate) : null, // Null if no measurements have a stopDate
-                    longestTraceroute: longestTraceroute
+                    longestTraceroute: longestTraceroute,
+                    intervalMax: (!env.metaData.interval) ? measurement.interval : Math.max(measurement.interval, env.metaData.interval),
+                    intervalMin: (!env.metaData.interval) ? measurement.interval : Math.min(measurement.interval, env.metaData.interval),
+                    interval: (!env.metaData.interval) ? measurement.interval : Math.min(measurement.interval, env.metaData.interval)
                 };
             }
 
@@ -320,8 +323,9 @@ define([
             }
 
             if (env.finalQueryParams.stopDate.diff(env.finalQueryParams.startDate, 'hours', true) > 24){
-                env.finalQueryParams.startDate = moment(env.finalQueryParams.stopDate).subtract(24, "hours");
-                alert("Sorry, you can select up to 24 hours of time range for now.");
+                env.finalQueryParams.startDate = moment(env.finalQueryParams.stopDate)
+                    .subtract(config.maximumLoadedPeriod * env.metaData.interval, "seconds");
+                alert("Sorry, you can select up to " + config.maximumLoadedPeriod * env.metaData.interval + " seconds of time range for now (calculated based on the frequency of the measurement).");
             }
             env.main.updateData();
             utils.observer.publish("view.time-selection:change", {
