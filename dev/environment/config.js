@@ -6,16 +6,16 @@ define([], function(){
      */
 
     return {
-        widgetPrefix: "lm",
+        widgetPrefix: "tm",
         dataAPIs: {
             // results: "http://localhost/unified_api.php?id=0000",
-            results: "http://massimo.ripe.net/tracemon/unified_api.php?id=0000",
+            results: "https://massimo.ripe.net/tracemon/unified_api.php?id=0000",
             metadata: "https://atlas.ripe.net/api/v2/measurements/0000/routequake/meta/",
-            dataApiAsAnnotation: "http://massimo.ripe.net/tracemon/as_lookup.php",
+            dataApiAsAnnotation: "https://massimo.ripe.net/tracemon/as_lookup.php",
             dataApiReverseDns: "https://stat.ripe.net/data/reverse-dns-ip/data.json",
             dataApiGeolocation: "https://stat.ripe.net/data/geoloc/data.json",
             dataApiAsnNeighbours: "https://stat.ripe.net/data/asn-neighbours/data.json",
-            shortAsNamesApi: "http://massimo.ripe.net/tracemon/short_names.php",
+            shortAsNamesApi: "https://massimo.ripe.net/tracemon/short_names.php",
             peeringDb: {
                 lans: "http://localhost/peering_db.php?type=ixlan",
                 ixps: "http://localhost/peering_db.php?type=ix",
@@ -35,7 +35,7 @@ define([], function(){
         maxNumberHops: 8,
         realTimeUpdate: true,
         eventGroupingAntiFlood: 800,
-        templatesLocation: "http://localhost:63342/viz-atlas-tracemon/dev/view/html/",
+        templatesLocation: "dev/view/html/",
         defaultLabelLevel: "ip",
         ajaxTimeout: 50000,
         reloadSourcesDiff: 3, // reload the dataset id the sources set changes of at least N probes
