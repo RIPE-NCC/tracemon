@@ -225,6 +225,7 @@ define([
                 window.atlas._widgets.tracemon.urls.libs + "bootstrap-slider/css/bootstrap-slider.css",
                 window.atlas._widgets.tracemon.urls.libs + "bootstrap-select2/css/bootstrap-select.css",
                 window.atlas._widgets.tracemon.urls.libs + "range-slider/css/ion.rangeSlider.css",
+                // window.atlas._widgets.tracemon.urls.libs + "range-slider/css/ion.rangeSlider.skinFlat.css"
                 window.atlas._widgets.tracemon.urls.libs + "range-slider/css/ion.rangeSlider.skinModern.css"
             ];
 

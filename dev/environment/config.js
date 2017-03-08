@@ -40,7 +40,7 @@ define([], function(){
         ajaxTimeout: 50000,
         reloadSourcesDiff: 3, // reload the dataset id the sources set changes of at least N probes
         filterRepeatedTraceroutes: true, // Filter traceroutes reporting the same results consecutively
-        defaultLoadedPeriod: 20, // Multiple of measurement interval
+        defaultLoadedPeriod: 10, // Multiple of measurement interval
         maximumLoadedPeriod: 120, // Multiple of measurement interval
         defaultNumberOfDisplayedSources: 8,
 
