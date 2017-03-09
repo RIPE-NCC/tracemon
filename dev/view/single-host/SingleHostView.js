@@ -42,9 +42,13 @@ define([
                 cleanRedraw = true;
             });
             utils.observer.subscribe("model.host:change", function(host){
-                this._drawLabels({
-                    nodes: [$this.nodes[host.getId()]]
-                });
+                var nodeView = $this.nodes[host.getId()];
+
+                if (nodeView) {
+                    this._drawLabels({
+                        nodes: [nodeView]
+                    });
+                }
             }, this);
 
             utils.observer.subscribe("model.as:change", function(asObj){

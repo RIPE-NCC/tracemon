@@ -31,13 +31,11 @@ define([
 
 
             if (sameAs) {
-
-                host.setAutonomousSystem(sameAs);
-
+                $this._updateObject(host, sameAs);
             } else {
 
                 if (asData){
-                    host.setAutonomousSystem($this._createAutonomousSystemObject(asData));
+                    $this._updateObject(host, $this._createAutonomousSystemObject(asData));
                 } else {
 
                     console.log("[AS lookup] No local info for host", host);
@@ -93,7 +91,7 @@ define([
 
         this._updateObject = function (host, asObj){
             host.setAutonomousSystem(asObj);
-            utils.observer.publish("model.host:as", host);
+            utils.observer.publish("model.host:change", host);
         };
 
         this._getSamePrefixAs = function(ip){
