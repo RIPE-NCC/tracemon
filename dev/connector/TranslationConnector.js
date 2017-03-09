@@ -79,14 +79,14 @@ define([
             }, this);
         };
 
-        this._enrichIXP = function(attemptObj){
+        this._enrichIXP = function(host){
 
             peeringDbConnector
-                .checkIxp(attemptObj.ip) // check if this is an Ixp
+                .checkIxp(host.ip) // check if this is an Ixp
                 .done(function(ixp) {
                     if (ixp !== false){
-                        attemptObj.isIxp = true;
-                        attemptObj.ixp = {
+                        host.isIxp = true;
+                        host.ixp = {
                             name: ixp.lan.ixp.name,
                             country: ixp.lan.ixp.country,
                             city: ixp.lan.ixp.city,
@@ -106,7 +106,7 @@ define([
                                 multicastSupport: ixp.lan.ixp.proto_multicast
                             }
                         };
-                        utils.observer.publish("model.host:change", attemptObj);
+                        utils.observer.publish("model.host:change", host);
                     }
                 });
 
@@ -120,7 +120,7 @@ define([
         this.enrichDump = function(data, dump){
             var translated, hops, hop, item, hopList, attempts, attemptsList, hostObj, hopObj, attemptObj,
                 hostAddress, tmpHost, errors, hostAsn, tracerouteList, targetTraceroute, asnObjs, asnTmp, asList,
-                hostGeolocation, tracerouteDate, attemptTmp;
+                hostGeolocation, tracerouteDate, attemptTmp, sourceTraceroute;
 
             asnObjs = {};
             asList = data['asns'] || data['ases'];
@@ -156,8 +156,8 @@ define([
                 errors = [];
                 hopList = item["result"];
 
-                for (var n2=0, length2=hopList.length; n2<length2; n2++) {
-                    hop = hopList[n2];
+                for (var hopCount=0, hopListLength=hopList.length; hopCount<hopListLength; hopCount++) {
+                    hop = hopList[hopCount];
                     if (hop.error || !hop.hop){
                         errors.push(hop.error || "One hop was empty");
                     } else {
@@ -174,37 +174,8 @@ define([
                                 continue;
                             }
                             attemptObj = new Attempt();
-                            hostAddress = attemptTmp["from"];
-                            hostAsn = attemptTmp["as"];
-                            hostGeolocation = attemptTmp["location"];
-                            tmpHost = $this.hostByIp[hostAddress];
 
-                            if (tmpHost && !tmpHost.isPrivate) {
-                                attemptObj.host = tmpHost;
-                            } else {
-                                if (hostAddress) {
-                                    attemptObj.host = new Host(hostAddress);
-
-                                    if (!attemptObj.host.isPrivate) { // It is a public host
-
-                                        if (hostAsn == undefined || this.asList[hostAsn] && hostAsn != 0) {
-                                            asnLookupConnector.enrich(attemptObj.host, this.asList[hostAsn]);
-                                        }
-
-                                        attemptObj.host.setLocation(this._getHostLocation(hostGeolocation));
-
-                                        if (config.ixpHostCheck) {
-                                            $this._enrichIXP(attemptObj.host);
-                                        }
-                                    }
-
-                                    $this.hostByIp[hostAddress] = attemptObj.host;
-                                    utils.observer.publish("model.host:new", attemptObj.host);
-                                } else {
-                                    attemptObj.host = new Host(null);
-                                    utils.observer.publish("model.host:new", attemptObj.host);
-                                }
-                            }
+                            attemptObj.host = this._createHost(attemptTmp["from"], null, attemptTmp["as"], (hopListLength - 1 == hopCount), null, attemptTmp["geo_key"]);
 
                             if (attemptTmp["rtt"]) {
                                 attemptObj.rtt = attemptTmp["rtt"];
@@ -215,40 +186,18 @@ define([
                         }
                         hops.push(hopObj);
                     }
+
                 }
 
-                hostObj = $this.hostByIp[item["from"]];
-                if (!hostObj) {
-                    hostObj = new Host(item["from"]);
-                    hostObj.setProbeId(item["prb_id"]);
-                    hostGeolocation = item["from_location"];
-                    hostAsn = item["from_as"];
+                sourceTraceroute = this._createHost(item["from"], null, item["from_as"], null, item['prb_id'], item["from_geo_key"]);
+                targetTraceroute = this._createHost(item["dst_addr"], item["dst_name"], item["dst_as"], null, null, item["dst_geo_key"]);
+                translated = new Traceroute(sourceTraceroute, targetTraceroute, tracerouteDate);
 
-                    if (!hostObj.isPrivate) {
-
-                        hostObj.setLocation(this._getHostLocation(hostGeolocation));
-
-                        if (hostAsn && this.asList[hostAsn]) {
-                            asnLookupConnector.enrich(hostObj, this.asList[hostAsn]);
-                        }
-
-                        if (config.ixpHostCheck) {
-                            $this._enrichIXP(hostObj);
-                        }
-                    }
-                    $this.hostByIp[item["from"]] = hostObj;
-                }
-
-                targetTraceroute = $this.measurementById[item["msm_id"]].target;
-                translated = new Traceroute(hostObj, targetTraceroute, tracerouteDate);
-                // translated.parisId = item["paris_id"]; In measurement
-                // translated.protocol = item["proto"];
-
-                if (hops.length > 0) {
-                    hops[hops.length - 1].forEachAttempt(function (attempt) {
-                        attempt.host.isLast = true;
-                    });
-                }
+                // if (hops.length > 0) {
+                //     hops[hops.length - 1].forEachAttempt(function (attempt) {
+                //         attempt.host.isLast = true;
+                //     });
+                // }
                 translated.setHops(hops);
                 translated.errors = errors;
 
@@ -267,6 +216,47 @@ define([
             }
             hostHelper.scanAllTraceroutes(dump);
 
+        };
+
+
+        this._createHost = function(address, name, asn, isLast, probeId, hostGeolocation){
+            var host;
+
+            host = this.hostByIp[address];
+
+            if (!host || !address){
+                host = new Host(address);
+                host.name = name;
+
+                if (isLast != null){
+                    host.isLast = isLast;
+                }
+
+                if (probeId != null){
+                    host.setProbeId(probeId);
+                }
+
+                if (hostGeolocation) {
+                    host.setLocation(this._getHostLocation(hostGeolocation));
+                }
+                
+                if (!host.isPrivate && address) {
+
+                    if (asn != null) {
+                        asnLookupConnector.enrich(host, this.asList[asn]);
+                    }
+
+                    if (config.ixpHostCheck) {
+                        $this._enrichIXP(host);
+                    }
+
+                    this.hostByIp[address] = host; // Only if not private
+                }
+
+                utils.observer.publish("model.host:new", host);
+            }
+
+            return host;
         };
 
         this._getHostLocation = function(data){
@@ -331,7 +321,7 @@ define([
 
                         if (data["type"] == "traceroute") {
                             extra = data["extra"] || {};
-                            msmTarget = data["target_ip"] || data["target"]; // Remove data["target"] asap
+                            msmTarget = data["target_ip"];
                             if ($this.hostByIp[msmTarget]) {
                                 targetHost = $this.hostByIp[msmTarget];
                             } else {
@@ -350,8 +340,8 @@ define([
 
                             }
 
-                            measurement = new Measurement(measurementId, targetHost);
                             targetHost.isTarget = true;
+                            measurement = new Measurement(measurementId, targetHost);
 
                             // Extra information
                             measurement.timeout = extra["response_timeout"];
