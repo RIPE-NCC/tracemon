@@ -278,8 +278,8 @@ define([
             this.computeVisibleGraph(diff.status);
             // this._updateNodesGraphAttributes(); Can it be removed?
 
-            for (var change in diff.updatedTraceroutes) {
-                this._animatePathChange(diff.updatedTraceroutes[change]["before"], diff.updatedTraceroutes[change]["now"]);
+            for (var n=0,length = diff.updatedTraceroutes.length; n<length; n++) {
+                this._animatePathChange(diff.updatedTraceroutes[n]["before"], diff.updatedTraceroutes[n]["now"]);
             }
 
             this.dryUpdate();
