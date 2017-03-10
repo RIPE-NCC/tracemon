@@ -60,8 +60,12 @@
 
 .node.target {
     /*opacity: 0.8;*/
-    fill: rgba(163, 0, 0, 0.8);
+    fill: rgba(179, 0, 0, 0.8);
     stroke: #6d0000;
+}
+
+.node-error{
+    color: red;
 }
 
 .edge {
@@ -152,7 +156,10 @@
 .node-label.probe {
     opacity: 0.8;
 }
-
+.popover{
+    width: 360px!important;
+    max-width: 360px!important;
+}
 .node-label.ixp {
     opacity: 0.8;
 }

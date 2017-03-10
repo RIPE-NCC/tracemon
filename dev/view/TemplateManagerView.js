@@ -167,7 +167,7 @@ define([
             var targets = [];
 
             for (var msmKey in env.loadedMeasurements){
-                targets.push(env.loadedMeasurements[msmKey].target.ip);
+                targets.push(env.loadedMeasurements[msmKey].target.name || env.loadedMeasurements[msmKey].target.ip);
             }
 
             return targets.join(",");

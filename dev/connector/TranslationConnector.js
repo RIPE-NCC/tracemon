@@ -190,14 +190,15 @@ define([
                 }
 
                 sourceTraceroute = this._createHost(item["from"], null, item["from_as"], null, item['prb_id'], item["from_geo_key"]);
-                targetTraceroute = this._createHost(item["dst_addr"], item["dst_name"], item["dst_as"], null, null, item["dst_geo_key"]);
-                translated = new Traceroute(sourceTraceroute, targetTraceroute, tracerouteDate);
+                if (item["dst_addr"]){
+                    targetTraceroute = this._createHost(item["dst_addr"], item["dst_name"], item["dst_as"], null, null, item["dst_geo_key"]);
+                    translated = new Traceroute(sourceTraceroute, targetTraceroute, tracerouteDate);
+                } else {
+                    targetTraceroute = this.measurementById[item["msm_id"]].target;
+                    translated = new Traceroute(sourceTraceroute, targetTraceroute, tracerouteDate);
+                    translated.failed = true;
+                }
 
-                // if (hops.length > 0) {
-                //     hops[hops.length - 1].forEachAttempt(function (attempt) {
-                //         attempt.host.isLast = true;
-                //     });
-                // }
                 translated.setHops(hops);
                 translated.errors = errors;
 
@@ -317,29 +318,12 @@ define([
             } else {
                 historyConnector.getMeasurementInfo(measurementId)
                     .done(function (data) {
-                        var measurement, msmTarget, targetHost, extra;
+                        var measurement, targetHost, extra;
 
                         if (data["type"] == "traceroute") {
                             extra = data["extra"] || {};
-                            msmTarget = data["target_ip"];
-                            if ($this.hostByIp[msmTarget]) {
-                                targetHost = $this.hostByIp[msmTarget];
-                            } else {
-                                targetHost = new Host(msmTarget);
-                                targetHost.name = data["target"];
 
-                                if (!targetHost.isPrivate) {
-
-                                    targetHost.setLocation($this._getHostLocation(data["target_location"]));
-                                    asnLookupConnector.enrich(targetHost);
-
-                                    if (config.ixpHostCheck) {
-                                        $this._enrichIXP(targetHost);
-                                    }
-                                }
-
-                            }
-
+                            targetHost = $this._createHost(data["target_ip"], data["target"], null, null, null, data["target_location"]);
                             targetHost.isTarget = true;
                             measurement = new Measurement(measurementId, targetHost);
 
@@ -349,8 +333,8 @@ define([
                             measurement.parisId = extra["paris"];
                             measurement.numberOfPackets = extra["packets"];
                             measurement.startFromHop = extra["firsthop"];
-                            measurement.maxHopsAllowed = extra["maxhops"] || "[NO DATA]";
-                            measurement.packetSize = extra["size"] || "[NO DATA]";
+                            measurement.maxHopsAllowed = extra["maxhops"];
+                            measurement.packetSize = extra["size"];
 
                             measurement.startDate = moment.unix(data["start_time"]).utc();
                             measurement.stopDate = (data["stop_time"]) ? moment.unix(data["stop_time"]).utc() : null;

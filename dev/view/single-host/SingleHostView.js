@@ -234,7 +234,7 @@ define([
                     lastHost = host;
                 });
 
-                if (config.graph.showTargetNodeIfNotReached && !traceroute.reachesTarget()){
+                if (config.graph.showTargetNodeIfNotReached && !traceroute.failed && !traceroute.reachesTarget()){
                     lastHost = traceroute.getReachedHost();
                     $this._createNodeView(traceroute.target, pathView);
 
@@ -346,7 +346,7 @@ define([
 
                 }
 
-                if (config.graph.showTargetNodeIfNotReached && !traceroute.reachesTarget()){ // add the disconnected target
+                if (config.graph.showTargetNodeIfNotReached && !traceroute.failed && !traceroute.reachesTarget()){ // add the disconnected target
 
                     previousHost = traceroute.getReachedHost();
                     host = traceroute.target;
@@ -408,8 +408,8 @@ define([
 
 
         this._getNodeRank = function(node){
-            if (node.isTarget){
-                return "same-1";
+            if (node.isProbe){
+                return "source";
             } else if (node.isProbe){
                 return "same-2";
             } else if (node.isTarget){

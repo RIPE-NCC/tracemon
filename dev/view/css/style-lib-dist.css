@@ -147,8 +147,11 @@
 }
 .tracemon-container .node.target {
   /*opacity: 0.8;*/
-  fill: rgba(163, 0, 0, 0.8);
+  fill: rgba(179, 0, 0, 0.8);
   stroke: #6d0000;
+}
+.tracemon-container .node-error {
+  color: red;
 }
 .tracemon-container .edge {
   stroke: #C0C0C0;
@@ -221,6 +224,9 @@
 }
 .tracemon-container .node-label.probe {
   opacity: 0.8;
+}
+.tracemon-container .popover {
+  width: 600px!important;
 }
 .tracemon-container .node-label.ixp {
   opacity: 0.8;

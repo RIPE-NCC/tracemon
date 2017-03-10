@@ -19,6 +19,16 @@ define([
 
 
     NodeView.prototype = {
+        getErrors: function(){
+            var errors = [];
+
+            for (var n=0,length=this.traceroutes.length; n<length; n++){
+                errors = errors.concat(this.traceroutes[n].model.errors)
+            }
+
+            return errors;
+        },
+
         isPathHovered: function(){
             var hoveredPath;
 
@@ -127,12 +137,19 @@ define([
             return sameMultiplicity;
         },
 
+
+
         getInfo: function () {
-            var out, guess, asObj, multiplicity;
+            var out, guess, asObj, multiplicity, errors;
 
             out = "";
-
+            errors = this.getErrors();
             multiplicity = this.getMultiplicity();
+
+            if (errors.length > 0){
+                out += "<span class='node-error'>" + errors.join("<br>") + "</span><br>";
+            }
+
             guess = (this.model.isPrivate || !this.model.ip);
             out += (!this.model.ip && multiplicity && multiplicity > 1) ? "Repeated " + multiplicity + " times<br>" : "";
             out += (this.model.ip) ? "IP: " + this.model.ip + "<br>" : "";
@@ -141,6 +158,7 @@ define([
                 out += "IXP: " + this.model.ixp.name + ", " + this.model.ixp.city + ", " + this.model.ixp.country;
                 out += "<br>Lan: " + this.model.ixp.prefix;
             }
+
 
             asObj = this.model.getAutonomousSystem();
             if (asObj) {

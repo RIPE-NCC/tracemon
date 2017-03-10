@@ -18,6 +18,8 @@ define([
         this.date = date;
         this.validUpTo = this.date;
         this._hash = null;
+        this.errors = [];
+        this.failed = false;
     };
 
     Traceroute.prototype.getReachedHost = function(){
@@ -30,7 +32,7 @@ define([
 
         lastHost = this.getReachedHost();
         
-        return (lastHost) ? (lastHost.ip == this.target.ip) : false;
+        return (lastHost && !this.failed) ? (lastHost.ip == this.target.ip) : false;
     };
 
     Traceroute.prototype.setHops = function(hops){
