@@ -73,18 +73,27 @@ define([
 
 
         getText: function(){
-            var label;
+            var label, place, location;
 
             switch (env.labelLevel){
                 case "geo":
+                    location = this.node.model.getLocation();
+
                     if (this.node.model.isPrivate){
                         label = "";
                     } else if (!this.node.model.ip) {
                         label = "✱";
-                    } else if (this.node.model.getLocation() !== undefined){
-                        label = this.node.model.getLocation().country;
-                    } else if (!this._cache.geoLoading){
-                        this._cache.geoLoading = env.connector
+                    } else if (location !== undefined){
+                        place = [];
+                        if (location){
+                            if (location.city) place.push(location.city);
+                            place.push(location.countryCode);
+                            label = place.join(", ");
+                        } else {
+                            label = "";
+                        }
+                    } else if (!this._cache.geolocationLoading) {
+                        this._cache.geolocationLoading = env.connector
                             .getGeolocation(this.node.model);
                         label = "loading...";
                     }
@@ -120,7 +129,17 @@ define([
             nodeAs = this.node.model.getAutonomousSystem();
             switch (env.labelLevel){
                 case "geo":
-                    label = this.getText();
+                    if (this.node.model.isPrivate){
+                        label = "";
+                    } else if (!this.node.model.ip) {
+                        label = "✱";
+                    } else if (this.node.model.getLocation() !== undefined){
+                        label = (this.node.model.getLocation()) ? this.node.model.getLocation().countryCode : "";
+                    } else if (!this._cache.geolocationLoading) {
+                        this._cache.geolocationLoading = env.connector
+                            .getGeolocation(this.node.model);
+                        label = "loading...";
+                    }
                     break;
 
                 case "reverse-lookup":

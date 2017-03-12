@@ -152,6 +152,7 @@ define([
 
         this.setCurrentInstant = function(instant){
             env.finalQueryParams.instant = instant;
+            $this.getCurrentState();
             utils.observer.publish("view.current-instant:change", env.finalQueryParams.instant);
         };
 

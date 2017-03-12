@@ -125,7 +125,7 @@ define([
                 env.parentDom.find('.value-target').text(this.values.target);
                 env.parentDom.find('.value-number-probes').text(this.values.numberProbes);
                 env.parentDom.find('.value-total-probes').text(this.values.totalProbes);
-                env.parentDom.find('.current-instant').text(env.finalQueryParams.instant.format('MMMM Do YYYY, h:mm:ss') + ' UTC');
+                env.parentDom.find('.current-instant').text(env.finalQueryParams.instant.format('MMMM Do YYYY, HH:mm:ss') + ' UTC');
 
                 this.dom.labelRadio
                     .each(function () {
@@ -468,14 +468,12 @@ define([
                 .find(".bwd-button")
                 .on("click", function () {
                     env.historyManager.setCurrentInstant(env.finalQueryParams.startDate);
-                    env.historyManager.getCurrentState();
                 });
 
             this.dom.playerButtons.end = env.parentDom
                 .find(".ffwd-button")
                 .on("click", function () {
                     env.historyManager.setCurrentInstant(env.finalQueryParams.stopDate);
-                    env.historyManager.getCurrentState();
                 });
 
             this.dom.labelRadio = env.parentDom

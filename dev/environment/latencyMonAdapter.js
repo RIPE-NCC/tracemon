@@ -37,7 +37,7 @@ define([
 
             try {
                 interface = this._getInterface();
-                interface.updateExternalTimeCursor(env.finalQueryParams.instant.unix());
+                interface.updateExternalTimeCursor(moment(env.finalQueryParams.instant).unix());
             } catch(e){
                 console.log(e);
             }
@@ -92,11 +92,10 @@ define([
                         autoStart: true,
                         showMinimumByDefault: true,
                         onTimeRangeChange: function(start, stop){
-                            env.main.setTimeRange(moment(start).utc().unix(), moment(stop).utc().unix())
+                            env.main.setTimeRange(moment(start).unix(), moment(stop).unix())
                         },
                         onTimeSelection: function (date) {
-                            env.historyManager.setCurrentInstant(moment(date).utc());
-                            env.historyManager.getCurrentState();
+                            env.historyManager.setCurrentInstant(moment(date));
                         },
                         autoStartGrouping: true,
                         permalinkEnabled: false
@@ -105,6 +104,7 @@ define([
                         stopTimestamp: env.finalQueryParams.stopDate.unix(),
                         measurements: measurements,
                         dataFilter: "natural",
+                        externalTimeCursor: moment(env.finalQueryParams.instant).unix(),
                         mergedMeasurements: [measurements],
                         groups: [{
                             measurementId: this.measurementId,

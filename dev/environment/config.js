@@ -37,7 +37,7 @@ define([], function(){
         eventGroupingAntiFlood: 800,
         templatesLocation: "dev/view/html/",
         defaultLabelLevel: "ip",
-        ajaxTimeout: 50000,
+        ajaxTimeout: 120000,
         reloadSourcesDiff: 3, // reload the dataset id the sources set changes of at least N probes
         filterRepeatedTraceroutes: true, // Filter traceroutes reporting the same results consecutively
         defaultLoadedPeriod: 10, // Multiple of measurement interval
