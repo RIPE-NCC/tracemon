@@ -77,7 +77,11 @@ define([
 
             switch (env.labelLevel){
                 case "geo":
-                    if (this.node.model.getLocation() !== undefined){
+                    if (this.node.model.isPrivate){
+                        label = "";
+                    } else if (!this.node.model.ip) {
+                        label = "✱";
+                    } else if (this.node.model.getLocation() !== undefined){
                         label = this.node.model.getLocation().country;
                     } else if (!this._cache.geoLoading){
                         this._cache.geoLoading = env.connector
@@ -87,7 +91,11 @@ define([
                     break;
 
                 case "reverse-lookup":
-                    if (this.node.model.reverseDns !== undefined){
+                    if (this.node.model.isPrivate){
+                        label = "";
+                    } else if (!this.node.model.ip) {
+                        label = "✱";
+                    } else if (this.node.model.reverseDns !== undefined){
                         label = (this.node.model.reverseDns) ? this.node.model.reverseDns.complete : "";
                     } else if (!this._cache.reverseLoading) {
                         this._cache.reverseLoading = env.connector
@@ -116,7 +124,11 @@ define([
                     break;
 
                 case "reverse-lookup":
-                    if (this.node.model.reverseDns !== undefined){
+                    if (this.node.model.isPrivate){
+                        label = "";
+                    } else if (!this.node.model.ip) {
+                        label = "✱";
+                    } else if (this.node.model.reverseDns !== undefined){
                         label = (this.node.model.reverseDns) ? this.node.model.reverseDns.short : "";
                     } else if (!this._cache.reverseLoading) {
                         this._cache.reverseLoading = env.connector
@@ -126,7 +138,11 @@ define([
                     break;
 
                 case "ip":
-                    if (this.node.model.isIxp && this.node.model.ixp.name){
+                    if (this.node.model.isPrivate){
+                        label = "";
+                    } else if (!this.node.model.ip) {
+                        label = "✱";
+                    } else if (this.node.model.isIxp && this.node.model.ixp.name){
                         label = this.node.model.ixp.name;
                     } else if (nodeAs && this.node.model.ip){
                         label = (nodeAs.shortName) ? nodeAs.shortName : "AS" + nodeAs.id;
