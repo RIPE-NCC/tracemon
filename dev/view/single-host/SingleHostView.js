@@ -269,7 +269,8 @@ define([
             env.parentDom.popover({
                 container: env.parentDom,
                 trigger: 'click,focus',
-                selector: '[data-toggle="popover"]'
+                selector: '[data-toggle="popover"]',
+                placement: "auto"
             });
 
             if (callback){
