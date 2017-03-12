@@ -104,7 +104,7 @@ define([
                         stopTimestamp: env.finalQueryParams.stopDate.unix(),
                         measurements: measurements,
                         dataFilter: "natural",
-                        externalTimeCursor: moment(env.finalQueryParams.instant).unix(),
+                        externalTimeCursor: env.finalQueryParams.instant.utc().unix(),
                         mergedMeasurements: [measurements],
                         groups: [{
                             measurementId: this.measurementId,

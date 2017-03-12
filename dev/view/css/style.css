@@ -34,6 +34,7 @@
 }
 
 .node {
+    cursor: pointer;
     fill: #EDD37B;
     stroke-width: 1;
     stroke: #878c8d;
@@ -76,6 +77,7 @@
 }
 
 .path {
+    cursor: pointer;
     /*stroke: #C0C0C0;*/
     stroke: #7b7b7b;
     opacity: 0.6;
@@ -85,6 +87,7 @@
 }
 
 .edge{
+    cursor: pointer;
     stroke: #4b53c0;
     stroke-width: 6;
     opacity: 0.6;
@@ -411,7 +414,8 @@
 .clickable {
     text-decoration: underline;
     font-weight: bold;
-    color: #7e7e7e;
+    /*color: #7e7e7e;*/
+    color: #4b53c0;
     cursor: pointer;
 }
 
@@ -497,4 +501,12 @@
     position: absolute!important;
     right: 39px!important;
     z-index: 100;
+}
+
+.value-target{
+    font-weight: bold;
+}
+
+.current-instant{
+    font-weight: bold;
 }
