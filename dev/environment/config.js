@@ -46,6 +46,8 @@ define([], function(){
 
         startWithLastStatus: true,
         filterLateAnswers: true,
+        premptiveGeolocation: true,
+        premptiveReverseDns: true,
 
         lateReportedResults: 200, // seconds of validity for a late reported result
         defaultTimeRangeGranularity: 60 * 5, // Seconds

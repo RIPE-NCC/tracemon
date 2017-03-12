@@ -8,10 +8,13 @@ define([
 
 
     var ConnectorFacade = function (env) {
-        var translationConnector, $this;
+        var translationConnector, $this, cache;
 
         $this = this;
         translationConnector = new TranslationConnector(env);
+        cache = {
+            geoRequests: {}
+        };
 
         this.getRealTimeResults = function(measurement, filtering){
             filtering = filtering || {};
@@ -84,35 +87,13 @@ define([
 
 
             if (host.isPrivate || !host.ip) {
-                host.reverseDns = null;
-                deferredCall.resolve(host.reverseDns);
+                deferredCall.resolve(null);
             } else if (host.reverseDns){
                 deferredCall.resolve(host.reverseDns);
             } else {
-                translationConnector.getHostReverseDns(host.ip)
+                translationConnector.getHostReverseDns(host)
                     .done(function (data) {
-                        var reverseArray, reverse;
-
-                        if (data != null) {
-                            try {
-                                reverseArray = data.split(".");
-                                reverse = [
-                                    // reverseArray[reverseArray.length - 3],
-                                    reverseArray[reverseArray.length - 2],
-                                    reverseArray[reverseArray.length - 1]
-                                ].join(".");
-                            } catch (e) {
-                                reverse = data;
-                            }
-                            host.reverseDns = {
-                                short: reverse,
-                                complete: data
-                            };
-                        } else {
-                            host.reverseDns = null;
-                        }
-                        deferredCall.resolve(host.reverseDns);
-                        utils.observer.publish("model.host:change", host);
+                        deferredCall.resolve(data);
                     });
             }
 
@@ -122,20 +103,25 @@ define([
         this.getGeolocation = function(host){
             var deferredCall;
 
-            deferredCall = $.Deferred();
-
-            if (host.isPrivate || !host.ip) {
-                deferredCall.resolve(host.getLocation());
-            } else if (host.getLocation()){
-                deferredCall.resolve(host.getLocation());
+            if (cache.geoRequests[host.ip]){
+                return cache.geoRequests[host.ip];
             } else {
-                translationConnector.getGeolocation(host.ip)
-                    .done(function (data) {
-                        host.setLocation(data);
-                        deferredCall.resolve(data);
-                    });
+                deferredCall = $.Deferred();
+
+                if (host.isPrivate || !host.ip) {
+                    deferredCall.resolve(null);
+                } else if (host.getLocation()) {
+                    deferredCall.resolve(host.getLocation());
+                } else {
+                    translationConnector.getGeolocation(host)
+                        .done(function (data) {
+                            deferredCall.resolve(data);
+                        });
+                }
+                cache.geoRequests[host.ip] = deferredCall.promise();
+                
+                return cache.geoRequests[host.ip];
             }
-            return deferredCall.promise();
         };
 
         this.getMeasurements = function(measurementIds){

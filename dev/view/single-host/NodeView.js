@@ -140,11 +140,12 @@ define([
 
 
         getInfo: function () {
-            var out, guess, asObj, multiplicity, errors;
+            var out, guess, asObj, multiplicity, errors, geoloc;
 
             out = "";
             errors = this.getErrors();
             multiplicity = this.getMultiplicity();
+            geoloc = this.model.getLocation();
 
             if (errors.length > 0){
                 out += "<span class='node-error'>" + errors.join("<br>") + "</span><br>";
@@ -153,6 +154,7 @@ define([
             guess = (this.model.isPrivate || !this.model.ip);
             out += (!this.model.ip && multiplicity && multiplicity > 1) ? "Repeated " + multiplicity + " times<br>" : "";
             out += (this.model.ip) ? "IP: " + this.model.ip + "<br>" : "";
+            out += (geoloc) ? "Located in: " + [geoloc.city, geoloc.countryCode].filter(function(item){return item!=null && item!="";}).join(", ") + "<br>" : "";
 
             if (this.model.isIxp) {
                 out += "IXP: " + this.model.ixp.name + ", " + this.model.ixp.city + ", " + this.model.ixp.country;

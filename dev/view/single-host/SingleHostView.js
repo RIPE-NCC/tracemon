@@ -42,12 +42,14 @@ define([
                 cleanRedraw = true;
             });
             utils.observer.subscribe("model.host:change", function(host){
-                var nodeView = $this.nodes[host.getId()];
+                var nodeView, nodesToUpdate;
+
+                nodeView = $this.nodes[host.getId()];
+                nodesToUpdate = {nodes: [nodeView]};
 
                 if (nodeView) {
-                    this._drawLabels({
-                        nodes: [nodeView]
-                    });
+                    this._drawNodes(nodesToUpdate);
+                    this._drawLabels(nodesToUpdate);
                 }
             }, this);
 
@@ -506,25 +508,29 @@ define([
                 });
         };
 
-        this._drawNodes = function(){
-            var nodesSvg;
+        this._drawNodes = function(options){
+            var nodesSvg, nodes;
+            var options = options || {};
+            nodes = options.nodes || this.nodesArray;
 
             nodesSvg = env.mainView.nodesContainer
                 .selectAll("circle")
-                .data($this.nodesArray, function(nodeView){
+                .data(nodes, function(nodeView){
                     return nodeView.id;
                 });
 
-            nodesSvg
-                .exit()
-                .transition()
-                .duration(function(){
-                    return $this._getAnimationTransitionTime("nodeRemoval");
-                })
-                .style("opacity", 0.1)
-                .each("end", function(){
-                    d3.select(this).remove();
-                });
+            if (!options.nodes) {
+                nodesSvg
+                    .exit()
+                    .transition()
+                    .duration(function () {
+                        return $this._getAnimationTransitionTime("nodeRemoval");
+                    })
+                    .style("opacity", 0.1)
+                    .each("end", function () {
+                        d3.select(this).remove();
+                    });
+            }
 
             nodesSvg
                 .enter()
@@ -537,9 +543,6 @@ define([
                 .attr("data-html", "true")
                 .attr("title", function(nodeView){
                     return nodeView.label.getText();
-                })
-                .attr("data-content", function (nodeView) {
-                    return nodeView.getInfo();
                 })
                 .on("mouseenter", function(nodeView){
                     nodeView.isHovered(true);
@@ -563,6 +566,9 @@ define([
                 })
                 .attr("data-hover", function(nodeView){
                     return (nodeView.isHovered()) ? true : null;
+                })
+                .attr("data-content", function (nodeView) {
+                    return nodeView.getInfo();
                 })
                 .attr("data-selected", function(nodeView){
                     return (nodeView.isSelected()) ? true : null;

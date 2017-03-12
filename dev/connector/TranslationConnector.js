@@ -45,7 +45,7 @@ define([
         this.probesById = {};
         this.tracerouteBySourceTarget = {};
         this.asList = {};
-
+        this.geolocations = {};
 
         liveConnector = new LiveConnector(env);
 
@@ -119,11 +119,12 @@ define([
          * 2) create a new different host for the second time the same IP appears*/
         this.enrichDump = function(data, dump){
             var translated, hops, hop, item, hopList, attempts, attemptsList, hostObj, hopObj, attemptObj,
-                hostAddress, tmpHost, errors, hostAsn, tracerouteList, targetTraceroute, asnObjs, asnTmp, asList,
+                hostAddress, tmpHost, errors, locations, tracerouteList, targetTraceroute, asnObjs, asnTmp, asList,
                 hostGeolocation, tracerouteDate, attemptTmp, sourceTraceroute;
 
             asnObjs = {};
             asList = data['asns'] || data['ases'];
+            locations = data['geolocations'];
             for (var asKey in asList){
                 asnTmp = asList[asKey];
                 asnObjs[asKey] = {
@@ -134,6 +135,7 @@ define([
                 }
             }
             $.extend(this.asList, asnObjs);
+            $.extend(this.geolocations, locations);
             tracerouteList = data['result'] || data['traceroutes'];
 
             for (var n1=0,length1 = tracerouteList.length; n1<length1; n1++) {
@@ -238,10 +240,18 @@ define([
                 }
 
                 if (hostGeolocation) {
-                    host.setLocation(this._getHostLocation(hostGeolocation));
+                    host.setLocation(this._recoverHostLocation(hostGeolocation));
                 }
-                
+
                 if (!host.isPrivate && address) {
+
+                    if (config.premptiveGeolocation && !hostGeolocation) {
+                        this.getGeolocation(host);
+                    }
+
+                    if (config.premptiveReverseDns) {
+                        this.getHostReverseDns(host);
+                    }
 
                     if (asn != null) {
                         asnLookupConnector.enrich(host, this.asList[asn]);
@@ -260,22 +270,19 @@ define([
             return host;
         };
 
-        this._getHostLocation = function(data){
-            var id, type, out;
+        this._recoverHostLocation = function(geoKey){
+            var id, type, out, city, data;
 
             out = {};
-            data = { // Remove this when we have real data
-                id: 1,
-                type: "city",
-                country: "Somewhere"
-            };
 
-
+            data = this.geolocations[geoKey];
             if (data) {
                 out = {
                     id: data["id"],
                     type: data["type"],
-                    country: data["country"]
+                    country: data["country"],
+                    city: data["city"],
+                    countryCode: data["country_iso"]
                 };
             }
 
@@ -382,72 +389,79 @@ define([
             return false;
         };
 
-        this.getHostReverseDns = function(ip){
+        this.getHostReverseDns = function(host){
             var deferredCall;
 
             deferredCall = $.Deferred();
 
-            if (utils.isPrivateIp(ip)){
-                deferredCall.resolve("Private address");
-            } else {
+            if (!host.isPrivate){
 
-                if (this.domainByIp[ip]) {
-                    deferredCall.resolve(this.domainByIp[ip]);
-                } else {
-                    historyConnector.getHostReverseDns(ip)
-                        .done(function (data) {
-                            var domain, results;
+                // if (this.domainByIp[ip]) {
+                //     deferredCall.resolve(this.domainByIp[ip]);
+                // } else {
+                historyConnector.getHostReverseDns(host.ip)
+                    .done(function (data) {
+                        var completeDomain, results, reverseArray, shortenedDomain, out;
 
-                            results = data["data"]["result"];
+                        results = data["data"]["result"];
+                        out = null;
+                        
+                        if (results) {
+                            completeDomain = results[0];
+                            reverseArray = completeDomain.split(".");
 
-                            if (results) {
-                                domain = results[0];
-                                $this.domainByIp[ip] = domain;
-                            } else {
-                                domain = null;
+                            if (reverseArray.length > 2){
+                                shortenedDomain = [
+                                    // reverseArray[reverseArray.length - 3],
+                                    reverseArray[reverseArray.length - 2],
+                                    reverseArray[reverseArray.length - 1]
+                                ].join(".");
                             }
-                            deferredCall.resolve(domain);
-                        });
-                }
+
+                            out = {
+                                short: shortenedDomain || completeDomain,
+                                complete: completeDomain
+                            };
+
+                        }
+
+                        host.reverseDns = out;
+                        deferredCall.resolve(out);
+                        utils.observer.publish("model.host:change", host);
+                    });
             }
+            // }
 
             return deferredCall.promise();
         };
 
-        this.getGeolocation = function(ip){
+        this.getGeolocation = function(host){
             var deferredCall;
 
             deferredCall = $.Deferred();
 
-            if (this.geolocByIp[ip]) {
-                deferredCall.resolve(this.geolocByIp[ip]);
-            } else {
-                historyConnector.getGeolocation(ip)
-                    .done(function (data) {
-                        var geolocation, geolocRaw;
+            // if (this.geolocByIp[host.ip]) {
+            //     host.setLocation(this.geolocByIp[host.ip]);
+            //     deferredCall.resolve(this.geolocByIp[host.ip]);
+            // } else {
+            historyConnector.getGeolocation(host.ip)
+                .done(function (data) {
+                    var geolocation, geolocRaw;
 
+                    if (data && data["data"] && data["data"]["locations"] && data["data"]["locations"][0]) {
+                        geolocRaw = data["data"]["locations"][0];
+                        geolocation = {
+                            city: geolocRaw["city"],
+                            countryCode: geolocRaw["country"]
+                        };
+                    }
 
-                        if (data && data["data"] && data["data"]["locations"] && data["data"]["locations"][0]) {
-                            geolocRaw = data["data"]["locations"][0];
-                            geolocation = {
-                                city: geolocRaw["city"],
-                                country: geolocRaw["country"],
-                                latitude: geolocRaw["latitude"],
-                                longitude: geolocRaw["longitude"],
-                                extra: {
-                                    radius: 0,
-                                    coverage: geolocRaw["covered_percentage"],
-                                    accuracy: 100,
-                                    priority: 1,
-                                    prefixes: geolocRaw["prefixes"]
-                                }
-                            };
-                        }
-
-                        $this.geolocByIp[ip] = geolocation;
-                        deferredCall.resolve(geolocation);
-                    });
-            }
+                    $this.geolocByIp[host.ip] = geolocation;
+                    host.setLocation(geolocation);
+                    deferredCall.resolve(geolocation);
+                    utils.observer.publish("model.host:change", host);
+                });
+            // }
 
             return deferredCall.promise();
         };

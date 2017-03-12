@@ -29,7 +29,8 @@ define([
 
             queryParams = {
                 start: options.startDate.unix(),
-                stop: options.stopDate.unix()
+                stop: options.stopDate.unix(),
+                include: "geo"
             };
 
             if (options.sources) {
