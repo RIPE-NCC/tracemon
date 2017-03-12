@@ -71,6 +71,7 @@ define([], function(){
             drawSingleEdges: true,
             nodeRadius: 6,
             nodeSelectedRadius: 8,
+            warningSignRadius: 3,
 
             normalOpacity: 1,
             verticalNodeDistance: 30,

@@ -138,7 +138,9 @@ define([
                     break;
 
                 case "ip":
-                    if (this.node.model.isPrivate){
+                    if (this.node.model.isProbe){
+                        label = "Probe " + this.node.model.probeId;
+                    } else if (this.node.model.isPrivate){
                         label = "";
                     } else if (!this.node.model.ip) {
                         label = "✱";

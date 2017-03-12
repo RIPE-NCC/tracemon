@@ -154,8 +154,12 @@ define([
                 .append("g")
                 .attr("class", "nodes");
 
+            this.warningsContainer = this.svg
+                .append("g")
+                .attr("class", "warnings");
+
             svgHeight = Math.max(this.svg.style("height").replace("px", ""), maxLengthTraceroute * config.graph.verticalNodeDistance);
-            this.svg.style("height", svgHeight);
+            this.svg.style("height", svgHeight + "px");
 
             this.graph.initGraph(
                 parseInt(this.svg.style("width").replace("px", "")),

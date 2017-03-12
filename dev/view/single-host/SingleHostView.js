@@ -152,6 +152,7 @@ define([
             this._drawPaths();
             this._drawEdges();
             this._drawNodes();
+            this._drawWarnings();
             this._calculateLabelsPosition();
             this._drawLabels();
 
@@ -201,19 +202,24 @@ define([
             var patView;
 
             patView = new PathView(env, traceroute);
-            this.traceroutes[patView.id] = patView;
 
-            return patView;
+            if (!this.traceroutes[patView.id]) {
+                this.traceroutes[patView.id] = patView;
+                this.traceroutesArray.push(patView);
+            }
+
+            return this.traceroutes[patView.id];
         };
 
         this.computeVisibleGraph = function(traceroutesToDraw){
             var traceroute, host, attempt, lastHost, pathView;
 
+            this.traceroutes = {};
+            this.traceroutesArray = [];
             this.nodes = {};
             this.nodesArray = [];
             this.edges = {};
             this.mergedEdges = {};
-            this.traceroutes = {};
 
             for (var n=0,length=traceroutesToDraw.length; n<length; n++){
 
@@ -536,9 +542,7 @@ define([
             nodesSvg
                 .enter()
                 .append("circle")
-                .attr("data-container", "body")
                 .attr("data-toggle", "popover")
-                .attr("data-placement", "right")
                 .attr("data-trigger", "focus")
                 .attr("tabindex", "0")
                 .attr("data-html", "true")
@@ -592,11 +596,11 @@ define([
         };
 
         this._drawPaths = function(options){
-            var path, paths, d3Paths, edge, edgeView, traceroutes, pathItem;
+            var path, paths, d3Paths, traceroutes, pathItem;
             var options = options || {};
             paths = [];
 
-            traceroutes = options.traceroutes || this.traceroutes;
+            traceroutes = options.traceroutes || this.traceroutesArray;
 
             // for (var edgeKey in this.edges){
             //     edge = this.edges[edgeKey];
@@ -606,14 +610,14 @@ define([
             //     }
             // }
 
-            for (var tracerouteKey in traceroutes){
-                pathItem = traceroutes[tracerouteKey];
-                paths.push(pathItem);
-            }
+            // for (var tracerouteKey in traceroutes){
+            //     pathItem = traceroutes[tracerouteKey];
+            //     paths.push(pathItem);
+            // }
 
             d3Paths = env.mainView.pathsContainer
                 .selectAll("path")
-                .data(paths.filter(this._filterChangedPaths), function(path){
+                .data(traceroutes.filter(this._filterChangedPaths), function(path){
                     return path.id;
                 });
 
@@ -668,6 +672,64 @@ define([
                 .attr("d", function(pathView){
                     return lineFunction(pathView.getPoints());
                 });
+        };
+
+
+        this._drawWarnings = function(options){
+            var warningSvg, nodeViews, traceroutes;
+
+            var options = options || {};
+            traceroutes = options.traceroutes || this.traceroutesArray;
+
+            nodeViews = $.map(traceroutes
+                .filter(this._filterChangedPaths)
+                .filter(function(traceroute){
+                    return traceroute.model.errors.length > 0;
+                }), function(filteredTraceroute){
+                return $this.nodes[filteredTraceroute.model.source.getId()];
+            });
+
+            warningSvg = env.mainView.warningsContainer
+                .selectAll("path")
+                .data(nodeViews, function(nodeView){
+                    return nodeView.id;
+                });
+
+
+            warningSvg
+                .exit()
+                .remove();
+
+            warningSvg
+                .enter()
+                .append("path")
+                .attr("d", function(nodeView){
+                    var x, y;
+
+                    x = nodeView.x + config.graph.nodeRadius;
+                    y = nodeView.y - config.graph.nodeRadius;
+
+                    return "M" + (x + 2) + " " + (y) +
+                    " L" + (x - 2) + " " + (y + 6) +
+                    " L" + (x - 6) + " " + (y) + " Z";
+                })
+                .attr("class", function(nodeView){
+                    return "warning error node-warning-" + nodeView.id;
+                })
+                .attr("data-toggle", "popover")
+                .attr("data-trigger", "focus")
+                .attr("tabindex", "0")
+                .attr("data-html", "true")
+                .attr("title", function(nodeView){
+                    return nodeView.label.getText();
+                })
+                .attr("data-content", function (nodeView) {
+                    return nodeView.getInfo();
+                })
+                .attr("data-focus-out", function (nodeView) {
+                    return (nodeView.isFocusOut()) ? true : null;
+                });
+
         };
 
         this._animatePathChange = function (oldTraceroute, newTraceroute) {

@@ -160,6 +160,12 @@
     width: 360px!important;
     max-width: 360px!important;
 }
+
+.warning.error{
+    fill: red;
+    stroke: #8b0000;
+}
+
 .node-label.ixp {
     opacity: 0.8;
 }
