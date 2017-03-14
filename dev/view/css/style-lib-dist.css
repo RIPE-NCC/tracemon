@@ -126,6 +126,7 @@
   display: block;
 }
 .tracemon-container .node {
+  cursor: pointer;
   fill: #EDD37B;
   stroke-width: 1;
   stroke: #878c8d;
@@ -160,6 +161,7 @@
   fill: none;
 }
 .tracemon-container .path {
+  cursor: pointer;
   /*stroke: #C0C0C0;*/
   stroke: #7b7b7b;
   opacity: 0.6;
@@ -168,6 +170,7 @@
   stroke-linecap: "round";
 }
 .tracemon-container .edge {
+  cursor: pointer;
   stroke: #4b53c0;
   stroke-width: 6;
   opacity: 0.6;
@@ -226,7 +229,13 @@
   opacity: 0.8;
 }
 .tracemon-container .popover {
-  width: 600px!important;
+  font-size: 14px;
+  width: 360px!important;
+  max-width: 360px!important;
+}
+.tracemon-container .warning.error {
+  fill: red;
+  stroke: #8b0000;
 }
 .tracemon-container .node-label.ixp {
   opacity: 0.8;
@@ -416,7 +425,8 @@
 .tracemon-container .clickable {
   text-decoration: underline;
   font-weight: bold;
-  color: #7e7e7e;
+  /*color: #7e7e7e;*/
+  color: #4b53c0;
   cursor: pointer;
 }
 .tracemon-container .empty-probe {
@@ -480,6 +490,12 @@
   position: absolute!important;
   right: 39px!important;
   z-index: 100;
+}
+.tracemon-container .value-target {
+  font-weight: bold;
+}
+.tracemon-container .current-instant {
+  font-weight: bold;
 }
 .tracemon-container .ui-helper-hidden {
   display: none;

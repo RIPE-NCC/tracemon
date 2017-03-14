@@ -160,8 +160,10 @@
     opacity: 0.8;
 }
 .popover{
+    font-size: 14px;
     width: 360px!important;
     max-width: 360px!important;
+
 }
 
 .warning.error{
@@ -185,12 +187,6 @@
     fill: white;
 }
 
-.loading-image{
-    position: absolute;
-    top: 40%;
-    left: 49%;
-}
-
 .tracemon-svg {
     width: 100%;
     height: 200px;
@@ -205,16 +201,34 @@
 .error-message{
     text-align: center;
     z-index: 1000000000;
-    position: absolute;
-    top: 100px;
-    left: 42%;
+    position: fixed;
     opacity: 0.7;
     text-shadow: 1px 1px 3px #C0C0C0;
     font-size: 26px;
     width: 300px;
-    height: 40px;
+    left: 50%;
+    top: 40%;
+    margin-left: -150px;
     display: none;
     line-height: 28px;
+}
+
+.loading-image {
+    position: fixed;
+    left: 50%;
+    top: 40%;
+    width: 120px;
+    margin-left: -60px;
+    margin-top: -100px;
+    z-index: 1000000000!important;
+}
+
+.error-message.blink {
+    animation: blinker 1s linear infinite;
+}
+
+@keyframes blinker {
+    50% { opacity: 0; }
 }
 
 /* Bootstrap Hacks */

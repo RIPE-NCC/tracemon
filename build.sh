@@ -16,7 +16,9 @@ minify -o ${css_dist_location}style-lib-dist.min.css ${css_dist_location}style-l
 
 
 r.js -o app.build.1.js
+uglifyjs dev/libs/jquery-libs.js -o dev/libs/jquery-libs.js
 r.js -o app.build.2.js
+uglifyjs tracemon-dist.js -o tracemon-dist.js
 
 cp -fR * ${deployment_dir}
 rm ${deployment_dir}*html

@@ -55,6 +55,7 @@
 
     optimize: "none",
     wrapShim: false,
+    generateSourceMaps: false,
     out: "dev/libs/jquery-libs.js"
 
 })

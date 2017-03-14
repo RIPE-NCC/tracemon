@@ -135,7 +135,7 @@
     },
     stubModules: ["tracemon.lib.text", "tracemon.lib.stache"],
     removeCombined: true,
-    optimize: "uglify2",//uglify2
+    optimize: "none",//uglify2
     wrapShim: false,
     generateSourceMaps: false,
 

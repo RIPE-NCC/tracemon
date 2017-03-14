@@ -87,7 +87,7 @@ define([
                 this.instance = initLatencymon(
                     whereClass,
                     {
-                        dev: true,
+                        dev: env.dev,
                         onlyChartMode: true,
                         autoStart: true,
                         showMinimumByDefault: true,

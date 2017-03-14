@@ -29,8 +29,8 @@ define([
 
             queryParams = {
                 start: options.startDate.unix(),
-                stop: options.stopDate.unix(),
-                include: "geo"
+                stop: options.stopDate.unix()
+                // include: "geo"
             };
 
             if (options.sources) {
@@ -50,6 +50,7 @@ define([
 
             if (!measurementInfo[measurementId]){
                 measurementInfo[measurementId] =  $.ajax({
+                    type: 'GET',
                     dataType: "jsonp",
                     cache: false,
                     timeout: config.ajaxTimeout,

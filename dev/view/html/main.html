@@ -1,7 +1,7 @@
 <div class="tracemon-content">
-    <img src="{{env.widgetUrl}}view/img/loading2.gif" class="loading-image" style="left: 50%; top: 50%; display: none;">
-    <div class="error-message"></div>
     <div class="blubble bubble-one">
+        <img class="loading-image">
+        <div class="error-message"></div>
         <div class="tracemon-header">
             <div class="tracemon-title">
                 <div class="padded-text">{{lang.title}}</div>
@@ -13,13 +13,13 @@
                 </div>
 
                 <div class="right-controller  bootstrap-slider reproduction-speed">
-                    <div class="input-label">Speed: <span class="value-slider">{{env.reproductionSpeed}}</span></div>
+                    <div class="input-label">speed: <span class="value-slider">{{env.reproductionspeed}}</span></div>
                     <input type="text"/>
                 </div>
 
                 <div class="right-controller bootstrap-slider hops-number" style="display: none">
 
-                    <div class="input-label">Hops: <span class="value-slider">{{maxPossibleHops}}</span></div>
+                    <div class="input-label">hops: <span class="value-slider">{{maxpossiblehops}}</span></div>
 
                     <input type="text" class="hops-number-slider"/>
 

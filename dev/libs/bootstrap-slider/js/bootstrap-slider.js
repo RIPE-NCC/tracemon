@@ -1923,9 +1923,6 @@ const windowIsDefined = (typeof window === "object");
                 autoRegisterNamespace = NAMESPACE_MAIN;
             }
             else {
-                if (windowIsDefined) {
-                    window.console.warn("bootstrap-slider.js - WARNING: $.fn.slider namespace is already bound. Use the $.fn.bootstrapSlider namespace instead.");
-                }
                 autoRegisterNamespace = NAMESPACE_ALTERNATE;
             }
             $.bridget(NAMESPACE_ALTERNATE, Slider);

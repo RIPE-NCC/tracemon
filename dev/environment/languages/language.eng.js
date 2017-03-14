@@ -10,7 +10,8 @@ define([], function(){
         allTraceroutesDontReach: "All the traceroutes don't reach the target",
         title: "Traceroute Visualisation (BETA)",
         hostGroupedBy: "Hosts grouped by",
-
+        loadingMessage: "Loading...",
+        
         labelOptions: {
           ip: "IP address",
           reverseLookup: "Reverse lookup",

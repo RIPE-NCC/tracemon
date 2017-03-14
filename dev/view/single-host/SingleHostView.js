@@ -272,8 +272,10 @@ define([
 
             this.dryUpdate();
 
+            this.content = env.parentDom.find('.tracemon-content');
+
             env.parentDom.popover({
-                container: env.parentDom,
+                container: this.content,
                 trigger: 'click,focus',
                 selector: '[data-toggle="popover"]',
                 placement: "auto"

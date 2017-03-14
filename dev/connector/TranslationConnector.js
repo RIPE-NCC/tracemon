@@ -315,6 +315,15 @@ define([
             return deferredCall.promise();
         };
 
+        this._handleError = function(error){
+            if (error) {
+                switch (error) {
+                    case 404:
+                        throw "The measurement cannot be found";
+                }
+            }
+        };
+
         this.getMeasurementInfo = function (measurementId){
             var deferredCall;
 
@@ -323,9 +332,19 @@ define([
             if (this.measurementById[measurementId]){ // TODO: Cache, it would be nice to move this somewhere else
                 return deferredCall.resolve(this.measurementById[measurementId]);
             } else {
+                window.addEventListener('error', function(e) {
+                    console.log(e);
+                }, true);
+
                 historyConnector.getMeasurementInfo(measurementId)
+                    .fail(function (data) {
+
+                        console.log("HERE");
+                        $this._handleError(data["error"]);
+                    })
                     .done(function (data) {
                         var measurement, targetHost, extra;
+
 
                         if (data["type"] == "traceroute") {
                             extra = data["extra"] || {};

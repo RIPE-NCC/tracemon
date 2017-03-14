@@ -34,7 +34,9 @@ define([
         this.values = {};
         this.dom = {
             playerButtons: {},
-            labelRadio: null
+            labelRadio: null,
+            errorMessage: null,
+            loadingImage: null
         };
         blockListeners = false;
         lineFunction = d3.svg.line()
@@ -62,8 +64,10 @@ define([
             utils.observer.subscribe("view.traceroute:click", this.showTraceroute, this);
             utils.observer.subscribe("view.animation:start", this._updatePlayerButtons, this);
             utils.observer.subscribe("view.animation:stop", this._updatePlayerButtons, this);
+            utils.observer.subscribe("error", function(error){
+                this.showMessage(true, error.message, { timeout: config.messageTimeout });
+            }, this);
         };
-
 
         this._updatePlayerButtons = function () {
             if (env.emulationRunning){
@@ -135,7 +139,6 @@ define([
             }
         };
 
-
         this.updateSearchBox = function(){
             if (this.searchField){
                 this.searchField.select2("destroy").empty();
@@ -161,7 +164,6 @@ define([
                 })
                 .trigger('change.select2');
         };
-
 
         this.getMonitoredTargets = function () {
             var targets = [];
@@ -319,7 +321,6 @@ define([
 
         };
 
-
         this.updateTimeline = function(){
             var timeRange;
 
@@ -368,7 +369,6 @@ define([
             }
         };
 
-
         this.init = function() {
             var html, partials;
 
@@ -382,6 +382,8 @@ define([
             html = $(template(this, partials));
             env.parentDom.addClass("tracemon-container").html(html);
 
+            this.dom.errorMessage = env.parentDom.find(".error-message");
+            this.dom.loadingImage = env.parentDom.find(".loading-image");
             this.dom.svg = html.find(".tracemon-svg");
 
             headerController = new HeaderController(env);
@@ -539,7 +541,46 @@ define([
             this.tracerouteDivDom.show();
             this.tracerouteDivDom.find("textarea")
                 .text(textualContent);
-        }
+        };
+
+        this.showMessage = function(show, message, options){
+            options = options || {};
+            options.timeout = options.timeout || Infinity;
+
+            setTimeout(function(){
+                $this.showMessage(false);
+            }, Math.min(config.maxMessageTimeoutSeconds, options.timeout) * 1000);
+
+            if (show){
+                this.dom.errorMessage.text(message).show();
+
+                if (options.blink){
+                    this.dom.errorMessage.addClass("blink");
+                }
+            } else {
+                this.dom.errorMessage.text("").hide();
+                this.dom.errorMessage.removeClass("blink");
+            }
+        };
+
+        this.showLoading = function(show){
+            var options;
+
+            options = {
+                blink: true
+            };
+
+            setTimeout(function(){
+                $this.showLoading(false);
+            }, config.maxMessageTimeoutSeconds * 1000);
+
+            if (show) {
+                this.dom.loadingImage.attr("src", "dev/view/img/loading.gif").show();
+            } else {
+                this.dom.loadingImage.removeAttr("src").hide();
+            }
+            this.showMessage(show, lang.loadingMessage, options);
+        };
 
     };
 

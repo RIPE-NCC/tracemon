@@ -106,8 +106,8 @@ define([
 
                 longestTracerouteTmp = measurement.getLongestTraceroute();
                 longestTraceroute = ((longestTraceroute && longestTracerouteTmp && longestTracerouteTmp.getLength() < longestTraceroute.getLength())
-                    ? longestTraceroute
-                    : longestTracerouteTmp) || 0;
+                        ? longestTraceroute
+                        : longestTracerouteTmp) || 0;
 
                 env.metaData = {
                     startDate: (env.metaData.startDate) ?
@@ -155,6 +155,7 @@ define([
         this.addMeasurements = function (msmsIDlist, callback) {
             var newMeasurementsToLoad, msmId;
 
+            env.template.showLoading(true);
             newMeasurementsToLoad = [];
             for (var n=0,length= msmsIDlist.length; n<length; n++) { // Find the new measurements
                 msmId = msmsIDlist[n];
@@ -164,27 +165,35 @@ define([
                 }
             }
 
-            env.connector
-                .getMeasurements(newMeasurementsToLoad)
-                .done(function (measurements) {
-                    var measurement, source;
+            try {
+                env.connector
+                    .getMeasurements(newMeasurementsToLoad)
+                    .done(function (measurements) {
+                        var measurement, source;
+                        env.template.showLoading(false);
 
-                    for (var n=0,length=measurements.length; n<length; n++){
-                        measurement = measurements[n];
-                        env.loadedMeasurements[measurement.id] = measurement;
+                        for (var n = 0, length = measurements.length; n < length; n++) {
+                            measurement = measurements[n];
+                            env.loadedMeasurements[measurement.id] = measurement;
 
-                        for (var sourceKey in measurement.sources) {
-                            source = measurement.sources[sourceKey];
-                            env.loadedSources[source.id] = source;
+                            for (var sourceKey in measurement.sources) {
+                                source = measurement.sources[sourceKey];
+                                env.loadedSources[source.id] = source;
+                            }
+                            utils.observer.publish("model.measurement:new", measurement);
                         }
-                        utils.observer.publish("model.measurement:new", measurement);
-                    }
 
-                    $this._updateMetaData();
-                    if (callback){
-                        callback(msmsIDlist);
-                    }
-                });
+                        $this._updateMetaData();
+                        if (callback) {
+                            callback(msmsIDlist);
+                        }
+                    });
+            } catch (error){
+                var errorObj = (error.type) ? error : { type: "uncaught", message: error };
+                utils.observer.publish("error", errorObj);
+                console.log(errorObj);
+            }
+
         };
 
         this.updateData = function(callback) { // It must use the final params
@@ -197,6 +206,7 @@ define([
             });
 
             try {
+                env.template.showLoading(true);
                 env.connector
                     .getMeasurementsResults(measurements, {
                             startDate: params.startDate,
@@ -204,6 +214,7 @@ define([
                             sources: params.sources
                         }
                     ).done(function(measurements){
+                    env.template.showLoading(false);
                     $this._newResultsetLoaded(measurements);
                     if (callback){
                         callback(measurements);
@@ -335,7 +346,7 @@ define([
         };
 
         this.getVersion = function(){
-          return env.version;
+            return env.version;
         };
 
         this.on = function(event, callback){
@@ -351,11 +362,12 @@ define([
                 env.mainView = new MainView(env);
             }
 
-            this._startProcedure();
-
             if (!env.onlyCore) {
                 env.template.init();
             }
+
+            this._startProcedure();
+
         };
 
     };
