@@ -322,7 +322,21 @@ define([
             env.historyManager.getCurrentState();
         };
 
-        this.setTimeRange = function(start, stop){ // Accept timestamps for public API
+        this.setTimeRange = function(start, stop) { // Accept timestamps for public API
+            env.template.showLoading(true);
+
+            if (this._timeRangeTimet) {
+                clearTimeout(this._timeRangeTimet);
+            }
+
+            this._timeRangeTimet = setTimeout(function(){
+                env.template.showLoading(false);
+                $this._setTimeRange(start, stop);
+            }, config.timeRangeSelectionOverflow);
+            
+        };
+
+        this._setTimeRange = function(start, stop){ // Accept timestamps for public API
             env.finalQueryParams.startDate = moment.unix(start).utc();
             env.finalQueryParams.stopDate = moment.unix(stop).utc();
 
