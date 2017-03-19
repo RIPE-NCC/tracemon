@@ -64,8 +64,9 @@ define([
             utils.observer.subscribe("view.traceroute:click", this.showTraceroute, this);
             utils.observer.subscribe("view.animation:start", this._updatePlayerButtons, this);
             utils.observer.subscribe("view.animation:stop", this._updatePlayerButtons, this);
+            utils.observer.subscribe("loading", this.showLoading, this);
             utils.observer.subscribe("error", function(error){
-                this.showMessage(true, error.message, { timeout: config.messageTimeout });
+                this.showMessage(true, error.message, { timeout: config.messageTimeout, error: true });
             }, this);
         };
 
@@ -353,7 +354,7 @@ define([
                             prettify: function (num) {
                                 return moment.unix(num).utc().format("Do MMMM, HH:mm");
                             },
-                            onFinish: function (data) {
+                            onChange: function (data) {
                                 var width = env.parentDom.width();
                                 $this.updateTimeSelectionCone([((width / 100) * data.from_percent) + 40, ((width / 100) * data.to_percent) + 40]); //Yes, 40 is arbitrary, I got bored to find out why
                                 blockListeners = true;
@@ -383,7 +384,7 @@ define([
             env.parentDom.addClass("tracemon-container").html(html);
 
             this.dom.errorMessage = env.parentDom.find(".error-message");
-            this.dom.loadingImage = env.parentDom.find(".loading-image");
+            this.dom.loadingImage = env.parentDom.find(".loading");
             this.dom.svg = html.find(".tracemon-svg");
 
             headerController = new HeaderController(env);
@@ -547,12 +548,15 @@ define([
             options = options || {};
             options.timeout = options.timeout || Infinity;
 
-            setTimeout(function(){
-                $this.showMessage(false);
-            }, Math.min(config.maxMessageTimeoutSeconds, options.timeout) * 1000);
-
+            clearTimeout(this._timerMessageElement);
             if (show){
+                this._timerMessageElement = setTimeout(function(){
+                    $this.showMessage(false);
+                }, Math.min(config.maxMessageTimeoutSeconds, options.timeout) * 1000);
+
+
                 this.dom.errorMessage.text(message).show();
+                if (options.error) this.dom.loadingImage.addClass("warning");
 
                 if (options.blink){
                     this.dom.errorMessage.addClass("blink");
@@ -560,6 +564,8 @@ define([
             } else {
                 this.dom.errorMessage.text("").hide();
                 this.dom.errorMessage.removeClass("blink");
+                this.dom.loadingImage.removeClass("animation-on");
+                this.dom.loadingImage.removeClass("warning");
             }
         };
 
@@ -570,14 +576,16 @@ define([
                 blink: true
             };
 
-            setTimeout(function(){
-                $this.showLoading(false);
-            }, config.maxMessageTimeoutSeconds * 1000);
+            clearTimeout(this._timerLoadingElement);
 
             if (show) {
-                this.dom.loadingImage.attr("src", "dev/view/img/loading.gif").show();
+                this._timerLoadingElement = setTimeout(function(){
+                    $this.showLoading(false);
+                }, config.maxMessageTimeoutSeconds * 1000);
+
+                this.dom.loadingImage.addClass("animation-on");
             } else {
-                this.dom.loadingImage.removeAttr("src").hide();
+                this.dom.loadingImage.removeClass("animation-on");
             }
             this.showMessage(show, lang.loadingMessage, options);
         };

@@ -16,6 +16,18 @@ define([
             geoRequests: {}
         };
 
+        this._handleError = function(error){
+            var message;
+
+            message = config.errors[error] || error;
+            if (error) {
+                utils.observer.publish("error", {
+                    type: error,
+                    message: message
+                });
+            }
+        };
+
         this.getRealTimeResults = function(measurement, filtering){
             filtering = filtering || {};
             filtering.stream_type = "result";
@@ -61,6 +73,8 @@ define([
                     }
                     utils.observer.publish("model.history:new");
                     deferredCall.resolve(measurements);
+                }, function(error){
+                    $this._handleError(error);
                 });
 
             return deferredCall.promise();
@@ -75,6 +89,9 @@ define([
                 .done(function (data) {
 
                     deferredCall.resolve(data);
+                })
+                .fail(function(error){
+                    $this._handleError(error);
                 });
 
             return deferredCall.promise();
@@ -94,6 +111,9 @@ define([
                 translationConnector.getHostReverseDns(host)
                     .done(function (data) {
                         deferredCall.resolve(data);
+                    })
+                    .fail(function(error){
+                        $this._handleError(error);
                     });
             }
 
@@ -116,10 +136,13 @@ define([
                     translationConnector.getGeolocation(host)
                         .done(function (data) {
                             deferredCall.resolve(data);
+                        })
+                        .fail(function(error){
+                            $this._handleError(error);
                         });
                 }
                 cache.geoRequests[host.ip] = deferredCall.promise();
-                
+
                 return cache.geoRequests[host.ip];
             }
         };
@@ -144,7 +167,10 @@ define([
                 .apply($, deferredArray)
                 .then(function(){
                     deferredCall.resolve(arguments);
+                }, function(error){
+                    $this._handleError(error);
                 });
+
 
 
             return deferredCall.promise();

@@ -28,7 +28,6 @@ define([
                 interface.removeGroup("all");
                 interface.addGroup(this.measurementId, set, "all", "multi-probes");
             }catch(e){
-
             }
         };
 
@@ -39,7 +38,6 @@ define([
                 interface = this._getInterface();
                 interface.updateExternalTimeCursor(moment(env.finalQueryParams.instant).unix());
             } catch(e){
-                console.log(e);
             }
         };
 
@@ -49,7 +47,7 @@ define([
                 try {
                     this.shell = this.instance.shell();
                 } catch(error){
-                    throw "Impossible to load LatencyMON or to get access to the shell: " + error;
+                    console.log("Impossible to load LatencyMON or to get access to the shell: " + error);
                 }
             }
 
@@ -77,7 +75,6 @@ define([
                 interface = this._getInterface();
                 interface.setTimeRange(start.toDate(), stop.toDate());
             }catch(e){
-
             }
         };
 
@@ -115,7 +112,11 @@ define([
                     });
 
             } else {
-                console.log("LatencyMON not loaded: no RTT charts available");
+
+                utils.observer.publish("error", {
+                    type: 603,
+                    message: config.errors[603]
+                });
             }
 
         };

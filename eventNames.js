@@ -6,7 +6,7 @@
 
 utils.observer.publish("ready", status);
 utils.observer.publish("error", { type: "", message: ""});
-
+utils.observer.publish("loading", boolean);
 
 utils.observer.publish("view:probe-set", [Probe]);
 utils.observer.publish("view:max-hops", Integer);
@@ -33,6 +33,7 @@ utils.observer.publish("model.measurement:new", Measurement); // We have a new m
 utils.observer.publish("model.measurement:removed", Integer); // the msmId was removed (no obj instance anymore)
 utils.observer.publish("model.history:new", null);
 utils.observer.publish("model.history:change", null);
+
 
 
 

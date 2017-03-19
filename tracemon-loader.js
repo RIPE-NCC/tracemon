@@ -155,8 +155,13 @@ define([
          * Init Dependency Injection Vector
          */
 
+        // Force dev mode
+        if (utils.getUrlParam("hackdev") == "true"){
+            instanceParams.dev = true;
+        }
+
         env = {
-            "version": "17.3.13.2",
+            "version": "17.3.19.2",
             "dev": instanceParams.dev,
             "widgetUrl": TRACEMON_WIDGET_URL + "dev/",
             "autoStart": (instanceParams.autoStart != undefined) ? instanceParams.autoStart : config.autoStart,
@@ -178,6 +183,8 @@ define([
             "peeringDb":  instanceParams.peeringDb || config.dataAPIs.peeringDb,
             "realTimeUpdate":  (instanceParams.realTimeUpdate != null) ? instanceParams.realTimeUpdate : config.realTimeUpdate,
             "onlyCore":  instanceParams.onlyCore,
+            "preloadGeolocations": instanceParams.preloadGeolocations || config.preloadGeolocations,
+            "bypassApiCache": instanceParams.bypassApiCache,
             "parentDom": $(parentDom),
             "queryParams": queryParams,
 

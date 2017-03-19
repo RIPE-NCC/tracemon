@@ -31,7 +31,7 @@ define([
         var lastHost;
 
         lastHost = this.getReachedHost();
-        
+
         return (lastHost && !this.failed) ? (lastHost.ip == this.target.ip) : false;
     };
 
@@ -73,6 +73,42 @@ define([
         for (var n=0,length=hosts.length; n<length; n++){
             fun(hosts[n]);
         }
+    };
+
+    Traceroute.prototype.forEachAs = function(fun, context){
+        this.forEachHost(function(host){
+            if (host.getAutonomousSystem()) {
+                fun.call(context, host.getAutonomousSystem(), host);
+            }
+        });
+    };
+
+    Traceroute.prototype.getAsPath = function(duplicates){
+        if (!this._asPath) {
+            this._asPath = [];
+            this._asPathUnique = [];
+            this._asPathMap = {};
+            this._asPathSegment = {};
+
+            this.forEachAs(function(asObj, host){
+                if (!this._asPathMap[asObj.id]){
+                    this._asPathUnique.push(asObj);
+                    this._asPathMap[asObj.id] = asObj;
+                    this._asPathSegment[host.getId()] = asObj;
+                }
+                this._asPath.push(asObj);
+            }, this);
+
+            delete this._asPathMap; // It was temp
+        }
+
+        return duplicates ? this._asPath : this._asPathUnique;
+    };
+
+    Traceroute.prototype.getAsPathSegments = function(){
+        this.getAsPath();
+
+        return this._asPathSegment;
     };
 
     Traceroute.prototype.getHash = function(){
@@ -146,7 +182,7 @@ define([
                 return this._hops[n];
             }
         }
-        
+
         return null;
     };
 

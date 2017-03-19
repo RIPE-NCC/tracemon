@@ -36,7 +36,6 @@ define([
 
         this.autonomousSystemsByAs = {};
         this.autonomousSystemsByPrefix = {};
-        this.domainByIp = {};
         this.geolocByIp = {};
         this.neighboursByAs = {};
         this.hostByIp = {};
@@ -118,9 +117,9 @@ define([
          * 1) prefer to return as getBestAttempts only "new" nodes for that traceroute
          * 2) create a new different host for the second time the same IP appears*/
         this.enrichDump = function(data, dump){
-            var translated, hops, hop, item, hopList, attempts, attemptsList, hostObj, hopObj, attemptObj,
-                hostAddress, tmpHost, errors, locations, tracerouteList, targetTraceroute, asnObjs, asnTmp, asList,
-                hostGeolocation, tracerouteDate, attemptTmp, sourceTraceroute;
+            var translated, hops, hop, item, hopList, attempts, attemptsList, hopObj, attemptObj, tracerouteDate,
+                errors, locations, tracerouteList, targetTraceroute, asnObjs, asnTmp, asList, attemptTmp,
+                sourceTraceroute;
 
             asnObjs = {};
             asList = data['asns'] || data['ases'];
@@ -301,28 +300,17 @@ define([
                     var dump;
 
                     dump = [];
-
                     $this.enrichDump(data, dump);
-
                     measurement.addTraceroutes(dump);
-
                     deferredCall.resolve(measurement);
                 })
                 .fail(function (error) {
-                    throw "The results for the selected measurement cannot be retrieved (timeout)"
+                    deferredCall.reject(error);
                 });
 
             return deferredCall.promise();
         };
 
-        this._handleError = function(error){
-            if (error) {
-                switch (error) {
-                    case 404:
-                        throw "The measurement cannot be found";
-                }
-            }
-        };
 
         this.getMeasurementInfo = function (measurementId){
             var deferredCall;
@@ -332,28 +320,22 @@ define([
             if (this.measurementById[measurementId]){ // TODO: Cache, it would be nice to move this somewhere else
                 return deferredCall.resolve(this.measurementById[measurementId]);
             } else {
-                window.addEventListener('error', function(e) {
-                    console.log(e);
-                }, true);
-
                 historyConnector.getMeasurementInfo(measurementId)
-                    .fail(function (data) {
-
-                        console.log("HERE");
-                        $this._handleError(data["error"]);
-                    })
                     .done(function (data) {
-                        var measurement, targetHost, extra;
+                        var measurement, targetHost, extra, error;
 
-
-                        if (data["type"] == "traceroute") {
-                            extra = data["extra"] || {};
-
+                        error = data["error"];
+                        if (error){
+                            deferredCall.reject(error.status);
+                        } else if (data["type"] != "traceroute") {
+                            deferredCall.reject("406");
+                        } else {
                             targetHost = $this._createHost(data["target_ip"], data["target"], null, null, null, data["target_location"]);
                             targetHost.isTarget = true;
                             measurement = new Measurement(measurementId, targetHost);
 
                             // Extra information
+                            extra = data["extra"] || {};
                             measurement.timeout = extra["response_timeout"];
                             measurement.protocol = extra["protocol"];
                             measurement.parisId = extra["paris"];
@@ -379,14 +361,10 @@ define([
 
                                     deferredCall.resolve(measurement);
                                 });
-
-                        } else {
-                            throw "The measurement added is not a traceroute"
                         }
-
                     })
-                    .fail(function () {
-                        throw "The measurement added cannot be loaded, probably the ID doesn't exist";
+                    .fail(function (error) {
+                        deferredCall.reject(error);
                     });
             }
             return deferredCall.promise();
@@ -415,16 +393,13 @@ define([
 
             if (!host.isPrivate){
 
-                // if (this.domainByIp[ip]) {
-                //     deferredCall.resolve(this.domainByIp[ip]);
-                // } else {
                 historyConnector.getHostReverseDns(host.ip)
                     .done(function (data) {
                         var completeDomain, results, reverseArray, shortenedDomain, out;
 
                         results = data["data"]["result"];
                         out = null;
-                        
+
                         if (results) {
                             completeDomain = results[0];
                             reverseArray = completeDomain.split(".");
@@ -449,7 +424,6 @@ define([
                         utils.observer.publish("model.host:change", host);
                     });
             }
-            // }
 
             return deferredCall.promise();
         };
@@ -459,10 +433,6 @@ define([
 
             deferredCall = $.Deferred();
 
-            // if (this.geolocByIp[host.ip]) {
-            //     host.setLocation(this.geolocByIp[host.ip]);
-            //     deferredCall.resolve(this.geolocByIp[host.ip]);
-            // } else {
             historyConnector.getGeolocation(host.ip)
                 .done(function (data) {
                     var geolocation, geolocRaw;
@@ -479,8 +449,10 @@ define([
                     host.setLocation(geolocation);
                     deferredCall.resolve(geolocation);
                     utils.observer.publish("model.host:change", host);
+                })
+                .fail(function (error) {
+                    deferredCall.reject(error);
                 });
-            // }
 
             return deferredCall.promise();
         };
@@ -513,6 +485,9 @@ define([
                         $this.neighboursByAs[asn] = neighboursList;
 
                         deferredCall.resolve(neighboursList);
+                    })
+                    .fail(function (error) {
+                        deferredCall.reject(error);
                     });
             }
 
@@ -563,7 +538,11 @@ define([
                         }
                         $this.probesByMsm[measurementId] = probesArray;
                         deferredCall.resolve(probesArray);
+                    })
+                    .fail(function (error) {
+                        deferredCall.reject(error);
                     });
+
             }
 
             return deferredCall.promise();

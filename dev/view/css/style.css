@@ -201,26 +201,56 @@
 .error-message{
     text-align: center;
     z-index: 1000000000;
-    position: fixed;
+    position: absolute;
     opacity: 0.7;
     text-shadow: 1px 1px 3px #C0C0C0;
     font-size: 26px;
     width: 300px;
     left: 50%;
-    top: 40%;
+    top: 20%;
     margin-left: -150px;
     display: none;
     line-height: 28px;
 }
 
-.loading-image {
-    position: fixed;
+.loading .line {
+    display: none;
+}
+
+.loading.animation-on .line:nth-last-child(1) {animation: loadingC .6s .1s linear infinite;}
+.loading.animation-on .line:nth-last-child(2) {animation: loadingC .6s .2s linear infinite;}
+.loading.animation-on .line:nth-last-child(3) {animation: loadingC .6s .3s linear infinite;}
+.loading.animation-on .line {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 15px;
+    background-color: #4b9cdb;
+}
+
+.loading.animation-on.warning .line{
+    background-color: #db3936;
+}
+
+@keyframes loadingC{
+0 {transform: translate(0,0);}
+50% {transform: translate(0,15px);}
+100% {transform: translate(0,0);}
+}
+
+.loading {
+    position: absolute;
     left: 50%;
-    top: 40%;
-    width: 120px;
-    margin-left: -60px;
-    margin-top: -100px;
+    top: 20%;
+    width: 60px;
+    margin-left: -30px;
+    margin-top: -30px;
     z-index: 1000000000!important;
+    display: none;
+}
+
+.loading.animation-on{
+    display: block;
 }
 
 .error-message.blink {

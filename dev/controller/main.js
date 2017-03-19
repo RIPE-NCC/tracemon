@@ -25,7 +25,7 @@ define([
 
         this.exposedMethods = ["on", "getMeasurements", "getCurrentState", "addMeasurement",
             "addMeasurements", "applyConfiguration", "getShownSources", "setShownSources", "addShownSource",
-            "getSources", "setTimeRange", "removeMeasurement", "goTo", "init", "getVersion"];
+            "getSources", "setTimeRange", "removeMeasurement", "goTo", "init", "getVersion", "updateData"];
 
         this._updateFinalQueryParams = function () {
             var initialParams, finalParams, startDate, stopDate, sourcesAmount, instant, currentTimestamp;
@@ -155,7 +155,7 @@ define([
         this.addMeasurements = function (msmsIDlist, callback) {
             var newMeasurementsToLoad, msmId;
 
-            env.template.showLoading(true);
+            utils.observer.publish("loading", true);
             newMeasurementsToLoad = [];
             for (var n=0,length= msmsIDlist.length; n<length; n++) { // Find the new measurements
                 msmId = msmsIDlist[n];
@@ -170,7 +170,7 @@ define([
                     .getMeasurements(newMeasurementsToLoad)
                     .done(function (measurements) {
                         var measurement, source;
-                        env.template.showLoading(false);
+                        utils.observer.publish("loading", false);
 
                         for (var n = 0, length = measurements.length; n < length; n++) {
                             measurement = measurements[n];
@@ -206,7 +206,8 @@ define([
             });
 
             try {
-                env.template.showLoading(true);
+                utils.observer.publish("loading", true);
+
                 env.connector
                     .getMeasurementsResults(measurements, {
                             startDate: params.startDate,
@@ -214,7 +215,8 @@ define([
                             sources: params.sources
                         }
                     ).done(function(measurements){
-                    env.template.showLoading(false);
+                    utils.observer.publish("loading", false);
+
                     $this._newResultsetLoaded(measurements);
                     if (callback){
                         callback(measurements);
@@ -231,30 +233,6 @@ define([
 
         this.getMeasurements = function(){
             return env.loadedMeasurements;
-        };
-
-        this.error = function(message, type){
-
-            env.template.dom.message
-                .html(message)
-                .show()
-                .delay(config.messageOverlayDurationSeconds * 1000)
-                .fadeOut();
-
-            switch(type){
-
-                case "connection-fail":
-                    console.log(message);
-                    break;
-
-                case "error":
-                    throw message;
-                    break;
-
-                case "info":
-                    console.log(message);
-                    break;
-            }
         };
 
         this.setShownSources = function (sources) {
@@ -323,14 +301,15 @@ define([
         };
 
         this.setTimeRange = function(start, stop) { // Accept timestamps for public API
-            env.template.showLoading(true);
+            utils.observer.publish("loading", true);
+
 
             if (this._timeRangeTimet) {
                 clearTimeout(this._timeRangeTimet);
             }
 
             this._timeRangeTimet = setTimeout(function(){
-                env.template.showLoading(false);
+                utils.observer.publish("loading", false);
                 $this._setTimeRange(start, stop);
             }, config.timeRangeSelectionOverflow);
             

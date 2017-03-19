@@ -24,7 +24,7 @@ define([
             var queryParams;
 
             if (!options.startDate || !options.stopDate){
-                throw "To retrieve data, a time range is required";
+                throw 400;
             }
 
             queryParams = {
@@ -37,7 +37,7 @@ define([
                 queryParams.include.push("geo");
             }
 
-            if (env.forceApiCache){
+            if (env.bypassApiCache){
                 queryParams.force = 1;
             }
 
@@ -51,7 +51,10 @@ define([
                 cache: false,
                 timeout: config.ajaxTimeout,
                 url: env.dataApiResults.replace("0000", measurementId),
-                data: queryParams
+                data: queryParams,
+                error: function () {
+                    throw "408";
+                }
             });
         };
 
@@ -64,7 +67,10 @@ define([
                     dataType: "jsonp",
                     cache: false,
                     timeout: config.ajaxTimeout,
-                    url: env.dataApiMetadata.replace("0000", measurementId)
+                    url: env.dataApiMetadata.replace("0000", measurementId),
+                    error: function () {
+                        throw "408";
+                    }
                 });
             }
 
@@ -83,6 +89,9 @@ define([
                     url: env.dataApiReverseDns,
                     data: {
                         resource: ip
+                    },
+                    error: function () {
+                        throw "408";
                     }
                 });
             }
@@ -102,6 +111,9 @@ define([
                     url: env.dataApiGeolocation,
                     data: {
                         resource: ip
+                    },
+                    error: function () {
+                        throw "408";
                     }
                 });
             }
@@ -121,6 +133,9 @@ define([
                     url: env.dataApiAsnNeighbours,
                     data: {
                         resource: asn
+                    },
+                    error: function () {
+                        throw "408";
                     }
                 });
             }
@@ -145,7 +160,7 @@ define([
                         type: "jsonp"
                     },
                     error: function () {
-                        env.main.error("It is not possible to retrieve measurement information for this ID", "connection-fail");
+                        throw "408";
                     }
                 });
 
