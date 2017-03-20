@@ -98,7 +98,9 @@ define([
         this.emulateHistory = function(){
             env.emulationRunning = true;
 
-            env.finalQueryParams.instant = env.finalQueryParams.startDate;
+            if (!env.finalQueryParams.instant || env.finalQueryParams.instant.isSame(env.finalQueryParams.stopDate)){
+                env.finalQueryParams.instant = moment(env.finalQueryParams.startDate);
+            }
             utils.observer.publish("view.animation:start", env.finalQueryParams.instant);
 
             var emulate = function(){
