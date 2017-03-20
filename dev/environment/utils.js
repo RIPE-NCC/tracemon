@@ -88,7 +88,7 @@ define([
         },
 
         clone: function(obj){
-            return JSON.parse(JSON.striginfy(obj));
+            return JSON.parse(JSON.stringify(obj));
         },
 
         lightClone: function (toBeCloned) {

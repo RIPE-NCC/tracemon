@@ -16,6 +16,7 @@ define([
 ], function(config, utils, $, moment, AutonomousSystem, Hop, Host, Measurement, Traceroute, Connector, MainView,
             HistoryManager, TemplateManagerView, SourceSelectionHelper) {
 
+
     var main = function (env) {
         var $this, sourceSelection, initialModelCreated;
 
@@ -27,12 +28,44 @@ define([
             "addMeasurements", "applyConfiguration", "getShownSources", "setShownSources", "addShownSource",
             "getSources", "setTimeRange", "removeMeasurement", "goTo", "init", "getVersion", "updateData"];
 
+
+        this._checkCursorPosition = function(){
+            var instant;
+
+            instant = env.finalQueryParams.instant;
+            if (!instant || instant.isBefore(env.finalQueryParams.startDate) || instant.isAfter(env.finalQueryParams.stopDate)) {
+                env.finalQueryParams.instant = (config.startWithLastStatus) ? env.finalQueryParams.stopDate: env.finalQueryParams.startDate;
+                // if (instant){
+                //     utils.observer.publish("error", { type: 506, message: config.errors[506] });
+                // }
+            }
+        };
+
+        this._checkTimeRangeSize = function(forceRight){
+            var maximumTimeRangePossible;
+
+            maximumTimeRangePossible = config.maximumLoadedPeriod * env.metaData.interval;
+            if (env.finalQueryParams.stopDate.diff(env.finalQueryParams.startDate, 'seconds', true) > maximumTimeRangePossible){
+
+                if (forceRight){
+                    env.finalQueryParams.startDate = moment(env.finalQueryParams.stopDate)
+                        .subtract(maximumTimeRangePossible, "seconds");
+                } else {
+                    env.finalQueryParams.stopDate = moment(env.finalQueryParams.startDate)
+                        .add(maximumTimeRangePossible, "seconds");
+                }
+                utils.observer.publish("error", { type: 694, message: config.errors[694] });
+            }
+
+            this._checkCursorPosition();
+        };
+
         this._updateFinalQueryParams = function () {
-            var initialParams, finalParams, startDate, stopDate, sourcesAmount, instant, currentTimestamp;
+            var initialParams, startDate, stopDate, sourcesAmount, instant, currentTimestamp, maximumTimeRangePossible;
 
             if (Object.keys(env.loadedMeasurements).length > 0) {
 
-                initialParams = env.queryParams;
+                initialParams = JSON.parse(JSON.stringify(env.queryParams));
                 instant = initialParams.instant;
 
                 if (initialParams.stopTimestamp){
@@ -47,17 +80,9 @@ define([
                 startDate = (initialParams.startTimestamp) ? moment.unix(initialParams.startTimestamp).utc() :
                     moment(stopDate).subtract(config.defaultLoadedPeriod * env.metaData.interval, "seconds");
 
-                if (!instant) {
-                    instant = (config.startWithLastStatus) ? stopDate: startDate;
-                } else {
-
-                    if (instant.isBefore(startDate) || instant.isAfter(stopDate)) {
-                        throw "The selected instant is out of the selected time range";
-                    }
-                }
                 sourcesAmount = initialParams.defaultNumberOfDisplayedSources || config.defaultNumberOfDisplayedSources;
 
-                finalParams = {
+                env.finalQueryParams = {
                     startDate: startDate,
                     stopDate: stopDate,
                     sources: initialParams.sources || sourceSelection.getInitialSourcesSelection(sourcesAmount),
@@ -65,10 +90,13 @@ define([
                     instant: instant
                 };
 
-                env.finalQueryParams = finalParams;
+                this._checkTimeRangeSize();
                 this._updateSelectedSources();
+
             } else {
-                throw "To compute the final query params, at least one measurement must be loaded"
+
+                utils.observer.publish("error", { type: 507, message: config.errors[507] });
+                return;
             }
         };
 
@@ -316,28 +344,22 @@ define([
         };
 
         this._setTimeRange = function(start, stop){ // Accept timestamps for public API
-            var maximumTimeRangePossible;
+            var forceRight;
 
-            env.finalQueryParams.startDate = moment.unix(start).utc();
-            env.finalQueryParams.stopDate = moment.unix(stop).utc();
+            start = moment.unix(start).utc();
+            stop = moment.unix(stop).utc();
 
-            maximumTimeRangePossible = config.maximumLoadedPeriod * env.metaData.interval;
-            if (env.finalQueryParams.stopDate.diff(env.finalQueryParams.startDate, 'seconds', true) > maximumTimeRangePossible){
-                env.finalQueryParams.stopDate = moment(env.finalQueryParams.startDate)
-                    .add(maximumTimeRangePossible, "seconds");
-                utils.observer.publish("error", { type: 694, message: config.errors[694] });
-            }
+            forceRight = start.isSame(env.finalQueryParams.startDate);
 
-            if (env.finalQueryParams.instant.isBefore(env.finalQueryParams.startDate)){
-                env.historyManager.setCurrentInstant(env.finalQueryParams.startDate);
-            }
-            if (env.finalQueryParams.instant.isAfter(env.finalQueryParams.stopDate)){
-                env.historyManager.setCurrentInstant(env.finalQueryParams.stopDate);
-            }
+            env.finalQueryParams.startDate = start;
+            env.finalQueryParams.stopDate = stop;
+
+            this._checkTimeRangeSize(forceRight);
 
             this.updateData(function(){
                 env.historyManager.getCurrentState();
             });
+
             utils.observer.publish("view.time-selection:change", {
                 startDate: env.finalQueryParams.startDate,
                 stopDate: env.finalQueryParams.stopDate

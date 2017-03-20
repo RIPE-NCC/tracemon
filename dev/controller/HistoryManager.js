@@ -160,8 +160,8 @@ define([
             var out, newQuery;
 
             newQuery = {
-                instant: date,
-                sources: env.finalQueryParams.sources
+                instant: moment(date),
+                sources: utils.clone(env.finalQueryParams.sources)
             };
 
             if ((env.metaData.startDate.isSameOrBefore(date))
@@ -180,9 +180,8 @@ define([
                 previousQuery = newQuery;
 
             } else {
-                throw "The selected instant is out of the measurement lifespan";
+                utils.observer.publish("error", { type: 508, message: config.errors[508]});
             }
-
 
             return out;
         };

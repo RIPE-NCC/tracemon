@@ -94,6 +94,9 @@ define([], function(){
             "405": "The probe cannot be found",
             "406": "The measurement added is not a traceroute",
             "408": "The requested data query timed out",
+            "506": "The selected instant is out of the selected time range",
+            "507": "To compute the final query params, at least one measurement must be loaded",
+            "508": "The selected instant is out of the measurement lifespan",
             "603": "LatencyMON cannot be loaded: no RTT charts available",
             "694": "The time window has been changed because it was too wide"
         }

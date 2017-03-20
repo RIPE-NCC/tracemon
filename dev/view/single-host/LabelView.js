@@ -170,6 +170,8 @@ define([
                     } else if (!this.node.model.ip){
                         multiplicity = this.node.getMultiplicity();
                         label = "✱" + ((multiplicity && multiplicity > 1) ? "x" + multiplicity : "");
+                    } else {
+                        label = this.node.model.ip;
                     }
 
                     break;

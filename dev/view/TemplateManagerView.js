@@ -323,8 +323,9 @@ define([
         };
 
         this.updateTimeline = function(){
-            var timeRange;
+            var timeRange, offsetAlignment;
 
+            offsetAlignment = -54; //Yes, 40 is arbitrary, I got bored to find out why
             timeRange = {
                 startDate: env.metaData.startDate,
                 stopDate: (env.metaData.stopDate) ? env.metaData.stopDate : moment().utc()
@@ -356,14 +357,16 @@ define([
                             },
                             onChange: function (data) {
                                 var width = env.parentDom.width();
-                                $this.updateTimeSelectionCone([((width / 100) * data.from_percent) + 40, ((width / 100) * data.to_percent) + 40]); //Yes, 40 is arbitrary, I got bored to find out why
-                                blockListeners = true;
+                                $this.updateTimeSelectionCone([((width / 100) * data.from_percent) + offsetAlignment, ((width / 100) * data.to_percent) + offsetAlignment]);
                                 env.main.setTimeRange(moment.unix(data.from).utc().unix(), moment.unix(data.to).utc().unix());
-                                blockListeners = false;
                             },
                             onStart: function (data) {
                                 var width = env.parentDom.width();
-                                $this.updateTimeSelectionCone([((width / 100) * data.from_percent) + 40, ((width / 100) * data.to_percent) + 40]);
+                                $this.updateTimeSelectionCone([((width / 100) * data.from_percent) + offsetAlignment, ((width / 100) * data.to_percent) + offsetAlignment]);
+                            },
+                            onUpdate: function(data) {
+                                var width = env.parentDom.width();
+                                $this.updateTimeSelectionCone([((width / 100) * data.from_percent) + offsetAlignment, ((width / 100) * data.to_percent) + offsetAlignment]);
                             }
                         });
                 }
@@ -554,9 +557,15 @@ define([
                     $this.showMessage(false);
                 }, Math.min(config.maxMessageTimeoutSeconds, options.timeout) * 1000);
 
+                if (!this.dom.errorMessage.is(":visible") || !options.isLoading){ // the loading message doesn;t have to overwrite the error
+                    this.dom.errorMessage.text(message).show();
+                }
 
-                this.dom.errorMessage.text(message).show();
-                if (options.error) this.dom.loadingImage.addClass("warning");
+                if (options.error) {
+                    this.dom.loadingImage.addClass("warning");
+                } else {
+                    this.dom.loadingImage.removeClass("warning");
+                }
 
                 if (options.blink){
                     this.dom.errorMessage.addClass("blink");
@@ -573,7 +582,8 @@ define([
             var options;
 
             options = {
-                blink: true
+                blink: true,
+                isLoading: true
             };
 
             clearTimeout(this._timerLoadingElement);
