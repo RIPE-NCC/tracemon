@@ -414,12 +414,18 @@ define([
                             completeDomain = results[0];
                             reverseArray = completeDomain.split(".");
 
-                            if (reverseArray.length > 2){
-                                shortenedDomain = [
-                                    // reverseArray[reverseArray.length - 3],
-                                    reverseArray[reverseArray.length - 2],
-                                    reverseArray[reverseArray.length - 1]
-                                ].join(".");
+                            if (reverseArray.length > 2){ // DAR-3047: consider compounded second level country domains (e.g. co.uk) for short reverse lookup labels
+                                var firstLevel, secondLevel, thirdLevel;
+
+                                firstLevel = reverseArray[reverseArray.length - 1];
+                                secondLevel = reverseArray[reverseArray.length - 2];
+                                thirdLevel = reverseArray[reverseArray.length - 3];
+
+                                if (secondLevel.length == 2){
+                                    shortenedDomain = [thirdLevel, secondLevel, firstLevel].join(".");
+                                } else {
+                                    shortenedDomain = [secondLevel, firstLevel].join(".");
+                                }
                             }
 
                             out = {
