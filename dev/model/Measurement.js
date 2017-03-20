@@ -13,6 +13,12 @@ define([
         this._longestTraceroute = null;
     };
 
+    Measurement.prototype.empty = function(){
+        this._traceroutes = [];
+        this._traceroutesBySource = {};
+        this._longestTraceroute = null;
+    };
+
     Measurement.prototype._tracerouteSort = function(traceroute1, traceroute2){
         return traceroute1.date.unix() - traceroute2.date.unix();
     };

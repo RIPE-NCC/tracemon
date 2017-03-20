@@ -302,6 +302,7 @@ define([
 
                         dump = [];
                         $this.enrichDump(data, dump);
+                        measurement.empty();
                         measurement.addTraceroutes(dump);
                         deferredCall.resolve(measurement);
                     })

@@ -35,9 +35,6 @@ define([
             instant = env.finalQueryParams.instant;
             if (!instant || instant.isBefore(env.finalQueryParams.startDate) || instant.isAfter(env.finalQueryParams.stopDate)) {
                 env.finalQueryParams.instant = (config.startWithLastStatus) ? env.finalQueryParams.stopDate: env.finalQueryParams.startDate;
-                // if (instant){
-                //     utils.observer.publish("error", { type: 506, message: config.errors[506] });
-                // }
             }
         };
 
