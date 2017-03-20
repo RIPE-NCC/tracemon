@@ -93,9 +93,9 @@ define([], function(){
             "404": "The measurement cannot be found",
             "405": "The probe cannot be found",
             "406": "The measurement added is not a traceroute",
-            "408": "The results for the selected measurement cannot be retrieved (timeout)",
-            "603": "LatencyMON cannot be loaded: no RTT charts available"
-
+            "408": "The requested data query timed out",
+            "603": "LatencyMON cannot be loaded: no RTT charts available",
+            "694": "The time window has been changed because it was too wide"
         }
 
     };

@@ -312,12 +312,21 @@ define([
                 utils.observer.publish("loading", false);
                 $this._setTimeRange(start, stop);
             }, config.timeRangeSelectionOverflow);
-            
+
         };
 
         this._setTimeRange = function(start, stop){ // Accept timestamps for public API
+            var maximumTimeRangePossible;
+
             env.finalQueryParams.startDate = moment.unix(start).utc();
             env.finalQueryParams.stopDate = moment.unix(stop).utc();
+
+            maximumTimeRangePossible = config.maximumLoadedPeriod * env.metaData.interval;
+            if (env.finalQueryParams.stopDate.diff(env.finalQueryParams.startDate, 'seconds', true) > maximumTimeRangePossible){
+                env.finalQueryParams.stopDate = moment(env.finalQueryParams.startDate)
+                    .add(maximumTimeRangePossible, "seconds");
+                utils.observer.publish("error", { type: 694, message: config.errors[694] });
+            }
 
             if (env.finalQueryParams.instant.isBefore(env.finalQueryParams.startDate)){
                 env.historyManager.setCurrentInstant(env.finalQueryParams.startDate);
@@ -326,12 +335,9 @@ define([
                 env.historyManager.setCurrentInstant(env.finalQueryParams.stopDate);
             }
 
-            if (env.finalQueryParams.stopDate.diff(env.finalQueryParams.startDate, 'hours', true) > 24){
-                env.finalQueryParams.startDate = moment(env.finalQueryParams.stopDate)
-                    .subtract(config.maximumLoadedPeriod * env.metaData.interval, "seconds");
-                alert("Sorry, you can select up to " + config.maximumLoadedPeriod * env.metaData.interval + " seconds of time range for now (calculated based on the frequency of the measurement).");
-            }
-            env.main.updateData();
+            this.updateData(function(){
+                env.historyManager.getCurrentState();
+            });
             utils.observer.publish("view.time-selection:change", {
                 startDate: env.finalQueryParams.startDate,
                 stopDate: env.finalQueryParams.stopDate

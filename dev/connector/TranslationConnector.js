@@ -216,8 +216,8 @@ define([
                     }
                 }
             }
-            hostHelper.scanAllTraceroutes(dump);
 
+            hostHelper.scanAllTraceroutes(dump);
         };
 
 
@@ -294,19 +294,24 @@ define([
             deferredCall = $.Deferred();
 
             selectedProbes = options.sources;
-            historyConnector
-                .getMeasurementResults(measurement.id, options)
-                .done(function(data){
-                    var dump;
+            try {
+                historyConnector
+                    .getMeasurementResults(measurement.id, options)
+                    .done(function(data){
+                        var dump;
 
-                    dump = [];
-                    $this.enrichDump(data, dump);
-                    measurement.addTraceroutes(dump);
-                    deferredCall.resolve(measurement);
-                })
-                .fail(function (error) {
-                    deferredCall.reject(error);
-                });
+                        dump = [];
+                        $this.enrichDump(data, dump);
+                        measurement.addTraceroutes(dump);
+                        deferredCall.resolve(measurement);
+                    })
+                    .fail(function (error) {
+                        deferredCall.reject(error);
+                    });
+            } catch(error) {
+                alert(error);
+                deferredCall.reject(error);
+            }
 
             return deferredCall.promise();
         };
@@ -320,52 +325,56 @@ define([
             if (this.measurementById[measurementId]){ // TODO: Cache, it would be nice to move this somewhere else
                 return deferredCall.resolve(this.measurementById[measurementId]);
             } else {
-                historyConnector.getMeasurementInfo(measurementId)
-                    .done(function (data) {
-                        var measurement, targetHost, extra, error;
+                try{
+                    historyConnector.getMeasurementInfo(measurementId)
+                        .done(function (data) {
+                            var measurement, targetHost, extra, error;
 
-                        error = data["error"];
-                        if (error){
-                            deferredCall.reject(error.status);
-                        } else if (data["type"] != "traceroute") {
-                            deferredCall.reject("406");
-                        } else {
-                            targetHost = $this._createHost(data["target_ip"], data["target"], null, null, null, data["target_location"]);
-                            targetHost.isTarget = true;
-                            measurement = new Measurement(measurementId, targetHost);
+                            error = data["error"];
+                            if (error) {
+                                deferredCall.reject(error.status);
+                            } else if (data["type"] != "traceroute") {
+                                deferredCall.reject("406");
+                            } else {
+                                targetHost = $this._createHost(data["target_ip"], data["target"], null, null, null, data["target_location"]);
+                                targetHost.isTarget = true;
+                                measurement = new Measurement(measurementId, targetHost);
 
-                            // Extra information
-                            extra = data["extra"] || {};
-                            measurement.timeout = extra["response_timeout"];
-                            measurement.protocol = extra["protocol"];
-                            measurement.parisId = extra["paris"];
-                            measurement.numberOfPackets = extra["packets"];
-                            measurement.startFromHop = extra["firsthop"];
-                            measurement.maxHopsAllowed = extra["maxhops"];
-                            measurement.packetSize = extra["size"];
+                                // Extra information
+                                extra = data["extra"] || {};
+                                measurement.timeout = extra["response_timeout"];
+                                measurement.protocol = extra["protocol"];
+                                measurement.parisId = extra["paris"];
+                                measurement.numberOfPackets = extra["packets"];
+                                measurement.startFromHop = extra["firsthop"];
+                                measurement.maxHopsAllowed = extra["maxhops"];
+                                measurement.packetSize = extra["size"];
 
-                            measurement.startDate = moment.unix(data["start_time"]).utc();
-                            measurement.stopDate = (data["stop_time"]) ? moment.unix(data["stop_time"]).utc() : null;
-                            measurement.interval = data["native_sampling"];
-                            $this.measurementById[measurement.id] = measurement;
+                                measurement.startDate = moment.unix(data["start_time"]).utc();
+                                measurement.stopDate = (data["stop_time"]) ? moment.unix(data["stop_time"]).utc() : null;
+                                measurement.interval = data["native_sampling"];
+                                $this.measurementById[measurement.id] = measurement;
 
-                            $this.getProbesInfo(measurement.id)
-                                .done(function(sources) {
-                                    var source;
+                                $this.getProbesInfo(measurement.id)
+                                    .done(function (sources) {
+                                        var source;
 
-                                    for (var n = 0, length = sources.length; n < length; n++) {
-                                        source = sources[n];
-                                        source.measurements.push(measurement);
-                                        measurement.sources[source.id] = source;
-                                    }
+                                        for (var n = 0, length = sources.length; n < length; n++) {
+                                            source = sources[n];
+                                            source.measurements.push(measurement);
+                                            measurement.sources[source.id] = source;
+                                        }
 
-                                    deferredCall.resolve(measurement);
-                                });
-                        }
-                    })
-                    .fail(function (error) {
-                        deferredCall.reject(error);
-                    });
+                                        deferredCall.resolve(measurement);
+                                    });
+                            }
+                        })
+                        .fail(function (error) {
+                            deferredCall.reject(error);
+                        });
+                } catch(error) {
+                    deferredCall.reject(error);
+                }
             }
             return deferredCall.promise();
 
@@ -393,6 +402,7 @@ define([
 
             if (!host.isPrivate){
 
+                try {
                 historyConnector.getHostReverseDns(host.ip)
                     .done(function (data) {
                         var completeDomain, results, reverseArray, shortenedDomain, out;
@@ -423,6 +433,9 @@ define([
                         deferredCall.resolve(out);
                         utils.observer.publish("model.host:change", host);
                     });
+                } catch(error) {
+                    deferredCall.reject(error);
+                }
             }
 
             return deferredCall.promise();
