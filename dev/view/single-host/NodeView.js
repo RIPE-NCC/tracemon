@@ -19,6 +19,16 @@ define([
 
 
     NodeView.prototype = {
+        getAnnotation: function(){
+            if (this.model.isLocalCache) {
+                return "Local cache"
+            } else if (this.model.isCdn){
+                return "CDN"
+            }
+
+            return null;
+        },
+
         getErrors: function(){
             var errors = [];
 

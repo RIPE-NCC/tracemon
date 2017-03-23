@@ -43,12 +43,15 @@ define([
             if (selected === undefined){
                 return this._selected && !this.isFocusOut();
             } else if (!this.isFocusOut()){
-                var nodeViews;
+                var nodeViews, nodeView;
 
                 this._selected = selected;
                 nodeViews = this.getNodeViews();
                 for (var n = 0, length = nodeViews.length; n < length; n++) {
-                    nodeViews[n].isSelected(selected);
+                    nodeView = nodeViews[n];
+                    if (nodeView) {
+                        nodeView.isSelected(selected);
+                    }
                 }
             }
         },
@@ -64,7 +67,9 @@ define([
                 nodeViews = this.getNodeViews();
                 for (var n = 0, length = nodeViews.length; n < length; n++) {
                     nodeView = nodeViews[n];
-                    nodeView.isSelected(hovered);
+                    if (nodeView) {
+                        nodeView.isSelected(hovered);
+                    }
                 }
             }
         },

@@ -119,7 +119,7 @@ define([
         this.enrichDump = function(data, dump){
             var translated, hops, hop, item, hopList, attempts, attemptsList, hopObj, attemptObj, tracerouteDate,
                 errors, locations, tracerouteList, targetTraceroute, asnObjs, asnTmp, asList, attemptTmp,
-                sourceTraceroute;
+                sourceTraceroute, rootMeasurement;
 
             asnObjs = {};
             asList = data['asns'] || data['ases'];
@@ -190,12 +190,20 @@ define([
 
                 }
 
+                rootMeasurement = this.measurementById[item["msm_id"]];
                 sourceTraceroute = this._createHost(item["from"], null, item["from_as"], null, item['prb_id'], item["from_geo_key"]);
                 if (item["dst_addr"]){
                     targetTraceroute = this._createHost(item["dst_addr"], item["dst_name"], item["dst_as"], null, null, item["dst_geo_key"]);
+
+                    if (rootMeasurement.target.ip) {
+                        targetTraceroute.isCdn = (rootMeasurement.target.ip != targetTraceroute.ip);
+                        if (rootMeasurement.target.getAutonomousSystem()){
+                            targetTraceroute.isLocalCache = (rootMeasurement.target.getAutonomousSystem().id != targetTraceroute.getAutonomousSystem().id);
+                        }
+                    }
                     translated = new Traceroute(sourceTraceroute, targetTraceroute, tracerouteDate);
                 } else {
-                    targetTraceroute = this.measurementById[item["msm_id"]].target;
+                    targetTraceroute = rootMeasurement.target;
                     translated = new Traceroute(sourceTraceroute, targetTraceroute, tracerouteDate);
                     translated.failed = true;
                 }
@@ -337,7 +345,7 @@ define([
                             } else if (data["type"] != "traceroute") {
                                 deferredCall.reject("406");
                             } else {
-                                targetHost = $this._createHost(data["target_ip"], data["target"], null, null, null, data["target_location"]);
+                                targetHost = $this._createHost(data["target_ip"], data["target"], -1, null, null, data["target_location"]);
                                 targetHost.isTarget = true;
                                 measurement = new Measurement(measurementId, targetHost);
 

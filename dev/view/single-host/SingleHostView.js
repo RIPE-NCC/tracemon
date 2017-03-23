@@ -281,6 +281,13 @@ define([
                 placement: "auto"
             });
 
+            env.parentDom
+                .on("mousedown", ".popover", function(event){ // To prevent popover to close when clicked inside
+                    event.preventDefault();
+                    event.stopPropagation();
+                });
+
+
             if (callback){
                 callback();
             }
@@ -291,7 +298,6 @@ define([
             env.headerController.updateSearch();
             this._computeLayout(this._computeMeshGraph()); // This should be done only if there are new events in the history
             this.computeVisibleGraph(diff.status);
-            // this._updateNodesGraphAttributes(); Can it be removed?
 
             for (var n=0,length = diff.updatedTraceroutes.length; n<length; n++) {
                 this._animatePathChange(diff.updatedTraceroutes[n]["before"], diff.updatedTraceroutes[n]["now"]);
@@ -545,7 +551,7 @@ define([
                 .enter()
                 .append("circle")
                 .attr("data-toggle", "popover")
-                .attr("data-trigger", "focus")
+                .attr("data-tooltip", "tooltip")
                 .attr("tabindex", "0")
                 .attr("data-html", "true")
                 .attr("title", function(nodeView){
@@ -562,6 +568,11 @@ define([
                     $this.hoveredObject = null;
                     $this.dryUpdate();
                     utils.observer.publish("view.host:mouseout", nodeView.model);
+                })
+                .each(function(nodeView){
+                    if (nodeView.getAnnotation()) {
+                        env.template.addAnnotation(nodeView);
+                    }
                 });
 
             nodesSvg
@@ -576,6 +587,9 @@ define([
                 })
                 .attr("data-content", function (nodeView) {
                     return nodeView.getInfo();
+                })
+                .attr("data-annotation", function (nodeView) {
+                    return nodeView.getAnnotation();
                 })
                 .attr("data-selected", function(nodeView){
                     return (nodeView.isSelected()) ? true : null;
@@ -712,14 +726,16 @@ define([
                     y = nodeView.y - config.graph.nodeRadius;
 
                     return "M" + (x + 2) + " " + (y) +
-                    " L" + (x - 2) + " " + (y + 6) +
-                    " L" + (x - 6) + " " + (y) + " Z";
+                        " L" + (x - 2) + " " + (y + 6) +
+                        " L" + (x - 6) + " " + (y) + " Z";
                 })
                 .attr("class", function(nodeView){
                     return "warning error node-warning-" + nodeView.id;
                 })
                 .attr("data-toggle", "popover")
-                .attr("data-trigger", "focus")
+                .attr("data-tooltip", "tooltip")
+
+                // .attr("data-trigger", "focus")
                 .attr("tabindex", "0")
                 .attr("data-html", "true")
                 .attr("title", function(nodeView){

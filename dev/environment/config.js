@@ -59,7 +59,9 @@ define([], function(){
         transitionsTimes:{
             pathChange: 600,
             pathRemoval: 600,
-            nodeRemoval: 1000
+            nodeRemoval: 1000,
+            annotationRemoval: 2000,
+            annotationDelay: 2000
         },
 
         graph: {

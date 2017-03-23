@@ -6,6 +6,9 @@
             <div class="line"></div>
         </div>
         <div class="error-message"></div>
+
+        <div class="annotation-tooltip"><div class="annotation-tooltip-content"></div></div>
+
         <div class="tracemon-header">
             <div class="tracemon-title">
                 <div class="padded-text">{{lang.title}}</div>
@@ -62,7 +65,9 @@
             </div>
 
         </div>
-        <svg class="tracemon-svg"></svg>
+        <div class="svg-div">
+            <svg class="tracemon-svg"></svg>
+        </div>
         <div class="legend_latencymon">
             <span><img src="{{env.widgetUrl}}view/img/legend_normal.jpg"> {{lang.latency}}</span>
             <span><img src="{{env.widgetUrl}}view/img/legend_ps.jpg"> {{lang.traceroutesDontReach}}</span>

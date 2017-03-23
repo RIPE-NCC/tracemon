@@ -36,7 +36,9 @@ define([
             playerButtons: {},
             labelRadio: null,
             errorMessage: null,
-            loadingImage: null
+            loadingImage: null,
+            annotation: null,
+            graphContainer: null
         };
         blockListeners = false;
         lineFunction = d3.svg.line()
@@ -54,6 +56,51 @@ define([
                 ]
             }
         };
+
+        this._removeAnnotations = function(which){
+            if (which){
+                console.log("remove specific");
+            }
+            which = which || env.parentDom.find(".annotation-tooltip.left, .annotation-tooltip.right"); // A specific one or all of them
+            $(which)
+                .fadeOut(config.transitionsTimes.annotationRemoval, function() {
+                    $(this).remove();
+                });
+        };
+
+        this.addAnnotation = function(nodeView){
+            var left, annotationDom, annotationSizes, arrowMargin;
+
+            left = (env.parentDom.width()/2 < nodeView.x);
+            annotationDom = $this.dom.annotation.clone(false);
+            annotationDom.appendTo($this.dom.graphContainer);
+            arrowMargin = {
+                x: 4 * (left ? 1 : -1),
+                y: -4
+            };
+            annotationSizes = {
+                width: annotationDom.outerWidth() * (left ? 0 : -1),
+                height: annotationDom.outerHeight()/2
+            };
+            annotationDom
+                .css({
+                    top: (nodeView.y + annotationSizes.height + arrowMargin.y) + "px",
+                    left: (nodeView.x + annotationSizes.width + arrowMargin.x) + "px",
+                    display: "block"
+                })
+                .addClass(left ? "left" : "right");
+
+            annotationDom
+                .find(".annotation-tooltip-content")
+                .text(nodeView.getAnnotation());
+
+            if (env.emulationRunning) {
+                setTimeout(function () {
+                    $this._removeAnnotations(annotationDom);
+                }, config.transitionsTimes.annotationDelay);
+            }
+        };
+
 
         this.setListeners = function(){
             utils.observer.subscribe("view.status:change", this.updateTemplatesInfo, this);
@@ -325,7 +372,7 @@ define([
         this.updateTimeline = function(){
             var timeRange, offsetAlignment;
 
-            offsetAlignment = -54; //Yes, 40 is arbitrary, I got bored to find out why
+            offsetAlignment = -54;
             timeRange = {
                 startDate: env.metaData.startDate,
                 stopDate: (env.metaData.stopDate) ? env.metaData.stopDate : moment().utc()
@@ -389,6 +436,8 @@ define([
             this.dom.errorMessage = env.parentDom.find(".error-message");
             this.dom.loadingImage = env.parentDom.find(".loading");
             this.dom.svg = html.find(".tracemon-svg");
+            this.dom.graphContainer = html.find(".svg-div");
+            this.dom.annotation = html.find(".annotation-tooltip");
 
             headerController = new HeaderController(env);
             env.headerController = headerController;
@@ -446,6 +495,11 @@ define([
                         .closest(".select-view")
                         .find('.dropdown-toggle')
                         .html(option.text() + ' <span class="caret"></span>');
+                });
+
+            env.parentDom
+                .on("mousedown", function(){
+                    $this._removeAnnotations();
                 });
 
             env.parentDom
@@ -507,7 +561,6 @@ define([
             this.timeSelectionConeRight = this.timeSelectionCone
                 .append("path")
                 .attr("class", "cone-time-boundaries");
-
         };
 
         this.updateTimeSelectionCone = function (points) {

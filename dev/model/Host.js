@@ -9,14 +9,15 @@ define([
         this.isProbe = false;
         this.isLast = false;
         this.isTarget = false;
-        this.measurements = [];
+        this.isCdn = false;
+        this.isLocalCache = false;
+        this.measurements = []; // Only for source
         this._location = null;
 
         if (this.ip) {
             this.isPrivate = utils.isPrivateIp(ip);
         }
     };
-
 
     Host.prototype.setProbeId = function(probeId) {
         this.isProbe = true;
