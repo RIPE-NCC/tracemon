@@ -1,21 +1,5 @@
 .tracemon-container {
   /* Bootstrap Hacks */
-  /*!* css for timepicker *!*/
-  /*.ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }*/
-  /*.ui-timepicker-div dl { text-align: left; }*/
-  /*.ui-timepicker-div dl dt { float: left; clear:left; padding: 0 0 0 5px; }*/
-  /*.ui-timepicker-div dl dd { margin: 0 10px 10px 45%; }*/
-  /*.ui-timepicker-div td { font-size: 90%; }*/
-  /*.ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }*/
-  /*.ui-timepicker-rtl{ direction: rtl; }*/
-  /*.ui-timepicker-rtl dl { text-align: right; padding: 0 5px 0 0; }*/
-  /*.ui-timepicker-rtl dl dt{ float: right; clear: right; }*/
-  /*.ui-timepicker-rtl dl dd { margin: 0 45% 10px 10px; }*/
-  /*.ui-icon-gripsmall-diagonal-se{ !*Workaround for jquery-ui bug*!*/
-  /*background-position: -64px -224px !important;*/
-  /*bottom: 0 !important;*/
-  /*right: 0 !important;*/
-  /*}*/
   /*! jQuery UI - v1.11.2 - 2014-10-16
 * http://jqueryui.com
 * Includes: core.css, accordion.css, autocomplete.css, button.css, datepicker.css, dialog.css, draggable.css, menu.css, progressbar.css, resizable.css, selectable.css, selectmenu.css, slider.css, sortable.css, spinner.css, tabs.css, tooltip.css, theme.css
@@ -163,7 +147,8 @@
 .tracemon-container .path {
   cursor: pointer;
   /*stroke: #C0C0C0;*/
-  stroke: #7b7b7b;
+  /*stroke: #7b7b7b;*/
+  stroke: #8c8c8c;
   opacity: 0.6;
   stroke-width: 3;
   fill: none;
@@ -184,7 +169,7 @@
   fill: none;
 }
 .tracemon-container .path[data-hover] {
-  stroke-width: 6px!important;
+  stroke-width: 5px!important;
   cursor: pointer;
   opacity: 1!important;
 }
@@ -192,7 +177,7 @@
   opacity: 1!important;
 }
 .tracemon-container .path[data-selected] {
-  stroke-width: 6px!important;
+  stroke-width: 5px!important;
   cursor: pointer;
   opacity: 1!important;
 }
@@ -200,7 +185,7 @@
   /*opacity: 1!important;*/
 }
 .tracemon-container .node-label[data-selected] {
-  opacity: 0.8!important;
+  opacity: 0.9!important;
 }
 .tracemon-container .path[data-animation] {
   stroke-width: 10px!important;
@@ -220,13 +205,13 @@
   opacity: 0!important;
 }
 .tracemon-container .node-label {
-  opacity: 0.5;
-  fill: #454545;
+  opacity: 0.6;
+  fill: #3b3b3b;
   font-weight: bold;
   font-size: 10px!important;
 }
 .tracemon-container .node-label.probe {
-  opacity: 0.8;
+  opacity: 1;
 }
 .tracemon-container .popover {
   font-size: 14px;
@@ -545,6 +530,48 @@
 }
 .tracemon-container .current-instant {
   font-weight: bold;
+}
+.tracemon-container .arrow {
+  fill: red;
+}
+.tracemon-container .annotation-tooltip {
+  position: absolute;
+  padding-bottom: 20px;
+  top: 80px;
+  left: 350px;
+  z-index: 1000000000000;
+  width: 120px;
+  padding-left: 10px;
+  padding-right: 10px;
+  display: none;
+}
+.tracemon-container .annotation-tooltip .annotation-tooltip-content {
+  border: 1px solid #C0C0C0;
+  border-radius: 6px;
+  min-height: 24px;
+  width: 100px;
+  background-color: #FFFFFF;
+  /*font-weight: bold;*/
+  text-align: center;
+  padding-top: 4px;
+  box-shadow: 0 0 3px 1px #cfcfcf;
+  color: #de6515;
+  /*font-family: Courier;*/
+  font-style: italic;
+}
+.tracemon-container .annotation-tooltip.left {
+  background-color: transparent;
+  background-image: url('../img/hand_arrow_left.svg');
+  background-repeat: no-repeat;
+  background-position: -4px 18px;
+  background-size: 32px 32px;
+}
+.tracemon-container .annotation-tooltip.right {
+  background-color: transparent;
+  background-image: url('../img/hand_arrow_right.svg');
+  background-repeat: no-repeat;
+  background-position: 100px 10px;
+  background-size: 32px 32px;
 }
 .tracemon-container .ui-helper-hidden {
   display: none;
