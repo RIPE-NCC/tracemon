@@ -2,16 +2,18 @@ define([
     "tracemon.env.config",
     "tracemon.lib.jquery-amd",
     "tracemon.env.utils",
-    "tracemon.connector.translation"
-], function(config, $, utils, TranslationConnector) {
+    "tracemon.connector.translation",
+    "tracemon.connector.persist-host"
+], function(config, $, utils, TranslationConnector, PersistHostConnector) {
     var antiFloodTimerNewStatus;
 
 
     var ConnectorFacade = function (env) {
-        var translationConnector, $this, cache;
+        var translationConnector, $this, cache, persitHostConnector;
 
         $this = this;
         translationConnector = new TranslationConnector(env);
+        persitHostConnector = new PersistHostConnector(env);
         cache = {
             geoRequests: {}
         };
@@ -188,7 +190,6 @@ define([
             return translationConnector.getProbeInfo(probeId);
         };
 
-
         this._enrichProbes = function(measurement, probesList){
             var replyingProbes;
 
@@ -202,6 +203,33 @@ define([
                 env.loadedSources[probesList[n]].empty = (replyingProbes.indexOf(probesList[n]) == -1);
             }
 
+        };
+        
+        this.persist = function(){
+            var hosts, host, callsArray, deferredCall;
+
+
+            deferredCall = $.Deferred();
+            hosts = this.getHosts();
+            callsArray = [];
+            for (var n=0,length=hosts.length; n<length; n++) {
+                host = hosts[n];
+
+                if (!host.isPrivate && host.ip && host.dirty){
+                    callsArray.push(persitHostConnector.persist(host));
+                }
+            }
+
+            $.when
+                .apply($, callsArray)
+                .then(function(){
+                    deferredCall.resolve();
+                }, function(error){
+                    $this._handleError(error);
+                    deferredCall.reject();
+                });
+
+            return deferredCall.promise();
         };
     };
 

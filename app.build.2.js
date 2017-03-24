@@ -94,6 +94,8 @@
         "tracemon.connector.host-helper": "dev/connector/HostClassificationHelper",
         "tracemon.connector.asn": "dev/connector/AsnLookupConnector",
         "tracemon.connector.short-name": "dev/connector/ShortNameConnector",
+        "tracemon.connector.persist-host": "dev/connector/PersistHostConnector",
+
 
 
         /* PeeringDB cache - Remove when we have API*/

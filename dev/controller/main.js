@@ -24,8 +24,8 @@ define([
         initialModelCreated = false;
         sourceSelection = new SourceSelectionHelper(env);
 
-        this.exposedMethods = ["on", "getMeasurements", "getCurrentState", "addMeasurement",
-            "addMeasurements", "applyConfiguration", "getShownSources", "setShownSources", "addShownSource",
+        this.exposedMethods = ["on", "getMeasurements", "getCurrentState", "addMeasurement", "persist",
+            "addMeasurements", "applyConfiguration", "getSelectedSources", "setSelectedSources", "addSelectedSource",
             "getSources", "setTimeRange", "removeMeasurement", "goTo", "init", "getVersion", "updateData"];
 
 
@@ -382,6 +382,15 @@ define([
 
         this.on = function(event, callback){
             utils.observer.subscribe(event, callback, this);
+        };
+
+        this.persist = function(){
+            env.connector.persist()
+                .done(function(){
+                console.log("SUCCESS");
+            }).fail(function(){
+                console.log("FAIL");
+            });
         };
 
         this.init = function(){

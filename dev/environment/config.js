@@ -16,6 +16,7 @@ define([], function(){
             dataApiGeolocation: "https://stat.ripe.net/data/geoloc/data.json",
             dataApiAsnNeighbours: "https://stat.ripe.net/data/asn-neighbours/data.json",
             shortAsNamesApi: "https://massimo.ripe.net/tracemon/short_names.php",
+            persistHostApi: "https://massimo.ripe.net/tracemon/persist_host.php",
             peeringDb: {
                 lans: "http://localhost/peering_db.php?type=ixlan",
                 ixps: "http://localhost/peering_db.php?type=ix",

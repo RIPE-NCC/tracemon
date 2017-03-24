@@ -13,6 +13,7 @@ define([
         this.isLocalCache = false;
         this.measurements = []; // Only for source
         this._location = null;
+        this.dirty = false;
 
         if (this.ip) {
             this.isPrivate = utils.isPrivateIp(ip);
@@ -58,7 +59,10 @@ define([
     };
 
 
-    Host.prototype.setLocation = function(locationObject) {
+    Host.prototype.setLocation = function(locationObject, dontPersist) {
+        if (!dontPersist){
+            this.dirty = true;
+        }
         this._location = locationObject;
     };
 

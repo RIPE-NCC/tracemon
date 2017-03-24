@@ -247,7 +247,7 @@ define([
                 }
 
                 if (hostGeolocation) {
-                    host.setLocation(this._recoverHostLocation(hostGeolocation));
+                    host.setLocation(this._recoverHostLocation(hostGeolocation), true);
                 }
 
                 if (!host.isPrivate && address) {
@@ -474,7 +474,7 @@ define([
                     }
 
                     $this.geolocByIp[host.ip] = geolocation;
-                    host.setLocation(geolocation);
+                    host.setLocation(geolocation, true);
                     deferredCall.resolve(geolocation);
                     utils.observer.publish("model.host:change", host);
                 })
