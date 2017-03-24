@@ -385,12 +385,7 @@ define([
         };
 
         this.persist = function(){
-            env.connector.persist()
-                .done(function(){
-                console.log("SUCCESS");
-            }).fail(function(){
-                console.log("FAIL");
-            });
+            return env.connector.persist();
         };
 
         this.init = function(){
