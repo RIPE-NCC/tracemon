@@ -47,9 +47,10 @@ define([
         return this._hops;
     };
 
-    Traceroute.prototype.forEachHop = function(fun){
+    Traceroute.prototype.forEachHop = function(fun, context){
+        context = context || this;
         for (var n=0,length=this._hops.length; n<length; n++){
-            fun(this._hops[n]);
+            fun.call(context, this._hops[n]);
         }
     };
 
@@ -68,14 +69,18 @@ define([
         return this.getHostList().length;
     };
 
-    Traceroute.prototype.forEachHost = function(fun){
-        var hosts = this.getHostList();
+    Traceroute.prototype.forEachHost = function(fun, context){
+        var hosts;
+
+        hosts = this.getHostList();
+        context = context || this;
         for (var n=0,length=hosts.length; n<length; n++){
-            fun(hosts[n]);
+            fun.call(context, hosts[n]);
         }
     };
 
     Traceroute.prototype.forEachAs = function(fun, context){
+        context = context || this;
         this.forEachHost(function(host){
             if (host.getAutonomousSystem()) {
                 fun.call(context, host.getAutonomousSystem(), host);
@@ -84,19 +89,29 @@ define([
     };
 
     Traceroute.prototype.getAsPath = function(duplicates){
+        var asObj, isGuess;
+
         if (!this._asPath) {
             this._asPath = [];
             this._asPathUnique = [];
             this._asPathMap = {};
             this._asPathSegment = {};
 
-            this.forEachAs(function(asObj, host){
-                if (!this._asPathMap[asObj.id]){
-                    this._asPathUnique.push(asObj);
-                    this._asPathMap[asObj.id] = asObj;
-                    this._asPathSegment[host.getId()] = asObj;
+            this.forEachHost(function(host){
+                asObj = host.getAutonomousSystem();
+                if (asObj){
+                    isGuess = host.isPrivate || !host.ip;
+                    if (!isGuess && !this._asPathMap[asObj.id]){
+                        this._asPathUnique.push(asObj);
+                        this._asPathMap[asObj.id] = asObj;
+                        this._asPathSegment[host.getId()] = { as: asObj, isGuess: isGuess };
+                    } else if (isGuess) {
+                        this._asPathSegment[host.getId()] = { as: asObj, isGuess: isGuess };
+                    }
+                    this._asPath.push(asObj);
+                } else {
+                    this._asPathSegment[host.getId()] = null;
                 }
-                this._asPath.push(asObj);
             }, this);
 
             delete this._asPathMap; // It was temp
@@ -105,10 +120,22 @@ define([
         return duplicates ? this._asPath : this._asPathUnique;
     };
 
-    Traceroute.prototype.getAsPathSegments = function(){
-        this.getAsPath();
+    Traceroute.prototype.getAsPathSegments = function(guesses){
+        var pathSetments, item;
 
-        return this._asPathSegment;
+        this.getAsPath(false);
+
+        pathSetments = {};
+        for (var segment in this._asPathSegment){
+            item = this._asPathSegment[segment];
+            if (guesses || (item && !item.isGuess)) {
+                pathSetments[segment] = item.as;
+            } else {
+                pathSetments[segment] = null;
+            }
+        }
+
+        return pathSetments;
     };
 
     Traceroute.prototype.getHash = function(){

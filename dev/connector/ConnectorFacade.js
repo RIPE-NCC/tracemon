@@ -166,7 +166,7 @@ define([
             $.when
                 .apply($, deferredArray)
                 .then(function(){
-                    deferredCall.resolve(arguments);
+                    deferredCall.resolve([].slice.call(arguments));
                 }, function(error){
                     $this._handleError(error);
                 });

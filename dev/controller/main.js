@@ -186,7 +186,8 @@ define([
                 msmId = msmsIDlist[n];
 
                 if (!env.loadedMeasurements[msmId]){
-                    newMeasurementsToLoad.push(msmId)
+                    newMeasurementsToLoad.push(msmId);
+                    env.finalQueryParams.measurements.push(msmId);
                 }
             }
 
@@ -225,7 +226,6 @@ define([
             var params, measurements;
 
             params = env.finalQueryParams;
-
             measurements = $.map(params.measurements, function(msmId){
                 return env.loadedMeasurements[msmId];
             });
@@ -260,7 +260,7 @@ define([
             return env.loadedMeasurements;
         };
 
-        this.setShownSources = function (sources) {
+        this.setSelectedSources = function (sources) {
             env.finalQueryParams.sources = sources;
             this.updateData(function(){
                 env.historyManager.getCurrentState();
@@ -268,29 +268,42 @@ define([
             utils.observer.publish("view:probe-set", env.finalQueryParams.sources);
         };
 
-        this.getShownSources = function () {
-            return this.shownSources;
+        this.getSelectedSources = function () {
+            return env.finalQueryParams.sources;
         };
 
         this.getSources = function(){
             return env.loadedSources;
         };
 
-        this.addShownSource = function (source) {
-            var currentSources = this.shownSources;
+        this.addSelectedSource = function (source) {
+            var currentSources = env.finalQueryParams.sources;
             if (currentSources.indexOf(source) == -1){
                 currentSources.push(source);
-                this.setShownSources(currentSources);
+                this.setSelectedSources(currentSources);
             } else {
                 throw "Source already selected";
             }
         };
 
-        this.addMeasurement = function(msmId){
+        this.addMeasurement = function(msmId, updateData, numberProbesToLoad){
             if (env.loadedMeasurements[msmId]){
                 throw "Measurement already loaded";
             }
-            this.addMeasurements([msmId]);
+
+            this.addMeasurements([msmId], function(){
+                if (numberProbesToLoad && numberProbesToLoad > 0){
+                    env.finalQueryParams.sources = sourceSelection.getInitialSourcesSelection(numberProbesToLoad);
+                }
+                if (updateData){
+                    $this.updateData(function(){
+                        env.historyManager.getCurrentState();
+                    });
+                }
+
+            });
+
+
         };
 
         this.removeMeasurement = function(msmId){

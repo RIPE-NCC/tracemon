@@ -17,7 +17,6 @@ define([
         assignedColors = {};
 
         this.draw = function(traceroutesToDraw, callback){
-            console.log("here");
             this._computeLayout(this._computeMeshGraph());
             this.computeVisibleGraph(traceroutesToDraw);
 

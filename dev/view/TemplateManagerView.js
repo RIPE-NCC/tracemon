@@ -58,9 +58,6 @@ define([
         };
 
         this._removeAnnotations = function(which){
-            if (which){
-                console.log("remove specific");
-            }
             which = which || env.parentDom.find(".annotation-tooltip.left, .annotation-tooltip.right"); // A specific one or all of them
             $(which)
                 .fadeOut(config.transitionsTimes.annotationRemoval, function() {
@@ -245,7 +242,7 @@ define([
         };
 
         this._updateSetOfProbes = function (probeSet) {
-            env.main.setShownSources(probeSet);
+            env.main.setSelectedSources(probeSet);
         };
 
         this.populateProbeList = function(data){

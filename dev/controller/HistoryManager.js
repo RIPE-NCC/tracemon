@@ -166,8 +166,7 @@ define([
                 sources: utils.clone(env.finalQueryParams.sources)
             };
 
-            if ((env.metaData.startDate.isSameOrBefore(date))
-                && (!env.metaData.stopDate || env.metaData.stopDate.isSameOrAfter(date))){
+            if ((env.metaData.startDate.isSameOrBefore(date)) && (!env.metaData.stopDate || env.metaData.stopDate.isSameOrAfter(date))){
                 out = {};
                 for (var msmId in env.loadedMeasurements) {
                     out[msmId] = env.loadedMeasurements[msmId].getStateAt(date);
