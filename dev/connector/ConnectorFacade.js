@@ -204,7 +204,7 @@ define([
             }
 
         };
-        
+
         this.persist = function(){
             var hosts, host, callsArray, deferredCall;
 
@@ -223,6 +223,10 @@ define([
             $.when
                 .apply($, callsArray)
                 .then(function(){
+
+                    for (var n=0,length=hosts.length; n<length; n++) {
+                        hosts[n].dirty = false;
+                    }
                     deferredCall.resolve();
                 }, function(error){
                     $this._handleError(error);
