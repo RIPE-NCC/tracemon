@@ -17,6 +17,8 @@ define([], function(){
             dataApiAsnNeighbours: "https://stat.ripe.net/data/asn-neighbours/data.json",
             shortAsNamesApi: "https://massimo.ripe.net/tracemon/short_names.php",
             persistHostApi: "https://massimo.ripe.net/tracemon/persist_host.php",
+            storageLogRestApiUrl: "//massimo.ripe.net/tracemon/widget_log.php",
+            storageErrorRestApiUrl: "//massimo.ripe.net/tracemon/widget_log.php",
             peeringDb: {
                 lans: "http://localhost/peering_db.php?type=ixlan",
                 ixps: "http://localhost/peering_db.php?type=ix",
@@ -50,6 +52,8 @@ define([], function(){
         premptiveGeolocation: true,
         premptiveReverseDns: true,
         preloadGeolocations: false,
+        persistLog: true,
+        logAppTag: "tracemon",
 
         lateReportedResults: 200, // seconds of validity for a late reported result
         defaultTimeRangeGranularity: 60 * 5, // Seconds
@@ -93,6 +97,7 @@ define([], function(){
 
         errors: {
             "400": "To retrieve data, a time range is required",
+            "403": "The selected measurement is private",
             "404": "The measurement cannot be found",
             "405": "The probe cannot be found",
             "406": "The measurement added is not a traceroute",
@@ -101,7 +106,8 @@ define([], function(){
             "507": "To compute the final query params, at least one measurement must be loaded",
             "508": "The selected instant is out of the measurement lifespan",
             "603": "LatencyMON cannot be loaded: no RTT charts available",
-            "694": "The time window has been changed because it was too wide"
+            "694": "The time window has been changed because it was too wide",
+            "324": "No results to display for the selected time range"
         }
 
     };

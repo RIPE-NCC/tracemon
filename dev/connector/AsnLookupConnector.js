@@ -46,7 +46,9 @@ define([
                         $this._getJSON(host.ip)
                             .done(function(data){
                                 hosts[host.ip] = $this._translate(host.ip, data);
-                                $this._updateObject(host, hosts[host.ip]);
+                                if (hosts[host.ip]){
+                                    $this._updateObject(host, hosts[host.ip]);
+                                }
                             });
                     }
                 }
@@ -75,16 +77,15 @@ define([
 
 
         this._translate = function (ip, data){
-            var autonomousSystem, ases, asns, lookups;
+            var autonomousSystem, ases, lookups;
 
             ases = data["ases"];
             lookups = data["lookups"];
-            autonomousSystem = [];
+            autonomousSystem = null;
 
             if (lookups[ip] && ases[lookups[ip]]){
                 autonomousSystem = this._createAutonomousSystemObject(ases[lookups[ip]]);
             }
-
 
             return autonomousSystem;
         };

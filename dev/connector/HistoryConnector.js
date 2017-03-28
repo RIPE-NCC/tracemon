@@ -45,6 +45,8 @@ define([
                 queryParams.probes = options.sources.join(',');
             }
 
+            queryParams.include = queryParams.include.join(",");
+
             return $.ajax({
                 dataType: "jsonp",
                 async: true,

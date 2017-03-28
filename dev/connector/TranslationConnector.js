@@ -135,7 +135,7 @@ define([
             }
             $.extend(this.asList, asnObjs);
             $.extend(this.geolocations, locations);
-            tracerouteList = data['result'] || data['traceroutes'];
+            tracerouteList = data['result'] || data['traceroutes'] || [];
 
             for (var n1=0,length1 = tracerouteList.length; n1<length1; n1++) {
                 hops = [];
@@ -318,7 +318,6 @@ define([
                         deferredCall.reject(error);
                     });
             } catch(error) {
-                alert(error);
                 deferredCall.reject(error);
             }
 

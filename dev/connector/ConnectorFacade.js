@@ -3,20 +3,34 @@ define([
     "tracemon.lib.jquery-amd",
     "tracemon.env.utils",
     "tracemon.connector.translation",
-    "tracemon.connector.persist-host"
-], function(config, $, utils, TranslationConnector, PersistHostConnector) {
+    "tracemon.connector.persist-host",
+    "tracemon.connector.log.persist"
+], function(config, $, utils, TranslationConnector, PersistHostConnector, LogRestConnector) {
     var antiFloodTimerNewStatus;
 
 
     var ConnectorFacade = function (env) {
-        var translationConnector, $this, cache, persitHostConnector;
+        var translationConnector, $this, cache, persitHostConnector, logConnector;
 
         $this = this;
         translationConnector = new TranslationConnector(env);
         persitHostConnector = new PersistHostConnector(env);
+        logConnector = new LogRestConnector(env);
         cache = {
             geoRequests: {}
         };
+
+        if (env.sendErrors) {
+            window.onerror = function (error, url, line) {
+                $this.persistLog("document", error + " url: " + url + " line: " + line);
+            };
+
+            utils.observer.subscribe("error", function (error) {
+                this.persistLog(error.type, error.message);
+            }, this);
+            
+            
+        }
 
         this._handleError = function(error){
             var message;
@@ -201,6 +215,16 @@ define([
             // Check if all the probes are replying and mark them.
             for (var n=0,length=probesList.length; n<length; n++) {
                 env.loadedSources[probesList[n]].empty = (replyingProbes.indexOf(probesList[n]) == -1);
+            }
+
+        };
+
+        this.persistLog = function(type, log){
+            var browserVersion;
+
+            if (config.persistLog) {
+                browserVersion = utils.getBrowserVersion();
+                logConnector.error(type, log + ' (browser: ' + browserVersion.name + ' ' + browserVersion.version.toString() + ')');
             }
 
         };

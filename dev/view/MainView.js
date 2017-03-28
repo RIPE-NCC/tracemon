@@ -103,7 +103,7 @@ define([
             var diff, maxLengthTraceroute;
 
             diff = this._computeDiff(this._oldStatus, newStatus);
-            
+
             if (diff.status.length > 0) { // Something to draw
                 maxLengthTraceroute = Math.max.apply(null, $.map(diff.newTraceroutes, function (item) {
                     return item.getLength();
@@ -113,12 +113,19 @@ define([
 
                 this.view = this._getView();
 
+                utils.observer.publish("view.ready");
                 this.view.draw(diff, function () { // Compute the layout and draw
                     console.log("drawn");
+                    utils.observer.publish("view.graph:new");
                 });
 
                 firstDraw = false;
                 this.latencymon.init(".latencymon-chart", env.queryParams.measurements, env.finalQueryParams.sources); // Init LatencyMON
+            } else {
+                utils.observer.publish("error", {
+                    type: "324",
+                    message: config.errors["324"]
+                });
             }
             this._oldStatus = newStatus;
         };
@@ -130,6 +137,7 @@ define([
 
             if (diff.status.length > 0) { // Something to update
                 this.view.update(diff, function () {
+                    utils.observer.publish("view.graph:change");
                 });
             }
             this._oldStatus = newStatus;
@@ -149,7 +157,7 @@ define([
             this.edgesContainer = this.svg
                 .append("g")
                 .attr("class", "edges");
-            
+
             this.nodesContainer = this.svg
                 .append("g")
                 .attr("class", "nodes");
@@ -264,6 +272,16 @@ define([
             return deletedTraceroutes;
         };
 
+
+        this.getSvg = function(){
+            var svgXml;
+
+            svgXml = utils.getSvgAndCss(env.template.dom.svg[0]);
+            // var url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgXml);
+            //
+            // window.open(url);
+            return svgXml;
+        };
 
         this.setLabelLevel = function(level){
             env.labelLevel = level;

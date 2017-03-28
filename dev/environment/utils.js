@@ -821,6 +821,116 @@ define([
                 hash |= 0; // Convert to 32bit integer
             }
             return hash;
+        },
+
+        getSvg: function(svg){
+            var serializer, source;
+
+            serializer = new XMLSerializer();
+            source = serializer.serializeToString(svg);
+            if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
+                source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+            }
+            if(!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)){
+                source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+            }
+
+            return '<?xml version="1.0" standalone="no"?>\r\n' + source;
+        },
+
+        getSvgAndCss: function(svgNode){
+            var contains;
+
+            svgNode.setAttribute('xlink', 'http://www.w3.org/1999/xlink');
+            var cssStyleText = getCSSStyles( svgNode );
+            appendCSS( cssStyleText, svgNode );
+
+            var serializer = new XMLSerializer();
+            var svgString = serializer.serializeToString(svgNode);
+            svgString = svgString.replace(/(\w+)?:?xlink=/g, 'xmlns:xlink='); // Fix root xlink without namespace
+            svgString = svgString.replace(/NS\d+:href/g, 'xlink:href'); // Safari NS namespace fix
+
+            return svgString;
+
+            function getCSSStyles( parentElement ) {
+                var selectorTextArr = [];
+
+                // Add Parent element Id and Classes to the list
+                selectorTextArr.push( '#' + parentElement.id );
+                for (var c = 0; c < parentElement.classList.length; c++)
+                    if ( !contains('.'+parentElement.classList[c], selectorTextArr) )
+                        selectorTextArr.push( '.' + parentElement.classList[c] );
+
+                // Add Children element Ids and Classes to the list
+                var nodes = parentElement.getElementsByTagName("*");
+                for (var i = 0; i < nodes.length; i++) {
+                    var id = nodes[i].id;
+                    if ( !contains('#' + id, selectorTextArr) )
+                        selectorTextArr.push( '#'+id );
+
+                    var classes = nodes[i].classList;
+                    for (var c = 0; c < classes.length; c++)
+                        if ( !contains('.' + classes[c], selectorTextArr) )
+                            selectorTextArr.push( '.' + classes[c] );
+                }
+
+                // Extract CSS Rules
+                var extractedCSSText = "";
+                for (var i = 0; i < document.styleSheets.length; i++) {
+                    var s = document.styleSheets[i];
+
+                    try {
+                        if(!s.cssRules) continue;
+                    } catch( e ) {
+                        if(e.name !== 'SecurityError') throw e; // for Firefox
+                        continue;
+                    }
+
+                    var cssRules = s.cssRules;
+                    for (var r = 0; r < cssRules.length; r++) {
+                        if (cssRules[r].selectorText) {
+                            var classes = cssRules[r]
+                                .selectorText
+                                .split(".")
+                                .map(function (item) {
+                                    return "." + item;
+                                })
+                                .filter(function(item){
+                                    return item != ".";
+                                });
+
+                            if (contains(selectorTextArr, classes)) {
+                                extractedCSSText += cssRules[r].cssText;
+                            }
+                        }
+                    }
+                }
+
+
+                return extractedCSSText;
+
+                function contains(containerArray, containedArray) {
+                    var item;
+
+                    for (var n = 0, length = containedArray.length; n < length; n++) {
+                        item = containedArray[n];
+                        if (containerArray.indexOf(item) == -1) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+
+            }
+
+            function appendCSS( cssText, element ) {
+                var styleElement = document.createElement("style");
+                styleElement.setAttribute("type","text/css");
+                styleElement.innerHTML = cssText;
+                var refNode = element.hasChildNodes() ? element.children[0] : null;
+                element.insertBefore( styleElement, refNode );
+            }
         }
     }
 });

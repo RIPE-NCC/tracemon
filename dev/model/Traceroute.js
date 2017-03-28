@@ -106,6 +106,7 @@ define([
                         this._asPathMap[asObj.id] = asObj;
                         this._asPathSegment[host.getId()] = { as: asObj, isGuess: isGuess };
                     } else if (isGuess) {
+                        this._asPathMap[asObj.id] = false;
                         this._asPathSegment[host.getId()] = { as: asObj, isGuess: isGuess };
                     }
                     this._asPath.push(asObj);

@@ -24,9 +24,10 @@ define([
         initialModelCreated = false;
         sourceSelection = new SourceSelectionHelper(env);
 
-        this.exposedMethods = ["on", "getMeasurements", "getCurrentState", "addMeasurement", "persist",
+        this.exposedMethods = ["on", "getMeasurements", "getCurrentState", "addMeasurement", "persist", "getSvg",
             "addMeasurements", "applyConfiguration", "getSelectedSources", "setSelectedSources", "addSelectedSource",
-            "getSources", "setTimeRange", "removeMeasurement", "goTo", "init", "getVersion", "updateData"];
+            "getSources", "setTimeRange", "removeMeasurement", "goTo", "init", "getVersion", "updateData",
+            "persistLog"];
 
 
         this._checkCursorPosition = function(){
@@ -404,6 +405,14 @@ define([
             this._startProcedure();
 
         };
+
+        this.persistLog = function(log){
+            env.connector.persistLog("external", log);
+        };
+        
+        this.getSvg = function(){
+            return env.mainView.getSvg();
+        }
 
     };
 

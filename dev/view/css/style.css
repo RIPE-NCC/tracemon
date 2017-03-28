@@ -61,8 +61,10 @@
 
 .node.target {
     /*opacity: 0.8;*/
-    fill: rgba(179, 0, 0, 0.8);
-    stroke: #6d0000;
+    fill: rgba(255, 178, 92, 0.82);
+    /*fill: white;*/
+    stroke: #d46c18;
+    stroke-width: 2px;
 }
 
 .node-error{

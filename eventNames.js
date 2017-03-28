@@ -8,6 +8,10 @@ utils.observer.publish("ready", status);
 utils.observer.publish("error", { type: "", message: ""});
 utils.observer.publish("loading", boolean);
 
+utils.observer.publish("view.ready");
+utils.observer.publish("view.graph:new");
+utils.observer.publish("view.graph:change");
+
 utils.observer.publish("view:probe-set", [Probe]);
 utils.observer.publish("view:max-hops", Integer);
 utils.observer.publish("view.traceroute:mousein", Traceroute);

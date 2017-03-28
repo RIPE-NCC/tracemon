@@ -91,6 +91,7 @@ requirejs.config({
         "tracemon.connector.asn": window.atlas._widgets.tracemon.urls.connector + "AsnLookupConnector",
         "tracemon.connector.short-name": window.atlas._widgets.tracemon.urls.connector + "ShortNameConnector",
         "tracemon.connector.persist-host": window.atlas._widgets.tracemon.urls.connector + "PersistHostConnector",
+        "tracemon.connector.log.persist": window.atlas._widgets.tracemon.urls.connector + "log/LogRestConnector",
 
         "tracemon.connector.local.peering-db": window.atlas._widgets.tracemon.urls.connector + "local/peeringDb",
 
@@ -162,7 +163,7 @@ define([
         }
 
         env = {
-            "version": "17.3.23.2",
+            "version": "17.3.28.2",
             "dev": instanceParams.dev,
             "widgetUrl": TRACEMON_WIDGET_URL + "dev/",
             "autoStart": (instanceParams.autoStart != undefined) ? instanceParams.autoStart : config.autoStart,
@@ -185,8 +186,9 @@ define([
             "peeringDb":  instanceParams.peeringDb || config.dataAPIs.peeringDb,
             "realTimeUpdate":  (instanceParams.realTimeUpdate != null) ? instanceParams.realTimeUpdate : config.realTimeUpdate,
             "onlyCore":  instanceParams.onlyCore,
-            "preloadGeolocations": instanceParams.preloadGeolocations || config.preloadGeolocations,
+            "preloadGeolocations": (instanceParams.preloadGeolocations != null) ? instanceParams.preloadGeolocations : config.preloadGeolocations,
             "bypassApiCache": instanceParams.bypassApiCache,
+            "sendErrors": instanceParams.sendErrors,
             "parentDom": $(parentDom),
             "queryParams": queryParams,
 
