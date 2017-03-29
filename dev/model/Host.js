@@ -12,7 +12,7 @@ define([
         this.isCdn = false;
         this.isLocalCache = false;
         this.measurements = []; // Only for source
-        this._location = null;
+        this._location = undefined;
         this.dirty = false;
 
         if (this.ip) {
@@ -55,11 +55,19 @@ define([
 
 
     Host.prototype.getLocation = function() {
+        if (this.isPrivate || !this.ip){
+            throw "501"; // Not possible to geolocate a private or a * host
+        }
+
         return this._location;
     };
 
 
     Host.prototype.setLocation = function(locationObject, dontPersist) {
+        if (this.isPrivate || !this.ip){
+            throw "501";
+        }
+
         if (!dontPersist){
             this.dirty = true;
         }

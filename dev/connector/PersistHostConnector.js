@@ -20,17 +20,25 @@ define([
                 id: host.ip,
                 geo_city: location.city,
                 geo_cc: location.countryCode,
+                geo_id: location.id,
+                geo_type: location.type,
                 data: moment().utc().unix()
             };
         };
 
         this.persist = function(host){
-            return $.ajax({
-                type: "POST",
-                url: env.persistHostApi,
-                data: this._serializeHost(host),
-                dataType: "json"
-            });
+            if (!host.isPrivate && host.ip) {
+
+                return $.ajax({
+                    type: "POST",
+                    url: env.persistHostApi,
+                    data: this._serializeHost(host),
+                    dataType: "json"
+                });
+
+            } else {
+                throw "502"; // The resource cannot be persisted
+            }
         }
 
 

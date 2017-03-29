@@ -101,7 +101,9 @@ define([
 
         this.setListeners = function(){
             utils.observer.subscribe("view.status:change", this.updateTemplatesInfo, this);
-            utils.observer.subscribe("view:probe-set", this.updateSearchBox, this);
+
+            utils.observer.subscribe("model.ready", this.updateSearchBox, this); // ON CHANGEE EVERYTHING
+
             utils.observer.subscribe("model.history:new", this.updateTimeline, this);
             utils.observer.subscribe("model.history:change", this.updateTimeline, this);
             utils.observer.subscribe("view.time-selection:change", this.updateTimeline, this);
@@ -154,7 +156,7 @@ define([
         this.updateTemplatesInfo = function(){
             if (firstDraw){
                 firstDraw = false;
-                this.updateSearchBox();
+                // this.updateSearchBox();
             }
 
             if (!blockListeners) {
@@ -184,26 +186,35 @@ define([
             }
         };
 
-        this.updateSearchBox = function(){
+        this.updateSearchBox = function(empty){
+            var searchConfig;
+
             if (this.searchField){
                 this.searchField.select2("destroy").empty();
             } else {
                 this.searchField = env.parentDom
-                    .find(".search-box-field");
+                    .find(".search-box-field")
+                    .on("click", function(){
+                       $this.updateSearchBox(false);
+                    });
             }
 
+            searchConfig = {
+                dropdownParent: env.parentDom,
+                debug: false,
+                tags: "true",
+                placeholder: "Focus on",
+                allowClear: true,
+                templateSelection: function(item){
+                    return item.label || item.text;
+                }
+            };
+
+            if (!empty){
+                searchConfig.data = this.getSelectionDataset();
+            }
             this.searchField
-                .select2({
-                    dropdownParent: env.parentDom,
-                    debug: false,
-                    tags: "true",
-                    placeholder: "Focus on",
-                    allowClear: true,
-                    data: this.getSelectionDataset(),
-                    templateSelection: function(item){
-                        return item.label || item.text;
-                    }
-                })
+                .select2(searchConfig)
                 .on("change", function (value) {
                     headerController.search($(this).val());
                 })
@@ -558,6 +569,8 @@ define([
             this.timeSelectionConeRight = this.timeSelectionCone
                 .append("path")
                 .attr("class", "cone-time-boundaries");
+
+            this.updateSearchBox(true);
         };
 
         this.updateTimeSelectionCone = function (points) {

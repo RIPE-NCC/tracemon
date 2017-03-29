@@ -77,16 +77,28 @@ define([
 
             switch (env.labelLevel){
                 case "geo":
-                    location = this.node.model.getLocation();
 
                     if (this.node.model.isPrivate){
                         label = "";
                     } else if (!this.node.model.ip) {
                         label = "✱";
-                    } else if (location !== undefined){
+                    } else {
+                        location = this.node.model.getLocation();
+
+                        if (location){
+
+                        } else {
+                            label = "";
+                        }
+
+                    }
+
+                     if (location){
                         place = [];
                         if (location){
-                            if (location.city) place.push(location.city);
+                            if (location.city) {
+                                place.push(location.city);
+                            }
                             place.push(location.countryCode);
                             label = place.join(", ");
                         } else {
@@ -123,7 +135,7 @@ define([
 
 
         getShortText: function(){
-            var label, nodeAs, multiplicity;
+            var label, nodeAs, multiplicity, location;
 
             label = ""; // Empty if no short label available!
             nodeAs = this.node.model.getAutonomousSystem();
@@ -134,7 +146,8 @@ define([
                     } else if (!this.node.model.ip) {
                         label = "✱";
                     } else if (this.node.model.getLocation() !== undefined){
-                        label = (this.node.model.getLocation()) ? this.node.model.getLocation().countryCode : "";
+                        location = this.node.model.getLocation();
+                        label = (location) ? location.countryCode : "";
                     } else if (!this._cache.geolocationLoading) {
                         this._cache.geolocationLoading = env.connector
                             .getGeolocation(this.node.model);

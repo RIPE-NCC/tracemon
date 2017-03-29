@@ -28,8 +28,8 @@ define([
             utils.observer.subscribe("error", function (error) {
                 this.persistLog(error.type, error.message);
             }, this);
-            
-            
+
+
         }
 
         this._handleError = function(error){
@@ -139,14 +139,16 @@ define([
         this.getGeolocation = function(host){
             var deferredCall;
 
+            if (host.isPrivate || !host.ip){
+                throw "501"; // Not possible to find a geolocation
+            }
+
             if (cache.geoRequests[host.ip]){
                 return cache.geoRequests[host.ip];
             } else {
                 deferredCall = $.Deferred();
 
-                if (host.isPrivate || !host.ip) {
-                    deferredCall.resolve(null);
-                } else if (host.getLocation()) {
+                if (host.getLocation()) {
                     deferredCall.resolve(host.getLocation());
                 } else {
                     translationConnector.getGeolocation(host)

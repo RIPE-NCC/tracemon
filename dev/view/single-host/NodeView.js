@@ -155,7 +155,11 @@ define([
             out = "";
             errors = this.getErrors();
             multiplicity = this.getMultiplicity();
-            geoloc = this.model.getLocation();
+            try {
+                geoloc = this.model.getLocation();
+            } catch(e){ // Geolocation is not applicable
+                geoloc = null;
+            }
 
             if (errors.length > 0){
                 out += "<span class='node-error'>" + errors.join("<br>") + "</span><br>";

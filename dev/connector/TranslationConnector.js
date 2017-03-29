@@ -246,13 +246,16 @@ define([
                     host.setProbeId(probeId);
                 }
 
-                if (hostGeolocation) {
-                    host.setLocation(this._recoverHostLocation(hostGeolocation), true);
-                }
-
                 if (!host.isPrivate && address) {
 
-                    if (config.premptiveGeolocation && !hostGeolocation) {
+                    if (hostGeolocation !== undefined) { // The geolocation key is NOT missing in the json
+
+                        if (hostGeolocation == null){ // We tried but we don't have a geolocation
+                            host.setLocation(null);
+                        } else {
+                            host.setLocation(this._recoverHostLocation(hostGeolocation), true); // We have a geolocation
+                        }
+                    } else if (config.premptiveGeolocation) {
                         this.getGeolocation(host);
                     }
 
@@ -280,8 +283,7 @@ define([
         this._recoverHostLocation = function(geoKey){
             var id, type, out, city, data;
 
-            out = {};
-
+            out = null;
             data = this.geolocations[geoKey];
             if (data) {
                 out = {
@@ -468,7 +470,9 @@ define([
                         geolocRaw = data["data"]["locations"][0];
                         geolocation = {
                             city: geolocRaw["city"],
-                            countryCode: geolocRaw["country"]
+                            countryCode: geolocRaw["country"],
+                            id: geolocRaw["id"],
+                            type: geolocRaw["type"]
                         };
                     }
 
