@@ -84,30 +84,22 @@ define([
                         label = "✱";
                     } else {
                         location = this.node.model.getLocation();
-
-                        if (location){
-
-                        } else {
-                            label = "";
-                        }
-
-                    }
-
-                     if (location){
                         place = [];
-                        if (location){
+                        if (location === undefined) {
+                            if (!this._cache.geolocationLoading) {
+                                this._cache.geolocationLoading = env.connector
+                                    .getGeolocation(this.node.model);
+                                label = "loading...";
+                            }
+                        } else if (location == null) {
+                            label = "";
+                        } else {
                             if (location.city) {
                                 place.push(location.city);
                             }
                             place.push(location.countryCode);
                             label = place.join(", ");
-                        } else {
-                            label = "";
                         }
-                    } else if (!this._cache.geolocationLoading) {
-                        this._cache.geolocationLoading = env.connector
-                            .getGeolocation(this.node.model);
-                        label = "loading...";
                     }
                     break;
 
@@ -145,13 +137,19 @@ define([
                         label = "";
                     } else if (!this.node.model.ip) {
                         label = "✱";
-                    } else if (this.node.model.getLocation() !== undefined){
+                    } else {
                         location = this.node.model.getLocation();
-                        label = (location) ? location.countryCode : "";
-                    } else if (!this._cache.geolocationLoading) {
-                        this._cache.geolocationLoading = env.connector
-                            .getGeolocation(this.node.model);
-                        label = "loading...";
+                        if (location === undefined) {
+                            if (!this._cache.geolocationLoading) {
+                                this._cache.geolocationLoading = env.connector
+                                    .getGeolocation(this.node.model);
+                                label = "loading...";
+                            }
+                        } else if (location == null) {
+                            label = "";
+                        } else {
+                            label = location.countryCode
+                        }
                     }
                     break;
 

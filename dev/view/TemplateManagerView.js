@@ -102,7 +102,7 @@ define([
         this.setListeners = function(){
             utils.observer.subscribe("view.status:change", this.updateTemplatesInfo, this);
 
-            utils.observer.subscribe("model.ready", this.updateSearchBox, this); // ON CHANGEE EVERYTHING
+            // utils.observer.subscribe("model.ready", this.updateSearchBox, this);
 
             utils.observer.subscribe("model.history:new", this.updateTimeline, this);
             utils.observer.subscribe("model.history:change", this.updateTimeline, this);
