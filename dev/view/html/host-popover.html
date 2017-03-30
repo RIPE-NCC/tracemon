@@ -12,16 +12,9 @@
     IP: {{ip}}<br>
 {{/ip}}
 Located in:
-{{#location}}
-{{#location.city}}{{location.city}},{{/location.city}} {{location.countryCode}}
-<button type="button" class="action-button btn btn-primary btn-xs" data-target="{{id}}" data-name="action-location">Change</button>
-{{/location}}
-
-
-{{^location}}
-Not available
+{{#location}}{{#location.city}}{{location.city}},{{/location.city}} {{location.countryCode}}{{/location}}
+{{^location}}Not available{{/location}}
 <button type="button" class="action-button btn btn-primary btn-xs" data-target="{{id}}" data-name="action-location">Update</button>
-{{/location}}
 <br>
 
 

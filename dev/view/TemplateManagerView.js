@@ -41,7 +41,7 @@ define([
             loadingImage: null,
             annotation: null,
             graphContainer: null,
-            actionButton: null
+            // actionButton: null
         };
         blockListeners = false;
         lineFunction = d3.svg.line()
@@ -452,7 +452,7 @@ define([
             this.dom.svg = html.find(".tracemon-svg");
             this.dom.graphContainer = html.find(".svg-div");
             this.dom.annotation = html.find(".annotation-tooltip");
-            this.dom.actionButton = html.find(".action-button").remove();
+            // this.dom.actionButton = html.find(".action-button").remove();
 
 
             headerController = new HeaderController(env);
@@ -561,6 +561,10 @@ define([
 
             this._updatePlayerButtons();
 
+            env.parentDom
+                .on("mousedown", ".action-button", function(event){
+                    console.log($(this).attr("data-target"));
+                });
 
             this.tracerouteDivDom = env.parentDom
                 .find(".traceroute-output")

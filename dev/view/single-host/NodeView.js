@@ -168,6 +168,7 @@ define([
                 }
             }
             templatingParams = {
+                id: this.model.getId(),
                 errors: this.getErrors(),
                 isGuess: (this.model.isPrivate || !this.model.ip),
                 ip: this.model.ip,
