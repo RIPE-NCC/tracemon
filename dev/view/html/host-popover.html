@@ -1,0 +1,42 @@
+{{#errors.length}}
+    <span class='node-error'>
+        {{#errors}}{{.}}<br>{{/errors}}
+    </span><br>
+{{/errors.length}}
+
+{{#multiplicity.show}}
+Repeated {{multiplicity.value}} times<br>
+{{/multiplicity.show}}
+
+{{#ip}}
+    IP: {{ip}}<br>
+{{/ip}}
+
+{{#ixp}}
+    IXP: {{ixp.name}}, {{ixp.city}}, {{ixp.country}}<br>
+    Lan: {{ixp.prefix}}<br>
+{{/ixp}}
+
+
+{{#location}}
+    Located in: {{#location.city}}{{location.city}},{{/location.city}} {{location.countryCode}}<br>
+{{/location}}
+
+{{#as}}
+    <br>
+    <b>{{#isGuess}}Best Guess{{/isGuess}} {{^isGuess}}Routing Info{{/isGuess}}:</b>
+    <br>
+    {{as.id}} - {{as.owner}}
+    <br><br>
+    <b>Registry info:</b>
+    <br>
+    Announced: {{#as.announced}}Yes{{/as.announced}}{{^as.announced}}No{{/as.announced}}
+    {{#asExtras.length}}
+    <br>
+    {{#asExtras}}{{.}}<br>{{/asExtras}}
+    {{/asExtras.length}}
+    {{/as}}
+
+{{^as}}
+    <br> No AS information available for this node
+{{/as}}

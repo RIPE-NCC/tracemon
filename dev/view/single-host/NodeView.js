@@ -150,47 +150,38 @@ define([
 
 
         getInfo: function () {
-            var out, guess, asObj, multiplicity, errors, geoloc;
+            var out, guess, asObj, multiplicity, extras, location, templatingParams;
 
-            out = "";
-            errors = this.getErrors();
-            multiplicity = this.getMultiplicity();
             try {
-                geoloc = this.model.getLocation();
+                location = this.model.getLocation();
             } catch(e){ // Geolocation is not applicable
-                geoloc = null;
+                location = null;
             }
 
-            if (errors.length > 0){
-                out += "<span class='node-error'>" + errors.join("<br>") + "</span><br>";
-            }
+            multiplicity = this.getMultiplicity();
 
-            guess = (this.model.isPrivate || !this.model.ip);
-            out += (!this.model.ip && multiplicity && multiplicity > 1) ? "Repeated " + multiplicity + " times<br>" : "";
-            out += (this.model.ip) ? "IP: " + this.model.ip + "<br>" : "";
-            out += (geoloc) ? "Located in: " + [geoloc.city, geoloc.countryCode].filter(function(item){return item!=null && item!="";}).join(", ") + "<br>" : "";
-
-            if (this.model.isIxp) {
-                out += "IXP: " + this.model.ixp.name + ", " + this.model.ixp.city + ", " + this.model.ixp.country;
-                out += "<br>Lan: " + this.model.ixp.prefix;
-            }
-
-
+            extras = [];
             asObj = this.model.getAutonomousSystem();
             if (asObj) {
-                out += "<br><b>" + ((guess) ? "Best guess:" : "Routing info:") + "</b><br>";
-                out += "AS" + asObj.id + " - " + asObj.owner;
-                out += "<br><br><b>Registry info:</b>";
-
-                out += "<br> Announced: " + asObj.announced + "<br>";
                 for (var extra in asObj.extra) {
-                    out += extra.charAt(0).toUpperCase() + extra.slice(1) + ": " + asObj.extra[extra] + "<br>";
+                    extras.push("" + extra.charAt(0).toUpperCase() + extra.slice(1) + ": " + asObj.extra[extra]);
                 }
-            } else {
-                out += "<br>No AS information available for this node";
             }
+            templatingParams = {
+                errors: this.getErrors(),
+                isGuess: (this.model.isPrivate || !this.model.ip),
+                ip: this.model.ip,
+                as: asObj,
+                asExtras: extras,
+                location: location,
+                ixp: (this.model.isIxp) ? this.model.ixp : null,
+                multiplicity: {
+                    value: multiplicity,
+                    show: multiplicity > 1
+                }
+            };
 
-            return out;
+            return env.template.getHostPopoverContent(templatingParams);
         }
 
 

@@ -13,8 +13,9 @@ define([
     "tracemon.lib.stache!main",
     "tracemon.lib.stache!search",
     "tracemon.lib.stache!select-view",
-    "tracemon.lib.stache!probes-selection"
-], function(utils, config, lang, $, moment, d3, HeaderController, template, search, selectView, probesSelection){
+    "tracemon.lib.stache!probes-selection",
+    "tracemon.lib.stache!host-popover"
+], function(utils, config, lang, $, moment, d3, HeaderController, template, search, selectView, probesSelection, hostPopover){
 
     /**
      * TemplateManagerView is the component in charge of creating and manipulating the HTML dom elements.
@@ -427,6 +428,8 @@ define([
                 }
             }
         };
+
+        this.getHostPopoverContent = hostPopover;
 
         this.init = function() {
             var html, partials;
