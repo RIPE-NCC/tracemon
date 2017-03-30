@@ -150,7 +150,7 @@ define([
 
 
         getInfo: function () {
-            var out, guess, asObj, multiplicity, extras, location, templatingParams;
+            var asObj, multiplicity, extras, location, templatingParams;
 
             try {
                 location = this.model.getLocation();

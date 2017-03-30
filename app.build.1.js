@@ -49,7 +49,7 @@
         },
         "tracemon.lib.bootstrap-select2": {
             deps: ["tracemon.lib.bootstrap"]
-        },
+        }
 
     },
 

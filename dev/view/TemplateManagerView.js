@@ -14,8 +14,9 @@ define([
     "tracemon.lib.stache!search",
     "tracemon.lib.stache!select-view",
     "tracemon.lib.stache!probes-selection",
-    "tracemon.lib.stache!host-popover"
-], function(utils, config, lang, $, moment, d3, HeaderController, template, search, selectView, probesSelection, hostPopover){
+    "tracemon.lib.stache!host-popover",
+    "tracemon.lib.stache!modal"
+], function(utils, config, lang, $, moment, d3, HeaderController, template, search, selectView, probesSelection, hostPopover, modal){
 
     /**
      * TemplateManagerView is the component in charge of creating and manipulating the HTML dom elements.
@@ -39,7 +40,8 @@ define([
             errorMessage: null,
             loadingImage: null,
             annotation: null,
-            graphContainer: null
+            graphContainer: null,
+            actionButton: null
         };
         blockListeners = false;
         lineFunction = d3.svg.line()
@@ -196,7 +198,7 @@ define([
                 this.searchField = env.parentDom
                     .find(".search-box-field")
                     .on("click", function(){
-                       $this.updateSearchBox(false);
+                        $this.updateSearchBox(false);
                     });
             }
 
@@ -431,6 +433,7 @@ define([
 
         this.getHostPopoverContent = hostPopover;
 
+
         this.init = function() {
             var html, partials;
 
@@ -449,6 +452,8 @@ define([
             this.dom.svg = html.find(".tracemon-svg");
             this.dom.graphContainer = html.find(".svg-div");
             this.dom.annotation = html.find(".annotation-tooltip");
+            this.dom.actionButton = html.find(".action-button").remove();
+
 
             headerController = new HeaderController(env);
             env.headerController = headerController;
@@ -641,6 +646,34 @@ define([
                 this.dom.errorMessage.removeClass("blink");
                 this.dom.loadingImage.removeClass("animation-on");
                 this.dom.loadingImage.removeClass("warning");
+            }
+        };
+
+        this.addAction = function(parent, name, object){
+            var actionButton, modalDom, id, modalConfig;
+
+            id = Math.floor((Math.random() * 100000) + 1);
+
+            if (parent.not("[action]")) {
+                parent.attr("action", true);
+                switch (name){
+                    case "edit-label":
+                        modalConfig = {
+                            title: "Edit label",
+                            content: "Something",
+                            class: "edit-label-" + id
+                        };
+                        break;
+
+                    default:
+                        throw "Action not valid"
+                }
+                modalDom = modal(modalConfig);
+                console.log(modalDom);
+                // env.parentDom.find(".action-modal").remove();
+                env.parentDom.append(modalDom);
+                actionButton = this.dom.actionButton.clone(true);
+                actionButton.show().text(modalConfig.title).attr("data-target", modalConfig.class).appendTo(parent);
             }
         };
 

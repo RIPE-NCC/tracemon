@@ -5,7 +5,7 @@
 {{/errors.length}}
 
 {{#multiplicity.show}}
-Repeated {{multiplicity.value}} times<br>
+    Repeated {{multiplicity.value}} times<br>
 {{/multiplicity.show}}
 
 {{#ip}}
@@ -18,9 +18,9 @@ Repeated {{multiplicity.value}} times<br>
 {{/ixp}}
 
 
-{{#location}}
-    Located in: {{#location.city}}{{location.city}},{{/location.city}} {{location.countryCode}}<br>
-{{/location}}
+
+Located in: {{#location}}{{#location.city}}{{location.city}},{{/location.city}} {{location.countryCode}}<br>{{/location}}{{#location}}[change]{{/location}}{{^location}}Not available [update]{{/location}}
+
 
 {{#as}}
     <br>
@@ -40,3 +40,10 @@ Repeated {{multiplicity.value}} times<br>
 {{^as}}
     <br> No AS information available for this node
 {{/as}}
+
+<br>
+<div class="footer-popover-buttons">
+    <button type="button" class="action-button btn btn-primary btn-sm" data-target="{{id}}" data-name="action-contact">Contact owner</button>
+    <button type="button" class="action-button btn btn-primary btn-sm" data-target="{{id}}" data-name="action-whois">Whois</button>
+    <button type="button" class="action-button btn btn-primary btn-sm" data-target="{{id}}" data-name="action-bgp">See BGP events</button>
+</div>
