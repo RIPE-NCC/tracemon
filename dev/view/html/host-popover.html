@@ -11,16 +11,27 @@
 {{#ip}}
     IP: {{ip}}<br>
 {{/ip}}
+Located in:
+{{#location}}
+{{#location.city}}{{location.city}},{{/location.city}} {{location.countryCode}}
+<button type="button" class="action-button btn btn-primary btn-xs" data-target="{{id}}" data-name="action-location">Change</button>
+{{/location}}
+
+
+{{^location}}
+Not available
+<button type="button" class="action-button btn btn-primary btn-xs" data-target="{{id}}" data-name="action-location">Update</button>
+{{/location}}
+<br>
+
 
 {{#ixp}}
+    <br>
+    <b>PeeringDB:</b><br>
     IXP: {{ixp.name}}, {{ixp.city}}, {{ixp.country}}<br>
     Lan: {{ixp.prefix}}<br>
+    <button type="button" class="action-button btn btn-primary btn-xs" data-target="{{id}}" data-name="action-peeringdb">Update PeeringDB</button><br>
 {{/ixp}}
-
-
-
-Located in: {{#location}}{{#location.city}}{{location.city}},{{/location.city}} {{location.countryCode}}<br>{{/location}}{{#location}}[change]{{/location}}{{^location}}Not available [update]{{/location}}
-
 
 {{#as}}
     <br>
