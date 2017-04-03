@@ -540,7 +540,6 @@ define([
                 .append("circle")
                 .attr("data-toggle", "popover")
                 .attr("data-tooltip", "tooltip")
-                .attr("data-trigger", "click focus")
                 .attr("tabindex", "0")
                 .attr("data-html", "true")
                 .attr("title", function(nodeView){

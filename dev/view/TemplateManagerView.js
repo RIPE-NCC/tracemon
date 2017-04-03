@@ -715,9 +715,11 @@ define([
                 .find('[data-toggle="popover"]')
                 .popover({
                     container: parent,
+                    trigger: 'focus',
                     placement: "auto"
                 })
                 .on("mousedown", function(event){
+                    console.log("triggered");
                     var popovers, visibility, item;
 
                     popovers = env.parentDom.find('[data-toggle="popover"]');
@@ -725,12 +727,24 @@ define([
                     for (var n=0,length=popovers.length; n<length; n++){
                         item = $(popovers[n]);
                         visibility = (item.is($(event.target))) ? 'show' : 'hide';
-                        visibility = 'hide';
+
+                        console.log(visibility);
                         item.popover(visibility);
                     }
 
                     event.preventDefault();
                     event.stopPropagation();
+                    return false;
+                })
+                .on("mouseup", function(event){
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return false;
+                })
+                .on("click", function(event){
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return false;
                 });
 
             env.parentDom
