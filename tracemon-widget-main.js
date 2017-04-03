@@ -77,7 +77,21 @@ function initTracemon(domElement, instanceParams, queryParams){
 
     if (document.readyState == 'complete'){
         window.atlas._widgets.widgetInjectorLoaded = true;
+    } else {
+
+        function ieLoadBugFix(){
+            if (!window.atlas._widgets.widgetInjectorLoaded){
+                if (document.readyState=='loaded' || document.readyState=='complete') {
+                        window.atlas._widgets.injectorScript.onload();
+                }else {
+                    setTimeout(ieLoadBugFix, 200);
+                }
+            }
+        }
+
+        ieLoadBugFix();
     }
+
     if (window.atlas._widgets.widgetInjectorLoaded === false){
         window.atlas._widgets.injectorScript.onload = function(){
             window.atlas._widgets.widgetInjectorLoaded = true;
