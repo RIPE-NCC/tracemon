@@ -703,6 +703,43 @@ define([
             this.showMessage(show, lang.loadingMessage, options);
         };
 
+        
+        this.appendPopovers = function (parent) {
+
+            env.parentDom
+                .on("mousedown", function(){
+                    env.parentDom.find('[data-toggle="popover"]').popover('hide');
+                });
+
+            env.parentDom
+                .find('[data-toggle="popover"]')
+                .popover({
+                    container: parent,
+                    placement: "auto"
+                })
+                .on("mousedown", function(event){
+                    var popovers, visibility, item;
+
+                    popovers = env.parentDom.find('[data-toggle="popover"]');
+
+                    for (var n=0,length=popovers.length; n<length; n++){
+                        item = $(popovers[n]);
+                        visibility = (item.is($(event.target))) ? 'show' : 'hide';
+                        visibility = 'hide';
+                        item.popover(visibility);
+                    }
+
+                    event.preventDefault();
+                    event.stopPropagation();
+                });
+
+            env.parentDom
+                .on("mousedown", ".popover", function(event){ // To prevent popover to close when clicked inside
+                    event.preventDefault();
+                    event.stopPropagation();
+                });
+        };
+
     };
 
 

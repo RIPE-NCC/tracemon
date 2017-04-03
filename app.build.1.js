@@ -14,6 +14,7 @@
         "tracemon.lib.jquery-ui",
         "tracemon.lib.jquery-ui.timepicker",
         "tracemon.lib.bootstrap",
+        "tracemon.lib.bootstrap-circle-popover",
         "tracemon.lib.bootstrap-table",
         "tracemon.lib.bootstrap-slider",
         "tracemon.lib.range-slider",
@@ -25,6 +26,7 @@
         "tracemon.lib.jquery-ui": "dev/libs/jquery/jquery-ui.min",
         "tracemon.lib.jquery-ui.timepicker": "dev/libs/jquery/jquery-ui.timepicker",
         "tracemon.lib.bootstrap": "dev/libs/bootstrap/js/bootstrap.min",
+        "tracemon.lib.bootstrap-circle-popover": "dev/libs/bootstrap-circle-popover",
         "tracemon.lib.bootstrap-slider": "dev/libs/bootstrap-slider/js/bootstrap-slider",
         "tracemon.lib.bootstrap-table": "dev/libs/bootstrap-table/bootstrap-table.min",
         "tracemon.lib.bootstrap-select2": "dev/libs/bootstrap-select2/js/bootstrap-select",
@@ -37,6 +39,9 @@
         },
         "tracemon.lib.bootstrap": {
             deps: ["tracemon.lib.jquery"]
+        },
+        "tracemon.lib.bootstrap-circle-popover": {
+            deps: ["tracemon.lib.bootstrap"]
         },
         "tracemon.lib.bootstrap-slider": {
             deps: ["tracemon.lib.bootstrap"]

@@ -124,6 +124,9 @@ requirejs.config({
 
         "tracemon.lib.dagre": {
             exports: 'dagre'
+        },
+        "tracemon.lib.jquery-amd": {
+            deps: ["tracemon.lib.moment"]
         }
     },
 

@@ -575,6 +575,16 @@
   background-position: 100px 10px;
   background-size: 32px 32px;
 }
+.tracemon-container .action-button {
+  display: none;
+}
+.tracemon-container .footer-popover-buttons {
+  display: table;
+  margin: 0 auto;
+}
+.tracemon-container .footer-popover-buttons .action-button {
+  margin-left: 4px;
+}
 .tracemon-container .ui-helper-hidden {
   display: none;
 }

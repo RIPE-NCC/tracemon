@@ -274,20 +274,8 @@ define([
 
             this.content = env.parentDom.find('.tracemon-content');
 
-            env.parentDom.popover({
-                container: this.content,
-                trigger: 'click,focus',
-                selector: '[data-toggle="popover"]',
-                placement: "auto"
-            });
-
-            env.parentDom
-                .on("mousedown", ".popover", function(event){ // To prevent popover to close when clicked inside
-                    event.preventDefault();
-                    event.stopPropagation();
-                });
-
-
+            env.template.appendPopovers(this.content);
+            
             if (callback){
                 callback();
             }
@@ -552,6 +540,7 @@ define([
                 .append("circle")
                 .attr("data-toggle", "popover")
                 .attr("data-tooltip", "tooltip")
+                .attr("data-trigger", "click focus")
                 .attr("tabindex", "0")
                 .attr("data-html", "true")
                 .attr("title", function(nodeView){
@@ -735,7 +724,6 @@ define([
                 .attr("data-toggle", "popover")
                 .attr("data-tooltip", "tooltip")
 
-                // .attr("data-trigger", "focus")
                 .attr("tabindex", "0")
                 .attr("data-html", "true")
                 .attr("title", function(nodeView){
