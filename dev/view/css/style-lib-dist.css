@@ -517,6 +517,9 @@
   border-right: 0;
   height: 100%;
 }
+.tracemon-container .select2-container {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
 .tracemon-container .select2-selection__rendered {
   height: 30px;
   overflow-y: hidden;
@@ -597,6 +600,9 @@
 .tracemon-container .graph-legend-svg {
   width: 100%;
   height: 20px;
+}
+.tracemon-container .modal-content {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 .tracemon-container .ui-helper-hidden {
   display: none;
