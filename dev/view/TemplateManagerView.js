@@ -708,15 +708,18 @@ define([
 
             switch (type){
                 case "update-location":
+                    var reverseDns;
+
                     host = env.connector.getHosts()
                         .filter(function(item){
                             return item.ip == target;
                         })[0];
-
+                    reverseDns = (host.reverseDns) ? host.reverseDns.complete : null;
                     modalConfig = {
                         title: "Update location",
                         content: {
                             resource: target,
+                            reverseDns: reverseDns,
                             location: host.getLocation()
                         },
                         class: "update-location-" + target
