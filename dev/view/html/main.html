@@ -68,12 +68,30 @@
         <div class="svg-div">
             <svg class="tracemon-svg"></svg>
         </div>
+        <div class="graph-legend-div">
+            <svg class="graph-legend-svg">
+                <circle tabindex="0" title="" class="node source" r="6" cx="50" cy="10"></circle> <text x="58" y="14">Source</text>
+                <circle tabindex="0" title="" class="node target" r="6" cx="110" cy="10"></circle> <text x="118" y="14">Target</text>
+                <circle tabindex="0" title="" class="node" r="6" cx="170" cy="10"></circle> <text x="178" y="14">Host</text>
+                <circle tabindex="0" title="" class="node ixp" r="6" cx="220" cy="10"></circle> <text x="228" y="14">IXP</text>
+                <circle tabindex="0" title="" class="node private" r="6" cx="260" cy="10"></circle> <text x="268" y="14">Private IP</text>
+                <circle tabindex="0" title="" class="node null" r="6" cx="340" cy="10"></circle> <text x="348" y="14">No response</text>
+
+                <path class="path" d="M455,10 482,10"></path> <text x="484" y="14">Connected</text>
+                <path class="edge disconnected" d="M570,10 600,10"></path> <text x="603" y="14">Disconnected</text>
+            </svg>
+        </div>
+
+        {{#env.mainView.latencymon.enabled}}
+        <div class="module-separation"></div>
+        <div class="latencymon-chart"></div>
         <div class="legend_latencymon">
             <span><img src="{{env.widgetUrl}}view/img/legend_normal.jpg"> {{lang.latency}}</span>
             <span><img src="{{env.widgetUrl}}view/img/legend_ps.jpg"> {{lang.traceroutesDontReach}}</span>
             <span><img src="{{env.widgetUrl}}view/img/legend_compps.jpg"> {{lang.allTraceroutesDontReach}}</span>
         </div>
-        <div class="latencymon-chart"></div>
+        {{/env.mainView.latencymon.enabled}}
+
     </div>
     <svg class="time-selection-cone"></svg>
     <div class="blubble bubble-two">

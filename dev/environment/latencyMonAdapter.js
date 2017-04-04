@@ -11,6 +11,7 @@ define([
         this.instance = null;
         this.shell = null;
         this.measurementId = null; // Grouped ID
+        this.enabled = (typeof window.initLatencymon != "undefined");
 
         this.setListeners = function(){
             utils.observer.subscribe("model.measurement:new", this.addMeasurement, this);
@@ -79,7 +80,7 @@ define([
         };
 
         this.init = function(whereClass, measurements, probes){
-            if (typeof window.initLatencymon != "undefined"){
+            if (this.enabled){
                 this.measurementId = measurements.join("-");
                 this.instance = initLatencymon(
                     whereClass,

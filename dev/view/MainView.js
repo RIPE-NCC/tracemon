@@ -10,9 +10,8 @@ define([
     "tracemon.view.location-view",
     // "tracemon.view.dagre-wrapper",
     "tracemon.view.graphviz-wrapper",
-    "tracemon.env.latencymon-adapter",
-    "tracemon.lib.moment"
-], function(utils, config, lang, $, d3, SingleHostView, ASView, LocationView, GraphWrapper, LatencyMonAdapter, moment){
+    "tracemon.env.latencymon-adapter"
+], function(utils, config, lang, $, d3, SingleHostView, ASView, LocationView, GraphWrapper, LatencyMonAdapter){
 
     var MainView = function(env){
         var $this, firstDraw;
