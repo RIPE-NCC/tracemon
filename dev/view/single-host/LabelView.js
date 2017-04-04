@@ -167,7 +167,7 @@ define([
                     }
                     break;
 
-                case "ip":
+                case "auto":
                     if (this.node.model.isProbe){
                         label = "Probe " + this.node.model.probeId;
                     } else if (this.node.model.isPrivate){

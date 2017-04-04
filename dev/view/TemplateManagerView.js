@@ -29,10 +29,9 @@ define([
      */
 
     var TemplateManagerView = function(env){
-        var $this, lineFunction, blockListeners, headerController, firstDraw;
+        var $this, lineFunction, blockListeners, headerController;
 
         $this = this;
-        firstDraw = true;
         this.lang = lang;
         this.env = env;
         this.values = {};
@@ -107,9 +106,10 @@ define([
         this.setListeners = function(){
             utils.observer.subscribe("view.status:change", this.updateTemplatesInfo, this);
 
-            // utils.observer.subscribe("model.ready", this.updateSearchBox, this);
-
-            utils.observer.subscribe("model.history:new", this.updateTimeline, this);
+            utils.observer.subscribe("model.history:new", function(){
+                this.updateTimeline();
+                this.updateSearchBox();
+            }, this);
             utils.observer.subscribe("model.history:change", this.updateTimeline, this);
             utils.observer.subscribe("view.time-selection:change", this.updateTimeline, this);
             utils.observer.subscribe("view.traceroute:click", this.showTraceroute, this);
@@ -138,17 +138,20 @@ define([
                 text: 'Source',
                 order: 1,
                 children: $.map(env.finalQueryParams.sources, function (probeId) {
-                    return { id: 'source' + probeId, text: 'Probe ' + probeId };
+                    return {id: 'source' + probeId, text: 'Probe ' + probeId};
                 })
             };
 
             this.selectionDataset.as = {
-                text:'ASN',
+                text: 'ASN',
                 order: 2,
-                children:
-                    $.map(env.connector.getASes(), function(asObj){
-                        return {id: 'as' + asObj.number, label: 'AS' + asObj.number, text: 'AS' + asObj.number + " - " + asObj.holder};
-                    })
+                children: $.map(env.connector.getASes(), function (asObj) {
+                    return {
+                        id: 'as' + asObj.number,
+                        label: 'AS' + asObj.number,
+                        text: 'AS' + asObj.number + " - " + asObj.holder
+                    };
+                })
             };
 
             for (var part in this.selectionDataset){
@@ -159,11 +162,6 @@ define([
         };
 
         this.updateTemplatesInfo = function(){
-            if (firstDraw){
-                firstDraw = false;
-                // this.updateSearchBox();
-            }
-
             if (!blockListeners) {
                 this.values.target = this.getMonitoredTargets();
                 this.values.totalProbes = Object.keys(env.loadedSources).length;
@@ -194,23 +192,13 @@ define([
         this.updateSearchBox = function(empty){
             var searchConfig;
 
-            if (this.searchField){
-                this.searchField.select2("destroy").empty();
-            } else {
-                this.searchField = env.parentDom
-                    .find(".search-box-field")
-                    .on("click", function(){
-                        $this.updateSearchBox(false);
-                    });
-            }
-
             searchConfig = {
                 dropdownParent: env.parentDom,
                 debug: false,
                 tags: "true",
                 placeholder: "Focus on",
                 allowClear: true,
-                templateSelection: function(item){
+                templateSelection: function (item) {
                     return item.label || item.text;
                 }
             };
@@ -218,12 +206,20 @@ define([
             if (!empty){
                 searchConfig.data = this.getSelectionDataset();
             }
-            this.searchField
-                .select2(searchConfig)
+
+            if (this.searchField){
+                this.searchField.select2("destroy").empty();
+            }
+
+            this.searchField = env.parentDom
+                .find(".search-box-field")
+                   .select2(searchConfig)
                 .on("change", function (value) {
                     headerController.search($(this).val());
                 })
                 .trigger('change.select2');
+
+
         };
 
         this.getMonitoredTargets = function () {
@@ -755,7 +751,7 @@ define([
                             };
                             modalDom = modalContacts(modalConfig);
                             $this._appendModal($(modalDom));
-                    });
+                        });
 
                     break;
 

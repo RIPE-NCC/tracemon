@@ -13,7 +13,7 @@ define([], function(){
         loadingMessage: "Loading...",
         
         labelOptions: {
-          ip: "IP address",
+          auto: "Auto",
           reverseLookup: "Reverse lookup",
           country: "Country code"
         },

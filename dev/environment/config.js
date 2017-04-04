@@ -50,7 +50,7 @@ define([], function(){
         realTimeUpdate: true,
         eventGroupingAntiFlood: 800,
         templatesLocation: "dev/view/html/",
-        defaultLabelLevel: "ip",
+        defaultLabelLevel: "auto",
         ajaxTimeout: 120000,
         reloadSourcesDiff: 3, // reload the dataset id the sources set changes of at least N probes
         filterRepeatedTraceroutes: true, // Filter traceroutes reporting the same results consecutively

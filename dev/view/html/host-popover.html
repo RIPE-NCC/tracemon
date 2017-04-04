@@ -31,10 +31,11 @@ Located in:
     <b>{{#isGuess}}Best Guess{{/isGuess}} {{^isGuess}}Routing Info{{/isGuess}}:</b>
     <br>
     {{as.id}} - {{as.owner}}
-    <br><br>
-    <b>Registry info:</b>
     <br>
     Announced: {{#as.announced}}Yes{{/as.announced}}{{^as.announced}}No{{/as.announced}}
+    <br><br>
+    <b>Registry info:</b>
+
     {{#asExtras.length}}
     <br>
     {{#asExtras}}{{.}}<br>{{/asExtras}}
