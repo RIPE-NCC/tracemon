@@ -391,7 +391,12 @@ define([
         };
 
         this.persist = function(){
-            return env.connector.persist();
+            if (config.persistLocations) {
+                return env.connector.persist();
+            } else {
+                console.log("This feature has been disabled from the config file");
+                return false;
+            }
         };
 
         this.init = function(){

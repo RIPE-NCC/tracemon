@@ -1,0 +1,28 @@
+<div class="modal {{class}}" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close dismiss-modal" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">{{title}}</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    Resource: {{content.resource}}<br>
+                    Select location:
+                    {{#content.location}}
+                        <input class="new-location" type="text" value="{{#content.location.city}}{{content.location.city}}, {{/content.location.city}}{{content.location.countryCode}}" />
+                    {{/content.location}}
+
+                    {{^content.location}}
+                        <input class="new-location" type="text" value="" />
+                    {{/content.location}}
+
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default dismiss-modal">Close</button>
+                <button type="button" class="btn btn-primary confirm-modal dismiss-modal" data-target="{{content.resource}}">Save changes</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

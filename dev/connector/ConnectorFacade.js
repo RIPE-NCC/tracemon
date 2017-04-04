@@ -4,17 +4,19 @@ define([
     "tracemon.env.utils",
     "tracemon.connector.translation",
     "tracemon.connector.persist-host",
-    "tracemon.connector.log.persist"
-], function(config, $, utils, TranslationConnector, PersistHostConnector, LogRestConnector) {
+    "tracemon.connector.log.persist",
+    "tracemon.connector.ripe-database"
+], function(config, $, utils, TranslationConnector, PersistHostConnector, LogRestConnector, RipeDatabaseConnector) {
     var antiFloodTimerNewStatus;
 
 
     var ConnectorFacade = function (env) {
-        var translationConnector, $this, cache, persitHostConnector, logConnector;
+        var translationConnector, $this, cache, persitHostConnector, logConnector, ripeDatabaseConnector;
 
         $this = this;
         translationConnector = new TranslationConnector(env);
         persitHostConnector = new PersistHostConnector(env);
+        ripeDatabaseConnector = new RipeDatabaseConnector(env);
         logConnector = new LogRestConnector(env);
         cache = {
             geoRequests: {}
@@ -229,6 +231,10 @@ define([
                 logConnector.error(type, log + ' (browser: ' + browserVersion.name + ' ' + browserVersion.version.toString() + ')');
             }
 
+        };
+
+        this.getAutonomousSystemContacts = function (asObject) {
+            return ripeDatabaseConnector.getAutonomousSystemContacts(asObject.id).fail($this._handleError);
         };
 
         this.persist = function(){

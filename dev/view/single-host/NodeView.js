@@ -150,7 +150,7 @@ define([
 
 
         getInfo: function () {
-            var asObj, multiplicity, extras, location, templatingParams;
+            var asObj, multiplicity, extras, location, templatingParams, links;
 
             try {
                 location = this.model.getLocation();
@@ -159,13 +159,20 @@ define([
             }
 
             multiplicity = this.getMultiplicity();
-
+            links = {
+                bgplay: config.externalLinks.bgplay.replace("0000", this.model.ip)
+                    .replace("1111", env.finalQueryParams.startDate.unix())
+                    .replace("2222", env.finalQueryParams.stopDate.unix())
+            };
             extras = [];
             asObj = this.model.getAutonomousSystem();
             if (asObj) {
                 for (var extra in asObj.extra) {
                     extras.push("" + extra.charAt(0).toUpperCase() + extra.slice(1) + ": " + asObj.extra[extra]);
                 }
+
+                links.whois = config.externalLinks.whois.replace("0000", asObj.id);
+                links.peeringDb = config.externalLinks.peeringDb.replace("0000", asObj.id);
             }
             templatingParams = {
                 id: this.model.getId(),
@@ -179,12 +186,12 @@ define([
                 multiplicity: {
                     value: multiplicity,
                     show: multiplicity > 1
-                }
+                },
+                links: links
             };
 
             return env.template.getHostPopoverContent(templatingParams);
         }
-
 
     };
 

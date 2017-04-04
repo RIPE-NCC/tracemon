@@ -96,6 +96,7 @@
         "tracemon.connector.short-name": "dev/connector/ShortNameConnector",
         "tracemon.connector.persist-host": "dev/connector/PersistHostConnector",
         "tracemon.connector.log.persist": "dev/connector/log/LogRestConnector",
+        "tracemon.connector.ripe-database": "dev/connector/RipeDatabaseConnector",
 
 
         /* PeeringDB cache - Remove when we have API*/

@@ -15,8 +15,10 @@ define([
     "tracemon.lib.stache!select-view",
     "tracemon.lib.stache!probes-selection",
     "tracemon.lib.stache!host-popover",
-    "tracemon.lib.stache!modal"
-], function(utils, config, lang, $, moment, d3, HeaderController, template, search, selectView, probesSelection, hostPopover, modal){
+    "tracemon.lib.stache!modal-show-contacts",
+    "tracemon.lib.stache!modal-update-location"
+], function(utils, config, lang, $, moment, d3, HeaderController, template, search, selectView, probesSelection,
+            hostPopover, modalContacts, modalLocation){
 
     /**
      * TemplateManagerView is the component in charge of creating and manipulating the HTML dom elements.
@@ -433,7 +435,6 @@ define([
 
         this.getHostPopoverContent = hostPopover;
 
-
         this.init = function() {
             var html, partials;
 
@@ -452,7 +453,6 @@ define([
             this.dom.svg = html.find(".tracemon-svg");
             this.dom.graphContainer = html.find(".svg-div");
             this.dom.annotation = html.find(".annotation-tooltip");
-            // this.dom.actionButton = html.find(".action-button").remove();
 
 
             headerController = new HeaderController(env);
@@ -563,7 +563,17 @@ define([
 
             env.parentDom
                 .on("mousedown", ".action-button", function(event){
-                    console.log($(this).attr("data-target"));
+                    var item, actionAttr, targetAttr;
+
+                    actionAttr = "data-name";
+                    targetAttr = "data-target";
+                    item = $(event.target);
+
+                    if (item.is('[' + actionAttr + ']')){
+                        $this.showModal(item.attr(actionAttr), item.attr(targetAttr));
+                        $this.removePopovers();
+                        $this._removeAnnotations();
+                    }
                 });
 
             this.tracerouteDivDom = env.parentDom
@@ -653,32 +663,99 @@ define([
             }
         };
 
-        this.addAction = function(parent, name, object){
-            var actionButton, modalDom, id, modalConfig;
+        this._appendModal = function (modalDom, save) {
+            modalDom
+                .appendTo(env.parentDom)
+                .show();
 
-            id = Math.floor((Math.random() * 100000) + 1);
+            modalDom
+                .find(".dismiss-modal")
+                .on("mouseup", function(){
+                    modalDom.remove();
+                });
 
-            if (parent.not("[action]")) {
-                parent.attr("action", true);
-                switch (name){
-                    case "edit-label":
-                        modalConfig = {
-                            title: "Edit label",
-                            content: "Something",
-                            class: "edit-label-" + id
-                        };
-                        break;
+            modalDom
+                .find(".confirm-modal")
+                .on("mousedown", save);
+        };
 
-                    default:
-                        throw "Action not valid"
-                }
-                modalDom = modal(modalConfig);
-                console.log(modalDom);
-                // env.parentDom.find(".action-modal").remove();
-                env.parentDom.append(modalDom);
-                actionButton = this.dom.actionButton.clone(true);
-                actionButton.show().text(modalConfig.title).attr("data-target", modalConfig.class).appendTo(parent);
+        this._setLocation = function(target, locationString){
+            var location, finalLocation, host;
+
+            location = locationString.split(", ");
+            if (location.length == 2){
+                finalLocation = { city: location[0], countryCode: location[1] };
+            } else if (location.length == 1){
+                finalLocation = { city: null, countryCode: location[0] };
+            } else {
+                utils.observer.publish("error", "696");
+                return;
             }
+
+            host = env.connector.getHosts()
+                .filter(function(item){
+                    return item.ip == target;
+                })[0];
+            host.setLocation(finalLocation);
+            env.main.persist();
+        };
+
+        this.showModal = function(type, target){
+            var modalDom, modalConfig, host;
+
+            switch (type){
+                case "update-location":
+                    host = env.connector.getHosts()
+                        .filter(function(item){
+                            return item.ip == target;
+                        })[0];
+
+                    modalConfig = {
+                        title: "Update location",
+                        content: {
+                            resource: target,
+                            location: host.getLocation()
+                        },
+                        class: "update-location-" + target
+                    };
+                    modalDom = $(modalLocation(modalConfig));
+                    $this._appendModal(modalDom, function(event){
+                        var target, newLocation;
+
+                        target = $(event.target).attr("data-target");
+                        newLocation = modalDom.find(".new-location").val();
+                        $this._setLocation(target, newLocation);
+                    });
+                    break;
+
+                case "edit-label":
+                    modalConfig = {
+                        title: "Edit label",
+                        content: "Disabled for now",
+                        class: "edit-label-" + target
+                    };
+                    modalDom = modalContacts(modalConfig);
+                    $this._appendModal($(modalDom));
+                    break;
+
+                case "show-contacts":
+                    env.connector.getAutonomousSystemContacts({id: target})
+                        .done(function(data){
+                            modalConfig = {
+                                title: "Contacts for: AS" + target,
+                                content: data,
+                                class: "show-contacts-" + target
+                            };
+                            modalDom = modalContacts(modalConfig);
+                            $this._appendModal($(modalDom));
+                    });
+
+                    break;
+
+                default:
+                    throw "Action not valid"
+            }
+
         };
 
         this.showLoading = function(show){
@@ -703,13 +780,14 @@ define([
             this.showMessage(show, lang.loadingMessage, options);
         };
 
-        
+        this.removePopovers = function () {
+            env.parentDom.find('[data-toggle="popover"]').popover('hide');
+        };
+
         this.appendPopovers = function (parent) {
 
             env.parentDom
-                .on("mousedown", function(){
-                    env.parentDom.find('[data-toggle="popover"]').popover('hide');
-                });
+                .on("mousedown", this.removePopovers);
 
             env.parentDom
                 .find('[data-toggle="popover"]')
@@ -719,7 +797,6 @@ define([
                     placement: "auto"
                 })
                 .on("mousedown", function(event){
-                    console.log("triggered");
                     var popovers, visibility, item;
 
                     popovers = env.parentDom.find('[data-toggle="popover"]');
@@ -728,9 +805,10 @@ define([
                         item = $(popovers[n]);
                         visibility = (item.is($(event.target))) ? 'show' : 'hide';
 
-                        console.log(visibility);
                         item.popover(visibility);
                     }
+
+                    $this._removeAnnotations();
 
                     event.preventDefault();
                     event.stopPropagation();
@@ -749,6 +827,7 @@ define([
 
             env.parentDom
                 .on("mousedown", ".popover", function(event){ // To prevent popover to close when clicked inside
+                    $this._removeAnnotations();
                     event.preventDefault();
                     event.stopPropagation();
                 });

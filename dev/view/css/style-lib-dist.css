@@ -249,7 +249,7 @@
   text-align: center;
   z-index: 1000000000;
   position: absolute;
-  opacity: 0.7;
+  opacity: 0.9;
   text-shadow: 1px 1px 3px #C0C0C0;
   font-size: 26px;
   width: 300px;
@@ -584,6 +584,9 @@
 }
 .tracemon-container .footer-popover-buttons .action-button {
   margin-left: 4px;
+}
+.tracemon-container .new-location {
+  width: 300px;
 }
 .tracemon-container .ui-helper-hidden {
   display: none;

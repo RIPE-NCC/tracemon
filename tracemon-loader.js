@@ -92,6 +92,7 @@ requirejs.config({
         "tracemon.connector.short-name": window.atlas._widgets.tracemon.urls.connector + "ShortNameConnector",
         "tracemon.connector.persist-host": window.atlas._widgets.tracemon.urls.connector + "PersistHostConnector",
         "tracemon.connector.log.persist": window.atlas._widgets.tracemon.urls.connector + "log/LogRestConnector",
+        "tracemon.connector.ripe-database": window.atlas._widgets.tracemon.urls.connector + "RipeDatabaseConnector",
 
         "tracemon.connector.local.peering-db": window.atlas._widgets.tracemon.urls.connector + "local/peeringDb",
 
@@ -166,7 +167,7 @@ define([
         }
 
         env = {
-            "version": "17.4.3.2",
+            "version": "17.4.4.2",
             "dev": instanceParams.dev,
             "widgetUrl": TRACEMON_WIDGET_URL + "dev/",
             "autoStart": (instanceParams.autoStart != undefined) ? instanceParams.autoStart : config.autoStart,

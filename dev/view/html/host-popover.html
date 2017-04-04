@@ -14,7 +14,7 @@
 Located in:
 {{#location}}{{#location.city}}{{location.city}},{{/location.city}} {{location.countryCode}}{{/location}}
 {{^location}}Not available{{/location}}
-<button type="button" class="action-button btn btn-primary btn-xs" data-target="{{id}}" data-name="action-location">Update</button>
+{{^isGuess}}<button type="button" class="action-button btn btn-primary btn-xs" data-target="{{id}}" data-name="update-location">Update</button>{{/isGuess}}
 <br>
 
 
@@ -23,7 +23,7 @@ Located in:
     <b>PeeringDB:</b><br>
     IXP: {{ixp.name}}, {{ixp.city}}, {{ixp.country}}<br>
     Lan: {{ixp.prefix}}<br>
-    <button type="button" class="action-button btn btn-primary btn-xs" data-target="{{id}}" data-name="action-peeringdb">Update PeeringDB</button><br>
+    <button type="button" class="action-button btn btn-primary btn-xs" onclick="window.open('{{links.peeringDb}}')">Update PeeringDB</button><br>
 {{/ixp}}
 
 {{#as}}
@@ -47,7 +47,9 @@ Located in:
 
 <br>
 <div class="footer-popover-buttons">
-    <button type="button" class="action-button btn btn-primary btn-sm" data-target="{{id}}" data-name="action-contact">Contact owner</button>
-    <button type="button" class="action-button btn btn-primary btn-sm" data-target="{{id}}" data-name="action-whois">Whois</button>
-    <button type="button" class="action-button btn btn-primary btn-sm" data-target="{{id}}" data-name="action-bgp">See BGP events</button>
+    {{#as}}
+        <button type="button" class="action-button btn btn-primary btn-sm" data-target="{{id}}" data-name="show-contacts">Contact holder</button>
+        <button type="button" class="action-button btn btn-primary btn-sm" data-target="{{id}}" onclick="window.open('{{links.whois}}')">Whois</button>
+    {{/as}}
+    <button type="button" class="action-button btn btn-primary btn-sm" data-target="{{id}}" onclick="window.open('{{links.bgplay}}')">See BGP events</button>
 </div>

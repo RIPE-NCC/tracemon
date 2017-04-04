@@ -1,0 +1,26 @@
+<div class="modal {{class}}" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close dismiss-modal" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">{{title}}</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    {{#content.length}}
+                        {{#content}}
+                            <span><b>{{type}}</b>: {{#name}}({{name}}){{/name}} {{email}}</span><br>
+                        {{/content}}
+                    {{/content.length}}
+                    {{^content.length}}
+                        No contacts information available. Probably not a RIPE resource or tech-c or abuse contact missing. Please consider updating this information from the LIR portal.
+                    {{/content.length}}
+
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default dismiss-modal">Close</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

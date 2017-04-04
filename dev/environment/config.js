@@ -19,11 +19,22 @@ define([], function(){
             persistHostApi: "https://massimo.ripe.net/tracemon/persist_host.php",
             storageLogRestApiUrl: "//massimo.ripe.net/tracemon/widget_log.php",
             storageErrorRestApiUrl: "//massimo.ripe.net/tracemon/widget_log.php",
+            ripeDatabase: {
+                whois: "https://massimo.ripe.net/tracemon/jsonp.php?callback=?&resource=http://rest.db.ripe.net/ripe/aut-num/AS0000.json",
+                person: "https://massimo.ripe.net/tracemon/jsonp.php?callback=?&resource=http://rest.db.ripe.net/ripe/person/0000.json%3Funfiltered", //Keep it unfiltered
+                role: "https://massimo.ripe.net/tracemon/jsonp.php?callback=?&resource=http://rest.db.ripe.net/ripe/role/0000.json%3Funfiltered" //Keep it unfiltered
+            },
+            abuseContactRestApi: "https://stat.ripe.net/data/abuse-contact-finder/data.json",
             peeringDb: {
                 lans: "http://localhost/peering_db.php?type=ixlan",
                 ixps: "http://localhost/peering_db.php?type=ix",
                 prefixes: "http://localhost/peering_db.php?type=ixpfx"
             }
+        },
+        externalLinks: {
+            bgplay: 'https://stat.ripe.net/widget/bgplay#w.resource=0000&w.starttime=1111&w.endtime=2222',
+            peeringDb: 'https://www.peeringdb.com/ix/0000',
+            whois: 'https://apps.db.ripe.net/search/query.html?searchtext=AS0000'
         },
         autoStart: true,
         defaultViewName: "as",
@@ -49,10 +60,11 @@ define([], function(){
 
         startWithLastStatus: true,
         filterLateAnswers: true,
-        premptiveGeolocation: true,
+        premptiveGeolocation: true, // Try to get one if none is loaded at boot, even if not requested
         premptiveReverseDns: true,
-        preloadGeolocations: false,
+        preloadGeolocations: true, // Requests the geolocations at boot with together with the results
         persistLog: true,
+        persistLocations: false,
         logAppTag: "tracemon",
 
         lateReportedResults: 200, // seconds of validity for a late reported result
@@ -96,6 +108,7 @@ define([], function(){
         },
 
         errors: {
+            "324": "No results to display for the selected time range",
             "400": "To retrieve data, a time range is required",
             "403": "The selected measurement is private",
             "404": "The measurement cannot be found",
@@ -109,7 +122,8 @@ define([], function(){
             "508": "The selected instant is out of the measurement lifespan",
             "603": "LatencyMON cannot be loaded: no RTT charts available",
             "694": "The time window has been changed because it was too wide",
-            "324": "No results to display for the selected time range",
+            "695": "The RIPE Database doesn't contain any contact information for this resource",
+            "696": "Location not valid"
         }
 
     };

@@ -94,6 +94,7 @@ define([
                     if (ixp !== false){
                         host.isIxp = true;
                         host.ixp = {
+                            peeringDbId: ixp.lan.ixp.id,
                             name: ixp.lan.ixp.name,
                             country: ixp.lan.ixp.country,
                             city: ixp.lan.ixp.city,
