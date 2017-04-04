@@ -453,6 +453,13 @@ define([
             this.dom.svg = html.find(".tracemon-svg");
             this.dom.graphContainer = html.find(".svg-div");
             this.dom.annotation = html.find(".annotation-tooltip");
+            this.dom.footer = html.find(".tracemon-footer");
+
+
+            if (utils.getUrlParam("info") == "true") {
+                this.dom.footer.append('<div class="tracemon-version footer-item">Version:' + env.version + '</div>');
+                this.dom.footer.append(atob("PGRpdiBjbGFzcz0ibGF0ZW5jeW1vbi1jb3B5cmlnaHQgZm9vdGVyLWl0ZW0iPkF1dGhvcjogPGEgaHJlZj0iaHR0cDovL21hc3NpbW9jYW5kZWxhLmNvbSI+TWFzc2ltbyBDYW5kZWxhPC9hPjwvZGl2Pg=="));
+            }
 
 
             headerController = new HeaderController(env);

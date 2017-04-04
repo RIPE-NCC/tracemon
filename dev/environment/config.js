@@ -37,7 +37,7 @@ define([], function(){
             whois: 'https://apps.db.ripe.net/search/query.html?searchtext=AS0000'
         },
         autoStart: true,
-        defaultViewName: "as",
+        defaultViewName: "host",
         defaultAggregationIPv4: false, //
         defaultAggregationIPv6: false, //
         streamingUrl: "https://atlas-stream.ripe.net:443",
@@ -62,7 +62,7 @@ define([], function(){
         filterLateAnswers: true,
         premptiveGeolocation: true, // Try to get one if none is loaded at boot, even if not requested
         premptiveReverseDns: true,
-        preloadGeolocations: true, // Requests the geolocations at boot with together with the results
+        preloadGeolocations: false, // Requests the geolocations at boot with together with the results
         persistLog: true,
         persistLocations: false,
         logAppTag: "tracemon",
