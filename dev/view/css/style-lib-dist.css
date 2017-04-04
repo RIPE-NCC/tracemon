@@ -588,6 +588,16 @@
 .tracemon-container .new-location {
   width: 300px;
 }
+.tracemon-container .module-separation {
+  width: 89%;
+  border-top: 1px dashed #c6c6c6;
+  margin: auto;
+  margin-bottom: 1px;
+}
+.tracemon-container .graph-legend-svg {
+  width: 100%;
+  height: 20px;
+}
 .tracemon-container .ui-helper-hidden {
   display: none;
 }
