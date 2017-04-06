@@ -621,3 +621,7 @@
 .modal-content {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
+
+.no-border{
+    border: 0;
+}

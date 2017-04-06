@@ -162,7 +162,7 @@ define([
         };
 
         this.updateTemplatesInfo = function(){
-            if (!blockListeners) {
+            if (!blockListeners && !env.onlyGraph) {
                 this.values.target = this.getMonitoredTargets();
                 this.values.totalProbes = Object.keys(env.loadedSources).length;
                 this.values.numberProbes = env.finalQueryParams.sources.length;
@@ -461,141 +461,143 @@ define([
             headerController = new HeaderController(env);
             env.headerController = headerController;
 
+            if (!env.onlyGraph) {
+                env.parentDom
+                    .find('.reproduction-speed>input')
+                    .bootstrapSlider({
+                        value: env.reproductionSpeed,
+                        step: 1,
+                        min: 1,
+                        max: config.maxReproductionSpeed,
+                        tooltip: 'hide'
+                    })
+                    .on("slideStop", function (slideEvt) {
+
+                        $(slideEvt.target)
+                            .closest(".bootstrap-slider")
+                            .find(".value-slider")
+                            .text(slideEvt.value);
+
+                        env.reproductionSpeed = parseInt(slideEvt.value);
+                    });
+
+                env.parentDom
+                    .find(".close-traceroute")
+                    .on("click", function () {
+                        env.parentDom
+                            .find(".traceroute-output") // optimise this!
+                            .hide();
+
+                    });
+
+                env.parentDom
+                    .find('.hops-number-slider')
+                    .bootstrapSlider({
+                        value: this.getNumberHops(),
+                        step: 1,
+                        min: 1,
+                        max: this.maxPossibleHops(),
+                        tooltip: 'hide'
+                    })
+                    .on("slideStop", function (slideEvt) {
+                        $(slideEvt.target)
+                            .closest(".bootstrap-slider")
+                            .find(".value-slider")
+                            .text(slideEvt.value);
+                        headerController.setMaxHop(slideEvt.value);
+                    });
+
+                env.parentDom
+                    .find(".select-view li")
+                    .click(function () {
+                        var option = $(this);
+                        option
+                            .closest(".select-view")
+                            .find('.dropdown-toggle')
+                            .html(option.text() + ' <span class="caret"></span>');
+                    });
+
+                env.parentDom
+                    .find(".click-select-probe")
+                    .on("click", function () {
+
+                        $this.populateProbeList($.map(env.loadedSources, function (probe) {
+                            probe.select = (env.finalQueryParams.sources.indexOf(probe.id) != -1);
+                            return [probe];
+                        }));
+                    });
+
+                this.dom.playerButtons.play = env.parentDom
+                    .find(".play-button")
+                    .on("click", function () {
+                        env.historyManager.emulateHistory();
+                    });
+
+                this.dom.playerButtons.pause = env.parentDom
+                    .find(".pause-button")
+                    .on("click", function () {
+                        env.historyManager.stopEmulation();
+                    });
+
+                this.dom.playerButtons.beginning = env.parentDom
+                    .find(".bwd-button")
+                    .on("click", function () {
+                        env.historyManager.setCurrentInstant(env.finalQueryParams.startDate);
+                    });
+
+                this.dom.playerButtons.end = env.parentDom
+                    .find(".ffwd-button")
+                    .on("click", function () {
+                        env.historyManager.setCurrentInstant(env.finalQueryParams.stopDate);
+                    });
+
+                this.dom.labelRadio = env.parentDom
+                    .find('.label-level')
+                    .on("click", function () {
+                        env.mainView.setLabelLevel($(this).val());
+                    });
+
+
+                this._updatePlayerButtons();
+
+                this.tracerouteDivDom = env.parentDom
+                    .find(".traceroute-output")
+                    .hide();
+
+                this.timeSelectionCone = d3.select(env.parentDom[0])
+                    .select(".time-selection-cone");
+
+                this.timeSelectionConeLeft = this.timeSelectionCone
+                    .append("path")
+                    .attr("class", "cone-time-boundaries");
+
+
+                this.timeSelectionConeRight = this.timeSelectionCone
+                    .append("path")
+                    .attr("class", "cone-time-boundaries");
+
+                this.updateSearchBox(true);
+            }
+
             env.parentDom
-                .find('.reproduction-speed>input')
-                .bootstrapSlider({
-                    value: env.reproductionSpeed,
-                    step: 1,
-                    min: 1,
-                    max: config.maxReproductionSpeed,
-                    tooltip: 'hide'
-                })
-                .on("slideStop", function(slideEvt) {
-
-                    $(slideEvt.target)
-                        .closest(".bootstrap-slider")
-                        .find(".value-slider")
-                        .text(slideEvt.value);
-
-                    env.reproductionSpeed = parseInt(slideEvt.value);
-                });
-
-            env.parentDom
-                .find(".close-traceroute")
-                .on("click", function () {
-                    env.parentDom
-                        .find(".traceroute-output") // optimise this!
-                        .hide();
-
-                });
-
-            env.parentDom
-                .find('.hops-number-slider')
-                .bootstrapSlider({
-                    value: this.getNumberHops(),
-                    step: 1,
-                    min: 1,
-                    max: this.maxPossibleHops(),
-                    tooltip: 'hide'
-                })
-                .on("slideStop", function(slideEvt) {
-                    $(slideEvt.target)
-                        .closest(".bootstrap-slider")
-                        .find(".value-slider")
-                        .text(slideEvt.value);
-                    headerController.setMaxHop(slideEvt.value);
-                });
-
-            env.parentDom
-                .find(".select-view li")
-                .click(function(){
-                    var option = $(this);
-                    option
-                        .closest(".select-view")
-                        .find('.dropdown-toggle')
-                        .html(option.text() + ' <span class="caret"></span>');
-                });
-
-            env.parentDom
-                .on("mousedown", function(){
+                .on("mousedown", function () {
                     $this._removeAnnotations();
                 });
 
             env.parentDom
-                .find(".click-select-probe")
-                .on("click", function(){
-
-                    $this.populateProbeList($.map(env.loadedSources, function(probe){
-                        probe.select = (env.finalQueryParams.sources.indexOf(probe.id) != -1);
-                        return [probe];
-                    }));
-                });
-
-            this.dom.playerButtons.play = env.parentDom
-                .find(".play-button")
-                .on("click", function () {
-                    env.historyManager.emulateHistory();
-                });
-
-            this.dom.playerButtons.pause = env.parentDom
-                .find(".pause-button")
-                .on("click", function () {
-                    env.historyManager.stopEmulation();
-                });
-
-            this.dom.playerButtons.beginning = env.parentDom
-                .find(".bwd-button")
-                .on("click", function () {
-                    env.historyManager.setCurrentInstant(env.finalQueryParams.startDate);
-                });
-
-            this.dom.playerButtons.end = env.parentDom
-                .find(".ffwd-button")
-                .on("click", function () {
-                    env.historyManager.setCurrentInstant(env.finalQueryParams.stopDate);
-                });
-
-            this.dom.labelRadio = env.parentDom
-                .find('.label-level')
-                .on("click", function () {
-                    env.mainView.setLabelLevel($(this).val());
-                });
-
-
-            this._updatePlayerButtons();
-
-            env.parentDom
-                .on("mousedown", ".action-button", function(event){
+                .on("mousedown", ".action-button", function (event) {
                     var item, actionAttr, targetAttr;
 
                     actionAttr = "data-name";
                     targetAttr = "data-target";
                     item = $(event.target);
 
-                    if (item.is('[' + actionAttr + ']')){
+                    if (item.is('[' + actionAttr + ']')) {
                         $this.showModal(item.attr(actionAttr), item.attr(targetAttr));
                         $this.removePopovers();
                         $this._removeAnnotations();
                     }
                 });
-
-            this.tracerouteDivDom = env.parentDom
-                .find(".traceroute-output")
-                .hide();
-
-            this.timeSelectionCone = d3.select(env.parentDom[0])
-                .select(".time-selection-cone");
-
-            this.timeSelectionConeLeft = this.timeSelectionCone
-                .append("path")
-                .attr("class", "cone-time-boundaries");
-
-
-            this.timeSelectionConeRight = this.timeSelectionCone
-                .append("path")
-                .attr("class", "cone-time-boundaries");
-
-            this.updateSearchBox(true);
         };
 
         this.updateTimeSelectionCone = function (points) {

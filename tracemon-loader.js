@@ -184,6 +184,7 @@ define([
             "aggregateIPv4": instanceParams.aggregateIPv4 || config.defaultAggregationIPv4,
             "aggregateIPv6": instanceParams.aggregateIPv6 || config.defaultAggregationIPv6,
             "maxNumberHops": instanceParams.maxNumberHops || config.maxNumberHops,
+            "onlyGraph": instanceParams.onlyGraph,
             "templatesLocation": instanceParams.templatesLocation || config.templatesLocation,
             "reproductionSpeed":  instanceParams.reproductionSpeed || config.reproductionSpeed,
             "labelLevel":  instanceParams.labelLevel || config.defaultLabelLevel,
