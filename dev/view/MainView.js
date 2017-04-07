@@ -70,7 +70,7 @@ define([
 
             if (firstDraw){
                 this._firstDraw(this._drawnStatus);
-            } else {
+            } else { 
                 this._update(this._drawnStatus);
             }
 

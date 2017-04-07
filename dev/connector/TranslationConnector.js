@@ -335,7 +335,6 @@ define([
             return deferredCall.promise();
         };
 
-
         this.getMeasurementInfo = function (measurementId){
             var deferredCall;
 

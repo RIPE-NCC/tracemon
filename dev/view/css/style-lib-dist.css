@@ -604,6 +604,9 @@
 .tracemon-container .modal-content {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
+.tracemon-container .no-border {
+  border: 0;
+}
 .tracemon-container .ui-helper-hidden {
   display: none;
 }

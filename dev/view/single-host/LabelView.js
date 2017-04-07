@@ -212,7 +212,7 @@ define([
                 classes.push("last");
             }
 
-            return (selector) ? classes.join(".") : classes.join(" ");
+            return (selector) ? "." + classes.join(".") : classes.join(" ");
         },
 
         getDynamicText: function(){

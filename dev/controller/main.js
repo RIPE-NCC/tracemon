@@ -145,7 +145,7 @@ define([
                         moment.min(measurement.startDate, env.metaData.startDate) :
                         measurement.startDate,
                     stopDate: (measurement.stopDate && env.metaData.stopDate) ?
-                        moment.max(measurement.stopDate, env.metaData.stopDate) : null, // Null if no measurements have a stopDate
+                        moment.max(measurement.stopDate, env.metaData.stopDate) : measurement.stopDate || null, // Null if no measurements have a stopDate
                     longestTraceroute: longestTraceroute,
                     intervalMax: (!env.metaData.interval) ? measurement.interval : Math.max(measurement.interval, env.metaData.interval),
                     intervalMin: (!env.metaData.interval) ? measurement.interval : Math.min(measurement.interval, env.metaData.interval),

@@ -81,14 +81,15 @@ define([
             $.when
                 .apply($, deferredArray)
                 .then(function(){
-                    var measurements, measurement;
+                    var measurements, traceroutes;
 
-                    measurements = arguments;
+                    measurements = [].slice.call(arguments);
+                    traceroutes = $.map(measurements, function(measurement){ // Enrich the probes (e.g. check if they replied) NOTE: it's ASYNC
+                        return measurement.getTraceroutes();
+                    });
 
-                    for (var n=0,length=measurements.length; n<length; n++){
-                        measurement = measurements[n];
-                        $this._enrichProbes(measurement, options.sources); // Enrich the probes (e.g. check if they replied) NOTE: it's ASYNC
-                    }
+                    $this._enrichProbes(traceroutes, options.sources);
+
                     utils.observer.publish("model.history:new");
                     deferredCall.resolve(measurements);
                 }, function(error){
@@ -208,13 +209,13 @@ define([
             return translationConnector.getProbeInfo(probeId);
         };
 
-        this._enrichProbes = function(measurement, probesList){
-            var replyingProbes;
+        this._enrichProbes = function(traceroutes, probesList){
+            var replyingProbes, probeIds;
 
-
-            replyingProbes = utils.arrayUnique($.map(measurement.getTraceroutes(), function(traceroute){
+            probeIds = $.map(traceroutes, function(traceroute){
                 return traceroute.source.probeId;
-            }));
+            });
+            replyingProbes = utils.arrayUnique(probeIds);
 
             // Check if all the probes are replying and mark them.
             for (var n=0,length=probesList.length; n<length; n++) {

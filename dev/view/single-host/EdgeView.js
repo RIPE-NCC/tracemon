@@ -93,7 +93,7 @@ define([
                 classes.push("disconnected");
             }
 
-            return (selector) ? classes.join(".") : classes.join(" ");
+            return (selector) ? "." + classes.join(".") : classes.join(" ");
         },
 
         isFocusOut: function () {

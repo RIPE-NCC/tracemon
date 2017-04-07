@@ -103,11 +103,12 @@ define([
         for (var source in currentTraceroutes){
             traceroute = currentTraceroutes[source];
 
-            validUpTo = moment(traceroute.validUpTo)
-                .add(this.interval, "seconds").utc();
+            if (traceroute.validUpTo) {
+                validUpTo = moment(traceroute.validUpTo).add(this.interval, "seconds").utc();
 
-            if (validUpTo.isBefore(date)){
-                delete currentTraceroutes[source];
+                if (validUpTo.isBefore(date)) {
+                    delete currentTraceroutes[source];
+                }
             }
         }
 

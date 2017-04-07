@@ -155,6 +155,7 @@ define([
             this._drawWarnings();
             this._calculateLabelsPosition();
             this._drawLabels();
+            // env.template.appendPopovers(this.content);
 
         };
 
@@ -272,9 +273,7 @@ define([
 
             this.dryUpdate();
 
-            this.content = env.parentDom.find('.tracemon-content');
-
-            env.template.appendPopovers(this.content);
+            // env.template.appendPopovers(this.content);
             
             if (callback){
                 callback();
@@ -532,6 +531,7 @@ define([
                     .style("opacity", 0.1)
                     .each("end", function () {
                         d3.select(this).remove();
+                        env.template.removePopover($(this));
                     });
             }
 
@@ -561,6 +561,7 @@ define([
                     if (nodeView.getAnnotation()) {
                         env.template.addAnnotation(nodeView);
                     }
+                    env.template.addPopover($(this));
                 });
 
             nodesSvg

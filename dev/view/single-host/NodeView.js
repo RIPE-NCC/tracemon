@@ -123,7 +123,7 @@ define([
                 classes.push("null");
             }
 
-            return (selector) ? classes.join(".") : classes.join(" ");
+            return (selector) ? "." + classes.join(".") : classes.join(" ");
         },
 
         equalsTo: function(nodeView){
