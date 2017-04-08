@@ -6,15 +6,15 @@ define([
     "tracemon.connector.persist-host",
     "tracemon.connector.log.persist",
     "tracemon.connector.ripe-database"
-], function(config, $, utils, TranslationConnector, PersistHostConnector, LogRestConnector, RipeDatabaseConnector) {
+], function(config, $, utils, TranslateConnector, PersistHostConnector, LogRestConnector, RipeDatabaseConnector) {
     var antiFloodTimerNewStatus;
 
 
     var ConnectorFacade = function (env) {
-        var translationConnector, $this, cache, persitHostConnector, logConnector, ripeDatabaseConnector;
+        var translateConnector, $this, cache, persitHostConnector, logConnector, ripeDatabaseConnector;
 
         $this = this;
-        translationConnector = new TranslationConnector(env);
+        translateConnector = new TranslateConnector(env);
         persitHostConnector = new PersistHostConnector(env);
         ripeDatabaseConnector = new RipeDatabaseConnector(env);
         logConnector = new LogRestConnector(env);
@@ -51,7 +51,7 @@ define([
             filtering.stream_type = "result";
             filtering.buffering = "true";
             filtering.msm = measurement.id;
-            translationConnector.getRealTimeResults(
+            translateConnector.getRealTimeResults(
                 filtering,
                 function(result){
                     measurement.addTraceroutes(result);
@@ -63,7 +63,7 @@ define([
         };
 
         this.getMeasurementsResults = function(measurements, options){
-            var deferredCall, deferredArray, resultsPromise,measurement;
+            var deferredCall, deferredArray, resultsPromise, measurement;
 
             deferredCall = $.Deferred();
             deferredArray = [];
@@ -71,7 +71,7 @@ define([
             for (var n=0,length=measurements.length; n<length; n++){
                 measurement = measurements[n];
 
-                resultsPromise = translationConnector
+                resultsPromise = translateConnector
                     .getMeasurementResults(measurement, options);
 
                 deferredArray.push(resultsPromise); // Get results
@@ -104,7 +104,7 @@ define([
 
             deferredCall = $.Deferred();
 
-            translationConnector.getAutonomousSystem(ip)
+            translateConnector.getAutonomousSystem(ip)
                 .done(function (data) {
 
                     deferredCall.resolve(data);
@@ -127,7 +127,7 @@ define([
             } else if (host.reverseDns){
                 deferredCall.resolve(host.reverseDns);
             } else {
-                translationConnector.getHostReverseDns(host)
+                translateConnector.getHostReverseDns(host)
                     .done(function (data) {
                         deferredCall.resolve(data);
                     })
@@ -154,7 +154,7 @@ define([
                 if (host.getLocation()) {
                     deferredCall.resolve(host.getLocation());
                 } else {
-                    translationConnector.getGeolocation(host)
+                    translateConnector.getGeolocation(host)
                         .done(function (data) {
                             deferredCall.resolve(data);
                         })
@@ -178,7 +178,7 @@ define([
             for (var n=0,length=measurementIds.length; n<length; n++) {
                 measurementId = measurementIds[n];
 
-                promises = translationConnector
+                promises = translateConnector
                     .getMeasurementInfo(measurementId);
 
                 deferredArray.push(promises);
@@ -198,15 +198,15 @@ define([
         };
 
         this.getHosts = function(){
-            return translationConnector.getHosts();
+            return translateConnector.getHosts();
         };
 
         this.getASes = function () {
-            return translationConnector.getASes();
+            return translateConnector.getASes();
         };
 
         this.getProbeInfo = function(probeId){
-            return translationConnector.getProbeInfo(probeId);
+            return translateConnector.getProbeInfo(probeId);
         };
 
         this._enrichProbes = function(traceroutes, probesList){
@@ -227,11 +227,10 @@ define([
         this.persistLog = function(type, log){
             var browserVersion;
 
-            if (config.persistLog) {
+            if (env.sendErrors) {
                 browserVersion = utils.getBrowserVersion();
                 logConnector.error(type, log + ' (browser: ' + browserVersion.name + ' ' + browserVersion.version.toString() + ')');
             }
-
         };
 
         this.getAutonomousSystemContacts = function (asObject) {

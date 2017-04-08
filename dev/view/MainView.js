@@ -134,6 +134,7 @@ define([
 
             diff = this._computeDiff(this._oldStatus, newStatus);
 
+            console.log(diff);
             if (diff.status.length > 0) { // Something to update
                 this.view.update(diff, function () {
                     utils.observer.publish("view.graph:change");
@@ -264,6 +265,12 @@ define([
                 if (!newStatus[msmId]) { // The entire measurement has been deleted
                     for (var source in oldStatus[msmId]) {
                         deletedTraceroutes.push(oldStatus[msmId][source]);
+                    }
+                } else {
+                    for (var source in oldStatus[msmId]) {
+                        if (!newStatus[msmId][source]) {
+                            deletedTraceroutes.push(oldStatus[msmId][source]);
+                        }
                     }
                 }
             }

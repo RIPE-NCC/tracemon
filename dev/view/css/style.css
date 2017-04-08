@@ -162,11 +162,16 @@
 .node-label.probe {
     opacity: 1;
 }
+
 .popover{
     font-size: 14px;
     width: 360px!important;
     max-width: 360px!important;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif!important;
+}
 
+.popover-title{
+    font-weight: bold!important;
 }
 
 .warning.error{

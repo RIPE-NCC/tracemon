@@ -36,9 +36,8 @@ define([
                 this._traceroutes = this._traceroutes.concat(traceroutes);
                 this._updateIndex(traceroutes); // Update index
             } else { // Ok, no optimisation, concat and sort everything
-                this._traceroutes = this._traceroutes
-                    .concat(traceroutes)
-                    .sort(this._tracerouteSort);
+                this._traceroutes = this._traceroutes.concat(traceroutes);
+                this._traceroutes.sort(this._tracerouteSort);
                 this._createIndex(this._traceroutes); // Reset the index
             }
         }
@@ -64,8 +63,6 @@ define([
                 this._longestTraceroute = item;
             }
         }
-
-
     };
 
     Measurement.prototype.getLastTraceroute = function(){

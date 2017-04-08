@@ -93,6 +93,7 @@ requirejs.config({
         "tracemon.connector.persist-host": window.atlas._widgets.tracemon.urls.connector + "PersistHostConnector",
         "tracemon.connector.log.persist": window.atlas._widgets.tracemon.urls.connector + "log/LogRestConnector",
         "tracemon.connector.ripe-database": window.atlas._widgets.tracemon.urls.connector + "RipeDatabaseConnector",
+        "tracemon.connector.cache": window.atlas._widgets.tracemon.urls.connector + "CacheConnector",
 
         "tracemon.connector.local.peering-db": window.atlas._widgets.tracemon.urls.connector + "local/peeringDb",
 
@@ -167,7 +168,7 @@ define([
         }
 
         env = {
-            "version": "17.4.5.2",
+            "version": "17.4.7.2",
             "dev": instanceParams.dev,
             "widgetUrl": TRACEMON_WIDGET_URL + "dev/",
             "autoStart": (instanceParams.autoStart != undefined) ? instanceParams.autoStart : config.autoStart,
@@ -193,7 +194,7 @@ define([
             "onlyCore":  instanceParams.onlyCore,
             "preloadGeolocations": (instanceParams.preloadGeolocations != null) ? instanceParams.preloadGeolocations : config.preloadGeolocations,
             "bypassApiCache": instanceParams.bypassApiCache,
-            "sendErrors": instanceParams.sendErrors,
+            "sendErrors": (instanceParams.sendErrors != null) ? instanceParams.sendErrors : config.sendErrors,
             "parentDom": $(parentDom),
             "queryParams": queryParams,
 

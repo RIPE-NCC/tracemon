@@ -57,13 +57,14 @@ define([], function(){
         defaultLoadedPeriod: 10, // Multiple of measurement interval
         maximumLoadedPeriod: 120, // Multiple of measurement interval
         defaultNumberOfDisplayedSources: 8,
+        maxAllowedSources: 10,
 
         startWithLastStatus: true,
         filterLateAnswers: true,
         premptiveGeolocation: true, // Try to get one if none is loaded at boot, even if not requested
         premptiveReverseDns: true,
         preloadGeolocations: false, // Requests the geolocations at boot with together with the results
-        persistLog: true,
+        sendErrors: false,
         persistLocations: false,
         logAppTag: "tracemon",
 
@@ -123,7 +124,8 @@ define([], function(){
             "603": "LatencyMON cannot be loaded: no RTT charts available",
             "694": "The time window has been changed because it was too wide",
             "695": "The RIPE Database doesn't contain any contact information for this resource",
-            "696": "Location not valid"
+            "696": "Location not valid",
+            "697": "Maximum number of probes exceeded"
         }
 
     };

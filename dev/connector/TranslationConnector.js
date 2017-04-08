@@ -81,7 +81,7 @@ define([
                     traceroutes: data,
                     ases: {}
                 };
-                $this.enrichDump(formatOut, translated);
+                $this._enrichDump(formatOut, translated);
                 callback.call(context, translated);
             }, this);
         };
@@ -125,7 +125,7 @@ define([
          * Solutions:
          * 1) prefer to return as getBestAttempts only "new" nodes for that traceroute
          * 2) create a new different host for the second time the same IP appears*/
-        this.enrichDump = function(data, dump){
+        this._enrichDump = function(data, dump){
             var translated, hops, hop, item, hopList, attempts, attemptsList, hopObj, attemptObj, tracerouteDate,
                 errors, locations, tracerouteList, targetTraceroute, asnObjs, asnTmp, asList, attemptTmp,
                 sourceTraceroute, rootMeasurement;
@@ -200,7 +200,11 @@ define([
                 }
 
                 rootMeasurement = this.measurementById[item["msm_id"]];
+
+
+
                 sourceTraceroute = this._createHost(item["from"], null, item["from_as"], null, item['prb_id'], item["from_geo_key"]);
+
                 if (item["dst_addr"]){
                     targetTraceroute = this._createHost(item["dst_addr"], item["dst_name"], item["dst_as"], null, null, item["dst_geo_key"]);
 
@@ -239,52 +243,55 @@ define([
 
 
         this._createHost = function(address, name, asn, isLast, probeId, hostGeolocation){
-            var host;
+            var host, update;
 
             host = this.hostByIp[address];
 
-            if (!host || !address){
+            update = host && address;
+
+            if (!update) {
                 host = new Host(address);
-                host.name = name;
-
-                if (isLast != null){
-                    host.isLast = isLast;
-                }
-
-                if (probeId != null){
-                    host.setProbeId(probeId);
-                }
-
-                if (!host.isPrivate && address) {
-
-                    if (hostGeolocation !== undefined) { // The geolocation key is NOT missing in the json
-
-                        if (hostGeolocation == null){ // We tried but we don't have a geolocation
-                            host.setLocation(null);
-                        } else {
-                            host.setLocation(this._recoverHostLocation(hostGeolocation), true); // We have a geolocation
-                        }
-                    } else if (config.premptiveGeolocation) {
-                        this.getGeolocation(host);
-                    }
-
-                    if (config.premptiveReverseDns) {
-                        this.getHostReverseDns(host);
-                    }
-
-                    if (asn != null) {
-                        asnLookupConnector.enrich(host, this.asList[asn]);
-                    }
-
-                    if (config.ixpHostCheck) {
-                        $this._enrichIXP(host);
-                    }
-
-                    this.hostByIp[address] = host; // Only if not private
-                }
-
-                utils.observer.publish("model.host:new", host);
             }
+
+            host.name = name;
+
+            if (isLast != null){
+                host.isLast = isLast;
+            }
+
+            if (probeId != null){
+                host.setProbeId(probeId);
+            }
+
+            if (!host.isPrivate && address) {
+
+                if (hostGeolocation !== undefined) { // The geolocation key is NOT missing in the json
+
+                    if (hostGeolocation == null){ // We tried but we don't have a geolocation
+                        host.setLocation(null);
+                    } else {
+                        host.setLocation(this._recoverHostLocation(hostGeolocation), true); // We have a geolocation
+                    }
+                } else if (config.premptiveGeolocation) {
+                    this.getGeolocation(host);
+                }
+
+                if (config.premptiveReverseDns) {
+                    this.getHostReverseDns(host);
+                }
+
+                if (asn != null) {
+                    asnLookupConnector.enrich(host, this.asList[asn]);
+                }
+
+                if (config.ixpHostCheck) {
+                    $this._enrichIXP(host);
+                }
+
+                this.hostByIp[address] = host; // Only if not private
+            }
+
+            utils.observer.publish("model.host:" + (update ? "change": "new"), host);
 
             return host;
         };
@@ -317,12 +324,15 @@ define([
                 historyConnector
                     .getMeasurementResults(measurement.id, options)
                     .done(function(data){
-                        var dump;
+                        var newTraceroutes;
 
-                        dump = [];
-                        $this.enrichDump(data, dump);
+                        newTraceroutes = [];
+
                         measurement.empty();
-                        measurement.addTraceroutes(dump);
+                        $this.tracerouteBySourceTarget = {};
+
+                        $this._enrichDump(data, newTraceroutes);
+                        measurement.addTraceroutes(newTraceroutes);
                         deferredCall.resolve(measurement);
                     })
                     .fail(function (error) {
@@ -421,42 +431,42 @@ define([
             if (!host.isPrivate){
 
                 try {
-                historyConnector.getHostReverseDns(host.ip)
-                    .done(function (data) {
-                        var completeDomain, results, reverseArray, shortenedDomain, out;
+                    historyConnector.getHostReverseDns(host.ip)
+                        .done(function (data) {
+                            var completeDomain, results, reverseArray, shortenedDomain, out;
 
-                        results = data["data"]["result"];
-                        out = null;
+                            results = data["data"]["result"];
+                            out = null;
 
-                        if (results) {
-                            completeDomain = results[0];
-                            reverseArray = completeDomain.split(".");
+                            if (results) {
+                                completeDomain = results[0];
+                                reverseArray = completeDomain.split(".");
 
-                            if (reverseArray.length > 2){ // DAR-3047: consider compounded second level country domains (e.g. co.uk) for short reverse lookup labels
-                                var firstLevel, secondLevel, thirdLevel;
+                                if (reverseArray.length > 2){ // DAR-3047: consider compounded second level country domains (e.g. co.uk) for short reverse lookup labels
+                                    var firstLevel, secondLevel, thirdLevel;
 
-                                firstLevel = reverseArray[reverseArray.length - 1];
-                                secondLevel = reverseArray[reverseArray.length - 2];
-                                thirdLevel = reverseArray[reverseArray.length - 3];
+                                    firstLevel = reverseArray[reverseArray.length - 1];
+                                    secondLevel = reverseArray[reverseArray.length - 2];
+                                    thirdLevel = reverseArray[reverseArray.length - 3];
 
-                                if (secondLevel.length == 2){
-                                    shortenedDomain = [thirdLevel, secondLevel, firstLevel].join(".");
-                                } else {
-                                    shortenedDomain = [secondLevel, firstLevel].join(".");
+                                    if (secondLevel.length == 2){
+                                        shortenedDomain = [thirdLevel, secondLevel, firstLevel].join(".");
+                                    } else {
+                                        shortenedDomain = [secondLevel, firstLevel].join(".");
+                                    }
                                 }
+
+                                out = {
+                                    short: shortenedDomain || completeDomain,
+                                    complete: completeDomain
+                                };
+
                             }
 
-                            out = {
-                                short: shortenedDomain || completeDomain,
-                                complete: completeDomain
-                            };
-
-                        }
-
-                        host.reverseDns = out;
-                        deferredCall.resolve(out);
-                        utils.observer.publish("model.host:change", host);
-                    });
+                            host.reverseDns = out;
+                            deferredCall.resolve(out);
+                            utils.observer.publish("model.host:change", host);
+                        });
                 } catch(error) {
                     deferredCall.reject(error);
                 }

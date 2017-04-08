@@ -253,7 +253,15 @@ define([
         };
 
         this._updateSetOfProbes = function (probeSet) {
-            env.main.setSelectedSources(probeSet);
+            if (probeSet.length <= config.maxAllowedSources){
+                env.main.setSelectedSources(probeSet);
+            } else {
+                env.main.setSelectedSources(probeSet.slice(0, config.maxAllowedSources));
+                utils.observer.publish("error", {
+                    type: 697,
+                    message: config.errors[697]
+                });
+            }
         };
 
         this.populateProbeList = function(data){
@@ -707,7 +715,10 @@ define([
             } else if (location.length == 1){
                 finalLocation = { city: null, countryCode: location[0] };
             } else {
-                utils.observer.publish("error", "696");
+                utils.observer.publish("error", {
+                    type: 696,
+                    message: config.errors[696]
+                });
                 return;
             }
 
@@ -810,18 +821,17 @@ define([
             obj.popover('destroy');
         };
 
-        this.addPopover = function (obj) {
+        this.addPopover = function (domObj) {
 
-            obj
+            domObj
                 .popover({
                     container: env.parentDom,
                     trigger: 'focus',
                     placement: "auto"
                 });
 
-            obj
+            domObj
                 .on("mousedown", function(event){
-                    console.log("click");
                     var popovers, visibility, item;
 
                     popovers = env.parentDom.find('[data-toggle="popover"]');

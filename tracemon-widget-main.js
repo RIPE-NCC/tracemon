@@ -1,6 +1,10 @@
 /**
  * The location of the widget
  */
+TRACEMON_EXTERNAL_WIDGET_URL = (typeof TRACEMON_EXTERNAL_WIDGET_URL == 'undefined') ? "https://massimo.ripe.net/tracemon/widget/" : TRACEMON_EXTERNAL_WIDGET_URL; // Remove this
+console.log("TEMPORARY WIDGET LOCATION - THIS IS GOING TO CHANGE SOON!");
+
+
 TRACEMON_WIDGET_URL = ((typeof TRACEMON_EXTERNAL_WIDGET_URL == 'undefined') ? "https://www-static.ripe.net/static/rnd-ui/atlas/static/measurements/widgets/tracemon/" : TRACEMON_EXTERNAL_WIDGET_URL) ;
 
 /**
