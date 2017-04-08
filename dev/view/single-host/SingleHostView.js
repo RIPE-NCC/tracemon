@@ -708,22 +708,11 @@ define([
             warningSvg
                 .enter()
                 .append("path")
-                .attr("d", function(nodeView){
-                    var x, y;
-
-                    x = nodeView.x + config.graph.nodeRadius;
-                    y = nodeView.y - config.graph.nodeRadius;
-
-                    return "M" + (x + 2) + " " + (y) +
-                        " L" + (x - 2) + " " + (y + 6) +
-                        " L" + (x - 6) + " " + (y) + " Z";
-                })
                 .attr("class", function(nodeView){
                     return "warning error node-warning-" + nodeView.id;
                 })
                 .attr("data-toggle", "popover")
                 .attr("data-tooltip", "tooltip")
-
                 .attr("tabindex", "0")
                 .attr("data-html", "true")
                 .attr("title", function(nodeView){
@@ -736,6 +725,18 @@ define([
                     return (nodeView.isFocusOut()) ? true : null;
                 });
 
+            warningSvg
+                .attr("d", function(nodeView){
+                    var x, y;
+
+                    x = nodeView.x + config.graph.nodeRadius;
+                    y = nodeView.y - config.graph.nodeRadius;
+
+                    return "M" + (x + 2) + " " + (y) +
+                        " L" + (x - 2) + " " + (y + 6) +
+                        " L" + (x - 6) + " " + (y) + " Z";
+                });
+            
         };
 
         this._animatePathChange = function (oldTraceroute, newTraceroute) {

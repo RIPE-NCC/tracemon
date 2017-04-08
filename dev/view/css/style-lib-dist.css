@@ -221,6 +221,9 @@
   max-width: 360px!important;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
 }
+.tracemon-container .popover-title {
+  font-weight: bold!important;
+}
 .tracemon-container .warning.error {
   fill: red;
   stroke: #8b0000;
