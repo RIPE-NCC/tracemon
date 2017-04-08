@@ -131,10 +131,53 @@ define([
                 && nodeView.x;
         },
 
+        _getHop: function(){
+            if (!this._hop){
+                this._hop = this.traceroutes[0].model.getHop(this.model);
+            }
+
+            return this._hop;
+        },
+
+        _getHops: function(){
+            var model = this.model;
+            return this.traceroutes
+                .map(function(traceroute){
+                    return traceroute.model.getHop(model);
+                });
+        },
+
+        getLatencies: function(){
+            var hops, rtts;
+
+            rtts = [];
+            hops = this._getHops();
+            if (hops.length > 0) {
+                rtts = hops.map(function(hop){
+                    var rtts;
+
+                    if (hop){
+                        rtts = hop.getAttempts()
+                            .map(function(attempt){
+                                return attempt.rtt;
+                            });
+                    }
+                    return rtts;
+                });
+
+                rtts = [].concat.apply([], rtts);
+                rtts = rtts.filter(function (rtt) {
+                    return rtt != null;
+                });
+            }
+
+            return rtts;
+        },
+
         getMultiplicity: function(){
             var sameMultiplicity, hop;
 
-            hop = this.traceroutes[0].model.getHop(this.model);
+            hop = this._getHop();
             sameMultiplicity = (hop) ? hop.multiplicity : null;
             for (var n=1; n<this.traceroutes.length; n++){
                 hop = this.traceroutes[n].model.getHop(this.model);
@@ -150,7 +193,7 @@ define([
 
 
         getInfo: function () {
-            var asObj, multiplicity, extras, location, templatingParams, links;
+            var asObj, multiplicity, extras, location, templatingParams, links, latencies;
 
             try {
                 location = this.model.getLocation();
@@ -159,6 +202,7 @@ define([
             }
 
             multiplicity = this.getMultiplicity();
+            latencies = this.getLatencies();
             links = {
                 bgplay: config.externalLinks.bgplay.replace("0000", this.model.ip)
                     .replace("1111", env.finalQueryParams.startDate.unix())
@@ -174,6 +218,8 @@ define([
                 links.whois = config.externalLinks.whois.replace("0000", asObj.id);
                 links.peeringDb = config.externalLinks.peeringDb.replace("0000", asObj.id);
             }
+
+            console.log(latencies);
             templatingParams = {
                 id: this.model.getId(),
                 errors: this.getErrors(),
@@ -187,7 +233,11 @@ define([
                     value: multiplicity,
                     show: multiplicity > 1
                 },
-                links: links
+                links: links,
+                rtt: ((latencies.length > 0) ? {
+                    min: utils.truncateAt(Math.min.apply(null, latencies), 2),
+                    max: utils.truncateAt(Math.max.apply(null, latencies), 2)
+                } : null)
             };
 
             return env.template.getHostPopoverContent(templatingParams);

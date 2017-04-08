@@ -196,12 +196,9 @@ define([
                         }
                         hops.push(hopObj);
                     }
-
                 }
 
                 rootMeasurement = this.measurementById[item["msm_id"]];
-
-
 
                 sourceTraceroute = this._createHost(item["from"], null, item["from_as"], null, item['prb_id'], item["from_geo_key"]);
 

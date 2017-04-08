@@ -168,6 +168,12 @@ define([
                             return parseInt(item)
                         });
                     }
+
+                    if (utils.getUrlParam("hacksource").length > 0){
+                        env.queryParams.sources = $.map((utils.getUrlParam("hacksource")[0]).split(","), function(item) {
+                            return parseInt(item)
+                        });
+                    }
                     if (utils.getUrlParam("hacktime").length > 0){
                         env.queryParams.startTimestamp = (utils.getUrlParam("hacktime")[0]).split(",")[0];
                         env.queryParams.stopTimestamp = (utils.getUrlParam("hacktime")[0]).split(",")[1];

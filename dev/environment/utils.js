@@ -931,6 +931,20 @@ define([
                 var refNode = element.hasChildNodes() ? element.children[0] : null;
                 element.insertBefore( styleElement, refNode );
             }
+        },
+
+        truncateAt: function(number, digits){
+            var decimals, float;
+
+            decimals = ("" + number).split(".");
+            float = number;
+
+            if (decimals[1]){
+                decimals[1] = decimals[1].substring(0, digits);
+                float = parseFloat(decimals.join("."));
+            }
+
+            return float;
         }
     }
 });

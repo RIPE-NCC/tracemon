@@ -155,8 +155,6 @@ define([
             this._drawWarnings();
             this._calculateLabelsPosition();
             this._drawLabels();
-            // env.template.appendPopovers(this.content);
-
         };
 
         this._createNodeView = function(host, pathView){
@@ -169,7 +167,9 @@ define([
                 this.nodesArray.push(nodeObj);
             }
 
-            this.nodes[nodeKey].traceroutes.push(pathView);
+            if (pathView){
+                this.nodes[nodeKey].traceroutes.push(pathView);
+            }
 
             return nodeObj;
         };
@@ -213,7 +213,7 @@ define([
         };
 
         this.computeVisibleGraph = function(traceroutesToDraw){
-            var traceroute, host, attempt, lastHost, pathView;
+            var traceroute, host, attempt, lastHost, pathView, sources;
 
             this.traceroutes = {};
             this.traceroutesArray = [];
@@ -222,6 +222,13 @@ define([
             this.edges = {};
             this.mergedEdges = {};
 
+
+            // env.loadedSources is just the json, not Host objects
+            // sources = $.map(env.finalQueryParams.sources, function(sourceId){
+            //     console.log(env.loadedSources[sourceId]);
+            //     return $this._createNodeView(env.loadedSources[sourceId], null);
+            // });
+
             for (var n=0,length=traceroutesToDraw.length; n<length; n++){
 
                 traceroute = traceroutesToDraw[n];
@@ -229,7 +236,6 @@ define([
 
                 pathView = this._createPathView(traceroute);
                 this._createNodeView(lastHost, pathView);
-
 
                 traceroute.forEachHop(function(hop){
                     attempt = hop.getMainAttempt();
@@ -273,8 +279,6 @@ define([
 
             this.dryUpdate();
 
-            // env.template.appendPopovers(this.content);
-            
             if (callback){
                 callback();
             }
@@ -723,6 +727,9 @@ define([
                 })
                 .attr("data-focus-out", function (nodeView) {
                     return (nodeView.isFocusOut()) ? true : null;
+                })
+                .each(function () {
+                    env.template.addPopover($(this));
                 });
 
             warningSvg
@@ -736,7 +743,7 @@ define([
                         " L" + (x - 2) + " " + (y + 6) +
                         " L" + (x - 6) + " " + (y) + " Z";
                 });
-            
+
         };
 
         this._animatePathChange = function (oldTraceroute, newTraceroute) {

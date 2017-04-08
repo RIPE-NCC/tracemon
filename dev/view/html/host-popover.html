@@ -11,6 +11,11 @@
 {{#ip}}
     IP: {{ip}}<br>
 {{/ip}}
+
+{{#rtt}}
+RTT: {{rtt.min}}ms (min) {{rtt.max}}ms (max)<br>
+{{/rtt}}
+
 Located in:
 {{#location}}{{#location.city}}{{location.city}},{{/location.city}} {{location.countryCode}}{{/location}}
 {{^location}}Not available{{/location}}
