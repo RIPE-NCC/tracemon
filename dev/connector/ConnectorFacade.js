@@ -99,6 +99,16 @@ define([
             return deferredCall.promise();
         };
 
+        this.getSourceHosts = function () {
+            var sourceHosts = translateConnector.getSourceHosts();
+            return Object.keys(env.loadedSources)
+                .map(function (probeId) {
+                    return sourceHosts[probeId];
+                }).filter(function (item) {
+                    return item != null;
+                });
+        };
+
         this.getAutonomousSystem = function(ip){
             var deferredCall;
 

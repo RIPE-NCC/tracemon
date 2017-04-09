@@ -53,7 +53,8 @@ define([
         this.tracerouteBySourceTarget = {};
         this.asList = {};
         this.geolocations = {};
-
+        this.hostByProbeId = {};
+        
         liveConnector = new LiveConnector(env);
 
         this.getHosts = function(){
@@ -258,6 +259,7 @@ define([
 
             if (probeId != null){
                 host.setProbeId(probeId);
+                this.hostByProbeId[probeId] = host;
             }
 
             if (!host.isPrivate && address) {
@@ -542,6 +544,10 @@ define([
 
         this.getProbeInfo = function(probeId){
             return $this.probesById[probeId];
+        };
+        
+        this.getSourceHosts = function () {
+          return this.hostByProbeId;  
         };
 
         this.getProbesInfo = function(measurementId){

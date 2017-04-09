@@ -132,7 +132,7 @@ define([
         },
 
         _getHop: function(){
-            if (!this._hop){
+            if (!this._hop && this.traceroutes.length > 0){
                 this._hop = this.traceroutes[0].model.getHop(this.model);
             }
 
@@ -219,7 +219,6 @@ define([
                 links.peeringDb = config.externalLinks.peeringDb.replace("0000", asObj.id);
             }
 
-            console.log(latencies);
             templatingParams = {
                 id: this.model.getId(),
                 errors: this.getErrors(),

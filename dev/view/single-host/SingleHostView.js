@@ -222,12 +222,14 @@ define([
             this.edges = {};
             this.mergedEdges = {};
 
-
-            // env.loadedSources is just the json, not Host objects
-            // sources = $.map(env.finalQueryParams.sources, function(sourceId){
-            //     console.log(env.loadedSources[sourceId]);
-            //     return $this._createNodeView(env.loadedSources[sourceId], null);
-            // });
+            env.connector
+                .getSourceHosts()
+                .map(function (host) {
+                    if (env.finalQueryParams.sources.indexOf(host.probeId) != -1
+                    && !env.loadedSources[host.probeId].empty) {
+                       $this._createNodeView(host, null);
+                    }
+            });
 
             for (var n=0,length=traceroutesToDraw.length; n<length; n++){
 
