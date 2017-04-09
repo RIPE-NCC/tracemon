@@ -213,7 +213,7 @@ define([
         };
 
         this.computeVisibleGraph = function(traceroutesToDraw){
-            var traceroute, host, attempt, lastHost, pathView, sources;
+            var traceroute, host, attempt, lastHost, pathView;
 
             this.traceroutes = {};
             this.traceroutesArray = [];
