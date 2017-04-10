@@ -16,9 +16,10 @@ define([
     "tracemon.lib.stache!probes-selection",
     "tracemon.lib.stache!host-popover",
     "tracemon.lib.stache!modal-show-contacts",
-    "tracemon.lib.stache!modal-update-location"
+    "tracemon.lib.stache!modal-update-location",
+    "tracemon.lib.stache!modal-raw-traceroute"
 ], function(utils, config, lang, $, moment, d3, HeaderController, template, search, selectView, probesSelection,
-            hostPopover, modalContacts, modalLocation){
+            hostPopover, modalContacts, modalLocation, modalTraceroute){
 
     /**
      * TemplateManagerView is the component in charge of creating and manipulating the HTML dom elements.
@@ -111,7 +112,9 @@ define([
             }, this);
             utils.observer.subscribe("model.history:change", this.updateTimeline, this);
             utils.observer.subscribe("view.time-selection:change", this.updateTimeline, this);
-            utils.observer.subscribe("view.traceroute:click", this.showTraceroute, this);
+            utils.observer.subscribe("view.traceroute:click", function(traceroute){
+                this.showModal("show-traceroute", traceroute);
+            }, this);
             utils.observer.subscribe("view.animation:start", this._updatePlayerButtons, this);
             utils.observer.subscribe("view.animation:stop", this._updatePlayerButtons, this);
             utils.observer.subscribe("loading", this.showLoading, this);
@@ -644,21 +647,6 @@ define([
                 ]));
         };
 
-        this.showTraceroute = function(traceroute){
-            var textualContent;
-
-            textualContent = "Traceroute to ";
-            textualContent += (traceroute.target.reverseDns)
-                ? traceroute.target.reverseDns.complete + " (" + traceroute.target.ip + ")"
-                : traceroute.target.ip;
-            textualContent += ", " + traceroute.measurement.maxHopsAllowed + " hops max, " + traceroute.measurement.packetSize + " byte packets\n";
-
-            textualContent += traceroute.toString();
-            this.tracerouteDivDom.show();
-            this.tracerouteDivDom.find("textarea")
-                .text(textualContent);
-        };
-
         this.showMessage = function(show, message, options){
             options = options || {};
             options.timeout = options.timeout || Infinity;
@@ -669,7 +657,7 @@ define([
                     $this.showMessage(false);
                 }, Math.min(config.maxMessageTimeoutSeconds, options.timeout) * 1000);
 
-                if (!this.dom.errorMessage.is(":visible") || !options.isLoading){ // the loading message doesn;t have to overwrite the error
+                if (!this.dom.errorMessage.is(":visible") || !options.isLoading){ // the loading message doesn't have to overwrite the error
                     this.dom.errorMessage.text(message).show();
                 }
 
@@ -734,6 +722,18 @@ define([
             var modalDom, modalConfig, host;
 
             switch (type){
+                case "show-traceroute":
+                    modalConfig = {
+                        title: "Traceroute output",
+                        content: {
+                            output: target.toString(),
+                            traceroute: target
+                        },
+                        class: "show-traceroute"
+                    };
+                    modalDom = modalTraceroute(modalConfig);
+                    $this._appendModal($(modalDom));
+                    break;
                 case "update-location":
                     var reverseDns;
 

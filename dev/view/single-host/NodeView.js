@@ -216,7 +216,10 @@ define([
                 }
 
                 links.whois = config.externalLinks.whois.replace("0000", asObj.id);
-                links.peeringDb = config.externalLinks.peeringDb.replace("0000", asObj.id);
+            }
+
+            if (this.model.isIxp){
+                links.peeringDb = config.externalLinks.peeringDb.replace("0000", this.model.ixp.peeringDbId);
             }
 
             templatingParams = {

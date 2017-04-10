@@ -166,7 +166,7 @@ define([
                 .append("g")
                 .attr("class", "warnings");
 
-            svgHeight = Math.max(this.svg.style("height").replace("px", ""), maxLengthTraceroute * config.graph.verticalNodeDistance);
+            svgHeight = Math.max(this.svg.style("height").replace("px", ""), (maxLengthTraceroute * config.graph.verticalNodeDistance));
             this.svg.style("height", svgHeight + "px");
 
             this.graph.initGraph(

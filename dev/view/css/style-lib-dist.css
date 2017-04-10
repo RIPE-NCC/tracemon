@@ -242,7 +242,7 @@
 }
 .tracemon-container .tracemon-svg {
   width: 100%;
-  height: 200px;
+  height: 460px;
   background-image: url('../img/tracemon_watermark.svg');
   background-repeat: no-repeat;
   background-position: 10px 10px;
@@ -501,6 +501,10 @@
 }
 .tracemon-container .legend_latencymon span {
   margin-right: 10px;
+}
+.tracemon-container .show-traceroute .modal-content {
+  width: 850px!important;
+  margin-left: -125px;
 }
 .tracemon-container .traceroute-text {
   width: 98%;
