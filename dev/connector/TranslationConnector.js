@@ -365,7 +365,7 @@ define([
                             } else {
                                 targetHost = $this._createHost(data["target_ip"], data["target"], -1, null, null, data["target_location"]);
                                 targetHost.isTarget = true;
-                                measurement = new Measurement(measurementId, targetHost);
+                                measurement = new Measurement(measurementId, targetHost, data["native_sampling"]);
 
                                 // Extra information
                                 extra = data["extra"] || {};
@@ -379,7 +379,6 @@ define([
 
                                 measurement.startDate = moment.unix(data["start_time"]).utc();
                                 measurement.stopDate = (data["stop_time"]) ? moment.unix(data["stop_time"]).utc() : null;
-                                measurement.interval = data["native_sampling"];
                                 $this.measurementById[measurement.id] = measurement;
 
                                 $this.getProbesInfo(measurement.id)

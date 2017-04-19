@@ -57,7 +57,9 @@ define([], function(){
         defaultLoadedPeriod: 10, // Multiple of measurement interval
         maximumLoadedPeriod: 120, // Multiple of measurement interval
         defaultNumberOfDisplayedSources: 8,
-        maxAllowedSources: 10,
+        maxAllowedSources: 20,
+        minimumTracerouteValiditySeconds: 60 * 3,
+        oneOffInterval: 60 * 10, // 10 minutes
 
         startWithLastStatus: true,
         filterLateAnswers: true,

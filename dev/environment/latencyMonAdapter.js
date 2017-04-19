@@ -80,48 +80,56 @@ define([
         };
 
         this.init = function(whereClass, measurements, probes){
-            if (this.enabled){
-                this.measurementId = measurements.join("-");
-                this.instance = initLatencymon(
-                    whereClass,
-                    {
-                        dev: env.dev,
-                        onlyChartMode: true,
-                        autoStart: true,
-                        showMinimumByDefault: true,
-                        onTimeRangeChange: function(start, stop){
-                            env.main.setTimeRange(moment(start).unix(), moment(stop).unix())
-                        },
-                        onTimeSelection: function (date) {
-                            env.historyManager.setCurrentInstant(moment(date));
-                        },
-                        autoStartGrouping: true,
-                        permalinkEnabled: false
-                    }, {
-                        startTimestamp: env.finalQueryParams.startDate.unix(),
-                        stopTimestamp: env.finalQueryParams.stopDate.unix(),
-                        measurements: measurements,
-                        dataFilter: "natural",
-                        externalTimeCursor: env.finalQueryParams.instant.utc().unix(),
-                        mergedMeasurements: [measurements],
-                        groups: [{
-                            measurementId: this.measurementId,
-                            probes: $.map(probes, function(probe){return parseInt(probe);}),
-                            id: "all",
-                            type: "multi-probes"
-                        }]
+            if (!env.metaData.onlyOneOff) {
+                if (this.enabled) {
+                    this.measurementId = measurements.join("-");
+                    this.instance = initLatencymon(
+                        whereClass,
+                        {
+                            dev: env.dev,
+                            onlyChartMode: true,
+                            autoStart: true,
+                            showMinimumByDefault: true,
+                            onTimeRangeChange: function (start, stop) {
+                                env.main.setTimeRange(moment(start).unix(), moment(stop).unix())
+                            },
+                            onTimeSelection: function (date) {
+                                env.historyManager.setCurrentInstant(moment(date).add(2, "hours"));
+                            },
+                            autoStartGrouping: true,
+                            permalinkEnabled: false
+                        }, {
+                            startTimestamp: env.finalQueryParams.startDate.unix(),
+                            stopTimestamp: env.finalQueryParams.stopDate.unix(),
+                            measurements: measurements,
+                            dataFilter: "natural",
+                            externalTimeCursor: env.finalQueryParams.instant.utc().unix(),
+                            mergedMeasurements: [measurements],
+                            groups: [{
+                                measurementId: this.measurementId,
+                                probes: $.map(probes, function (probe) {
+                                    return parseInt(probe);
+                                }),
+                                id: "all",
+                                type: "multi-probes"
+                            }]
+                        });
+
+                } else {
+                    utils.observer.publish("error", {
+                        type: 603,
+                        message: config.errors[603]
                     });
-
+                }
             } else {
-
-                utils.observer.publish("error", {
-                    type: 603,
-                    message: config.errors[603]
-                });
+                this.remove(whereClass);
             }
-
         };
 
+        this.remove = function (whereClass) {
+            env.parentDom.find(whereClass).add(".legend_latencymon").remove();
+        };
+        
         this.setListeners();
     };
 

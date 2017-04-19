@@ -1,16 +1,16 @@
 define([
-    "tracemon.lib.moment",
-    "tracemon.lib.jquery-amd"
-], function(moment, $) {
+    "tracemon.env.config"
+], function(config) {
 
-    var Measurement = function (id, target) {
+    var Measurement = function (id, target, interval) {
         this.id = id;
         this._traceroutes = [];
         this._traceroutesBySource = {};
         this.target = target;
         this.sources = {};
-        this.interval = null;
+        this.interval = interval;
         this._longestTraceroute = null;
+        this.isOneOff = (interval === null);
     };
 
     Measurement.prototype.empty = function(){
@@ -100,10 +100,10 @@ define([
         for (var source in currentTraceroutes){
             traceroute = currentTraceroutes[source];
 
-            if (traceroute.validUpTo) {
-                validUpTo = moment(traceroute.validUpTo).add(this.interval, "seconds").utc();
+            if (!this.isOneOff && traceroute.validUpTo) {
+                validUpTo = traceroute.validUpTo.unix() + Math.max(this.interval, config.minimumTracerouteValiditySeconds);
 
-                if (validUpTo.isBefore(date)) {
+                if (validUpTo < date.unix()) {
                     delete currentTraceroutes[source];
                 }
             }

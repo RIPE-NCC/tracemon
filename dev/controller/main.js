@@ -64,7 +64,7 @@ define([
         };
 
         this._updateFinalQueryParams = function () {
-            var initialParams, startDate, stopDate, sourcesAmount, instant, currentTimestamp, maximumTimeRangePossible;
+            var initialParams, startDate, stopDate, sourcesAmount, instant, currentTimestamp;
 
             if (Object.keys(env.loadedMeasurements).length > 0) {
 
@@ -129,7 +129,7 @@ define([
         };
 
         this._updateMetaData = function(){
-            var measurement, longestTraceroute, longestTracerouteTmp;
+            var measurement, longestTraceroute, longestTracerouteTmp, measurementInterval;
 
             longestTraceroute = null;
             for (var msmId in env.loadedMeasurements){
@@ -140,6 +140,7 @@ define([
                         ? longestTraceroute
                         : longestTracerouteTmp) || 0;
 
+                measurementInterval = (measurement.isOneOff) ? config.oneOffInterval : measurement.interval;
                 env.metaData = {
                     startDate: (env.metaData.startDate) ?
                         moment.min(measurement.startDate, env.metaData.startDate) :
@@ -147,10 +148,12 @@ define([
                     stopDate: (measurement.stopDate && env.metaData.stopDate) ?
                         moment.max(measurement.stopDate, env.metaData.stopDate) : measurement.stopDate || null, // Null if no measurements have a stopDate
                     longestTraceroute: longestTraceroute,
-                    intervalMax: (!env.metaData.interval) ? measurement.interval : Math.max(measurement.interval, env.metaData.interval),
-                    intervalMin: (!env.metaData.interval) ? measurement.interval : Math.min(measurement.interval, env.metaData.interval),
-                    interval: (!env.metaData.interval) ? measurement.interval : Math.min(measurement.interval, env.metaData.interval)
+                    intervalMax: (!env.metaData.interval) ? measurementInterval : Math.max(measurementInterval, env.metaData.interval),
+                    intervalMin: (!env.metaData.interval) ? measurementInterval : Math.min(measurementInterval, env.metaData.interval),
+                    interval: (!env.metaData.interval) ? measurementInterval : Math.min(measurementInterval, env.metaData.interval),
+                    onlyOneOff: measurement.isOneOff || env.metaData.onlyOneOff
                 };
+
             }
 
         };
