@@ -64,8 +64,9 @@ define([
         };
 
         this._updateFinalQueryParams = function () {
-            var initialParams, startDate, stopDate, sourcesAmount, instant, currentTimestamp;
+            var initialParams, startDate, stopDate, sourcesAmount, instant, currentTimestamp, now;
 
+            now = moment().utc();
             if (Object.keys(env.loadedMeasurements).length > 0) {
 
                 initialParams = JSON.parse(JSON.stringify(env.queryParams));
@@ -74,9 +75,13 @@ define([
                 if (initialParams.stopTimestamp){
                     stopDate = moment.unix(initialParams.stopTimestamp).utc()
                 } else if (env.metaData.stopDate){
-                    stopDate = moment(env.metaData.stopDate);
+                    if (env.metaData.stopDate.isAfter(now)){
+                        stopDate = moment(now); // stopDate cannot be more than now
+                    } else {
+                        stopDate = moment(env.metaData.stopDate);
+                    }
                 } else {
-                    currentTimestamp = moment().utc().unix();
+                    currentTimestamp = now.unix();
                     stopDate = moment.unix(parseInt(currentTimestamp / config.defaultTimeRangeGranularity) * config.defaultTimeRangeGranularity).utc();
                 }
 
@@ -329,12 +334,32 @@ define([
             utils.observer.publish("model.measurement:remove", msmId);
         };
 
+        this._validateConfiguration = function(conf){
+            if ((conf.startTimestamp && !conf.stopTimestamp) || (!conf.startTimestamp && conf.stopTimestamp)){
+                throw "500n";
+            } else {
+                if (conf.startTimestamp > conf.stopTimestamp) {
+                    throw "500t";
+                }
+            }
+        };
+
         this.applyConfiguration = function(conf){
+
+            try {
+                this._validateConfiguration(conf)
+            } catch(error){
+                var errorObj = { type: error, message: config.errors[error] };
+                utils.observer.publish("error", errorObj);
+                console.log(errorObj);
+                return;
+            }
+
             env.queryParams = conf;
 
-            this.addMeasurements(env.queryParams.measurements, function(){
+            this.addMeasurements(env.queryParams.measurements, function () {
                 $this._updateFinalQueryParams();
-                $this.updateData(function(){
+                $this.updateData(function () {
                     env.historyManager.getCurrentState();
                 });
             });
@@ -428,7 +453,7 @@ define([
         this.persistLog = function(log){
             env.connector.persistLog("external", log);
         };
-        
+
         this.getSvg = function(){
             return env.mainView.getSvg();
         }

@@ -118,6 +118,8 @@ define([], function(){
             "405": "The probe cannot be found",
             "406": "The measurement added is not a traceroute",
             "408": "The requested data query timed out",
+            "500t": "The startTimestamp cannot be after the stopTimestamp",
+            "500n": "Both startTimestamp and stopTimestamp have to be specified or none of them",
             "501": "The resourse type cannot be geolocated",
             "502": "The resourse type cannot be persisted",
             "506": "The selected instant is out of the selected time range",
