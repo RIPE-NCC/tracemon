@@ -20,10 +20,11 @@ https://atlas.ripe.net/docs/tools-tracemon/
 </script>
 ```
 # Acknowledgments
-If you are using TraceMON ---or an image of the tool--- on your website, blog, social network, include a link "About TraceMON" or "TraceMON" pointing to this url: https://labs.ripe.net/Members/massimo_candela/tracemon-traceroute-visualisation-network-debugging-tool
+If you are using TraceMON -or an image of the tool- on your website, blog, social network, include a link "About TraceMON" or "TraceMON" pointing to this url: https://labs.ripe.net/Members/massimo_candela/tracemon-traceroute-visualisation-network-debugging-tool
 
 Usually this notice is added by the widget itself. If you have a version of the code that doesn't do that, add it manually.
 
 Please, always refer to the tool with the correct name of TraceMON.
 
 If you are sharing a link to a TraceMON instance or an image of the tool on a social media, add the tag #TraceMON
+The watermark of TraceMON and RIPE Atlas must be always be visible.
