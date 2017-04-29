@@ -113,13 +113,19 @@ define([
 
             if (this.model.isIxp){
                 classes.push("ixp");
-            } else if (this.model.isProbe) {
+            }
+
+            if (this.model.isProbe) {
                 classes.push("source");
-            } else if (this.model.isPrivate) {
+            }
+
+            if (this.model.isPrivate) {
                 classes.push("private");
-            } else if (this.model.isTarget) {
+            }
+            if (this.model.isTarget) {
                 classes.push("target");
-            } else if (!this.model.ip) {
+            }
+            if (!this.model.ip) {
                 classes.push("null");
             }
 
