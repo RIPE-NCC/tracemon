@@ -14,11 +14,13 @@ https://atlas.ripe.net/docs/tools-tracemon/
 <script>
     initTracemon(
         '#place-here',
-        {}, // Tool options, see table below for more info
-        { measurements:[6932659, 4471092] } // Query options, see table below for more info
+        {},
+        { measurements:[6932659, 4471092] }
         );
 </script>
 ```
+See documentation for more info
+
 # Acknowledgments
 If you are using TraceMON -or an image of the tool- on your website, include a link "About TraceMON" or "TraceMON" pointing to this url: https://labs.ripe.net/Members/massimo_candela/tracemon-traceroute-visualisation-network-debugging-tool
 
