@@ -121,7 +121,8 @@ define([
                     timeout: config.ajaxTimeout,
                     url: env.dataApiGeolocation,
                     data: {
-                        resource: ip
+                        resource: ip,
+                        resources: ip
                     },
                     error: function () {
                         utils.observer.publish("error", {

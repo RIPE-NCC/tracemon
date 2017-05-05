@@ -137,6 +137,11 @@
   stroke: #d46c18;
   stroke-width: 2px;
 }
+.tracemon-container .node.source.target {
+  fill: #90d272;
+  stroke: #d46c18;
+  stroke-width: 2px;
+}
 .tracemon-container .node-error {
   color: red;
 }
