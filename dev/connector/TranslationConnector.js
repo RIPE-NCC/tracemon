@@ -483,14 +483,16 @@ define([
                     var geolocation, geolocRaw;
 
                     geolocRaw = data[host.ip];
-                    
-                    // Format for suggestor API
-                    geolocation = {
-                        city: geolocRaw.attributes["cityName"],
-                        countryCode: geolocRaw.attributes["countryCode"],
-                        id: geolocRaw["id"],
-                        type: geolocRaw["type"]
-                    };
+
+                    if (geolocRaw) {
+                        // Format for suggestor API
+                        geolocation = {
+                            city: geolocRaw.attributes["cityName"],
+                            countryCode: geolocRaw.attributes["countryCode"],
+                            id: geolocRaw["id"],
+                            type: geolocRaw["type"]
+                        };
+                    }
 
                     // Format for RIPEstat
                     if (data && data["data"] && data["data"]["locations"] && data["data"]["locations"][0]) {
