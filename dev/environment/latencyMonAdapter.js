@@ -94,7 +94,7 @@ define([
                                 env.main.setTimeRange(moment(start).unix(), moment(stop).unix())
                             },
                             onTimeSelection: function (date) {
-                                env.historyManager.setCurrentInstant(moment(date).add(2, "hours"));
+                                env.historyManager.setCurrentInstant(moment(date));
                             },
                             autoStartGrouping: true,
                             permalinkEnabled: false

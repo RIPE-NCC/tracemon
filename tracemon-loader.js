@@ -168,7 +168,7 @@ define([
         }
 
         env = {
-            "version": "17.5.5.2",
+            "version": "17.6.29.2",
             "dev": instanceParams.dev,
             "widgetUrl": TRACEMON_WIDGET_URL + "dev/",
             "autoStart": (instanceParams.autoStart != undefined) ? instanceParams.autoStart : config.autoStart,
