@@ -43,6 +43,10 @@ define([
         }
     };
 
+    Measurement.prototype.getTraceroutesBySource = function(sourceId){
+        return this._traceroutesBySource[sourceId];
+    };
+
     Measurement.prototype._createIndex = function(list){
         this._traceroutesBySource = {};
         this._updateIndex(list);
