@@ -18,6 +18,8 @@ define([
         if (this.ip) {
             this.isPrivate = utils.isPrivateIp(ip);
         }
+
+        this.isEditable = (!this.isPrivate && !this.isProbe && this.ip);
     };
 
     Host.prototype.setProbeId = function(probeId) {

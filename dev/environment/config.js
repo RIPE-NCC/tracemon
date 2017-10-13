@@ -14,10 +14,11 @@ define([], function(){
             dataApiAsAnnotation: "https://massimo.ripe.net/tracemon/as_lookup.php",
             dataApiReverseDns: "https://stat.ripe.net/data/reverse-dns-ip/data.json",
             // dataApiGeolocation: "https://stat.ripe.net/data/geoloc/data.json",
-            dataApiGeolocation: "https://massimo.ripe.net/node/locate",
+            // dataApiGeolocation: "https://massimo.ripe.net/node/locate",
+            dataApiGeolocation: "https://geo.ripe.net/locate/all/",
             dataApiAsnNeighbours: "https://stat.ripe.net/data/asn-neighbours/data.json",
             shortAsNamesApi: "https://massimo.ripe.net/tracemon/short_names.php",
-            persistHostApi: "https://massimo.ripe.net/tracemon/persist_host.php",
+            persistHostApi: "https://geo.ripe.net/crowdsource/0000",
             storageLogRestApiUrl: "//massimo.ripe.net/tracemon/widget_log.php",
             storageErrorRestApiUrl: "//massimo.ripe.net/tracemon/widget_log.php",
             ripeDatabase: {
@@ -68,7 +69,7 @@ define([], function(){
         premptiveReverseDns: true,
         preloadGeolocations: false, // Requests the geolocations at boot with together with the results
         sendErrors: false,
-        persistLocations: false,
+        persistLocations: true,
         logAppTag: "tracemon",
 
         lateReportedResults: 200, // seconds of validity for a late reported result

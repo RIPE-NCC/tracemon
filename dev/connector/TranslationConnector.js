@@ -487,11 +487,16 @@ define([
                     if (geolocRaw) {
                         // Format for suggestor API
                         geolocation = {
-                            city: geolocRaw.attributes["cityName"],
-                            countryCode: geolocRaw.attributes["countryCode"],
+                            city: geolocRaw["cityName"] || geolocRaw.attributes["cityName"],
+                            countryCode: geolocRaw["countryCodeAlpha2"] || geolocRaw.attributes["countryCode"],
                             id: geolocRaw["id"],
-                            type: geolocRaw["type"]
+                            type: geolocRaw["type"],
+                            score: geolocRaw["score"]
                         };
+
+                        if (geolocation.score > 90){
+                            host.isEditable = false;
+                        }
                     }
 
                     // Format for RIPEstat

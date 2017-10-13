@@ -17,21 +17,19 @@ define([
             var location = host.getLocation();
 
             return {
-                id: host.ip,
-                geo_city: location.city,
-                geo_cc: location.countryCode,
-                geo_id: location.id,
-                geo_type: location.type,
-                data: moment().utc().unix()
+                id: location.id,
+                type: location.type,
+                cityName: location.city,
+                country: location.countryCode
             };
         };
 
         this.persist = function(host){
-            if (!host.isPrivate && host.ip) {
+            if (host.isEditable) {
 
                 return $.ajax({
                     type: "POST",
-                    url: env.persistHostApi,
+                    url: env.persistHostApi.replace("0000", host.ip),
                     data: this._serializeHost(host),
                     dataType: "json"
                 });
