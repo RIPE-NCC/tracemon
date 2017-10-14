@@ -98,10 +98,6 @@
         "tracemon.connector.log.persist": "dev/connector/log/LogRestConnector",
         "tracemon.connector.ripe-database": "dev/connector/RipeDatabaseConnector",
 
-
-        /* PeeringDB cache - Remove when we have API*/
-        "tracemon.connector.local.peering-db": "dev/connector/local/peeringDb",
-
     },
     shim:{
 
