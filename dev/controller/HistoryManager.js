@@ -161,7 +161,6 @@ define([
         this._getStateAt = function(date){
             var out, newQuery;
 
-            console.log(date.unix());
             newQuery = {
                 instant: moment(date),
                 sources: utils.clone(env.finalQueryParams.sources)

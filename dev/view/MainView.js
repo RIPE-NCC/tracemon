@@ -101,7 +101,6 @@ define([
         this._firstDraw = function(newStatus){
             var diff, maxLengthTraceroute;
 
-            console.log(newStatus);
             diff = this._computeDiff(this._oldStatus, newStatus);
 
             if (diff.status.length > 0) { // Something to draw

@@ -19,7 +19,10 @@ define([
         ripeDatabaseConnector = new RipeDatabaseConnector(env);
         logConnector = new LogRestConnector(env);
         cache = {
-            geoRequests: {}
+            geoRequests: {},
+            reversDns: {},
+            asnLookup: {},
+            triangulated: {}
         };
 
         if (env.sendErrors) {
@@ -112,41 +115,46 @@ define([
         this.getAutonomousSystem = function(ip){
             var deferredCall;
 
-            deferredCall = $.Deferred();
+            if (!cache.asnLookup[ip]) {
+                deferredCall = $.Deferred();
 
-            translateConnector.getAutonomousSystem(ip)
-                .done(function (data) {
-
-                    deferredCall.resolve(data);
-                })
-                .fail(function(error){
-                    $this._handleError(error);
-                });
-
-            return deferredCall.promise();
-        };
-
-        this.getHostReverseDns = function(host){
-            var deferredCall;
-
-            deferredCall = $.Deferred();
-
-
-            if (host.isPrivate || !host.ip) {
-                deferredCall.resolve(null);
-            } else if (host.reverseDns){
-                deferredCall.resolve(host.reverseDns);
-            } else {
-                translateConnector.getHostReverseDns(host)
+                translateConnector.getAutonomousSystem(ip)
                     .done(function (data) {
+
                         deferredCall.resolve(data);
                     })
-                    .fail(function(error){
+                    .fail(function (error) {
                         $this._handleError(error);
                     });
+                cache.asnLookup[ip] = deferredCall.promise();
             }
 
-            return deferredCall.promise();
+            return cache.asnLookup[ip];
+        };
+
+        this.getHostReverseDns = function(host) {
+            var deferredCall;
+
+            if (!cache.reversDns[host.ip]) {
+
+                deferredCall = $.Deferred();
+                if (host.isPrivate || !host.ip) {
+                    deferredCall.resolve(null);
+                } else if (host.reverseDns) {
+                    deferredCall.resolve(host.reverseDns);
+                } else {
+                    translateConnector.getHostReverseDns(host)
+                        .done(function (data) {
+                            deferredCall.resolve(data);
+                        })
+                        .fail(function (error) {
+                            $this._handleError(error);
+                        });
+                }
+                cache.reversDns[host.ip] = deferredCall.promise();
+            }
+
+            return cache.reversDns[host.ip];
         };
 
         this.getGeolocation = function(host){
@@ -159,6 +167,7 @@ define([
             if (cache.geoRequests[host.ip]){
                 return cache.geoRequests[host.ip];
             } else {
+
                 deferredCall = $.Deferred();
 
                 if (host.getLocation()) {
@@ -166,6 +175,14 @@ define([
                 } else {
                     translateConnector.getGeolocation(host)
                         .done(function (data) {
+                            if (!data && !cache.triangulated[host.ip]){
+                                // Try to locate the ip in a couple of minutes (try only once)
+                                setTimeout(function () {
+                                    cache.triangulated[host.ip] = true; // try once
+                                    delete cache.geoRequests[host.ip];
+                                    $this.getGeolocation(host);
+                                }, config.retryGeolocationAfter);
+                            }
                             deferredCall.resolve(data);
                         })
                         .fail(function(error){

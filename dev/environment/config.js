@@ -29,7 +29,7 @@ define([], function(){
             abuseContactRestApi: "https://stat.ripe.net/data/abuse-contact-finder/data.json",
             peeringDb: {
                 lans: "http://localhost/peering_db.php?type=ixlan",
-                ixps: "http://localhost/peering_db.php?type=ix",
+                ixps: "https://geo.ripe.net/peeringdb/ixps",
                 prefixes: "http://localhost/peering_db.php?type=ixpfx"
             }
         },
@@ -51,6 +51,8 @@ define([], function(){
         maxNumberHops: 8,
         realTimeUpdate: true,
         eventGroupingAntiFlood: 800,
+        queryGroupingAntiFlood: 300,
+        maxBundledQueries: 10,
         templatesLocation: "dev/view/html/",
         defaultLabelLevel: "auto",
         ajaxTimeout: 120000,
@@ -62,6 +64,7 @@ define([], function(){
         maxAllowedSources: 20,
         minimumTracerouteValiditySeconds: 60 * 3,
         oneOffInterval: 60 * 10, // 10 minutes
+        retryGeolocationAfter: 1000 * 60 * 3 + 10000,
 
         startWithLastStatus: true,
         filterLateAnswers: true,

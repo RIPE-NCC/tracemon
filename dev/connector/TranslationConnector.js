@@ -54,7 +54,7 @@ define([
         this.asList = {};
         this.geolocations = {};
         this.hostByProbeId = {};
-        
+
         liveConnector = new LiveConnector(env);
 
         this.getHosts = function(){
@@ -91,28 +91,30 @@ define([
 
             peeringDbConnector
                 .checkIxp(host.ip) // check if this is an Ixp
-                .done(function(ixp) {
-                    if (ixp !== false){
+                .done(function(match) {
+                    var ixp;
+
+                    if (match){
+                        ixp = match.ixp;
+
                         host.isIxp = true;
                         host.ixp = {
-                            peeringDbId: ixp.lan.ixp.id,
-                            name: ixp.lan.ixp.name,
-                            country: ixp.lan.ixp.country,
-                            city: ixp.lan.ixp.city,
-                            prefix: ixp.prefix,
-                            protocol: ixp.protocol,
+                            peeringDbId: ixp["id"],
+                            name: ixp["name"],
+                            country: ixp["country"],
+                            city: ixp["city"],
+                            prefix: match["lan"],
                             extra: { // These are optional
-                                longName: ixp.lan.ixp.name_long,
-                                description: ixp.lan.ixp.descr,
-                                orgId: ixp.lan.ixp.org_id,
-                                website: ixp.lan.ixp.website,
-                                techPhone: ixp.lan.ixp.tech_phone,
-                                techEmail: ixp.lan.ixp.tech_email,
-                                policyEmail: ixp.lan.ixp.policy_email,
-                                policyPhone: ixp.lan.ixp.policy_phone,
-                                region: ixp.lan.ixp.region_continent,
-                                ipv6Support: ixp.lan.ixp.proto_ipv6,
-                                multicastSupport: ixp.lan.ixp.proto_multicast
+                                longName: ixp["name_long"],
+                                orgId: ixp["org_id"],
+                                website: ixp["website"],
+                                techPhone: ixp["tech_phone"],
+                                techEmail: ixp["tech_email"],
+                                policyEmail: ixp["policy_email"],
+                                policyPhone: ixp["policy_phone"],
+                                region: ixp["region_continent"],
+                                ipv6Support: ixp["proto_ipv6"],
+                                multicastSupport: ixp["proto_multicast"]
                             }
                         };
                         utils.observer.publish("model.host:change", host);
@@ -120,6 +122,41 @@ define([
                 });
 
         };
+
+
+        // this._enrichIXP = function(host){
+        //
+        //     peeringDbConnector
+        //         .checkIxp(host.ip) // check if this is an Ixp
+        //         .done(function(ixp) {
+        //             if (ixp !== false){
+        //                 host.isIxp = true;
+        //                 host.ixp = {
+        //                     peeringDbId: ixp.lan.ixp.id,
+        //                     name: ixp.lan.ixp.name,
+        //                     country: ixp.lan.ixp.country,
+        //                     city: ixp.lan.ixp.city,
+        //                     prefix: ixp.prefix,
+        //                     protocol: ixp.protocol,
+        //                     extra: { // These are optional
+        //                         longName: ixp.lan.ixp.name_long,
+        //                         description: ixp.lan.ixp.descr,
+        //                         orgId: ixp.lan.ixp.org_id,
+        //                         website: ixp.lan.ixp.website,
+        //                         techPhone: ixp.lan.ixp.tech_phone,
+        //                         techEmail: ixp.lan.ixp.tech_email,
+        //                         policyEmail: ixp.lan.ixp.policy_email,
+        //                         policyPhone: ixp.lan.ixp.policy_phone,
+        //                         region: ixp.lan.ixp.region_continent,
+        //                         ipv6Support: ixp.lan.ixp.proto_ipv6,
+        //                         multicastSupport: ixp.lan.ixp.proto_multicast
+        //                     }
+        //                 };
+        //                 utils.observer.publish("model.host:change", host);
+        //             }
+        //         });
+        //
+        // };
 
         /* Issue: Sometimes the same IP appears twice on the traceroute due to...(BGP conversion, traceroute anomalities)
          * this creates cycles destroying the layout.
@@ -245,7 +282,7 @@ define([
 
             host = this.hostByIp[address];
 
-            update = host && address;
+            update = host && address && true;
 
             if (!update) {
                 host = new Host(address);
@@ -272,14 +309,14 @@ define([
                         host.setLocation(this._recoverHostLocation(hostGeolocation), true); // We have a geolocation
                     }
                 } else if (config.premptiveGeolocation) {
-                    this.getGeolocation(host);
+                    env.connector.getGeolocation(host);
                 }
 
                 if (config.premptiveReverseDns) {
-                    this.getHostReverseDns(host);
+                    env.connector.getHostReverseDns(host);
                 }
 
-                if (asn != null) {
+                if (!update && asn != null) {
                     asnLookupConnector.enrich(host, this.asList[asn]);
                 }
 
@@ -478,37 +515,26 @@ define([
 
             deferredCall = $.Deferred();
 
-            historyConnector.getGeolocation(host.ip)
-                .done(function (data) {
-                    var geolocation, geolocRaw;
-
-                    geolocRaw = data[host.ip];
+            historyConnector
+                .getGeolocation(host.ip)
+                .done(function (geolocRaw) {
+                    var geolocation;
 
                     if (geolocRaw) {
                         // Format for suggestor API
                         geolocation = {
-                            city: geolocRaw["cityName"] || geolocRaw.attributes["cityName"],
-                            countryCode: geolocRaw["countryCodeAlpha2"] || geolocRaw.attributes["countryCode"],
+                            city: geolocRaw["cityName"],
+                            countryCode: geolocRaw["countryCodeAlpha2"],
                             id: geolocRaw["id"],
                             type: geolocRaw["type"],
                             score: geolocRaw["score"]
                         };
 
-                        if (geolocation.score > 90){
+                        if (geolocation.score > 90) {
                             host.isEditable = false;
                         }
                     }
 
-                    // Format for RIPEstat
-                    if (data && data["data"] && data["data"]["locations"] && data["data"]["locations"][0]) {
-                        geolocRaw = data["data"]["locations"][0];
-                        geolocation = {
-                            city: geolocRaw["city"],
-                            countryCode: geolocRaw["country"],
-                            id: geolocRaw["id"],
-                            type: geolocRaw["type"]
-                        };
-                    }
 
                     $this.geolocByIp[host.ip] = geolocation;
                     host.setLocation(geolocation, true);
@@ -562,9 +588,9 @@ define([
         this.getProbeInfo = function(probeId){
             return $this.probesById[probeId];
         };
-        
+
         this.getSourceHosts = function () {
-          return this.hostByProbeId;  
+            return this.hostByProbeId;
         };
 
         this.getProbesInfo = function(measurementId){

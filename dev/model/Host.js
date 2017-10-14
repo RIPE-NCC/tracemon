@@ -19,12 +19,13 @@ define([
             this.isPrivate = utils.isPrivateIp(ip);
         }
 
-        this.isEditable = (!this.isPrivate && !this.isProbe && this.ip);
+        this.isEditable = (!this.isPrivate && !this.isProbe && this.ip && true);
     };
 
     Host.prototype.setProbeId = function(probeId) {
         this.isProbe = true;
         this.probeId = probeId;
+        this.isEditable = (!this.isPrivate && !this.isProbe && this.ip && true);
     };
 
 

@@ -13,11 +13,15 @@ define([
 ], function(config, utils, $, prefixUtils, localCache) {
 
     var PeeringDbConnector = function (env) {
-        var $this, index, cache, oldDeferredCall;
+        var $this, index, cache, oldDeferredCall, callsBundler;
 
         $this = this;
         index = null;
         cache = {};
+        callsBundler = {
+            queries: {},
+            timer: null
+        };
         oldDeferredCall = null;
 
         this._createPrefixIndex = function(ixps, lans, prefixes){
@@ -83,28 +87,53 @@ define([
 
 
         this.checkIxp = function (ip) {
-            var deferredCall;
+            var deferredCall, realCall;
 
-            deferredCall = $.Deferred();
+            realCall = function(queries){
+                var ips = Object.keys(queries);
+                $this.getIxpFromApi(ips)
+                    .done(function(ixps){
+                        if (ixps.data) {
+                            ips.forEach(function (ip) {
+                                queries[ip].resolve(ixps.data[ip]);
+                            });
+                        }
+                    });
+            };
 
+            if (!cache[ip]){
 
-            if (cache[ip]){
-                deferredCall.resolve(cache[ip]);
-            } else {
-                if (!index) {
-                    this.createIndex()
-                        .done(function (newIndex) {
-                            index = newIndex;
-                            deferredCall.resolve($this.searchOnIndex(ip));
-                        });
+                deferredCall = $.Deferred();
+                cache[ip] = deferredCall.promise();
+                callsBundler.queries[ip] =  deferredCall;
+                clearTimeout(callsBundler.timer);
+
+                if (Object.keys(callsBundler.queries).length < config.maxBundledQueries) {
+                    callsBundler.timer = setTimeout(function () {
+                        realCall(callsBundler.queries);
+                        callsBundler.queries = {};
+                    }, config.queryGroupingAntiFlood);
                 } else {
-                    deferredCall.resolve($this.searchOnIndex(ip));
+                    realCall(callsBundler.queries);
+                    callsBundler.queries = {};
                 }
             }
 
-            return deferredCall.promise();
+            return cache[ip];
         };
 
+        this.getIxpFromApi = function (ips) {
+
+            return $.ajax({
+                dataType: "jsonp",
+                cache: false,
+                url: env.peeringDb.ixps,
+                data: {
+                    resources: ips.join(",")
+                }
+            });
+
+        };
 
         this.searchOnIndex = function (ip) {
             var encodedIp;
@@ -112,7 +141,7 @@ define([
             encodedIp = prefixUtils.encodePrefix(ip);
 
             for (var prefix in index){
-                if (encodedIp.indexOf(prefix) == 0) { // It is a ipx
+                if (encodedIp.indexOf(prefix) == 0) { // It is an ixp
                     cache[ip] = index[prefix];
                     return index[prefix];
                 }

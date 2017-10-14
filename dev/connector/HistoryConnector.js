@@ -12,13 +12,17 @@ define([
 ], function(config, utils, $, moment) {
 
     var HistoryConnector = function (env) {
-        var hostsResolutionByIp, geolocByIp, neighboursByAsn, probesInfo, measurementInfo;
+        var hostsResolutionByIp, geolocByIp, neighboursByAsn, probesInfo, measurementInfo, callsBundler;
 
         hostsResolutionByIp = {};
         geolocByIp = {};
         neighboursByAsn = {};
         probesInfo = {};
         measurementInfo = {};
+        callsBundler = {
+            queries: {},
+            timer: null
+        };
 
         this.getMeasurementResults = function (measurementId, options) {
             var queryParams;
@@ -112,29 +116,56 @@ define([
 
 
         this.getGeolocation = function (ip) {
+            var deferredCall, realCall;
 
-            if (!geolocByIp[ip]) {
-                geolocByIp[ip] = $.ajax({
-                    dataType: "jsonp",
-                    cache: false,
-                    async: true,
-                    timeout: config.ajaxTimeout,
-                    url: env.dataApiGeolocation,
-                    data: {
-                        resource: ip,
-                        resources: ip
-                    },
-                    error: function () {
-                        utils.observer.publish("error", {
-                            type: "408",
-                            message: config.errors["408"]
-                        });
-                    }
-                });
+            realCall = function(queries){
+                    var ips = Object.keys(queries);
+
+                    $.ajax({
+                        dataType: "jsonp",
+                        cache: false,
+                        async: true,
+                        timeout: config.ajaxTimeout,
+                        url: env.dataApiGeolocation,
+                        data: {
+                            resources: ips.join(",")
+                        },
+                        error: function () {
+                            utils.observer.publish("error", {
+                                type: "408",
+                                message: config.errors["408"]
+                            });
+                        }
+                    }).done(function(locations){
+                        if (locations.data) {
+                            ips.forEach(function (ip) {
+                                queries[ip].resolve(locations.data[ip]);
+                            });
+                        }
+                    });
+                };
+            
+            if (!geolocByIp[ip]){
+
+                deferredCall = $.Deferred();
+                geolocByIp[ip] = deferredCall.promise();
+                callsBundler.queries[ip] =  deferredCall;
+                clearTimeout(callsBundler.timer);
+
+                if (Object.keys(callsBundler.queries).length < config.maxBundledQueries) {
+                    callsBundler.timer = setTimeout(function () {
+                        realCall(callsBundler.queries);
+                        callsBundler.queries = {};
+                    }, config.queryGroupingAntiFlood);
+                } else {
+                    realCall(callsBundler.queries);
+                    callsBundler.queries = {}; 
+                }
             }
 
             return geolocByIp[ip];
         };
+
 
 
         this.getNeighbours = function (asn) {
