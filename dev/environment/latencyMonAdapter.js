@@ -37,8 +37,10 @@ define([
 
             try {
                 interface = this._getInterface();
-                interface.updateExternalTimeCursor(moment(env.finalQueryParams.instant).unix());
+                var m = moment(env.finalQueryParams.instant);
+                interface.updateExternalTimeCursor(m.unix());
             } catch(e){
+                console.log(e);
             }
         };
 
@@ -94,7 +96,8 @@ define([
                                 env.main.setTimeRange(moment(start).unix(), moment(stop).unix())
                             },
                             onTimeSelection: function (date) {
-                                env.historyManager.setCurrentInstant(moment(date));
+                                var m = moment(date);
+                                env.historyManager.setCurrentInstant(m.add(m.utcOffset(), 'm').utc());
                             },
                             autoStartGrouping: true,
                             permalinkEnabled: false

@@ -122,41 +122,7 @@ define([
                 });
 
         };
-
-
-        // this._enrichIXP = function(host){
-        //
-        //     peeringDbConnector
-        //         .checkIxp(host.ip) // check if this is an Ixp
-        //         .done(function(ixp) {
-        //             if (ixp !== false){
-        //                 host.isIxp = true;
-        //                 host.ixp = {
-        //                     peeringDbId: ixp.lan.ixp.id,
-        //                     name: ixp.lan.ixp.name,
-        //                     country: ixp.lan.ixp.country,
-        //                     city: ixp.lan.ixp.city,
-        //                     prefix: ixp.prefix,
-        //                     protocol: ixp.protocol,
-        //                     extra: { // These are optional
-        //                         longName: ixp.lan.ixp.name_long,
-        //                         description: ixp.lan.ixp.descr,
-        //                         orgId: ixp.lan.ixp.org_id,
-        //                         website: ixp.lan.ixp.website,
-        //                         techPhone: ixp.lan.ixp.tech_phone,
-        //                         techEmail: ixp.lan.ixp.tech_email,
-        //                         policyEmail: ixp.lan.ixp.policy_email,
-        //                         policyPhone: ixp.lan.ixp.policy_phone,
-        //                         region: ixp.lan.ixp.region_continent,
-        //                         ipv6Support: ixp.lan.ixp.proto_ipv6,
-        //                         multicastSupport: ixp.lan.ixp.proto_multicast
-        //                     }
-        //                 };
-        //                 utils.observer.publish("model.host:change", host);
-        //             }
-        //         });
-        //
-        // };
+        
 
         /* Issue: Sometimes the same IP appears twice on the traceroute due to...(BGP conversion, traceroute anomalities)
          * this creates cycles destroying the layout.

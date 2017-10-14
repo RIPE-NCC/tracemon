@@ -40,7 +40,7 @@ define([
         };
 
         this._timestampToDate = function(timestamp){
-            return moment.unix(timestamp);
+            return moment.unix(timestamp).utc();
         };
 
         this._dateToTimestamp = function(date){
@@ -101,6 +101,7 @@ define([
             if (!env.finalQueryParams.instant || env.finalQueryParams.instant.isSame(env.finalQueryParams.stopDate)){
                 env.finalQueryParams.instant = moment(env.finalQueryParams.startDate);
             }
+
             utils.observer.publish("view.animation:start", env.finalQueryParams.instant);
 
             var emulate = function(){

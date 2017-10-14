@@ -40,7 +40,13 @@ define([
 
             instant = env.finalQueryParams.instant;
             if (!instant || instant.isBefore(env.finalQueryParams.startDate) || instant.isAfter(env.finalQueryParams.stopDate)) {
-                env.finalQueryParams.instant = (config.startWithLastStatus) ? env.finalQueryParams.stopDate: env.finalQueryParams.startDate;
+                
+                if (config.startWithLastStatus){
+                    env.finalQueryParams.instant = moment.max(env.finalQueryParams.startDate, moment(env.finalQueryParams.stopDate).subtract(config.instantLeftMargin, "s"));
+                } else {
+                    env.finalQueryParams.instant = env.finalQueryParams.startDate;
+
+                }
             }
         };
 
@@ -66,7 +72,7 @@ define([
         this._updateFinalQueryParams = function () {
             var initialParams, startDate, stopDate, sourcesAmount, instant, currentTimestamp, now;
 
-            now = moment().utc();
+            now = moment.utc();
             if (Object.keys(env.loadedMeasurements).length > 0) {
 
                 initialParams = JSON.parse(JSON.stringify(env.queryParams));
@@ -102,9 +108,7 @@ define([
                 this._updateSelectedSources();
 
             } else {
-
                 utils.observer.publish("error", { type: 507, message: config.errors[507] });
-                return;
             }
         };
 

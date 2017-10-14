@@ -394,7 +394,7 @@ define([
             offsetAlignment = -54;
             timeRange = {
                 startDate: env.metaData.startDate,
-                stopDate: (env.metaData.stopDate) ? env.metaData.stopDate : moment().utc()
+                stopDate: (env.metaData.stopDate) ? env.metaData.stopDate : moment.utc()
             };
 
             if (!blockListeners) {

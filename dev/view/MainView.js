@@ -134,7 +134,6 @@ define([
 
             diff = this._computeDiff(this._oldStatus, newStatus);
 
-            console.log(diff);
             if (diff.status.length > 0) { // Something to update
                 this.view.update(diff, function () {
                     utils.observer.publish("view.graph:change");
