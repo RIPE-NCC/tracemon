@@ -157,7 +157,7 @@ define([
             return cache.reversDns[host.ip];
         };
 
-        this.getGeolocation = function(host){
+        this.getGeolocation = function(host, force){
             var deferredCall;
 
             if (host.isPrivate || !host.ip){
@@ -173,14 +173,14 @@ define([
                 if (host.getLocation()) {
                     deferredCall.resolve(host.getLocation());
                 } else {
-                    translateConnector.getGeolocation(host)
+                    translateConnector.getGeolocation(host, force)
                         .done(function (data) {
-                            if (!data && !cache.triangulated[host.ip]){
+                            if ((!data || data.type == "country") && !cache.triangulated[host.ip]){
                                 // Try to locate the ip in a couple of minutes (try only once)
                                 setTimeout(function () {
                                     cache.triangulated[host.ip] = true; // try once
                                     delete cache.geoRequests[host.ip];
-                                    $this.getGeolocation(host);
+                                    $this.getGeolocation(host, true);
                                 }, config.retryGeolocationAfter);
                             }
                             deferredCall.resolve(data);

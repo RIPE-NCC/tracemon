@@ -65,7 +65,7 @@ define([], function(){
         minimumTracerouteValiditySeconds: 60 * 3,
         instantLeftMargin: 60 * 5, // how much time from the end I load
         oneOffInterval: 60 * 10, // 10 minutes
-        retryGeolocationAfter: 1000 * 60 * 3 + 10000,
+        retryGeolocationAfter: 30000,//1000 * 60 * 3 + 10000,
 
         startWithLastStatus: true,
         filterLateAnswers: true,

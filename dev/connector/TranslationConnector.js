@@ -476,13 +476,13 @@ define([
             return deferredCall.promise();
         };
 
-        this.getGeolocation = function(host){
+        this.getGeolocation = function(host, force){
             var deferredCall;
 
             deferredCall = $.Deferred();
 
             historyConnector
-                .getGeolocation(host.ip)
+                .getGeolocation(host.ip, force)
                 .done(function (geolocRaw) {
                     var geolocation;
 
@@ -500,7 +500,6 @@ define([
                             host.isEditable = false;
                         }
                     }
-
 
                     $this.geolocByIp[host.ip] = geolocation;
                     host.setLocation(geolocation, true);

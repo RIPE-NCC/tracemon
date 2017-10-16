@@ -115,7 +115,7 @@ define([
         };
 
 
-        this.getGeolocation = function (ip) {
+        this.getGeolocation = function (ip, force) {
             var deferredCall, realCall;
 
             realCall = function(queries){
@@ -145,8 +145,7 @@ define([
                     });
                 };
             
-            if (!geolocByIp[ip]){
-
+            if (force || !geolocByIp[ip]){
                 deferredCall = $.Deferred();
                 geolocByIp[ip] = deferredCall.promise();
                 callsBundler.queries[ip] =  deferredCall;
