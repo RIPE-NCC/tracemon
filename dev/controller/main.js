@@ -436,6 +436,7 @@ define([
                 return false;
             }
         };
+        
 
         this.init = function(){
             env.connector = new Connector(env);
@@ -460,8 +461,15 @@ define([
 
         this.getSvg = function(){
             return env.mainView.getSvg();
-        }
+        };
+        
+        this.getHosts = function () {
+            return env.connector.getHosts();
+        };
 
+        this.getHost = function () {
+            return env.connector.getHost()
+        };
     };
 
     return main;
