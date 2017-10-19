@@ -168,7 +168,7 @@ define([
         }
 
         env = {
-            "version": "17.10.16.2",
+            "version": "17.10.18.2",
             "dev": instanceParams.dev,
             "widgetUrl": TRACEMON_WIDGET_URL + "dev/",
             "autoStart": (instanceParams.autoStart != undefined) ? instanceParams.autoStart : config.autoStart,
@@ -212,9 +212,6 @@ define([
                 stopDate: null
             }
         };
-
-        window.env = env; // TEMP: just for debugging
-
 
 
         /*

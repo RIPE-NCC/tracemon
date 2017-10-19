@@ -32,7 +32,7 @@ define([
         this.exposedMethods = ["on", "getMeasurements", "getCurrentState", "addMeasurement", "persist", "getSvg",
             "addMeasurements", "applyConfiguration", "getSelectedSources", "setSelectedSources", "addSelectedSource",
             "getSources", "setTimeRange", "removeMeasurement", "goTo", "init", "getVersion", "updateData",
-            "persistLog"];
+            "persistLog", "getHosts"];
 
 
         this._checkCursorPosition = function(){
@@ -467,9 +467,6 @@ define([
             return env.connector.getHosts();
         };
 
-        this.getHost = function () {
-            return env.connector.getHost()
-        };
     };
 
     return main;

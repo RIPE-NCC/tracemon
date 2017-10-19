@@ -136,7 +136,7 @@
     removeCombined: true,
     optimize: "uglify2",//uglify2
     wrapShim: false,
-    generateSourceMaps: false,
+    generateSourceMaps: true,
 
     out: "tracemon-dist.js"
 
