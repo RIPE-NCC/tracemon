@@ -723,7 +723,7 @@ define([
                 publish: function (event, obj){
                     var callbacks, callback, prefix;
 
-                    prefix = "test";
+                    prefix = "";
 
                     callbacks = this.subscriptions[prefix + event] || [];
                     for (var n=0,length=callbacks.length; n < length; n++){
@@ -735,7 +735,7 @@ define([
                 subscribe: function (eventName, callback, context){
                     var events, event, prefix;
 
-                    prefix = "test";
+                    prefix = "";
                     events = (eventName.indexOf(",") != -1) ? [eventName] : eventName.split(",");
 
                     for (var n=0,length=events.length; n<length; n++){
