@@ -1,12 +1,11 @@
 define([
     "tracemon.env.config",
     "tracemon.lib.jquery-amd",
-    "tracemon.env.utils",
     "tracemon.connector.translation",
     "tracemon.connector.persist-host",
     "tracemon.connector.log.persist",
     "tracemon.connector.ripe-database"
-], function(config, $, utils, TranslateConnector, PersistHostConnector, LogRestConnector, RipeDatabaseConnector) {
+], function(config, $, TranslateConnector, PersistHostConnector, LogRestConnector, RipeDatabaseConnector) {
     var antiFloodTimerNewStatus;
 
 
@@ -30,7 +29,7 @@ define([
                 $this.persistLog("document", error + " url: " + url + " line: " + line);
             };
 
-            utils.observer.subscribe("error", function (error) {
+            env.utils.observer.subscribe("error", function (error) {
                 this.persistLog(error.type, error.message);
             }, this);
 
@@ -42,7 +41,7 @@ define([
 
             message = config.errors[error] || error;
             if (error) {
-                utils.observer.publish("error", {
+                env.utils.observer.publish("error", {
                     type: error,
                     message: message
                 });
@@ -93,7 +92,7 @@ define([
 
                     $this._enrichProbes(traceroutes, options.sources);
 
-                    utils.observer.publish("model.history:new");
+                    env.utils.observer.publish("model.history:new");
                     deferredCall.resolve(measurements);
                 }, function(error){
                     $this._handleError(error);
@@ -242,7 +241,7 @@ define([
             probeIds = $.map(traceroutes, function(traceroute){
                 return traceroute.source.probeId;
             });
-            replyingProbes = utils.arrayUnique(probeIds);
+            replyingProbes = env.utils.arrayUnique(probeIds);
 
             // Check if all the probes are replying and mark them.
             for (var n=0,length=probesList.length; n<length; n++) {
@@ -255,7 +254,7 @@ define([
             var browserVersion;
 
             if (env.sendErrors) {
-                browserVersion = utils.getBrowserVersion();
+                browserVersion = env.utils.getBrowserVersion();
                 logConnector.error(type, log + ' (browser: ' + browserVersion.name + ' ' + browserVersion.version.toString() + ')');
             }
         };

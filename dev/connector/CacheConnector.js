@@ -6,11 +6,10 @@
 
 define([
     "tracemon.env.config",
-    "tracemon.env.utils",
     "tracemon.lib.jquery-amd",
     "tracemon.lib.moment",
     "tracemon.connector.translation"
-], function(config, utils, $, moment, TranslateConnector) {
+], function(config, $, moment, TranslateConnector) {
 
     var CacheConnector = function (env) {
         var $this, translateConnector, previousFinalParamsQuery;
@@ -62,12 +61,12 @@ define([
                 && currentParams.startDate.isSame(previousFinalParamsQuery.startDate)
                 && currentParams.stopDate.isSame(previousFinalParamsQuery.stopDate)){ // Same time range
 
-                if (utils.containsAll(currentParams.sources, previousFinalParamsQuery.sources)
-                    && utils.containsAll(previousFinalParamsQuery.sources, currentParams.sources)){
+                if (env.utils.containsAll(currentParams.sources, previousFinalParamsQuery.sources)
+                    && env.utils.containsAll(previousFinalParamsQuery.sources, currentParams.sources)){
                     return null; // Nothing to query for, they are exactly the same
                 } else {
 
-                    options.sources = utils.removeSubArray(currentParams.sources, previousFinalParamsQuery.sources);
+                    options.sources = env.utils.removeSubArray(currentParams.sources, previousFinalParamsQuery.sources);
 
                     return (options.sources.length > 0) ?  options : null;
                 }
@@ -112,7 +111,7 @@ define([
                 }
             }
 
-            previousFinalParamsQuery = utils.clone(env.finalQueryParams);
+            previousFinalParamsQuery = env.utils.clone(env.finalQueryParams);
 
             return deferredCall.promise();
         };

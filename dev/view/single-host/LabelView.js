@@ -1,6 +1,4 @@
-define([
-    "tracemon.env.utils"
-], function(utils){
+define([], function(){
 
     var LabelView = function(env, nodeView) {
         this.id = nodeView.id;
@@ -195,7 +193,7 @@ define([
         getClass: function(selector){
             var classes;
 
-            classes = ["node-label", "node-label-" + utils.getIdFromIp(this.id)];
+            classes = ["node-label", "node-label-" + this.env.utils.getIdFromIp(this.id)];
 
             if (this.node.model.isProbe){
                 classes.push("probe");

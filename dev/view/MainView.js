@@ -1,17 +1,16 @@
 
 define([
-    "tracemon.env.utils",
     "tracemon.env.config",
     "tracemon.env.languages.en",
     "tracemon.lib.jquery-amd",
     "tracemon.lib.d3-amd",
+    "tracemon.view.templateManager",
     "tracemon.view.single-host.single-host-view",
     "tracemon.view.as-view",
     "tracemon.view.location-view",
-    // "tracemon.view.dagre-wrapper",
     "tracemon.view.graphviz-wrapper",
     "tracemon.env.latencymon-adapter"
-], function(utils, config, lang, $, d3, SingleHostView, ASView, LocationView, GraphWrapper, LatencyMonAdapter){
+], function(config, lang, $, d3, TemplateManagerView, SingleHostView, ASView, LocationView, GraphWrapper, LatencyMonAdapter){
 
     var MainView = function(env){
         var $this, firstDraw;
@@ -23,12 +22,11 @@ define([
         firstDraw = true;
         this.view = null;
         this.viewName = env.viewName;
-        this.latencymon = new LatencyMonAdapter(env);
-        this.graph = new GraphWrapper(env);
+
 
         this.setListeners = function(){
-            utils.observer.subscribe("view.status:change", this.drawOrUpdate, this);
-            utils.observer.subscribe("view:max-hops", this._cutHops, this);
+            env.utils.observer.subscribe("view.status:change", this.drawOrUpdate, this);
+            env.utils.observer.subscribe("view:max-hops", this._cutHops, this);
         };
 
         this.getDrawnTraceroutes = function(){
@@ -65,12 +63,11 @@ define([
         };
 
         this.drawOrUpdate = function(status){
-
             this._drawnStatus = this._filterBySources(status);
 
             if (firstDraw){
                 this._firstDraw(this._drawnStatus);
-            } else { 
+            } else {
                 this._update(this._drawnStatus);
             }
 
@@ -112,16 +109,15 @@ define([
 
                 this.view = this._getView();
 
-                utils.observer.publish("view.ready");
+                env.utils.observer.publish("view.ready");
                 this.view.draw(diff, function () { // Compute the layout and draw
-                    console.log("drawn");
-                    utils.observer.publish("view.graph:new");
+                    env.utils.observer.publish("view.graph:new");
                 });
 
                 firstDraw = false;
                 this.latencymon.init(".latencymon-chart", env.queryParams.measurements, env.finalQueryParams.sources); // Init LatencyMON
             } else {
-                utils.observer.publish("error", {
+                env.utils.observer.publish("error", {
                     type: "324",
                     message: config.errors["324"]
                 });
@@ -136,7 +132,7 @@ define([
 
             if (diff.status.length > 0) { // Something to update
                 this.view.update(diff, function () {
-                    utils.observer.publish("view.graph:change");
+                    env.utils.observer.publish("view.graph:change", null);
                 });
             }
             this._oldStatus = newStatus;
@@ -251,7 +247,7 @@ define([
 
 
         this._computeValidId = function(str){
-            return utils.getIdFromIp(str).replace("*", "w-");
+            return env.utils.getIdFromIp(str).replace("*", "w-");
         };
 
         this._getDeletedTraceroutes = function (oldStatus, newStatus){
@@ -281,7 +277,7 @@ define([
         this.getSvg = function(){
             var svgXml;
 
-            svgXml = utils.getSvgAndCss(env.template.dom.svg[0]);
+            svgXml = env.utils.getSvgAndCss(env.template.dom.svg[0]);
             // var url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgXml);
             //
             // window.open(url);
@@ -290,10 +286,16 @@ define([
 
         this.setLabelLevel = function(level){
             env.labelLevel = level;
-            utils.observer.publish("view.label-level:change", level);
+            env.utils.observer.publish("view.label-level:change", level);
         };
 
-        this.setListeners();
+        this.init = function () {
+            env.template = new TemplateManagerView(env);
+            env.template.init();
+            this.latencymon = new LatencyMonAdapter(env);
+            this.graph = new GraphWrapper(env);
+            this.setListeners();
+        };
 
     };
 

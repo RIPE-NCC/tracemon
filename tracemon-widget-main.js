@@ -53,6 +53,7 @@ function initTracemon(domElement, instanceParams, queryParams){
         instance = instances.requested.shift();
 
         while (instance){
+
             (function(instances, instance){
                 requirejs.config({
                     waitSeconds: 60
@@ -69,7 +70,6 @@ function initTracemon(domElement, instanceParams, queryParams){
                     });
                 }
             })(instances, instance);
-
 
             instance = instances.requested.shift();
         }

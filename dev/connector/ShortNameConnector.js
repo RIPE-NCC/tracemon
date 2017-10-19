@@ -6,9 +6,8 @@
 
 define([
     "tracemon.env.config",
-    "tracemon.env.utils",
     "tracemon.lib.jquery-amd"
-], function(config, utils, $) {
+], function(config, $) {
 
     var ShortNameConnector = function (env) {
         var $this, index, timer, oldDeferredCall, antiFlood, nextQuery, deferredCall, promise, asnToBePopulated;
@@ -45,7 +44,7 @@ define([
                     name = names[asObj.id];
                     if (name) {
                         asObj.shortName = names[asObj.id];
-                        utils.observer.publish("model.as:change", asObj);
+                        env.utils.observer.publish("model.as:change", asObj);
                     }
                 }
                 nextQuery = null;

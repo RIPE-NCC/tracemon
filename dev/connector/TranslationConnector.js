@@ -6,7 +6,6 @@
 
 define([
     "tracemon.env.config",
-    "tracemon.env.utils",
     "tracemon.lib.jquery-amd",
     "tracemon.lib.moment",
     "tracemon.connector.history",
@@ -22,7 +21,7 @@ define([
     "tracemon.connector.host-helper",
     "tracemon.connector.asn"
 
-], function(config, utils, $, moment, HistoryConnector, LiveConnector, Hop, Host, Attempt, AutonomousSystem, Measurement,
+], function(config, $, moment, HistoryConnector, LiveConnector, Hop, Host, Attempt, AutonomousSystem, Measurement,
             Traceroute, prefixUtils, PeeringDbConnector, HostClassificationHelper, AsnLookupConnector) {
 
     while(!moment){
@@ -117,7 +116,7 @@ define([
                                 multicastSupport: ixp["proto_multicast"]
                             }
                         };
-                        utils.observer.publish("model.host:change", host);
+                        env.utils.observer.publish("model.host:change", host);
                     }
                 });
 
@@ -251,7 +250,7 @@ define([
             update = host && address && true;
 
             if (!update) {
-                host = new Host(address);
+                host = new Host(address, env);
             }
 
             host.name = name;
@@ -293,7 +292,7 @@ define([
                 this.hostByIp[address] = host; // Only if not private
             }
 
-            utils.observer.publish("model.host:" + (update ? "change": "new"), host);
+            env.utils.observer.publish("model.host:" + (update ? "change": "new"), host);
 
             return host;
         };
@@ -466,7 +465,7 @@ define([
 
                             host.reverseDns = out;
                             deferredCall.resolve(out);
-                            utils.observer.publish("model.host:change", host);
+                            env.utils.observer.publish("model.host:change", host);
                         });
                 } catch(error) {
                     deferredCall.reject(error);
@@ -504,7 +503,7 @@ define([
                     $this.geolocByIp[host.ip] = geolocation;
                     host.setLocation(geolocation, true);
                     deferredCall.resolve(geolocation);
-                    utils.observer.publish("model.host:change", host);
+                    env.utils.observer.publish("model.host:change", host);
                 })
                 .fail(function (error) {
                     deferredCall.reject(error);

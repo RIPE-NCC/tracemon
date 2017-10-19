@@ -1,9 +1,8 @@
 
 define([
     "tracemon.lib.viz",
-    "tracemon.lib.jquery-amd",
-    "tracemon.env.utils"
-], function(viz, $, utils){
+    "tracemon.lib.jquery-amd"
+], function(viz, $){
 
     var GraphvizWrapper = function(env){
         var dirty, $this, imposedParams, plainNodes, plainEdges, internalIds, externalIds, sameRank, sameCluster,
@@ -12,6 +11,7 @@ define([
         $this = this;
         engine = "dot";
         imposedParams = {};
+        this.viz = new viz();
 
         this._setDefaults = function () {
             dirty = true;
@@ -36,17 +36,17 @@ define([
             this.options = {};
             this.mult = {x: 1, y: 1};
             this.margin = { top: 0, bottom: 0, left: 0, right: 0 };
-        };
+        }.bind(this);
 
         this._setDefaults();
 
         this._getInternalId = function(external){
             return internalIds[external];
-        };
+        }.bind(this);
 
         this._getExternalId = function(internal){
             return externalIds[internal];
-        };
+        }.bind(this);
 
         this._generateInternalId = function (external) {
             var internalId;
@@ -60,7 +60,7 @@ define([
             }
 
             return internalId;
-        };
+        }.bind(this);
 
         this._dottify = function (properties, sameLine) {
             var list;
@@ -71,7 +71,7 @@ define([
             }
 
             return (sameLine) ? list.join(" ") : list.join(";\n") + ";\n";
-        };
+        }.bind(this);
 
         this._getDotNotation = function(){
             var out, edge, node, from, to, nodeProperties, edgeProperties, graphProperty;
@@ -144,7 +144,7 @@ define([
             }
 
             return "digraph G { " + out + " }";
-        };
+        }.bind(this);
 
         this.initGraph = function(width, height, options){
             imposedParams = {
@@ -162,12 +162,12 @@ define([
             this.margin.left = (options.margin && options.margin.left) ?  options.margin.left : this.margin.left;
             this.margin.right = (options.margin && options.margin.right) ?  options.margin.right : this.margin.right;
 
-        };
+        }.bind(this);
 
         this.reset = function () {
             this._setDefaults();
             this.initGraph(imposedParams.width, imposedParams.height, imposedParams.options);
-        };
+        }.bind(this);
 
         this.addNode = function(id, options){
             var internalId;
@@ -201,7 +201,7 @@ define([
             }
 
             dirty = true;
-        };
+        }.bind(this);
 
         this.addEdge = function(node1, node2, options){
             var internalFrom, internalTo, internalKey;
@@ -224,12 +224,11 @@ define([
             }
 
             dirty = true;
-        };
+        }.bind(this);
 
         this.computeLayout = function(){
             var layout, node, x, y, pos, nodeObj, width, height, maxX, maxY, edge, points, edgeObj;
-
-            layout = Viz(this._getDotNotation(), { format: "json", engine: engine, ordering: "out" });
+            layout = this.viz(this._getDotNotation(), { format: "json", engine: engine, ordering: "out" });
             layout = JSON.parse(layout);
             maxX = -Infinity;
             maxY = -Infinity;
@@ -283,12 +282,12 @@ define([
             this.mult.y = ((this.height - (this.margin.bottom + this.margin.top)) / height);
 
             this._updateStructure();
-        };
+        }.bind(this);
 
         this.getNode = function(id){
             this._updateStructure();
             return this.nodesIndexed[id];
-        };
+        }.bind(this);
 
         this.getEdge = function(node1Id, node2Id){
             this._updateStructure();
@@ -300,7 +299,7 @@ define([
             } else {
                 return this.edgesInIndexed[node2Id];
             }
-        };
+        }.bind(this);
 
         this._updateStructure = function(){
             var node, edge, points, point;
@@ -356,31 +355,31 @@ define([
                     $this.edgesOutIndexed[edge.from][edge.id] = edge;
                 });
             }
-        };
+        }.bind(this);
 
         this.getNodes = function(){
             this._updateStructure();
             return this.nodes;
-        };
+        }.bind(this);
 
         this.getEdges = function(){
             this._updateStructure();
             return this.edges;
-        };
+        }.bind(this);
 
         this.forEachNode = function(callback){
             var nodes = this.getNodes();
             for (var n=0,length=nodes.length; n<length; n++){
                 callback(nodes[n]);
             }
-        };
+        }.bind(this);
 
         this.forEachEdge = function(callback){
             var edges = this.getEdges();
             for (var n=0,length=edges.length; n<length; n++){
                 callback(edges[n]);
             }
-        };
+        }.bind(this);
 
 
     };

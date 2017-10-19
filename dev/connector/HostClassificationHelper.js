@@ -5,10 +5,8 @@
  */
 
 define([
-    "tracemon.env.config",
-    "tracemon.env.utils",
-    "tracemon.lib.jquery-amd"
-], function(config, utils, $) {
+    "tracemon.env.config"
+], function(config) {
 
     var HostClassificationHelper = function (env) {
         var uniqueHostAs, bucketAses, globalUniqueIn, globalUniqueOut, lastNullHop;

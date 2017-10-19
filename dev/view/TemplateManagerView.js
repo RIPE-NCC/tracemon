@@ -3,7 +3,6 @@
  */
 
 define([
-    "tracemon.env.utils",
     "tracemon.env.config",
     "tracemon.env.languages.en",
     "tracemon.lib.jquery-amd",
@@ -18,9 +17,10 @@ define([
     "tracemon.lib.stache!modal-show-contacts",
     "tracemon.lib.stache!modal-update-location",
     "tracemon.lib.stache!modal-raw-traceroute"
-], function(utils, config, lang, $, moment, d3, HeaderController, template, search, selectView, probesSelection,
+], function(config, lang, $, moment, d3, HeaderController, template, search, selectView, probesSelection,
             hostPopover, modalContacts, modalLocation, modalTraceroute){
-
+    
+    
     /**
      * TemplateManagerView is the component in charge of creating and manipulating the HTML dom elements.
      *
@@ -104,21 +104,21 @@ define([
 
 
         this.setListeners = function(){
-            utils.observer.subscribe("view.status:change", this.updateTemplatesInfo, this);
+            env.utils.observer.subscribe("view.status:change", this.updateTemplatesInfo, this);
 
-            utils.observer.subscribe("model.history:new", function(){
+            env.utils.observer.subscribe("model.history:new", function(){
                 this.updateTimeline();
                 this.updateSearchBox();
             }, this);
-            utils.observer.subscribe("model.history:change", this.updateTimeline, this);
-            utils.observer.subscribe("view.time-selection:change", this.updateTimeline, this);
-            utils.observer.subscribe("view.traceroute:click", function(traceroute){
+            env.utils.observer.subscribe("model.history:change", this.updateTimeline, this);
+            env.utils.observer.subscribe("view.time-selection:change", this.updateTimeline, this);
+            env.utils.observer.subscribe("view.traceroute:click", function(traceroute){
                 this.showModal("show-traceroute", traceroute);
             }, this);
-            utils.observer.subscribe("view.animation:start", this._updatePlayerButtons, this);
-            utils.observer.subscribe("view.animation:stop", this._updatePlayerButtons, this);
-            utils.observer.subscribe("loading", this.showLoading, this);
-            utils.observer.subscribe("error", function(error){
+            env.utils.observer.subscribe("view.animation:start", this._updatePlayerButtons, this);
+            env.utils.observer.subscribe("view.animation:stop", this._updatePlayerButtons, this);
+            env.utils.observer.subscribe("loading", this.showLoading, this);
+            env.utils.observer.subscribe("error", function(error){
                 this.showMessage(true, error.message, { timeout: config.messageTimeout, error: true });
             }, this);
         };
@@ -260,7 +260,7 @@ define([
                 env.main.setSelectedSources(probeSet);
             } else {
                 env.main.setSelectedSources(probeSet.slice(0, config.maxAllowedSources));
-                utils.observer.publish("error", {
+                env.utils.observer.publish("error", {
                     type: 697,
                     message: config.errors[697]
                 });
@@ -589,7 +589,7 @@ define([
         };
 
         this.init = function() {
-            var html, partials;
+            var partials;
 
             this.setListeners();
             partials = {
@@ -598,18 +598,19 @@ define([
                 "probes-selection": probesSelection(this)
             };
 
-            html = $(template(this, partials));
-            env.parentDom.addClass("tracemon-container").html(html);
+            env.parentDom
+                .addClass("tracemon-container")
+                .html(template(this, partials));
 
             this.dom.errorMessage = env.parentDom.find(".error-message");
             this.dom.loadingImage = env.parentDom.find(".loading");
-            this.dom.svg = html.find(".tracemon-svg");
-            this.dom.graphContainer = html.find(".svg-div");
-            this.dom.annotation = html.find(".annotation-tooltip");
-            this.dom.footer = html.find(".tracemon-footer");
-            this.dom.content = html.find('.tracemon-content');
+            this.dom.svg = env.parentDom.find(".tracemon-svg");
+            this.dom.graphContainer = env.parentDom.find(".svg-div");
+            this.dom.annotation = env.parentDom.find(".annotation-tooltip");
+            this.dom.footer = env.parentDom.find(".tracemon-footer");
+            this.dom.content = env.parentDom.find('.tracemon-content');
 
-            if (utils.getUrlParam("info") == "true") {
+            if (env.utils.getUrlParam("info") == "true") {
                 this.dom.footer.append('<div class="tracemon-version footer-item">Version:' + env.version + '</div>');
                 this.dom.footer.append(atob("PGRpdiBjbGFzcz0ibGF0ZW5jeW1vbi1jb3B5cmlnaHQgZm9vdGVyLWl0ZW0iPkF1dGhvcjogPGEgaHJlZj0iaHR0cDovL21hc3NpbW9jYW5kZWxhLmNvbSI+TWFzc2ltbyBDYW5kZWxhPC9hPjwvZGl2Pg=="));
             }
@@ -703,7 +704,7 @@ define([
             } else if (location.length == 1){
                 finalLocation = { city: null, countryCode: location[0] };
             } else {
-                utils.observer.publish("error", {
+                env.utils.observer.publish("error", {
                     type: 696,
                     message: config.errors[696]
                 });

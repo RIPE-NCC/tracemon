@@ -20,9 +20,8 @@
 
 define([
     "tracemon.env.config",
-    "tracemon.env.utils",
     "tracemon.controller.boolean-search"
-], function(config, utils, SearchHelper){
+], function(config, SearchHelper){
 
     var HeaderController = function(env){
         var searchHelper, andSymbol, orSymbol;
@@ -64,7 +63,7 @@ define([
                     }
                 }
                 env.currentSearchResults = out;
-                utils.observer.publish("view.traceroute.search-results:change"); // Don't send anything to force other module using env variables
+                env.utils.observer.publish("view.traceroute.search-results:change"); // Don't send anything to force other module using env variables
                 return out;
             }
 
@@ -75,8 +74,8 @@ define([
 
             this.searchString = searchString;
             env.currentSearchResults = (searchString) ? searchHelper.search(this._getSearchKey(this.searchString), env.mainView.getDrawnTraceroutes()) : null ;
-            utils.observer.publish("view.traceroute.search-results:new"); // Don't send anything to force other module using env variables
-            utils.observer.publish("view.traceroute.search:new", searchString);
+            env.utils.observer.publish("view.traceroute.search-results:new"); // Don't send anything to force other module using env variables
+            env.utils.observer.publish("view.traceroute.search:new", searchString);
 
             return env.currentSearchResults;
         };

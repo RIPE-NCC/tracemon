@@ -11,10 +11,9 @@ define([
     "tracemon.connector.facade",
     "tracemon.view.main",
     "tracemon.controller.history-manager",
-    "tracemon.view.templateManager",
     "tracemon.controller.source-selection"
 ], function(config, utils, $, moment, AutonomousSystem, Hop, Host, Measurement, Traceroute, Connector, MainView,
-            HistoryManager, TemplateManagerView, SourceSelectionHelper) {
+            HistoryManager, SourceSelectionHelper) {
 
     while(!moment){
         while(!moment.unix){
@@ -63,7 +62,7 @@ define([
                     env.finalQueryParams.stopDate = moment(env.finalQueryParams.startDate)
                         .add(maximumTimeRangePossible, "seconds");
                 }
-                utils.observer.publish("error", { type: 694, message: config.errors[694] });
+                env.utils.observer.publish("error", { type: 694, message: config.errors[694] });
             }
 
             this._checkCursorPosition();
@@ -108,7 +107,7 @@ define([
                 this._updateSelectedSources();
 
             } else {
-                utils.observer.publish("error", { type: 507, message: config.errors[507] });
+                env.utils.observer.publish("error", { type: 507, message: config.errors[507] });
             }
         };
 
@@ -117,7 +116,7 @@ define([
 
             if (!initialModelCreated){
                 initialModelCreated = true;
-                utils.observer.publish("model.ready");
+                env.utils.observer.publish("model.ready");
             }
 
             for (var n=0,length=measurements.length; n<length; n++) {
@@ -175,20 +174,20 @@ define([
                 console.log(notValidUrl);
                 if (env.queryParams) {
 
-                    if (utils.getUrlParam("hackid").length > 0){
-                        env.queryParams.measurements = $.map((utils.getUrlParam("hackid")[0]).split(","), function(item) {
+                    if (env.utils.getUrlParam("hackid").length > 0){
+                        env.queryParams.measurements = $.map((env.utils.getUrlParam("hackid")[0]).split(","), function(item) {
                             return parseInt(item)
                         });
                     }
 
-                    if (utils.getUrlParam("hacksource").length > 0){
-                        env.queryParams.sources = $.map((utils.getUrlParam("hacksource")[0]).split(","), function(item) {
+                    if (env.utils.getUrlParam("hacksource").length > 0){
+                        env.queryParams.sources = $.map((env.utils.getUrlParam("hacksource")[0]).split(","), function(item) {
                             return parseInt(item)
                         });
                     }
-                    if (utils.getUrlParam("hacktime").length > 0){
-                        env.queryParams.startTimestamp = (utils.getUrlParam("hacktime")[0]).split(",")[0];
-                        env.queryParams.stopTimestamp = (utils.getUrlParam("hacktime")[0]).split(",")[1];
+                    if (env.utils.getUrlParam("hacktime").length > 0){
+                        env.queryParams.startTimestamp = (env.utils.getUrlParam("hacktime")[0]).split(",")[0];
+                        env.queryParams.stopTimestamp = (env.utils.getUrlParam("hacktime")[0]).split(",")[1];
                     }
 
                     this.applyConfiguration(env.queryParams);
@@ -204,7 +203,7 @@ define([
         this.addMeasurements = function (msmsIDlist, callback) {
             var newMeasurementsToLoad, msmId;
 
-            utils.observer.publish("loading", true);
+            env.utils.observer.publish("loading", true);
             newMeasurementsToLoad = [];
             for (var n=0,length= msmsIDlist.length; n<length; n++) { // Find the new measurements
                 msmId = msmsIDlist[n];
@@ -220,7 +219,7 @@ define([
                     .getMeasurements(newMeasurementsToLoad)
                     .done(function (measurements) {
                         var measurement, source;
-                        utils.observer.publish("loading", false);
+                        env.utils.observer.publish("loading", false);
 
                         for (var n = 0, length = measurements.length; n < length; n++) {
                             measurement = measurements[n];
@@ -230,7 +229,7 @@ define([
                                 source = measurement.sources[sourceKey];
                                 env.loadedSources[source.id] = source;
                             }
-                            utils.observer.publish("model.measurement:new", measurement);
+                            env.utils.observer.publish("model.measurement:new", measurement);
                         }
 
                         $this._updateMetaData();
@@ -240,7 +239,7 @@ define([
                     });
             } catch (error){
                 var errorObj = (error.type) ? error : { type: "uncaught", message: error };
-                utils.observer.publish("error", errorObj);
+                env.utils.observer.publish("error", errorObj);
                 console.log(errorObj);
             }
 
@@ -255,7 +254,7 @@ define([
             });
 
             try {
-                utils.observer.publish("loading", true);
+                env.utils.observer.publish("loading", true);
 
                 env.connector
                     .getMeasurementsResults(measurements, {
@@ -264,7 +263,7 @@ define([
                             sources: params.sources
                         }
                     ).done(function(measurements){
-                    utils.observer.publish("loading", false);
+                    env.utils.observer.publish("loading", false);
 
                     $this._newResultsetLoaded(measurements);
                     if (callback){
@@ -274,7 +273,7 @@ define([
 
             } catch (error){
                 var errorObj = (error.type) ? error : { type: "uncaught", message: error };
-                utils.observer.publish("error", errorObj);
+                env.utils.observer.publish("error", errorObj);
                 console.log(errorObj);
             }
 
@@ -289,7 +288,7 @@ define([
             this.updateData(function(){
                 env.historyManager.getCurrentState();
             });
-            utils.observer.publish("view:probe-set", env.finalQueryParams.sources);
+            env.utils.observer.publish("view:probe-set", env.finalQueryParams.sources);
         };
 
         this.getSelectedSources = function () {
@@ -335,7 +334,7 @@ define([
                 throw "The measurement is not loaded";
             }
             delete env.loadedMeasurements[msmId];
-            utils.observer.publish("model.measurement:remove", msmId);
+            env.utils.observer.publish("model.measurement:remove", msmId);
         };
 
         this._validateConfiguration = function(conf){
@@ -354,7 +353,7 @@ define([
                 this._validateConfiguration(conf)
             } catch(error){
                 var errorObj = { type: error, message: config.errors[error] };
-                utils.observer.publish("error", errorObj);
+                env.utils.observer.publish("error", errorObj);
                 console.log(errorObj);
                 return;
             }
@@ -383,7 +382,7 @@ define([
         };
 
         this.setTimeRange = function(start, stop) { // Accept timestamps for public API
-            utils.observer.publish("loading", true);
+            env.utils.observer.publish("loading", true);
 
 
             if (this._timeRangeTimet) {
@@ -391,7 +390,7 @@ define([
             }
 
             this._timeRangeTimet = setTimeout(function(){
-                utils.observer.publish("loading", false);
+                env.utils.observer.publish("loading", false);
                 $this._setTimeRange(start, stop);
             }, config.timeRangeSelectionOverflow);
 
@@ -414,7 +413,7 @@ define([
                 env.historyManager.getCurrentState();
             });
 
-            utils.observer.publish("view.time-selection:change", {
+            env.utils.observer.publish("view.time-selection:change", {
                 startDate: env.finalQueryParams.startDate,
                 stopDate: env.finalQueryParams.stopDate
             });
@@ -425,7 +424,7 @@ define([
         };
 
         this.on = function(event, callback){
-            utils.observer.subscribe(event, callback, this);
+            env.utils.observer.subscribe(event, callback, this);
         };
 
         this.persist = function(){
@@ -443,12 +442,11 @@ define([
             env.historyManager = new HistoryManager(env);
 
             if (!env.onlyCore) {
-                env.template = new TemplateManagerView(env);
                 env.mainView = new MainView(env);
             }
 
             if (!env.onlyCore) {
-                env.template.init();
+                env.mainView.init();
             }
 
             this._startProcedure();

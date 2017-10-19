@@ -1,11 +1,10 @@
 define([
-    "tracemon.env.utils",
     "tracemon.env.config",
     "tracemon.view.single-host.label-view"
-], function(utils, config, LabelView){
+], function(config, LabelView){
 
     var NodeView = function(env, model) {
-        this.id = utils.getIdFromIp(model.getId());
+        this.id = env.utils.getIdFromIp(model.getId());
         this.model = model;
         this.env = env;
         this.traceroutes = [];
@@ -81,7 +80,7 @@ define([
         },
 
         update: function(){
-            this.id = utils.getIdFromIp(this.model.getId());
+            this.id = this.env.utils.getIdFromIp(this.model.getId());
             this._graphNode = this.env.mainView.graph.getNode(this.model.getId());
 
             if (this._graphNode) {
@@ -244,8 +243,8 @@ define([
                 },
                 links: links,
                 rtt: ((latencies.length > 0) ? {
-                    min: utils.truncateAt(Math.min.apply(null, latencies), 2),
-                    max: utils.truncateAt(Math.max.apply(null, latencies), 2)
+                    min: this.env.utils.truncateAt(Math.min.apply(null, latencies), 2),
+                    max: this.env.utils.truncateAt(Math.max.apply(null, latencies), 2)
                 } : null)
             };
 

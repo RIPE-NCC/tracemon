@@ -41,7 +41,8 @@ requirejs.config({
         "tracemon.lib.expression": window.atlas._widgets.tracemon.urls.libs + "expression",
         "tracemon.lib.moment": window.atlas._widgets.tracemon.urls.libs + "moment",
 
-        "tracemon.lib.viz": window.atlas._widgets.tracemon.urls.libs + "viz",
+        "tracemon.lib.viz": window.atlas._widgets.tracemon.urls.libs + "graphviz-amd",
+        "tracemon.lib.graphViz": window.atlas._widgets.tracemon.urls.libs + "viz",
 
 
         /* view */
@@ -146,10 +147,10 @@ define([
     "tracemon.env.languages.en",
     "tracemon.lib.jquery-amd",
     "tracemon.controller.main"
-], function(utils, config, language, $, main){
+], function(Utils, config, language, $, main){
 
     var Tracemon = function(instance){
-        var env, instanceParams, queryParams, parentDom, styleDownloads, objectToBeEnriched;
+        var env, instanceParams, queryParams, parentDom, styleDownloads, objectToBeEnriched, utils;
 
         /*
          * Access to the instance
@@ -157,6 +158,7 @@ define([
         instanceParams = instance.instanceParams;
         queryParams = instance.queryParams;
         parentDom = instance.domElement;
+        utils = new Utils();
 
         /*
          * Init Dependency Injection Vector
@@ -171,6 +173,7 @@ define([
             "version": "17.10.19.2",
             "dev": instanceParams.dev,
             "widgetUrl": TRACEMON_WIDGET_URL + "dev/",
+            "utils": utils,
             "autoStart": (instanceParams.autoStart != undefined) ? instanceParams.autoStart : config.autoStart,
             "dataApiResults": instanceParams.dataApiResults || config.dataAPIs.results,
             "dataApiMetadata": instanceParams.dataApiMetadata || config.dataAPIs.metadata,

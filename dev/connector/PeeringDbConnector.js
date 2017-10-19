@@ -6,10 +6,9 @@
 
 define([
     "tracemon.env.config",
-    "tracemon.env.utils",
     "tracemon.lib.jquery-amd",
     "tracemon.lib.parsePrefix"
-], function(config, utils, $, prefixUtils, localCache) {
+], function(config, $, prefixUtils, localCache) {
 
     var PeeringDbConnector = function (env) {
         var $this, index, cache, oldDeferredCall, callsBundler;

@@ -1,12 +1,11 @@
 
 define([
-    "tracemon.env.utils",
     "tracemon.env.config",
     "tracemon.env.languages.en",
     "tracemon.lib.jquery-amd",
     "tracemon.lib.d3-amd",
     "tracemon.lib.parsePrefix"
-], function(utils, config, lang, $){
+], function(config, lang, $){
 
     var LocationView = function(env){
         var $this, aggregationBy;
@@ -86,14 +85,14 @@ define([
 
                     nodeKey = $this._getLocationKey(traceroute.source);
                     if (!$this.nodes[nodeKey]) {
-                        $this.nodes[nodeKey] = { hosts: {}, label: nodeKey, id: utils.getIdFromIp(nodeKey) };
+                        $this.nodes[nodeKey] = { hosts: {}, label: nodeKey, id: env.utils.getIdFromIp(nodeKey) };
                     }
                     $this.nodes[nodeKey]["hosts"][traceroute.source.getId()] = traceroute.source;
                     previousNode = $this.nodes[nodeKey];
 
                     nodeKey = traceroute.target.ip;
                     if (!$this.nodes[nodeKey]) {
-                        $this.nodes[nodeKey] = { hosts: {}, label: nodeKey, id: utils.getIdFromIp(nodeKey) };
+                        $this.nodes[nodeKey] = { hosts: {}, label: nodeKey, id: env.utils.getIdFromIp(nodeKey) };
                     }
                     $this.nodes[nodeKey]["hosts"][traceroute.target.getId()] = traceroute.target;
 
@@ -109,7 +108,7 @@ define([
                         }
 
                         if (!$this.nodes[nodeKey]) {
-                            $this.nodes[nodeKey] = {hosts: {}, label: nodeKey, id: utils.getIdFromIp(nodeKey)};
+                            $this.nodes[nodeKey] = {hosts: {}, label: nodeKey, id: env.utils.getIdFromIp(nodeKey)};
                         }
                         $this.nodes[nodeKey]["hosts"][host.getId()] = host;
 

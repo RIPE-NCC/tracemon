@@ -1,9 +1,7 @@
 
-define([
-    "tracemon.env.utils"
-], function(utils){
+define([], function(env){
 
-    var LabelPlacementHelper = function(nodeWidth, nodeHeight, fontSizePixel){
+    var LabelPlacementHelper = function(nodeWidth, nodeHeight, fontSizePixel, env){
         var height, checkedNodes, labelBoxes, minLabelWidth, nodeHalfWidth, nodeHalfHeight, $this;
 
         $this = this;
@@ -30,7 +28,7 @@ define([
                 nodeTmp = checkedNodes[n];
 
                 if (nodeTmp.id != node.id &&
-                    utils.getLinesIntersection(
+                    env.utils.getLinesIntersection(
                         {x: nodeTmp.x, y: nodeTmp.y + nodeHalfHeight},
                         {x: nodeTmp.x, y: nodeTmp.y - nodeHalfHeight},
                         {x: box[0].x, y: box[0].y + height},
@@ -59,7 +57,7 @@ define([
                 y: (node.y - (height/2 + nodeHalfHeight + 3))
             };
 
-            return utils.translate(labelBox, vector);
+            return env.utils.translate(labelBox, vector);
         };
 
 
@@ -78,7 +76,7 @@ define([
                 y: (node.y - (nodeHalfHeight - 3))
             };
 
-            return utils.translate(labelBox, vector);
+            return env.utils.translate(labelBox, vector);
         };
 
 
@@ -97,7 +95,7 @@ define([
                 y: (node.y - (nodeHalfHeight + height))
             };
 
-            return utils.translate(labelBox, vector);
+            return env.utils.translate(labelBox, vector);
         };
 
         this._getBottomBox = function(node, width){
@@ -115,7 +113,7 @@ define([
             };
 
 
-            return utils.translate(labelBox, vector);
+            return env.utils.translate(labelBox, vector);
         };
 
 
@@ -138,7 +136,7 @@ define([
 
                     for (var i = 0, lengthi = edge.length - 1; i < lengthi; i++) {
 
-                        if (utils.getLinesIntersection(sidePoint1, sidePoint2, edge[i], edge[i + 1])) {
+                        if (env.utils.getLinesIntersection(sidePoint1, sidePoint2, edge[i], edge[i + 1])) {
                             return true;
                         }
                     }
@@ -152,7 +150,7 @@ define([
 
             checkIntersectionAmongBoxes = function (box) {
                 return labelBoxes.some(function (boxItem) {
-                    return utils.isThereAnIntersection(box, boxItem);
+                    return env.utils.isThereAnIntersection(box, boxItem);
                 });
             };
 

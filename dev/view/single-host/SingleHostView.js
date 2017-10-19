@@ -1,6 +1,5 @@
 
 define([
-    "tracemon.env.utils",
     "tracemon.env.config",
     "tracemon.env.languages.en",
     "tracemon.lib.jquery-amd",
@@ -11,14 +10,14 @@ define([
     "tracemon.view.single-host.path-view",
     "tracemon.view.single-host.node-view",
     "tracemon.view.single-host.edge-view"
-], function(utils, config, lang, $, moment, d3, prefixUtils, LabelPlacement, PathView, NodeView, EdgeView){
+], function(config, lang, $, moment, d3, prefixUtils, LabelPlacement, PathView, NodeView, EdgeView){
 
     var SingleHostView = function(env){
         var $this, labelPlacement, cache, nodeBBox, lineFunction, cleanRedraw;
 
         $this = this;
         nodeBBox = (config.graph.nodeRadius * 2) + 5;
-        labelPlacement = new LabelPlacement(nodeBBox, nodeBBox, 14);
+        labelPlacement = new LabelPlacement(nodeBBox, nodeBBox, 14, env);
         cache = {
             nodes: [],
             edges: [],
@@ -38,10 +37,10 @@ define([
         this.hoveredObject = null;
 
         this._setListeners = function(){
-            utils.observer.subscribe("view:probe-set", function () {
+            env.utils.observer.subscribe("view:probe-set", function () {
                 cleanRedraw = true;
             });
-            utils.observer.subscribe("model.host:change", function(host){
+            env.utils.observer.subscribe("model.host:change", function(host){
                 var nodeView, nodesToUpdate;
 
                 nodeView = $this.nodes[host.getId()];
@@ -53,24 +52,24 @@ define([
                 }
             }, this);
 
-            utils.observer.subscribe("model.as:change", function(asObj){
+            env.utils.observer.subscribe("model.as:change", function(asObj){
                 this._drawLabels({
                     nodes: $.map(asObj.getHosts(),function(host){
                         return $this.nodes[host.getId()];
                     })
                 });
             }, this);
-            utils.observer.subscribe("view.label-level:change", this._drawLabels, this);
-            utils.observer.subscribe("view.traceroute:mousein", function(traceroute){
+            env.utils.observer.subscribe("view.label-level:change", this._drawLabels, this);
+            env.utils.observer.subscribe("view.traceroute:mousein", function(traceroute){
                 this.dryUpdate();
                 this._showDirection(traceroute, true);
             }, this);
-            utils.observer.subscribe("view.traceroute:mouseout", function(traceroute){
+            env.utils.observer.subscribe("view.traceroute:mouseout", function(traceroute){
                 this.dryUpdate();
                 this._showDirection(traceroute, false);
             }, this);
-            utils.observer.subscribe("view.traceroute.search:new", this.dryUpdate, this);
-            utils.observer.subscribe("view.traceroute.search:change", this.dryUpdate, this);
+            env.utils.observer.subscribe("view.traceroute.search:new", this.dryUpdate, this);
+            env.utils.observer.subscribe("view.traceroute.search:change", this.dryUpdate, this);
         };
 
         this._calculateLabelPosition = function(labelView){
@@ -147,7 +146,6 @@ define([
         };
 
         this.dryUpdate = function () {
-            console.log("dry update");
             this._updateNodesGraphAttributes();
             this._drawPaths();
             this._drawEdges();
@@ -388,7 +386,7 @@ define([
 
             if (hovered) {
                 path = env.mainView.pathsContainer
-                    .select(this.traceroutes[utils.getIdFromIp(traceroute.stateKey)].getClass(true));
+                    .select(this.traceroutes[env.utils.getIdFromIp(traceroute.stateKey)].getClass(true));
 
                 marker = env.mainView.svg
                     .append("circle")
@@ -555,13 +553,13 @@ define([
                     nodeView.isHovered(true);
                     $this.hoveredObject = nodeView;
                     $this.dryUpdate();
-                    utils.observer.publish("view.host:mousein", nodeView.model);
+                    env.utils.observer.publish("view.host:mousein", nodeView.model);
                 })
                 .on("mouseout", function(nodeView){
                     nodeView.isHovered(false);
                     $this.hoveredObject = null;
                     $this.dryUpdate();
-                    utils.observer.publish("view.host:mouseout", nodeView.model);
+                    env.utils.observer.publish("view.host:mouseout", nodeView.model);
                 })
                 .each(function(nodeView){
                     if (nodeView.getAnnotation()) {
@@ -650,19 +648,19 @@ define([
                     if (!pathView.isFocusOut()) {
                         $this.hoveredObject = pathView;
                         pathView.isHovered(true);
-                        utils.observer.publish("view.traceroute:mousein", pathView.model);
+                        env.utils.observer.publish("view.traceroute:mousein", pathView.model);
                     }
                 })
                 .on("mouseout", function(pathView){
                     if (!pathView.isFocusOut()) {
                         $this.hoveredObject = null;
                         pathView.isHovered(false);
-                        utils.observer.publish("view.traceroute:mouseout", pathView.model);
+                        env.utils.observer.publish("view.traceroute:mouseout", pathView.model);
                     }
                 })
                 .on("mousedown", function(pathView){
                     if (!pathView.isFocusOut()) {
-                        utils.observer.publish("view.traceroute:click", pathView.model);
+                        env.utils.observer.publish("view.traceroute:click", pathView.model);
                     }
                 });
 
@@ -752,7 +750,7 @@ define([
             var duration, element;
 
             oldTraceroute = new PathView(env, oldTraceroute);
-            newTraceroute = this.traceroutes[utils.getIdFromIp(newTraceroute.stateKey)];
+            newTraceroute = this.traceroutes[env.utils.getIdFromIp(newTraceroute.stateKey)];
 
             duration = $this._getAnimationTransitionTime("pathChange");
 

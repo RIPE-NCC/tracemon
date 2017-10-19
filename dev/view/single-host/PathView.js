@@ -1,9 +1,7 @@
-define([
-    "tracemon.env.utils"
-], function(utils){
+define([], function(){
 
     var PathView = function(env, model) {
-        this.id = utils.getIdFromIp(model.stateKey);
+        this.id = env.utils.getIdFromIp(model.stateKey);
         this.model = model;
         this.env = env;
         this._edges = [];

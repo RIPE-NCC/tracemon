@@ -1,9 +1,6 @@
-define([
-    "tracemon.env.utils",
-    "tracemon.lib.jquery-amd"
-], function(utils, $) {
+define(["tracemon.env.utils"], function(utils) {
 
-    var Host = function (ip) { // Proxy
+    var Host = function (ip, env) { // Proxy
         this.ip = ip;
         this.isIxp = false;
         this.isProbe = false;
@@ -16,7 +13,7 @@ define([
         this.dirty = false;
 
         if (this.ip) {
-            this.isPrivate = utils.isPrivateIp(ip);
+            this.isPrivate =  env.utils.isPrivateIp(ip);
         }
 
         this.isEditable = (!this.isPrivate && !this.isProbe && this.ip && true);

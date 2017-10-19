@@ -1,9 +1,7 @@
-define([
-    "tracemon.env.utils"
-], function(utils){
+define([], function(){
 
     var EdgeView = function(env, fromNodeView, toNodeView) {
-        this.id = utils.getIdFromIp(fromNodeView.model.getId()) + "-" + utils.getIdFromIp(toNodeView.model.getId());
+        this.id = env.utils.getIdFromIp(fromNodeView.model.getId()) + "-" + env.utils.getIdFromIp(toNodeView.model.getId());
         this.from = fromNodeView;
         this.env = env;
         this.to = toNodeView;

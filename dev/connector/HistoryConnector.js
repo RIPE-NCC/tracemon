@@ -6,10 +6,8 @@
 
 define([
     "tracemon.env.config",
-    "tracemon.env.utils",
-    "tracemon.lib.jquery-amd",
-    "tracemon.lib.moment"
-], function(config, utils, $, moment) {
+    "tracemon.lib.jquery-amd"
+], function(config, $) {
 
     var HistoryConnector = function (env) {
         var hostsResolutionByIp, geolocByIp, neighboursByAsn, probesInfo, measurementInfo, callsBundler;
@@ -59,7 +57,7 @@ define([
                 url: env.dataApiResults.replace("0000", measurementId),
                 data: queryParams,
                 error: function () {
-                    utils.observer.publish("error", {
+                    env.utils.observer.publish("error", {
                         type: 408,
                         message: config.errors[408]
                     });
@@ -78,7 +76,7 @@ define([
                     timeout: config.ajaxTimeout,
                     url: env.dataApiMetadata.replace("0000", measurementId),
                     error: function () {
-                        utils.observer.publish("error", {
+                        env.utils.observer.publish("error", {
                             type: 408,
                             message: config.errors[408]
                         });
@@ -103,7 +101,7 @@ define([
                         resource: ip
                     },
                     error: function () {
-                        utils.observer.publish("error", {
+                        env.utils.observer.publish("error", {
                             type: 408,
                             message: config.errors[408]
                         });
@@ -131,7 +129,7 @@ define([
                             resources: ips.join(",")
                         },
                         error: function () {
-                            utils.observer.publish("error", {
+                            env.utils.observer.publish("error", {
                                 type: "408",
                                 message: config.errors["408"]
                             });
@@ -180,7 +178,7 @@ define([
                         resource: asn
                     },
                     error: function () {
-                        utils.observer.publish("error", {
+                        env.utils.observer.publish("error", {
                             type: "408",
                             message: config.errors["408"]
                         });
@@ -208,7 +206,7 @@ define([
                         type: "jsonp"
                     },
                     error: function () {
-                        utils.observer.publish("error", {
+                        env.utils.observer.publish("error", {
                             type: 408,
                             message: config.errors[408]
                         });

@@ -1,10 +1,9 @@
 
 define([
-    "tracemon.env.utils",
     "tracemon.env.config",
     "tracemon.lib.jquery-amd",
     "tracemon.lib.moment"
-], function(utils, config, $, moment){
+], function(config, $, moment){
 
     var latencyMonAdapter = function(env){
 
@@ -14,10 +13,10 @@ define([
         this.enabled = (typeof window.initLatencymon != "undefined" && !env.onlyGraph);
 
         this.setListeners = function(){
-            utils.observer.subscribe("model.measurement:new", this.addMeasurement, this);
-            utils.observer.subscribe("view.current-instant:change", this.updateTimeCursor, this);
-            utils.observer.subscribe("view.time-selection:change", this.setTimeRange, this);
-            utils.observer.subscribe("view:probe-set", this.updateProbeSet, this);
+            env.utils.observer.subscribe("model.measurement:new", this.addMeasurement, this);
+            env.utils.observer.subscribe("view.current-instant:change", this.updateTimeCursor, this);
+            env.utils.observer.subscribe("view.time-selection:change", this.setTimeRange, this);
+            env.utils.observer.subscribe("view:probe-set", this.updateProbeSet, this);
 
         };
 
@@ -119,7 +118,7 @@ define([
                         });
 
                 } else {
-                    utils.observer.publish("error", {
+                    env.utils.observer.publish("error", {
                         type: 603,
                         message: config.errors[603]
                     });

@@ -6,13 +6,12 @@
 
 define([
     "tracemon.env.config",
-    "tracemon.env.utils",
     "tracemon.lib.jquery-amd",
     "tracemon.model.autonomousSystem",
     "tracemon.lib.parsePrefix",
     "tracemon.connector.short-name"
 
-], function(config, utils, $, AutonomousSystem, prefixUtils, ShortNameConnector) {
+], function(config, $, AutonomousSystem, prefixUtils, ShortNameConnector) {
 
     var AsnLookupConnector = function (env) {
         var hosts, $this, lookups, shortNameConnector;
@@ -92,7 +91,7 @@ define([
 
         this._updateObject = function (host, asObj){
             host.setAutonomousSystem(asObj);
-            utils.observer.publish("model.host:change", host);
+            env.utils.observer.publish("model.host:change", host);
         };
 
         this._getSamePrefixAs = function(ip){
@@ -124,7 +123,7 @@ define([
                 autonomousSystemObj.extra = asnData["block"];
                 shortNameConnector.enrichShortName(autonomousSystemObj);
                 this.autonomousSystemsByAs[asn] = autonomousSystemObj; // Store it
-                utils.observer.publish("model.as:new", autonomousSystemObj);
+                env.utils.observer.publish("model.as:new", autonomousSystemObj);
             }
 
             return autonomousSystemObj;

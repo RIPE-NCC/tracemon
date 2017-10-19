@@ -39,7 +39,8 @@
         "tracemon.lib.reparse": "dev/libs/reparse",
         "tracemon.lib.expression": "dev/libs/expression",
         "tracemon.lib.moment": "dev/libs/moment",
-        "tracemon.lib.viz": "dev/libs/viz",
+        "tracemon.lib.viz": "dev/libs/graphviz-amd",
+        "tracemon.lib.graphViz": "dev/libs/viz",
 
 
         /* view */
@@ -134,9 +135,9 @@
     },
     stubModules: ["tracemon.lib.text", "tracemon.lib.stache"],
     removeCombined: true,
-    optimize: "uglify2",//uglify2
+    optimize: "none",//uglify2
     wrapShim: false,
-    generateSourceMaps: true,
+    generateSourceMaps: false,
 
     out: "tracemon-dist.js"
 

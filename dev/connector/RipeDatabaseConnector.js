@@ -6,10 +6,8 @@
 
 define([
     "tracemon.env.config",
-    "tracemon.env.utils",
-    "tracemon.lib.jquery-amd",
-    "tracemon.lib.moment"
-], function(config, utils, $, moment) {
+    "tracemon.lib.jquery-amd"
+], function(config, $) {
 
     var RipeDatabaseConnector = function (env) {
         var contactsByAsn, $this, abuseContactByAsn;
@@ -207,7 +205,7 @@ define([
                         resource: "AS" + asn
                     },
                     error: function () {
-                        utils.observer.publish("error", {
+                        env.utils.observer.publish("error", {
                             type: "408",
                             message: config.errors["408"]
                         });
@@ -228,7 +226,7 @@ define([
                     timeout: config.ajaxTimeout,
                     url: config.dataAPIs.ripeDatabase.whois.replace("0000", asn),
                     error: function () {
-                        utils.observer.publish("error", {
+                        env.utils.observer.publish("error", {
                             type: "408",
                             message: config.errors["408"]
                         });
@@ -248,7 +246,7 @@ define([
                 timeout: config.ajaxTimeout,
                 url: config.dataAPIs.ripeDatabase.role.replace("0000", roleId),
                 error: function () {
-                    utils.observer.publish("error", {
+                    env.utils.observer.publish("error", {
                         type: "408",
                         message: config.errors["408"]
                     });
@@ -264,7 +262,7 @@ define([
                 timeout: config.ajaxTimeout,
                 url: config.dataAPIs.ripeDatabase.person.replace("0000", personId),
                 error: function () {
-                    utils.observer.publish("error", {
+                    env.utils.observer.publish("error", {
                         type: "408",
                         message: config.errors["408"]
                     });

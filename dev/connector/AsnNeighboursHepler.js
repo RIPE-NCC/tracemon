@@ -5,9 +5,8 @@
  */
 
 define([
-    "tracemon.env.config",
-    "tracemon.env.utils"
-], function(config, utils) {
+    "tracemon.env.config"
+], function(config) {
 
     var AsnNeighboursHelper = function (env) {
         /**

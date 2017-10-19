@@ -1,11 +1,10 @@
 
 define([
-    "tracemon.env.utils",
     "tracemon.env.config",
     "tracemon.env.languages.en",
     "tracemon.lib.jquery-amd",
     "tracemon.lib.d3-amd"
-], function(utils, config, lang, $, d3){
+], function(config, lang, $, d3){
 
     var ASView = function(env){
         var $this, asColors, assignedColors;

@@ -20,9 +20,8 @@
 
 define([
     "tracemon.env.config",
-    "tracemon.env.utils",
     "tracemon.lib.moment"
-], function(config, utils, moment){
+], function(config, moment){
 
     var HistoryManager = function(env){
         var $this, previousQuery;
@@ -48,8 +47,8 @@ define([
         };
 
         this._setListeners = function(){
-            utils.observer.subscribe("model.history:new", this.updateIndex, this);
-            utils.observer.subscribe("model.history:change", this.updateIndex, this);
+            env.utils.observer.subscribe("model.history:new", this.updateIndex, this);
+            env.utils.observer.subscribe("model.history:change", this.updateIndex, this);
         };
 
         this.reset = function(){
@@ -88,7 +87,7 @@ define([
         this.stopEmulation = function () {
             env.emulationRunning = false;
             console.log("emulation stopped");
-            utils.observer.publish("view.animation:stop", env.finalQueryParams.instant);
+            env.utils.observer.publish("view.animation:stop", env.finalQueryParams.instant);
         };
 
         this.getEmulationSpeed = function () {
@@ -102,7 +101,7 @@ define([
                 env.finalQueryParams.instant = moment(env.finalQueryParams.startDate);
             }
 
-            utils.observer.publish("view.animation:start", env.finalQueryParams.instant);
+            env.utils.observer.publish("view.animation:start", env.finalQueryParams.instant);
 
             var emulate = function(){
                 if (env.emulationRunning) {
@@ -124,7 +123,7 @@ define([
                             if (n == length - 1) {
                                 env.emulationRunning = false;
                                 console.log("animation stop");
-                                utils.observer.publish("view.animation:stop", env.finalQueryParams.instant);
+                                env.utils.observer.publish("view.animation:stop", env.finalQueryParams.instant);
                             } else {
                                 setTimeout(emulate, $this.getEmulationSpeed());
                             }
@@ -156,7 +155,7 @@ define([
         this.setCurrentInstant = function(instant){
             env.finalQueryParams.instant = instant;
             $this.getCurrentState();
-            utils.observer.publish("view.current-instant:change", env.finalQueryParams.instant);
+            env.utils.observer.publish("view.current-instant:change", env.finalQueryParams.instant);
         };
 
         this._getStateAt = function(date){
@@ -164,7 +163,7 @@ define([
 
             newQuery = {
                 instant: moment(date),
-                sources: utils.clone(env.finalQueryParams.sources)
+                sources: env.utils.clone(env.finalQueryParams.sources)
             };
 
             if ((env.metaData.startDate.isSameOrBefore(date)) && (!env.metaData.stopDate || env.metaData.stopDate.isSameOrAfter(date))){
@@ -174,7 +173,7 @@ define([
                 }
 
                 if (this._isStatusChanged(newQuery)) {
-                    utils.observer.publish("view.status:change", out);
+                    env.utils.observer.publish("view.status:change", out);
                 } else {
                     console.log("no changes in the status");
                 }
@@ -182,7 +181,7 @@ define([
                 previousQuery = newQuery;
 
             } else {
-                utils.observer.publish("error", { type: 508, message: config.errors[508]});
+                env.utils.observer.publish("error", { type: 508, message: config.errors[508]});
             }
 
             return out;
