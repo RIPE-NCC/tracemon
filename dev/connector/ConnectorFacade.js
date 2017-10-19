@@ -287,7 +287,7 @@ define([
                     }
                     deferredCall.resolve();
                 }, function(error){
-                    $this._handleError(error);
+                    // $this._handleError(error);
                     deferredCall.reject();
                 });
 
