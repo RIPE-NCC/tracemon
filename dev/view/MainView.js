@@ -13,9 +13,8 @@ define([
 ], function(config, lang, $, d3, TemplateManagerView, SingleHostView, ASView, LocationView, GraphWrapper, LatencyMonAdapter){
 
     var MainView = function(env){
-        var $this, firstDraw;
+        var firstDraw;
 
-        $this = this;
         this.hosts = {};
         this._oldStatus = {};
         this._drawnStatus = null;
@@ -115,7 +114,7 @@ define([
                 });
 
                 firstDraw = false;
-                this.latencymon.init(".latencymon-chart", env.queryParams.measurements, env.finalQueryParams.sources); // Init LatencyMON
+                this.latencymon.init(env.parentDom.selector + " .latencymon-chart", env.queryParams.measurements, env.finalQueryParams.sources); // Init LatencyMON
             } else {
                 env.utils.observer.publish("error", {
                     type: "324",
@@ -291,8 +290,9 @@ define([
 
         this.init = function () {
             env.template = new TemplateManagerView(env);
-            env.template.init();
             this.latencymon = new LatencyMonAdapter(env);
+
+            env.template.init();
             this.graph = new GraphWrapper(env);
             this.setListeners();
         };

@@ -29,11 +29,20 @@ define([
                     type: "POST",
                     url: env.persistHostApi.replace("0000", host.ip),
                     data: this._serializeHost(host),
-                    dataType: "json"
+                    dataType: "json",
+                    error: function () {
+                        env.utils.observer.publish("error", {
+                            type: "696",
+                            message: config.errors["696"]
+                        });
+                    }
                 });
 
             } else {
-                throw "502"; // The resource cannot be persisted
+                env.utils.observer.publish("error", {
+                    type: "502",
+                    message: config.errors["502"]
+                });
             }
         }
 
