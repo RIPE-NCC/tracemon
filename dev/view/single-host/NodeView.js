@@ -7,6 +7,7 @@ define([
     var NodeView = function(env, model) {
         this.id = utils.getIdFromIp(model.getId());
         this.model = model;
+        this.env = env;
         this.traceroutes = [];
         this.type = "nodeView";
         this._hovered = false;
@@ -42,7 +43,7 @@ define([
         isPathHovered: function(){
             var hoveredPath;
 
-            hoveredPath = env.mainView.view.hoveredObject;
+            hoveredPath = this.env.mainView.view.hoveredObject;
             if (hoveredPath && hoveredPath.type == "pathView"){
                 for (var n=0,length=this.traceroutes.length; n<length; n++){
                     if (this.traceroutes[n].model.stateKey == hoveredPath.model.stateKey){
@@ -81,7 +82,7 @@ define([
 
         update: function(){
             this.id = utils.getIdFromIp(this.model.getId());
-            this._graphNode = env.mainView.graph.getNode(this.model.getId());
+            this._graphNode = this.env.mainView.graph.getNode(this.model.getId());
 
             if (this._graphNode) {
                 this.x = this._graphNode.x;
@@ -93,10 +94,10 @@ define([
         },
 
         isFocusOut: function () {
-            if (env.currentSearchResults) {
+            if (this.env.currentSearchResults) {
                 var traceroutes = this.traceroutes;
                 for (var n=0,length=traceroutes.length; n<length; n++){
-                    if (env.currentSearchResults.in[traceroutes[n].model.id]){
+                    if (this.env.currentSearchResults.in[traceroutes[n].model.id]){
                         return false;
                     }
                 }
@@ -211,8 +212,8 @@ define([
             latencies = this.getLatencies();
             links = {
                 bgplay: config.externalLinks.bgplay.replace("0000", this.model.ip)
-                    .replace("1111", env.finalQueryParams.startDate.unix())
-                    .replace("2222", env.finalQueryParams.stopDate.unix())
+                    .replace("1111", this.env.finalQueryParams.startDate.unix())
+                    .replace("2222", this.env.finalQueryParams.stopDate.unix())
             };
             extras = [];
             asObj = this.model.getAutonomousSystem();
@@ -248,7 +249,7 @@ define([
                 } : null)
             };
 
-            return env.template.getHostPopoverContent(templatingParams);
+            return this.env.template.getHostPopoverContent(templatingParams);
         }
 
     };

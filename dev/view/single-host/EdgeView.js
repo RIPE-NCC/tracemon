@@ -5,6 +5,7 @@ define([
     var EdgeView = function(env, fromNodeView, toNodeView) {
         this.id = utils.getIdFromIp(fromNodeView.model.getId()) + "-" + utils.getIdFromIp(toNodeView.model.getId());
         this.from = fromNodeView;
+        this.env = env;
         this.to = toNodeView;
         this.type = "edgeView";
 
@@ -40,11 +41,11 @@ define([
             points = [];
             fromId = this.from.model.getId();
             toId = this.to.model.getId();
-            edge = env.mainView.graph.getEdge(fromId, toId);
+            edge = this.env.mainView.graph.getEdge(fromId, toId);
             edgePoints = (edge) ? edge.points : [];
-            points.push(env.mainView.graph.getNode(fromId));
+            points.push(this.env.mainView.graph.getNode(fromId));
             points = points.concat(edgePoints);
-            points.push(env.mainView.graph.getNode(toId));
+            points.push(this.env.mainView.graph.getNode(toId));
 
             return points;
         },
@@ -97,7 +98,7 @@ define([
         },
 
         isFocusOut: function () {
-            if (env.currentSearchResults) {
+            if (this.env.currentSearchResults) {
                 return this.from.isFocusOut() || this.to.isFocusOut();
             }
 

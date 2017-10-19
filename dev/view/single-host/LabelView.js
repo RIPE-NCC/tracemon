@@ -4,6 +4,7 @@ define([
 
     var LabelView = function(env, nodeView) {
         this.id = nodeView.id;
+        this.env = env;
         this.node = nodeView;
         this.type = "labelView";
         this.x = null;
@@ -26,7 +27,7 @@ define([
             isVisible = !this.isFocusOut()
                 && (this.isSelected()
                     || this.isHovered()
-                    || (!env.mainView.view.hoveredObject || env.mainView.view.hoveredObject.isFocusOut())
+                    || (!this.env.mainView.view.hoveredObject || this.env.mainView.view.hoveredObject.isFocusOut())
                 );
 
 
@@ -75,7 +76,7 @@ define([
         getText: function(){
             var label, place, location;
 
-            switch (env.labelLevel){
+            switch (this.env.labelLevel){
                 case "geo":
 
                     if (this.node.model.isPrivate){
@@ -87,7 +88,7 @@ define([
                         place = [];
                         if (location === undefined) {
                             if (!this._cache.geolocationLoading) {
-                                this._cache.geolocationLoading = env.connector
+                                this._cache.geolocationLoading = this.env.connector
                                     .getGeolocation(this.node.model);
                                 label = "loading...";
                             }
@@ -111,7 +112,7 @@ define([
                     } else if (this.node.model.reverseDns !== undefined){
                         label = (this.node.model.reverseDns) ? this.node.model.reverseDns.complete : "";
                     } else if (!this._cache.reverseLoading) {
-                        this._cache.reverseLoading = env.connector
+                        this._cache.reverseLoading = this.env.connector
                             .getHostReverseDns(this.node.model);
                         label = "loading...";
                     }
@@ -131,7 +132,7 @@ define([
 
             label = ""; // Empty if no short label available!
             nodeAs = this.node.model.getAutonomousSystem();
-            switch (env.labelLevel){
+            switch (this.env.labelLevel){
                 case "geo":
                     if (this.node.model.isPrivate){
                         label = "";
@@ -141,7 +142,7 @@ define([
                         location = this.node.model.getLocation();
                         if (location === undefined) {
                             if (!this._cache.geolocationLoading) {
-                                this._cache.geolocationLoading = env.connector
+                                this._cache.geolocationLoading = this.env.connector
                                     .getGeolocation(this.node.model);
                                 label = "loading...";
                             }
@@ -161,7 +162,7 @@ define([
                     } else if (this.node.model.reverseDns !== undefined){
                         label = (this.node.model.reverseDns) ? this.node.model.reverseDns.short : "";
                     } else if (!this._cache.reverseLoading) {
-                        this._cache.reverseLoading = env.connector
+                        this._cache.reverseLoading = this.env.connector
                             .getHostReverseDns(this.node.model);
                         label = "loading...";
                     }

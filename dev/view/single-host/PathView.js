@@ -5,6 +5,7 @@ define([
     var PathView = function(env, model) {
         this.id = utils.getIdFromIp(model.stateKey);
         this.model = model;
+        this.env = env;
         this._edges = [];
         this._edgesMap = {};
         this.type = "pathView";
@@ -79,7 +80,7 @@ define([
                 var hosts = this.model.getHostList();
                 this._nodeViewsList = [];
                 for (var n=0,length=hosts.length; n<length; n++){
-                    this._nodeViewsList.push(env.mainView.view.nodes[hosts[n].getId()]);
+                    this._nodeViewsList.push(this.env.mainView.view.nodes[hosts[n].getId()]);
                 }
             }
 
@@ -95,8 +96,8 @@ define([
         },
 
         isFocusOut: function () {
-            if (env.currentSearchResults) {
-                return !env.currentSearchResults.in[this.model.id];
+            if (this.env.currentSearchResults) {
+                return !this.env.currentSearchResults.in[this.model.id];
             }
 
             return false;
