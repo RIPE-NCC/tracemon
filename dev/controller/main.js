@@ -31,7 +31,7 @@ define([
         this.exposedMethods = ["on", "getMeasurements", "getCurrentState", "addMeasurement", "persist", "getSvg",
             "addMeasurements", "applyConfiguration", "getSelectedSources", "setSelectedSources", "addSelectedSource",
             "getSources", "setTimeRange", "removeMeasurement", "goTo", "init", "getVersion", "updateData",
-            "persistLog", "getHosts"];
+            "persistLog", "getHosts", "getSparseHost"];
 
 
         this._checkCursorPosition = function(){
@@ -464,6 +464,10 @@ define([
         this.getHosts = function () {
             return env.connector.getHosts();
         };
+
+        this.getSparseHost = function (ip) {
+            return env.connector.getSparseHost(ip);
+        }
 
     };
 

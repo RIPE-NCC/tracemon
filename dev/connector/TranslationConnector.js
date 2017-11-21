@@ -121,7 +121,6 @@ define([
                 });
 
         };
-        
 
         /* Issue: Sometimes the same IP appears twice on the traceroute due to...(BGP conversion, traceroute anomalities)
          * this creates cycles destroying the layout.
@@ -240,7 +239,6 @@ define([
 
             hostHelper.scanAllTraceroutes(dump);
         };
-
 
         this._createHost = function(address, name, asn, isLast, probeId, hostGeolocation){
             var host, update;
@@ -555,6 +553,10 @@ define([
 
         this.getSourceHosts = function () {
             return this.hostByProbeId;
+        };
+        
+        this.getSparseHost = function (ip) {
+            return this._createHost(ip, null, null, false, null, undefined);
         };
 
         this.getProbesInfo = function(measurementId){

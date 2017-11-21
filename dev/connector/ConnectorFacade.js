@@ -223,7 +223,7 @@ define([
             return deferredCall.promise();
         };
 
-        this.getHosts = function(){
+        this.getHosts = function() {
             return translateConnector.getHosts();
         };
 
@@ -263,7 +263,7 @@ define([
             return ripeDatabaseConnector.getAutonomousSystemContacts(asObject.id).fail($this._handleError);
         };
 
-        this.persist = function(){
+        this.persist = function() {
             var hosts, host, callsArray, deferredCall;
 
 
@@ -287,12 +287,18 @@ define([
                     }
                     deferredCall.resolve();
                 }, function(error){
-                    // $this._handleError(error);
+                    for (var n=0,length=hosts.length; n<length; n++) {
+                        hosts[n].dirty = false;
+                    }
                     deferredCall.reject();
                 });
 
             return deferredCall.promise();
         };
+        
+        this.getSparseHost = function (ip) {
+            return translateConnector.getSparseHost(ip);
+        }
     };
 
     return ConnectorFacade;
