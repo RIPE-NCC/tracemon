@@ -484,18 +484,26 @@ define([
                     var geolocation;
 
                     if (geolocRaw) {
-                        // Format for suggestor API
-                        geolocation = {
-                            city: geolocRaw["cityName"],
-                            countryCode: geolocRaw["countryCodeAlpha2"],
-                            id: geolocRaw["id"],
-                            type: geolocRaw["type"],
-                            score: geolocRaw["score"]
-                        };
 
-                        if (geolocation.score > 90) {
-                            host.isEditable = false;
+                        if (geolocRaw.locating){
+                            env.utils.observer.publish("model.host:locating", host);
                         }
+                        if (geolocRaw["id"]){ // There is anyway a location
+                            // Format for suggestor API
+                            geolocation = {
+                                city: geolocRaw["cityName"],
+                                countryCode: geolocRaw["countryCodeAlpha2"],
+                                id: geolocRaw["id"],
+                                type: geolocRaw["type"],
+                                score: geolocRaw["score"]
+                            };
+
+                            if (geolocation.score > 90) {
+                                host.isEditable = false;
+                            }
+                        }
+                    } else {
+                        env.utils.observer.publish("model.host:no-location", host);
                     }
 
                     $this.geolocByIp[host.ip] = geolocation;
@@ -554,7 +562,7 @@ define([
         this.getSourceHosts = function () {
             return this.hostByProbeId;
         };
-        
+
         this.getSparseHost = function (ip) {
             return this._createHost(ip, null, null, false, null, undefined);
         };

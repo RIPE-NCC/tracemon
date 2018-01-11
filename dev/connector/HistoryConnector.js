@@ -117,32 +117,48 @@ define([
             var deferredCall, realCall;
 
             realCall = function(queries){
-                    var ips = Object.keys(queries);
+                var ips = Object.keys(queries);
 
-                    $.ajax({
-                        dataType: "jsonp",
-                        cache: false,
-                        async: true,
-                        timeout: config.ajaxTimeout,
-                        url: env.dataApiGeolocation,
-                        data: {
-                            resources: ips.join(",")
-                        },
-                        error: function () {
-                            env.utils.observer.publish("error", {
-                                type: "408",
-                                message: config.errors["408"]
-                            });
+                $.ajax({
+                    dataType: "jsonp",
+                    cache: false,
+                    async: true,
+                    timeout: config.ajaxTimeout,
+                    url: env.dataApiGeolocation,
+                    data: {
+                        resources: ips.join(",")
+                    },
+                    error: function () {
+                        env.utils.observer.publish("error", {
+                            type: "408",
+                            message: config.errors["408"]
+                        });
+                    }
+                }).done(function(locations){
+
+                    var locating = {};
+                    if (locations.metadata && locations.metadata.service && locations.metadata.service.contributions) {
+                        for (var ipContrib in locations.metadata.service.contributions){
+                            var engineContribution = locations.metadata.service.contributions[ipContrib].engines;
+                            engineContribution
+                                .forEach(function(engineContribution){
+                                    locating[ipContrib] = engineContribution.metadata && engineContribution.metadata.locating == true;
+                                })
                         }
-                    }).done(function(locations){
-                        if (locations.data) {
-                            ips.forEach(function (ip) {
-                                queries[ip].resolve(locations.data[ip]);
-                            });
-                        }
-                    });
-                };
-            
+                    }
+                    if (locations.data) {
+                        ips.forEach(function (ip) {
+                            var geolocation = locations.data[ip];
+                            if (locating[ip]){
+                                geolocation = geolocation || {};
+                                geolocation.locating = true;
+                            }
+                            queries[ip].resolve(geolocation);
+                        });
+                    }
+                });
+            };
+
             if (force || !geolocByIp[ip]){
                 deferredCall = $.Deferred();
                 geolocByIp[ip] = deferredCall.promise();
@@ -156,7 +172,7 @@ define([
                     }, config.queryGroupingAntiFlood);
                 } else {
                     realCall(callsBundler.queries);
-                    callsBundler.queries = {}; 
+                    callsBundler.queries = {};
                 }
             }
 

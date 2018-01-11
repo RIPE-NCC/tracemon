@@ -30,6 +30,10 @@ utils.observer.publish("view.current-instant:change", Moment);
 
 utils.observer.publish("model.ready", return getModel());
 utils.observer.publish("model.host:new", Host);
+
+utils.observer.publish("model.host:locating", Host);
+utils.observer.publish("model.host:no-location", Host);
+
 utils.observer.publish("model.host:change", Host);
 utils.observer.publish("model.as:new", AutonomousSystem);
 utils.observer.publish("model.as:change", AutonomousSystem);
