@@ -24,6 +24,8 @@ define([
             triangulated: {}
         };
 
+        env.utils.observer.subscribe("model.host:locating", this.tryGeolocatingAgain, this);
+
         if (env.sendErrors) {
             window.onerror = function (error, url, line) {
                 $this.persistLog("document", error + " url: " + url + " line: " + line);
@@ -32,7 +34,6 @@ define([
             env.utils.observer.subscribe("error", function (error) {
                 this.persistLog(error.type, error.message);
             }, this);
-
 
         }
 
