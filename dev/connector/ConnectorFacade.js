@@ -24,7 +24,6 @@ define([
             triangulated: {}
         };
 
-        env.utils.observer.subscribe("model.host:locating", this.tryGeolocatingAgain, this);
 
         if (env.sendErrors) {
             window.onerror = function (error, url, line) {
@@ -302,7 +301,9 @@ define([
         
         this.getSparseHost = function (ip) {
             return translateConnector.getSparseHost(ip);
-        }
+        };
+
+        env.utils.observer.subscribe("model.host:locating", this.tryGeolocatingAgain, this);
     };
 
     return ConnectorFacade;
