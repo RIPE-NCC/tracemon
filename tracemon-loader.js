@@ -170,7 +170,7 @@ define([
         }
 
         env = {
-            "version": "18.1.11.2",
+            "version": "18.1.29.2",
             "dev": instanceParams.dev,
             "widgetUrl": TRACEMON_WIDGET_URL + "dev/",
             "utils": utils,
@@ -184,6 +184,7 @@ define([
             "persistHostApi": instanceParams.persistHostApi || config.dataAPIs.persistHostApi,
             "dataApiAsnNeighbours": instanceParams.dataApiAsnNeighbours || config.dataAPIs.dataApiAsnNeighbours,
             "streamingUrl": instanceParams.streamingHost || config.streamingUrl,
+            "trackingKey": instanceParams.trackingKey || config.defaultTrackingKey,
             "viewName": instanceParams.view || config.defaultViewName,
             "aggregateIPv4": instanceParams.aggregateIPv4 || config.defaultAggregationIPv4,
             "aggregateIPv6": instanceParams.aggregateIPv6 || config.defaultAggregationIPv6,

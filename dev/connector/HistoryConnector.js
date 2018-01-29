@@ -126,7 +126,8 @@ define([
                     timeout: config.ajaxTimeout,
                     url: env.dataApiGeolocation,
                     data: {
-                        resources: ips.join(",")
+                        resources: ips.join(","),
+                        trackingKey: env.trackingKey
                     },
                     error: function () {
                         env.utils.observer.publish("error", {

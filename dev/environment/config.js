@@ -7,6 +7,7 @@ define([], function(){
 
     return {
         widgetPrefix: "tm",
+        defaultTrackingKey: "tracemon",
         dataAPIs: {
             // results: "http://localhost/unified_api.php?id=0000",
             results: "https://massimo.ripe.net/tracemon/unified_api.php?id=0000",
