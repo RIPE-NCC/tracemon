@@ -355,7 +355,7 @@ define([
                 try{
                     historyConnector.getMeasurementInfo(measurementId)
                         .done(function (data) {
-                            var measurement, targetHost, extra, error;
+                            var measurement, targetHost, extra, error, interval;
 
                             error = data["error"];
                             if (error) {
@@ -363,7 +363,9 @@ define([
                             } else if (data["type"] != "traceroute") {
                                 deferredCall.reject("406");
                             } else {
-                                targetHost = $this._createHost(data["target_ip"], data["target"], -1, null, null, data["target_location"]);
+
+                                interval = (!data["is_oneoff"]) ? data["native_sampling"] : null;
+                                targetHost = $this._createHost(data["target_ip"], data["target"], -1, null, null, interval);
                                 targetHost.isTarget = true;
                                 measurement = new Measurement(measurementId, targetHost, data["native_sampling"]);
 

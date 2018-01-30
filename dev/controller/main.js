@@ -39,13 +39,24 @@ define([
 
             instant = env.finalQueryParams.instant;
             if (!instant || instant.isBefore(env.finalQueryParams.startDate) || instant.isAfter(env.finalQueryParams.stopDate)) {
-                
+
                 if (config.startWithLastStatus){
-                    env.finalQueryParams.instant = moment.max(env.finalQueryParams.startDate, moment(env.finalQueryParams.stopDate).subtract(config.instantLeftMargin, "s"));
+                    env.finalQueryParams.instant = moment(env.finalQueryParams.stopDate);
                 } else {
-                    env.finalQueryParams.instant = env.finalQueryParams.startDate;
+                    env.finalQueryParams.instant = moment(env.finalQueryParams.startDate);
 
                 }
+            }
+        };
+
+
+        this._checkTimeBoundaries = function () {
+            if (env.finalQueryParams.startDate.isBefore(env.metaData.startDate)) {
+                env.finalQueryParams.startDate = moment(env.metaData.startDate);
+            }
+
+            if (env.finalQueryParams.stopDate.isAfter(env.metaData.stopDate)) {
+                env.finalQueryParams.stopDate = moment(env.metaData.stopDate);
             }
         };
 
@@ -65,12 +76,16 @@ define([
                 env.utils.observer.publish("error", { type: 694, message: config.errors[694] });
             }
 
+            this._checkTimeBoundaries();
+
             this._checkCursorPosition();
         };
+
 
         this._updateFinalQueryParams = function () {
             var initialParams, startDate, stopDate, sourcesAmount, instant, currentTimestamp, now;
 
+            console.log(JSON.stringify(env.metaData));
             now = moment.utc();
             if (Object.keys(env.loadedMeasurements).length > 0) {
 
@@ -105,6 +120,8 @@ define([
 
                 this._checkTimeRangeSize();
                 this._updateSelectedSources();
+
+                console.log(JSON.stringify(env.finalQueryParams));
 
             } else {
                 env.utils.observer.publish("error", { type: 507, message: config.errors[507] });
@@ -435,7 +452,7 @@ define([
                 return false;
             }
         };
-        
+
 
         this.init = function(){
             env.connector = new Connector(env);
@@ -460,7 +477,7 @@ define([
         this.getSvg = function(){
             return env.mainView.getSvg();
         };
-        
+
         this.getHosts = function () {
             return env.connector.getHosts();
         };
