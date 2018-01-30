@@ -105,7 +105,7 @@ define([
             traceroute = currentTraceroutes[source];
 
             if (!this.isOneOff && traceroute.validUpTo) {
-                validUpTo = traceroute.validUpTo.unix() + Math.max(this.interval, config.minimumTracerouteValiditySeconds);
+                validUpTo = traceroute.validUpTo.unix() + Math.max(this.interval * 2, config.minimumTracerouteValiditySeconds);
 
                 if (validUpTo < date.unix()) {
                     delete currentTraceroutes[source];
