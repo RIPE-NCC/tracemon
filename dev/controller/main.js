@@ -85,7 +85,6 @@ define([
         this._updateFinalQueryParams = function () {
             var initialParams, startDate, stopDate, sourcesAmount, instant, currentTimestamp, now;
 
-            console.log(JSON.stringify(env.metaData));
             now = moment.utc();
             if (Object.keys(env.loadedMeasurements).length > 0) {
 
@@ -120,8 +119,6 @@ define([
 
                 this._checkTimeRangeSize();
                 this._updateSelectedSources();
-
-                console.log(JSON.stringify(env.finalQueryParams));
 
             } else {
                 env.utils.observer.publish("error", { type: 507, message: config.errors[507] });
