@@ -9,17 +9,14 @@ define([], function(){
         widgetPrefix: "tm",
         defaultTrackingKey: "tracemon",
         dataAPIs: {
-            // results: "http://localhost/unified_api.php?id=0000",
             results: "https://massimo.ripe.net/tracemon/unified_api.php?id=0000",
             metadata: "https://atlas.ripe.net/api/v2/measurements/0000/routequake/meta/",
             dataApiAsAnnotation: "https://massimo.ripe.net/tracemon/as_lookup.php",
             dataApiReverseDns: "https://stat.ripe.net/data/reverse-dns-ip/data.json",
-            // dataApiGeolocation: "https://stat.ripe.net/data/geoloc/data.json",
-            // dataApiGeolocation: "https://massimo.ripe.net/node/locate",
-            dataApiGeolocation: "https://geo.ripe.net/locate/all/",
+            dataApiGeolocation: "https://openipmap.ripe.net/api/v1/locate/all/",
             dataApiAsnNeighbours: "https://stat.ripe.net/data/asn-neighbours/data.json",
             shortAsNamesApi: "https://massimo.ripe.net/tracemon/short_names.php",
-            persistHostApi: "https://geo.ripe.net/crowdsource/0000",
+            persistHostApi: "https://openipmap.ripe.net/api/v1/crowdsource/0000",
             storageLogRestApiUrl: "//massimo.ripe.net/tracemon/widget_log.php",
             storageErrorRestApiUrl: "//massimo.ripe.net/tracemon/widget_log.php",
             ripeDatabase: {
@@ -29,9 +26,9 @@ define([], function(){
             },
             abuseContactRestApi: "https://stat.ripe.net/data/abuse-contact-finder/data.json",
             peeringDb: {
-                lans: "http://localhost/peering_db.php?type=ixlan",
-                ixps: "https://geo.ripe.net/peeringdb/ixps",
-                prefixes: "http://localhost/peering_db.php?type=ixpfx"
+                // lans: "http://localhost/peering_db.php?type=ixlan",
+                ixps: "https://openipmap.ripe.net/api/v1/peeringdb/ixps",
+                // prefixes: "http://localhost/peering_db.php?type=ixpfx"
             }
         },
         externalLinks: {
@@ -41,8 +38,8 @@ define([], function(){
         },
         autoStart: true,
         defaultViewName: "host",
-        defaultAggregationIPv4: false, //
-        defaultAggregationIPv6: false, //
+        defaultAggregationIPv4: false,
+        defaultAggregationIPv6: false,
         streamingUrl: "https://atlas-stream.ripe.net:443",
         viewsEnabled: ["host", "as"],
         reproductionSpeed: 5, // Default speed of the reproduction between 1 and maxReproductionSpeed

@@ -170,7 +170,7 @@ define([
         }
 
         env = {
-            "version": "18.1.30.2",
+            "version": "18.2.2.2",
             "dev": instanceParams.dev,
             "widgetUrl": TRACEMON_WIDGET_URL + "dev/",
             "utils": utils,
