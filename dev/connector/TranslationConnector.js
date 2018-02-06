@@ -169,6 +169,7 @@ define([
         this.createHosts3 = function (item) {
 
             var deferredCall = $.Deferred();
+
             var dump = [];
             var hops = [];
 
@@ -264,10 +265,8 @@ define([
          * Solutions:
          * 1) prefer to return as getBestAttempts only "new" nodes for that traceroute
          * 2) create a new different host for the second time the same IP appears*/
-        this._enrichDump = function(data, dump){
-            var translated, hops, hop, item, hopList, tracerouteDate, hopCreationCalls,
-                errors, locations, tracerouteList, targetTraceroute, asnObjs, asnTmp, asList,
-                sourceTraceroute, rootMeasurement;
+        this._enrichDump = function(data){
+            var locations, tracerouteList, asnObjs, asnTmp, asList;
 
             asnObjs = {};
             asList = data['asns'] || data['ases'];
@@ -285,12 +284,12 @@ define([
             $.extend(this.geolocations, locations);
             tracerouteList = data['result'] || data['traceroutes'] || [];
 
-            // console.log(tracerouteList.map(this.createHosts3));
-            $.when.apply($, tracerouteList.map(this.createHosts3))
+            return $.when
+                .apply($, tracerouteList.map(this.createHosts3))
                 .then(function (dump) {
-                    dump = [].concat.apply([], dump);
-                    console.log(dump);
-                    hostHelper.scanAllTraceroutes(dump)
+                    dump = [].concat.apply([], arguments);
+                    hostHelper.scanAllTraceroutes(dump);
+                    return dump;
                 });
         };
 
@@ -390,16 +389,15 @@ define([
                 historyConnector
                     .getMeasurementResults(measurement.id, options)
                     .done(function(data){
-                        var newTraceroutes;
-
-                        newTraceroutes = [];
-
                         measurement.empty();
                         $this.tracerouteBySourceTarget = {};
 
-                        $this._enrichDump(data, newTraceroutes);
-                        measurement.addTraceroutes(newTraceroutes);
-                        deferredCall.resolve(measurement);
+                        $this._enrichDump(data)
+                            .then(function (newTraceroutes) {
+                                measurement.addTraceroutes(newTraceroutes);
+                                deferredCall.resolve(measurement);
+                            });
+
                     })
                     .fail(function (error) {
                         deferredCall.reject(error);
