@@ -122,14 +122,151 @@ define([
 
         };
 
+
+        this.createHosts1 = function (attemptTmp, condition, hopObj) {
+            var attemptObj = new Attempt();
+
+            return this._createHost(attemptTmp["from"], null, attemptTmp["as"], condition, null, attemptTmp["geo_key"])
+                .then(function (host) {
+                    attemptObj.host = host;
+
+                    if (attemptTmp["rtt"]) {
+                        attemptObj.rtt = attemptTmp["rtt"];
+                        attemptObj.size = attemptTmp["size"];
+                        attemptObj.ttl = attemptTmp["ttl"];
+                    }
+                    hopObj.addAttempt(attemptObj);
+                });
+        };
+
+        this.createHosts2 = function (hop, hopListLength, hopCount, hops) {
+            var attemptsList, hopObj, deferredCall;
+
+            deferredCall = $.Deferred();
+
+            attemptsList = hop["result"];
+
+            hopObj = new Hop();
+            hopObj.number = hop["hop"];
+
+            var createHostCalls = attemptsList
+                .filter(function(attemptTmp){
+                    return !(config.filterLateAnswers && attemptTmp["from"] && !attemptTmp["rtt"]); // Skip late answers or resending
+                })
+                .map(function(attemptTmp){
+                    return this.createHosts1(attemptTmp, (hopListLength - 1 == hopCount), hopObj);
+                }.bind(this));
+
+            $.when.apply($, createHostCalls)
+                .then(function(){
+                    hops.push(hopObj);
+                    deferredCall.resolve();
+                });
+
+            return deferredCall.promise();
+        };
+
+        this.createHosts3 = function (item) {
+
+            var deferredCall = $.Deferred();
+            var dump = [];
+            var hops = [];
+
+            var tracerouteDate = moment.unix(item["timestamp"]).utc();
+
+            if (selectedProbes.indexOf(item["prb_id"]) == -1){
+                console.log("ALERT: the API is returning more results than what requested. Preformances may be affected.");
+                deferredCall.resolve([]);
+                return;
+            }
+
+            if (tracerouteDate.isAfter(env.finalQueryParams.stopDate)
+                || tracerouteDate.isBefore(env.finalQueryParams.startDate)) {
+                console.log("ALERT: the API is returning results out of the selected time range. They are skipped");
+                deferredCall.resolve([]);
+                return;
+            }
+
+            var errors = [];
+            var hopList = item["result"];
+            var hopCreationCalls = [];
+            for (var hopCount=0, hopListLength=hopList.length; hopCount<hopListLength; hopCount++) {
+                var hop = hopList[hopCount];
+                if (hop.error || !hop.hop){
+                    errors.push(hop.error || "One hop was empty");
+                } else {
+                    hopCreationCalls.push(this.createHosts2(hop, hopListLength, hopCount, hops));
+                }
+            }
+
+
+            $.when.apply($, hopCreationCalls)
+                .then(function(){
+                    var translated, sourceTraceroute, targetTraceroute;
+
+                    var rootMeasurement = $this.measurementById[item["msm_id"]];
+                    var calls = [
+                        $this._createHost(item["from"], null, item["from_as"], null, item['prb_id'], item["from_geo_key"])
+                            .then(function (data) {
+                                sourceTraceroute = data;
+                            }) // sourceTraceroute
+                    ];
+
+                    if (item["dst_addr"]){
+                        calls.push($this._createHost(item["dst_addr"], item["dst_name"], item["dst_as"], null, null, item["dst_geo_key"])
+                            .then(function (data) {
+                                targetTraceroute = data;
+                            }));
+                    }
+
+                    $.when.apply($, calls)
+                        .then(function(){
+                            if (item["dst_addr"]){
+                                if (rootMeasurement.target.ip) {
+                                    targetTraceroute.isCdn = (rootMeasurement.target.ip != targetTraceroute.ip);
+                                    if (rootMeasurement.target.getAutonomousSystem()){
+                                        targetTraceroute.isLocalCache = (rootMeasurement.target.getAutonomousSystem().id != targetTraceroute.getAutonomousSystem().id);
+                                    }
+                                }
+                            } else {
+                                targetTraceroute = rootMeasurement.target;
+                                translated.failed = true;
+                            }
+
+                            translated = new Traceroute(sourceTraceroute, targetTraceroute, tracerouteDate);
+
+                            translated.setHops(hops);
+                            translated.errors = errors;
+
+                            if (
+                                !config.filterRepeatedTraceroutes
+                                || !$this.tracerouteBySourceTarget[translated.stateKey]
+                                || translated.getHash() != $this.tracerouteBySourceTarget[translated.stateKey].getHash()
+                            ) {
+                                dump.push(translated);
+                                $this.tracerouteBySourceTarget[translated.stateKey] = translated;
+                            } else {
+                                if ($this.tracerouteBySourceTarget[translated.stateKey].validUpTo < translated.date){
+                                    $this.tracerouteBySourceTarget[translated.stateKey].validUpTo = translated.date;
+                                }
+                            }
+
+                            deferredCall.resolve(dump);
+                        });
+
+                });
+
+            return deferredCall.promise();
+        }.bind(this);
+
         /* Issue: Sometimes the same IP appears twice on the traceroute due to...(BGP conversion, traceroute anomalities)
          * this creates cycles destroying the layout.
          * Solutions:
          * 1) prefer to return as getBestAttempts only "new" nodes for that traceroute
          * 2) create a new different host for the second time the same IP appears*/
         this._enrichDump = function(data, dump){
-            var translated, hops, hop, item, hopList, attempts, attemptsList, hopObj, attemptObj, tracerouteDate,
-                errors, locations, tracerouteList, targetTraceroute, asnObjs, asnTmp, asList, attemptTmp,
+            var translated, hops, hop, item, hopList, tracerouteDate, hopCreationCalls,
+                errors, locations, tracerouteList, targetTraceroute, asnObjs, asnTmp, asList,
                 sourceTraceroute, rootMeasurement;
 
             asnObjs = {};
@@ -148,100 +285,21 @@ define([
             $.extend(this.geolocations, locations);
             tracerouteList = data['result'] || data['traceroutes'] || [];
 
-            for (var n1=0,length1 = tracerouteList.length; n1<length1; n1++) {
-                hops = [];
-                item = tracerouteList[n1];
-
-                tracerouteDate = moment.unix(item["timestamp"]).utc();
-
-                if (selectedProbes.indexOf(item["prb_id"]) == -1){
-                    console.log("ALERT: the API is returning more results than what requested. Preformances may be affected.");
-                    continue;
-                }
-
-                if (tracerouteDate.isAfter(env.finalQueryParams.stopDate)
-                    || tracerouteDate.isBefore(env.finalQueryParams.startDate)) {
-                    console.log("ALERT: the API is returning results out of the selected time range. They are skipped");
-                    continue;
-                }
-
-                errors = [];
-                hopList = item["result"];
-
-                for (var hopCount=0, hopListLength=hopList.length; hopCount<hopListLength; hopCount++) {
-                    hop = hopList[hopCount];
-                    if (hop.error || !hop.hop){
-                        errors.push(hop.error || "One hop was empty");
-                    } else {
-                        attemptsList = hop["result"];
-                        attempts = [];
-
-                        hopObj = new Hop();
-                        hopObj.number = hop["hop"];
-
-                        for (var n3 = 0, length3 = attemptsList.length; n3 < length3; n3++) {
-                            attemptTmp = attemptsList[n3];
-
-                            if (config.filterLateAnswers && attemptTmp["from"] && !attemptTmp["rtt"]) { // Skip late answers or resending
-                                continue;
-                            }
-                            attemptObj = new Attempt();
-
-                            attemptObj.host = this._createHost(attemptTmp["from"], null, attemptTmp["as"], (hopListLength - 1 == hopCount), null, attemptTmp["geo_key"]);
-
-                            if (attemptTmp["rtt"]) {
-                                attemptObj.rtt = attemptTmp["rtt"];
-                                attemptObj.size = attemptTmp["size"];
-                                attemptObj.ttl = attemptTmp["ttl"];
-                            }
-                            hopObj.addAttempt(attemptObj);
-                        }
-                        hops.push(hopObj);
-                    }
-                }
-
-                rootMeasurement = this.measurementById[item["msm_id"]];
-
-                sourceTraceroute = this._createHost(item["from"], null, item["from_as"], null, item['prb_id'], item["from_geo_key"]);
-
-                if (item["dst_addr"]){
-                    targetTraceroute = this._createHost(item["dst_addr"], item["dst_name"], item["dst_as"], null, null, item["dst_geo_key"]);
-
-                    if (rootMeasurement.target.ip) {
-                        targetTraceroute.isCdn = (rootMeasurement.target.ip != targetTraceroute.ip);
-                        if (rootMeasurement.target.getAutonomousSystem()){
-                            targetTraceroute.isLocalCache = (rootMeasurement.target.getAutonomousSystem().id != targetTraceroute.getAutonomousSystem().id);
-                        }
-                    }
-                    translated = new Traceroute(sourceTraceroute, targetTraceroute, tracerouteDate);
-                } else {
-                    targetTraceroute = rootMeasurement.target;
-                    translated = new Traceroute(sourceTraceroute, targetTraceroute, tracerouteDate);
-                    translated.failed = true;
-                }
-
-                translated.setHops(hops);
-                translated.errors = errors;
-
-                if (
-                    !config.filterRepeatedTraceroutes
-                    || !$this.tracerouteBySourceTarget[translated.stateKey]
-                    || translated.getHash() != $this.tracerouteBySourceTarget[translated.stateKey].getHash()
-                ) {
-                    dump.push(translated);
-                    $this.tracerouteBySourceTarget[translated.stateKey] = translated;
-                } else {
-                    if ($this.tracerouteBySourceTarget[translated.stateKey].validUpTo < translated.date){
-                        $this.tracerouteBySourceTarget[translated.stateKey].validUpTo = translated.date;
-                    }
-                }
-            }
-
-            hostHelper.scanAllTraceroutes(dump);
+            // console.log(tracerouteList.map(this.createHosts3));
+            $.when.apply($, tracerouteList.map(this.createHosts3))
+                .then(function (dump) {
+                    dump = [].concat.apply([], dump);
+                    console.log(dump);
+                    hostHelper.scanAllTraceroutes(dump)
+                });
         };
 
         this._createHost = function(address, name, asn, isLast, probeId, hostGeolocation){
-            var host, update;
+            var deferredCall, host, update, isAnycast;
+
+            deferredCall = $.Deferred();
+
+            isAnycast = false; // TODO
 
             host = this.hostByIp[address];
 
@@ -271,8 +329,8 @@ define([
                     } else {
                         host.setLocation(this._recoverHostLocation(hostGeolocation), true); // We have a geolocation
                     }
-                } else if (config.premptiveGeolocation) {
-                    env.connector.getGeolocation(host);
+                } else if (config.premptiveGeolocation || isAnycast) {
+                    var geolocationCall = env.connector.getGeolocation(host);
                 }
 
                 if (config.premptiveReverseDns) {
@@ -290,10 +348,19 @@ define([
                 this.hostByIp[address] = host; // Only if not private
             }
 
-            env.utils.observer.publish("model.host:" + (update ? "change": "new"), host);
+            if (isAnycast){
 
-            return host;
-        };
+                env.utils.observer.publish("model.host:" + (update ? "change": "new"), host);
+
+                geolocationCall.done(function () {
+                    deferredCall.resolve(host);
+                });
+            } else {
+                deferredCall.resolve(host);
+            }
+
+            return deferredCall.promise();
+        }.bind(this);
 
         this._recoverHostLocation = function(geoKey){
             var id, type, out, city, data;

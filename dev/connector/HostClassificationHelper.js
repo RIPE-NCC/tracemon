@@ -387,7 +387,7 @@ define([
                 this._cutHopsLength(traceroute, env.maxNumberHops);
             }
 
-        };
+        }.bind(this);
 
     };
 
