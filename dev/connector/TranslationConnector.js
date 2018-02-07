@@ -71,18 +71,16 @@ define([
             return this.asList;
         };
 
-        this.getRealTimeResults = function(filtering, callback, context){
+        this.getRealTimeResults = function(filtering, callback){
 
             liveConnector.subscribe(filtering, function(data){
-                var translated, formatOut;
 
-                translated = [];
-                formatOut = {
+                var formatOut = {
                     traceroutes: data,
                     ases: {}
                 };
-                $this._enrichDump(formatOut, translated);
-                callback.call(context, translated);
+                $this._enrichDump(formatOut)
+                    .then(callback);
             }, this);
         };
 

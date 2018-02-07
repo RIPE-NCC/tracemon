@@ -61,7 +61,7 @@ define([
                     antiFloodTimerNewStatus = setTimeout(function(){
                         env.historyManager.getLastState();
                     }, config.eventGroupingAntiFlood);
-                }, this);
+                }.bind(this));
         };
 
         this.getMeasurementsResults = function(measurements, options){
