@@ -33,7 +33,7 @@ define([
 
 
     var TranslationConnector = function (env) {
-        var historyConnector, $this, liveConnector, peeringDbConnector, hostHelper, asnLookupConnector, selectedProbes;
+        var historyConnector, $this, liveConnector, peeringDbConnector, hostHelper, asnLookupConnector, selectedProbes, anycastIndex;
 
         $this = this;
         historyConnector = new HistoryConnector(env);
@@ -292,69 +292,76 @@ define([
         };
 
         this._createHost = function(address, name, asn, isLast, probeId, hostGeolocation){
-            var deferredCall, host, update, isAnycast;
+            var deferredCall, host, update, geolocationCall;
 
             deferredCall = $.Deferred();
 
-            isAnycast = false; // TODO
+            historyConnector
+                .isAnycast(address)
+                .then(function (isAnycast) {
 
-            host = this.hostByIp[address];
+                    host = this.hostByIp[address];
 
-            update = host && address && true;
+                    update = host && address && true;
 
-            if (!update) {
-                host = new Host(address, env);
-            }
-
-            host.name = name;
-
-            if (isLast != null){
-                host.isLast = isLast;
-            }
-
-            if (probeId != null){
-                host.setProbeId(probeId);
-                this.hostByProbeId[probeId] = host;
-            }
-
-            if (!host.isPrivate && address) {
-
-                if (hostGeolocation !== undefined) { // The geolocation key is NOT missing in the json
-
-                    if (hostGeolocation == null){ // We tried but we don't have a geolocation
-                        host.setLocation(null);
-                    } else {
-                        host.setLocation(this._recoverHostLocation(hostGeolocation), true); // We have a geolocation
+                    if (!update) {
+                        host = new Host(address, env);
                     }
-                } else if (config.premptiveGeolocation || isAnycast) {
-                    var geolocationCall = env.connector.getGeolocation(host);
-                }
 
-                if (config.premptiveReverseDns) {
-                    env.connector.getHostReverseDns(host);
-                }
+                    host.name = name;
 
-                if (!update && asn != null) {
-                    asnLookupConnector.enrich(host, this.asList[asn]);
-                }
+                    if (isLast != null){
+                        host.isLast = isLast;
+                    }
 
-                if (config.ixpHostCheck) {
-                    $this._enrichIXP(host);
-                }
+                    if (probeId != null){
+                        host.setProbeId(probeId);
+                        this.hostByProbeId[probeId] = host;
+                    }
 
-                this.hostByIp[address] = host; // Only if not private
-            }
+                    if (!host.isPrivate && address) {
 
-            if (isAnycast){
+                        if (hostGeolocation !== undefined) { // The geolocation key is NOT missing in the json
 
-                env.utils.observer.publish("model.host:" + (update ? "change": "new"), host);
+                            if (hostGeolocation == null){ // We tried but we don't have a geolocation
+                                host.setLocation(null);
+                            } else {
+                                host.setLocation(this._recoverHostLocation(hostGeolocation), true); // We have a geolocation
+                            }
+                        } else if (config.premptiveGeolocation || isAnycast) {
+                            geolocationCall = env.connector.getGeolocation(host);
+                        }
 
-                geolocationCall.done(function () {
-                    deferredCall.resolve(host);
-                });
-            } else {
-                deferredCall.resolve(host);
-            }
+                        if (config.premptiveReverseDns) {
+                            env.connector.getHostReverseDns(host);
+                        }
+
+                        if (!update && asn != null) {
+                            asnLookupConnector.enrich(host, this.asList[asn]);
+                        }
+
+                        if (config.ixpHostCheck) {
+                            $this._enrichIXP(host);
+                        }
+
+                        this.hostByIp[address] = host; // Only if not private
+                    }
+
+                    if (isAnycast && geolocationCall){
+                        geolocationCall.done(function (geo) {
+                            console.log("-------------anycast verificato", geo);
+                            deferredCall.resolve(host);
+                        });
+                    } else {
+                        deferredCall.resolve(host);
+                    }
+
+                    env.utils.observer.publish("model.host:" + (update ? "change": "new"), host);
+
+
+                    return deferredCall.promise();
+
+                }.bind(this));
 
             return deferredCall.promise();
         }.bind(this);
@@ -418,7 +425,7 @@ define([
                 try{
                     historyConnector.getMeasurementInfo(measurementId)
                         .done(function (data) {
-                            var measurement, targetHost, extra, error, interval;
+                            var measurement, extra, error, interval;
 
                             error = data["error"];
                             if (error) {
@@ -428,35 +435,37 @@ define([
                             } else {
 
                                 interval = (!data["is_oneoff"]) ? data["native_sampling"] : null;
-                                targetHost = $this._createHost(data["target_ip"], data["target"], -1, null, null, interval);
-                                targetHost.isTarget = true;
-                                measurement = new Measurement(measurementId, targetHost, data["native_sampling"]);
+                                $this._createHost(data["target_ip"], data["target"], -1, null, null, interval)
+                                    .then(function (targetHost) {
+                                        targetHost.isTarget = true;
+                                        measurement = new Measurement(measurementId, targetHost, data["native_sampling"]);
 
-                                // Extra information
-                                extra = data["extra"] || {};
-                                measurement.timeout = extra["response_timeout"];
-                                measurement.protocol = extra["protocol"];
-                                measurement.parisId = extra["paris"];
-                                measurement.numberOfPackets = extra["packets"];
-                                measurement.startFromHop = extra["firsthop"];
-                                measurement.maxHopsAllowed = extra["maxhops"];
-                                measurement.packetSize = extra["size"];
+                                        // Extra information
+                                        extra = data["extra"] || {};
+                                        measurement.timeout = extra["response_timeout"];
+                                        measurement.protocol = extra["protocol"];
+                                        measurement.parisId = extra["paris"];
+                                        measurement.numberOfPackets = extra["packets"];
+                                        measurement.startFromHop = extra["firsthop"];
+                                        measurement.maxHopsAllowed = extra["maxhops"];
+                                        measurement.packetSize = extra["size"];
 
-                                measurement.startDate = moment.unix(data["start_time"]).utc();
-                                measurement.stopDate = (data["stop_time"]) ? moment.unix(data["stop_time"]).utc() : null;
-                                $this.measurementById[measurement.id] = measurement;
+                                        measurement.startDate = moment.unix(data["start_time"]).utc();
+                                        measurement.stopDate = (data["stop_time"]) ? moment.unix(data["stop_time"]).utc() : null;
+                                        $this.measurementById[measurement.id] = measurement;
 
-                                $this.getProbesInfo(measurement.id)
-                                    .done(function (sources) {
-                                        var source;
+                                        $this.getProbesInfo(measurement.id)
+                                            .done(function (sources) {
+                                                var source;
 
-                                        for (var n = 0, length = sources.length; n < length; n++) {
-                                            source = sources[n];
-                                            source.measurements.push(measurement);
-                                            measurement.sources[source.id] = source;
-                                        }
+                                                for (var n = 0, length = sources.length; n < length; n++) {
+                                                    source = sources[n];
+                                                    source.measurements.push(measurement);
+                                                    measurement.sources[source.id] = source;
+                                                }
 
-                                        deferredCall.resolve(measurement);
+                                                deferredCall.resolve(measurement);
+                                            });
                                     });
                             }
                         })
@@ -631,6 +640,7 @@ define([
         this.getSparseHost = function (ip) {
             return this._createHost(ip, null, null, false, null, undefined);
         };
+
 
         this.getProbesInfo = function(measurementId){
             var deferredCall;

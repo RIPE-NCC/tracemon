@@ -29,7 +29,8 @@ define([], function(){
                 // lans: "http://localhost/peering_db.php?type=ixlan",
                 ixps: "https://openipmap.ripe.net/api/v1/peeringdb/ixps",
                 // prefixes: "http://localhost/peering_db.php?type=ixpfx"
-            }
+            },
+            anycastIndex: "https://openipmap.ripe.net/api/v1/anycast/all"
         },
         externalLinks: {
             bgplay: 'https://stat.ripe.net/widget/bgplay#w.resource=0000&w.starttime=1111&w.endtime=2222',

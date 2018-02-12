@@ -10,13 +10,16 @@ define([
 ], function(config, $) {
 
     var HistoryConnector = function (env) {
-        var hostsResolutionByIp, geolocByIp, neighboursByAsn, probesInfo, measurementInfo, callsBundler;
+        var hostsResolutionByIp, anycastIndexQuery, geolocByIp, neighboursByAsn, probesInfo, measurementInfo, 
+            callsBundler, anycastIndex, anycastIndexed;
 
         hostsResolutionByIp = {};
         geolocByIp = {};
         neighboursByAsn = {};
         probesInfo = {};
         measurementInfo = {};
+        anycastIndex = {};
+        anycastIndexed = false;
         callsBundler = {
             queries: {},
             timer: null
@@ -86,8 +89,7 @@ define([
 
             return measurementInfo[measurementId];
         };
-
-
+        
         this.getHostReverseDns = function (ip) {
 
             if (!hostsResolutionByIp[ip]) {
@@ -111,7 +113,47 @@ define([
 
             return hostsResolutionByIp[ip];
         };
+        
+        this.isAnycast = function (ip) {
+            var deferredCall = $.Deferred();
+            if (!anycastIndexed) {
+                this.getAnycastIndex()
+                    .then(function (index) {
+                        if (index && index.anycast) {
+                            for (var n = 0, length = index.anycast.length; n < length; n++) {
+                                anycastIndex[index.anycast[n]] = true;
+                            }
+                        }
+                        anycastIndexed = true;
+                        deferredCall.resolve(anycastIndex[ip] || false);
+                    });
+            } else {
+                deferredCall.resolve(anycastIndex[ip] || false);
+            }
 
+            return deferredCall.promise();
+        };
+
+        this.getAnycastIndex = function () {
+            if (!anycastIndexQuery) {
+                anycastIndexQuery = $.ajax({
+                    dataType: "jsonp",
+                    cache: false,
+                    async: true,
+                    timeout: config.ajaxTimeout,
+                    url: config.dataAPIs.anycastIndex,
+                    data: {},
+                    error: function () {
+                        env.utils.observer.publish("error", {
+                            type: 408,
+                            message: config.errors[408]
+                        });
+                    }
+                });
+            }
+
+            return anycastIndexQuery;
+        };
 
         this.getGeolocation = function (ip, force) {
             var deferredCall, realCall;
@@ -150,13 +192,14 @@ define([
                     if (locations.data) {
                         ips.forEach(function (ip) {
                             var geolocation = locations.data[ip];
-                            if (locating[ip]){
+                            if (locating[ip]) {
                                 geolocation = geolocation || {};
                                 geolocation.locating = true;
                             }
                             queries[ip].resolve(geolocation);
                         });
                     }
+
                 });
             };
 
@@ -179,8 +222,6 @@ define([
 
             return geolocByIp[ip];
         };
-
-
 
         this.getNeighbours = function (asn) {
 
