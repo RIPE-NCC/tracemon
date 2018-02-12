@@ -127,7 +127,8 @@ define([
                     url: env.dataApiGeolocation,
                     data: {
                         resources: ips.join(","),
-                        trackingKey: env.trackingKey
+                        trackingKey: env.trackingKey,
+                        fc: new Date().getTime()
                     },
                     error: function () {
                         env.utils.observer.publish("error", {
