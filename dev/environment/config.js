@@ -63,7 +63,7 @@ define([], function(){
         maxAllowedSources: 20,
         minimumTracerouteValiditySeconds: 60 * 3,
         oneOffInterval: 60 * 10, // 10 minutes
-        retryGeolocationAfter: 1000 * 60 * 3 + 10000,
+        retryGeolocationAfter: (1000 * 60 * 3.5),
 
         startWithLastStatus: true,
         filterLateAnswers: true,
