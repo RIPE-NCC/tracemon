@@ -10,12 +10,13 @@ define([
 ], function(config, $) {
 
     var HistoryConnector = function (env) {
-        var hostsResolutionByIp, geolocByIp, neighboursByAsn, probesInfo, measurementInfo, callsBundler;
+        var hostsResolutionByIp, geolocByIp, neighboursByAsn, probesInfo, measurementInfo, callsBundler, locating;
 
         hostsResolutionByIp = {};
         geolocByIp = {};
         neighboursByAsn = {};
         probesInfo = {};
+        locating = {};
         measurementInfo = {};
         callsBundler = {
             queries: {},
@@ -138,7 +139,6 @@ define([
                     }
                 }).done(function(locations){
 
-                    var locating = {};
                     if (locations.metadata && locations.metadata.service && locations.metadata.service.contributions) {
                         for (var ipContrib in locations.metadata.service.contributions){
                             var engineContribution = locations.metadata.service.contributions[ipContrib].engines;

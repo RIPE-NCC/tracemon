@@ -174,7 +174,7 @@ define([
                 throw "501"; // Not possible to find a geolocation
             }
 
-            if (cache.geoRequests[host.ip]){
+            if (!force && cache.geoRequests[host.ip]){
                 return cache.geoRequests[host.ip];
             } else {
 
