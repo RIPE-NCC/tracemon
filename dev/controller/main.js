@@ -15,11 +15,6 @@ define([
 ], function(config, utils, $, moment, AutonomousSystem, Hop, Host, Measurement, Traceroute, Connector, MainView,
             HistoryManager, SourceSelectionHelper) {
 
-    while(!moment){
-        while(!moment.unix){
-
-        }
-    }
 
     var main = function (env) {
         var $this, sourceSelection, initialModelCreated;

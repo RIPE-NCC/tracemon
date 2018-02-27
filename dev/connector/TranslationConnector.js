@@ -24,12 +24,7 @@ define([
 ], function(config, $, moment, HistoryConnector, LiveConnector, Hop, Host, Attempt, AutonomousSystem, Measurement,
             Traceroute, prefixUtils, PeeringDbConnector, HostClassificationHelper, AsnLookupConnector) {
 
-    while(!moment){
-        console.log("waiting");
-        while(!moment.unix){
-
-        }
-    }
+console.log(moment);
 
 
     var TranslationConnector = function (env) {
