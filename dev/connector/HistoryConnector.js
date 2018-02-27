@@ -10,13 +10,15 @@ define([
 ], function(config, $) {
 
     var HistoryConnector = function (env) {
-        var hostsResolutionByIp, anycastIndexQuery, geolocByIp, neighboursByAsn, probesInfo, measurementInfo, 
-            callsBundler, anycastIndex, anycastIndexed;
+        var hostsResolutionByIp, anycastIndexQuery, geolocByIp, neighboursByAsn, probesInfo, measurementInfo,
+            callsBundler, anycastIndex, anycastIndexed, locating;
+
 
         hostsResolutionByIp = {};
         geolocByIp = {};
         neighboursByAsn = {};
         probesInfo = {};
+        locating = {};
         measurementInfo = {};
         anycastIndex = {};
         anycastIndexed = false;
@@ -89,7 +91,7 @@ define([
 
             return measurementInfo[measurementId];
         };
-        
+
         this.getHostReverseDns = function (ip) {
 
             if (!hostsResolutionByIp[ip]) {
@@ -113,7 +115,7 @@ define([
 
             return hostsResolutionByIp[ip];
         };
-        
+
         this.isAnycast = function (ip) {
             var deferredCall = $.Deferred();
             if (!anycastIndexed) {
@@ -180,7 +182,6 @@ define([
                     }
                 }).done(function(locations){
 
-                    var locating = {};
                     if (locations.metadata && locations.metadata.service && locations.metadata.service.contributions) {
                         for (var ipContrib in locations.metadata.service.contributions){
                             var engineContribution = locations.metadata.service.contributions[ipContrib].engines;
