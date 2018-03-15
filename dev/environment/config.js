@@ -62,6 +62,7 @@ define([], function(){
         defaultNumberOfDisplayedSources: 8,
         maxAllowedSources: 20,
         minimumTracerouteValiditySeconds: 60 * 3,
+        maximumTracerouteValiditySeconds: Infinity,
         oneOffInterval: 60 * 10, // 10 minutes
         retryGeolocationAfter: (1000 * 60 * 3.5),
 

@@ -170,7 +170,7 @@ define([
         }
 
         env = {
-            "version": "18.2.27.2",
+            "version": "18.3.15.2",
             "dev": instanceParams.dev,
             "widgetUrl": TRACEMON_WIDGET_URL + "dev/",
             "utils": utils,
@@ -189,6 +189,7 @@ define([
             "aggregateIPv4": instanceParams.aggregateIPv4 || config.defaultAggregationIPv4,
             "aggregateIPv6": instanceParams.aggregateIPv6 || config.defaultAggregationIPv6,
             "maxNumberHops": instanceParams.maxNumberHops || config.maxNumberHops,
+            "maximumTracerouteValiditySeconds": instanceParams.maximumTracerouteValiditySeconds || config.maximumTracerouteValiditySeconds,
             "onlyGraph": instanceParams.onlyGraph,
             "templatesLocation": instanceParams.templatesLocation || config.templatesLocation,
             "reproductionSpeed":  instanceParams.reproductionSpeed || config.reproductionSpeed,
