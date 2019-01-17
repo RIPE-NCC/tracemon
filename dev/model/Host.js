@@ -72,6 +72,7 @@ define(["tracemon.env.utils"], function(utils) {
             this.dirty = true;
         }
         this._location = locationObject;
+        // console.log("Trying to set ", locationObject, this);
     };
 
     Host.prototype.toString = function() {

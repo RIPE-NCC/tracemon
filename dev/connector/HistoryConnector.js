@@ -49,7 +49,7 @@ define([
             }
 
             if (options.sources) {
-                queryParams.probes = options.sources.join(',');
+                queryParams.probe_ids = options.sources.join(',');
             }
 
             queryParams.include = queryParams.include.join(",");
@@ -157,71 +157,81 @@ define([
             return anycastIndexQuery;
         };
 
-        this.getGeolocation = function (ip, force) {
+        this.getGeolocation = function (ip, force, body) {
             var deferredCall, realCall;
 
             realCall = function(queries){
                 var ips = Object.keys(queries);
 
                 $.ajax({
-                    dataType: "jsonp",
                     cache: false,
+                    method: 'POST', //(body ? "POST" : "GET") ,
                     async: true,
                     timeout: config.ajaxTimeout,
-                    url: env.dataApiGeolocation,
-                    data: {
-                        resources: ips.join(","),
-                        trackingKey: env.trackingKey,
-                        fc: new Date().getTime()
-                    },
+                    url: env.dataApiGeolocation + '?resources=' + ips.join(",") + '&trackingKey=' + env.trackingKey,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: (body ? "json" : "jsonp"),
+                    data: body,
                     error: function () {
                         env.utils.observer.publish("error", {
                             type: "408",
                             message: config.errors["408"]
                         });
                     }
-                }).done(function(locations){
+                })
+                    .done(function(locations) {
 
-                    if (locations.metadata && locations.metadata.service && locations.metadata.service.contributions) {
-                        for (var ipContrib in locations.metadata.service.contributions){
-                            var engineContribution = locations.metadata.service.contributions[ipContrib].engines;
-                            engineContribution
-                                .forEach(function(engineContribution){
-                                    locating[ipContrib] = engineContribution.metadata && engineContribution.metadata.locating == true;
-                                })
-                        }
-                    }
-                    if (locations.data) {
-                        ips.forEach(function (ip) {
-                            var geolocation = locations.data[ip];
-                            if (locating[ip]) {
-                                geolocation = geolocation || {};
-                                geolocation.locating = true;
+                        if (locations.metadata && locations.metadata.service && locations.metadata.service.contributions) {
+                            for (var ipContrib in locations.metadata.service.contributions){
+                                var engineContribution = locations.metadata.service.contributions[ipContrib].engines;
+                                engineContribution
+                                    .forEach(function(engineContribution){
+                                        locating[ipContrib] = engineContribution.metadata && engineContribution.metadata.locating == true;
+                                    })
                             }
-                            queries[ip].resolve(geolocation);
-                        });
-                    }
+                        }
+                        if (locations.data) {
+                            ips.forEach(function (ip) {
+                                var geolocation = locations.data[ip];
+                                if (locating[ip]) {
+                                    geolocation = geolocation || {};
+                                    geolocation.locating = true;
+                                }
+                                queries[ip].resolve(geolocation);
+                            });
+                        }
 
-                });
+                    });
             };
 
-            if (force || !geolocByIp[ip]){
+            if (force || !geolocByIp[ip]) {
                 deferredCall = $.Deferred();
                 geolocByIp[ip] = deferredCall.promise();
-                callsBundler.queries[ip] =  deferredCall;
-                clearTimeout(callsBundler.timer);
 
-                if (Object.keys(callsBundler.queries).length < config.maxBundledQueries) {
-                    callsBundler.timer = setTimeout(function () {
+                if (body){
+
+                    var singleCall = {};
+                    singleCall[ip] = deferredCall;
+                    realCall(singleCall);
+
+                } else {
+
+                    callsBundler.queries[ip] = deferredCall;
+                    clearTimeout(callsBundler.timer);
+
+                    if (Object.keys(callsBundler.queries).length < config.maxBundledQueries) {
+                        callsBundler.timer = setTimeout(function () {
+                            realCall(callsBundler.queries);
+                            callsBundler.queries = {};
+                        }, config.queryGroupingAntiFlood);
+                    } else {
                         realCall(callsBundler.queries);
                         callsBundler.queries = {};
-                    }, config.queryGroupingAntiFlood);
-                } else {
-                    realCall(callsBundler.queries);
-                    callsBundler.queries = {};
-                }
-            }
+                    }
 
+                }
+
+            }
             return geolocByIp[ip];
         };
 

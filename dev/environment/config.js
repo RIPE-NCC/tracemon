@@ -9,28 +9,26 @@ define([], function(){
         widgetPrefix: "tm",
         defaultTrackingKey: "tracemon",
         dataAPIs: {
-            results: "https://massimo.ripe.net/tracemon/unified_api.php?id=0000",
+            results: "https://atlas.ripe.net/api/v2/measurements/0000/results/",
             metadata: "https://atlas.ripe.net/api/v2/measurements/0000/routequake/meta/",
-            dataApiAsAnnotation: "https://massimo.ripe.net/tracemon/as_lookup.php",
+            dataApiAsAnnotation: "https://stat.ripe.net/data/prefix-overview/data.json",
             dataApiReverseDns: "https://stat.ripe.net/data/reverse-dns-ip/data.json",
-            dataApiGeolocation: "https://openipmap.ripe.net/api/v1/locate/all/",
+            dataApiGeolocation: "https://ipmap.ripe.net/api/v1/locate/all/",
             dataApiAsnNeighbours: "https://stat.ripe.net/data/asn-neighbours/data.json",
             shortAsNamesApi: "https://massimo.ripe.net/tracemon/short_names.php",
-            persistHostApi: "https://openipmap.ripe.net/api/v1/crowdsource/0000",
-            storageLogRestApiUrl: "//massimo.ripe.net/tracemon/widget_log.php",
-            storageErrorRestApiUrl: "//massimo.ripe.net/tracemon/widget_log.php",
+            persistHostApi: "https://ipmap.ripe.net/api/v1/crowdsource/0000",
+            // storageLogRestApiUrl: "//massimo.ripe.net/tracemon/widget_log.php",
+            // storageErrorRestApiUrl: "//massimo.ripe.net/tracemon/widget_log.php",
             ripeDatabase: {
-                whois: "https://massimo.ripe.net/tracemon/jsonp.php?callback=?&resource=http://rest.db.ripe.net/ripe/aut-num/AS0000.json",
+                // whois: "https://massimo.ripe.net/tracemon/jsonp.php?callback=?&resource=http://rest.db.ripe.net/ripe/aut-num/AS0000.json",
                 person: "https://massimo.ripe.net/tracemon/jsonp.php?callback=?&resource=http://rest.db.ripe.net/ripe/person/0000.json%3Funfiltered", //Keep it unfiltered
-                role: "https://massimo.ripe.net/tracemon/jsonp.php?callback=?&resource=http://rest.db.ripe.net/ripe/role/0000.json%3Funfiltered" //Keep it unfiltered
+                // role: "https://massimo.ripe.net/tracemon/jsonp.php?callback=?&resource=http://rest.db.ripe.net/ripe/role/0000.json%3Funfiltered" //Keep it unfiltered
             },
             abuseContactRestApi: "https://stat.ripe.net/data/abuse-contact-finder/data.json",
             peeringDb: {
-                // lans: "http://localhost/peering_db.php?type=ixlan",
-                ixps: "https://openipmap.ripe.net/api/v1/peeringdb/ixps",
-                // prefixes: "http://localhost/peering_db.php?type=ixpfx"
+                ixps: "https://ipmap.ripe.net/api/v1/peeringdb/ixps"
             },
-            anycastIndex: "https://openipmap.ripe.net/api/v1/anycast/all"
+            anycastIndex: "https://ipmap.ripe.net/api/v1/anycast/all"
         },
         externalLinks: {
             bgplay: 'https://stat.ripe.net/widget/bgplay#w.resource=0000&w.starttime=1111&w.endtime=2222',

@@ -167,7 +167,7 @@ define([
             }
         };
 
-        this.getGeolocation = function(host, force){
+        this.getGeolocation = function(host, force, body){
             var deferredCall;
 
             if (host.isPrivate || !host.ip){
@@ -183,7 +183,7 @@ define([
                 if (host.getLocation()) {
                     deferredCall.resolve(host.getLocation());
                 } else {
-                    translateConnector.getGeolocation(host, force)
+                    translateConnector.getGeolocation(host, force, body)
                         .done(function (data) {
                             deferredCall.resolve(data);
                         })
@@ -276,7 +276,7 @@ define([
             for (var n=0,length=hosts.length; n<length; n++) {
                 host = hosts[n];
 
-                if (!host.isPrivate && host.ip && host.dirty){
+                if (host && !host.isPrivate && host.ip && host.dirty && host.getLocation()){
                     callsArray.push(persitHostConnector.persist(host));
                 }
             }

@@ -24,8 +24,6 @@ define([
 ], function(config, $, moment, HistoryConnector, LiveConnector, Hop, Host, Attempt, AutonomousSystem, Measurement,
             Traceroute, prefixUtils, PeeringDbConnector, HostClassificationHelper, AsnLookupConnector) {
 
-console.log(moment);
-
 
     var TranslationConnector = function (env) {
         var historyConnector, $this, liveConnector, peeringDbConnector, hostHelper, asnLookupConnector, selectedProbes, anycastIndex;
@@ -116,10 +114,10 @@ console.log(moment);
         };
 
 
-        this.createHosts1 = function (attemptTmp, condition, hopObj) {
+        this._createHostsSupport1 = function (attemptTmp, condition, hopObj, previousIp) {
             var attemptObj = new Attempt();
 
-            return this._createHost(attemptTmp["from"], null, attemptTmp["as"], condition, null, attemptTmp["geo_key"])
+            return this._createHost(attemptTmp["from"], null, attemptTmp["as"], condition, null, attemptTmp["geo_key"], previousIp)
                 .then(function (host) {
                     attemptObj.host = host;
 
@@ -132,23 +130,25 @@ console.log(moment);
                 });
         };
 
-        this.createHosts2 = function (hop, hopListLength, hopCount, hops) {
+        this._createHostsSupport2 = function (hop, hopListLength, hopCount, hops) {
             var attemptsList, hopObj, deferredCall;
 
             deferredCall = $.Deferred();
-
             attemptsList = hop["result"];
-
             hopObj = new Hop();
             hopObj.number = hop["hop"];
 
-            var createHostCalls = attemptsList
-                .filter(function(attemptTmp){
-                    return !(config.filterLateAnswers && attemptTmp["from"] && !attemptTmp["rtt"]); // Skip late answers or resending
-                })
-                .map(function(attemptTmp){
-                    return this.createHosts1(attemptTmp, (hopListLength - 1 == hopCount), hopObj);
-                }.bind(this));
+            var previousIp;
+            var createHostCalls = [];
+            var asLookupsCalls = [];
+            for (var n=0,length=attemptsList.length; n<length; n++){
+                var attemptTmp = attemptsList[n];
+                if (!(config.filterLateAnswers && attemptTmp["from"] && !attemptTmp["rtt"])) { // Skip late answers or resending
+                    // asLookupsCalls.push(this._getAsLookup(attemptTmp["from"]));
+                    createHostCalls.push(this._createHostsSupport1(attemptTmp, (hopListLength - 1 == hopCount), hopObj, previousIp));
+                }
+                previousIp = attemptTmp["from"];
+            }
 
             $.when.apply($, createHostCalls)
                 .then(function(){
@@ -159,13 +159,29 @@ console.log(moment);
             return deferredCall.promise();
         };
 
-        this.createHosts3 = function (item) {
+        // this._getAsLookup = function(asn){
+        //     var asnObjs = {};
+        //
+        //
+        //     // asList = data['asns'] || data['ases'] || [];
+        //     // locations = data['geolocations'];
+        //     // for (var asKey in asList){
+        //     //     asnTmp = asList[asKey];
+        //     //     asnObjs[asKey] = {
+        //     //         number: asKey,
+        //     //         holder: asnTmp.holder,
+        //     //         announced: asnTmp.announced,
+        //     //         block: asnTmp.block
+        //     //     }
+        //     // }
+        //     // $.extend(this.asList, asnObjs);
+        //     // $.extend(this.geolocations, locations);
+        // };
 
+        this._createHostsSupport3 = function (item) {
             var deferredCall = $.Deferred();
-
             var dump = [];
             var hops = [];
-
             var tracerouteDate = moment.unix(item["timestamp"]).utc();
 
             if (selectedProbes.indexOf(item["prb_id"]) == -1){
@@ -183,18 +199,22 @@ console.log(moment);
 
             var errors = [];
             var hopList = item["result"];
+            var asLookups = [];
             var hopCreationCalls = [];
             for (var hopCount=0, hopListLength=hopList.length; hopCount<hopListLength; hopCount++) {
                 var hop = hopList[hopCount];
                 if (hop.error || !hop.hop){
                     errors.push(hop.error || "One hop was empty");
                 } else {
-                    hopCreationCalls.push(this.createHosts2(hop, hopListLength, hopCount, hops));
+                    hopCreationCalls.push(this._createHostsSupport2(hop, hopListLength, hopCount, hops));
                 }
             }
 
+            // if (item["dst_addr"]){
+            //     asLookups.push(this._getAsLookup(item["dst_addr"]));
+            // }
 
-            $.when.apply($, hopCreationCalls)
+            $.when.apply($, asLookups.concat(hopCreationCalls))
                 .then(function(){
                     var translated, sourceTraceroute, targetTraceroute;
 
@@ -222,12 +242,13 @@ console.log(moment);
                                         targetTraceroute.isLocalCache = (rootMeasurement.target.getAutonomousSystem().id != targetTraceroute.getAutonomousSystem().id);
                                     }
                                 }
+                                translated = new Traceroute(sourceTraceroute, targetTraceroute, tracerouteDate);
+
                             } else {
-                                targetTraceroute = rootMeasurement.target;
+                                translated = new Traceroute(sourceTraceroute, rootMeasurement.target, tracerouteDate);
                                 translated.failed = true;
                             }
 
-                            translated = new Traceroute(sourceTraceroute, targetTraceroute, tracerouteDate);
 
                             translated.setHops(hops);
                             translated.errors = errors;
@@ -245,6 +266,7 @@ console.log(moment);
                                 }
                             }
 
+                            // console.log(dump);
                             deferredCall.resolve(dump);
                         });
 
@@ -262,23 +284,24 @@ console.log(moment);
             var locations, tracerouteList, asnObjs, asnTmp, asList;
 
             asnObjs = {};
-            asList = data['asns'] || data['ases'];
-            locations = data['geolocations'];
-            for (var asKey in asList){
-                asnTmp = asList[asKey];
-                asnObjs[asKey] = {
-                    number: asKey,
-                    holder: asnTmp.holder,
-                    announced: asnTmp.announced,
-                    block: asnTmp.block
-                }
-            }
-            $.extend(this.asList, asnObjs);
-            $.extend(this.geolocations, locations);
-            tracerouteList = data['result'] || data['traceroutes'] || [];
+            // asList = data['asns'] || data['ases'] || [];
+            // locations = data['geolocations'];
+            // for (var asKey in asList){
+            //     asnTmp = asList[asKey];
+            //     asnObjs[asKey] = {
+            //         number: asKey,
+            //         holder: asnTmp.holder,
+            //         announced: asnTmp.announced,
+            //         block: asnTmp.block
+            //     }
+            // }
+            // $.extend(this.asList, asnObjs);
+            // $.extend(this.geolocations, locations);
+            tracerouteList = data['result'] || data['traceroutes'] || data;
 
+            // console.log(tracerouteList.map(this._createHostsSupport3));
             return $.when
-                .apply($, tracerouteList.map(this.createHosts3))
+                .apply($, tracerouteList.map(this._createHostsSupport3))
                 .then(function (dump) {
                     dump = [].concat.apply([], arguments);
                     hostHelper.scanAllTraceroutes(dump);
@@ -286,7 +309,7 @@ console.log(moment);
                 });
         };
 
-        this._createHost = function(address, name, asn, isLast, probeId, hostGeolocation){
+        this._createHost = function(address, name, asn, isLast, probeId, hostGeolocation, previousIp){
             var deferredCall, host, update, geolocationCall;
 
             deferredCall = $.Deferred();
@@ -294,9 +317,9 @@ console.log(moment);
             historyConnector
                 .isAnycast(address)
                 .then(function (isAnycast) {
+                    var finalCalls = [];
 
                     host = this.hostByIp[address];
-
                     update = host && address && true;
 
                     if (!update) {
@@ -323,42 +346,48 @@ console.log(moment);
                             } else {
                                 host.setLocation(this._recoverHostLocation(hostGeolocation), true); // We have a geolocation
                             }
-                        } else if (config.premptiveGeolocation || isAnycast) {
-                            geolocationCall = env.connector.getGeolocation(host);
+                        } else if (config.premptiveGeolocation || isAnycast) { // The geolocation is missing in the JSON
+                            geolocationCall = env.connector.getGeolocation(host, false, {
+                                traceroute: [ { ips: [previousIp] } ] // Temp solution
+                            });
+
+                            if (isAnycast){ // Otherwise is not needed to be pre-emptive... it gets displayed later
+                                finalCalls.push(geolocationCall);
+                            }
                         }
 
                         if (config.premptiveReverseDns) {
                             env.connector.getHostReverseDns(host);
                         }
 
-                        if (!update && asn != null) {
-                            asnLookupConnector.enrich(host, this.asList[asn]);
-                        }
-
                         if (config.ixpHostCheck) {
                             $this._enrichIXP(host);
                         }
 
+                        if (!update){ // We don't have to refresh the information
+
+                            finalCalls.push(asnLookupConnector.enrich(host));
+                        }
+
+                        // if (!update && asn != null) {
+                        //     asnLookupConnector.enrich(host, this.asList[asn]);
+                        // }
+
                         this.hostByIp[address] = host; // Only if not private
                     }
 
-                    if (isAnycast && geolocationCall){
-                        geolocationCall.done(function (geo) {
-                            console.log("-------------anycast verificato", geo);
+                    $.when.apply($, finalCalls)
+                        .then(function(){
+                            env.utils.observer.publish("model.host:" + (update ? "change": "new"), host);
                             deferredCall.resolve(host);
                         });
-                    } else {
-                        deferredCall.resolve(host);
-                    }
-
-                    env.utils.observer.publish("model.host:" + (update ? "change": "new"), host);
-
 
                     return deferredCall.promise();
 
                 }.bind(this));
 
             return deferredCall.promise();
+
         }.bind(this);
 
         this._recoverHostLocation = function(geoKey){
@@ -542,13 +571,13 @@ console.log(moment);
             return deferredCall.promise();
         };
 
-        this.getGeolocation = function(host, force){
+        this.getGeolocation = function(host, force, body){
             var deferredCall;
 
             deferredCall = $.Deferred();
 
             historyConnector
-                .getGeolocation(host.ip, force)
+                .getGeolocation(host.ip, force, body)
                 .done(function (geolocRaw) {
                     var geolocation;
 

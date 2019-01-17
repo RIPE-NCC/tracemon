@@ -180,7 +180,6 @@ define([
                 this._applyUrl();
                 console.log("PermaLink applied");
             } catch(notValidUrl) {
-                console.log(notValidUrl);
                 if (env.queryParams) {
 
                     if (env.utils.getUrlParam("hackid").length > 0){

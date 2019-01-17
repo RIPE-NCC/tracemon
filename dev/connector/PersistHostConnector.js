@@ -14,6 +14,9 @@ define([
         this._serializeHost = function(host){
             var location = host.getLocation();
 
+            if (location === undefined){
+                throw "Nothing to persist. The location for this host is not set."
+            }
             return {
                 id: location.id,
                 type: location.type,
@@ -23,12 +26,16 @@ define([
         };
 
         this.persist = function(host){
+
             if (host.isEditable) {
+                var serializedHost;
+
+                serializedHost = this._serializeHost(host);
 
                 return $.ajax({
                     type: "POST",
                     url: env.persistHostApi.replace("0000", host.ip),
-                    data: this._serializeHost(host),
+                    data: serializedHost,
                     dataType: "json",
                     error: function () {
                         env.utils.observer.publish("error", {

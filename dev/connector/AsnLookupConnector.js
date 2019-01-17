@@ -24,6 +24,7 @@ define([
         this.autonomousSystemsByPrefix = {};
 
         this.enrich = function (host, asData){
+            var deferredCall = $.Deferred();
             var sameAs;
 
             sameAs = this._getSamePrefixAs(host.ip);
@@ -31,28 +32,35 @@ define([
 
             if (sameAs) {
                 $this._updateObject(host, sameAs);
+                deferredCall.resolve(host);
             } else {
 
                 if (asData){
                     $this._updateObject(host, $this._createAutonomousSystemObject(asData));
+                    deferredCall.resolve(hosts);
                 } else {
 
-                    console.log("[AS lookup] No local info for host", host);
+                    // console.log("[AS lookup] No local info for host", host);
 
                     if (hosts[host.ip]){
                         $this._updateObject(host, hosts[host.ip]);
+                        deferredCall.resolve(hosts);
                     } else {
                         $this._getJSON(host.ip)
                             .done(function(data){
+
                                 hosts[host.ip] = $this._translate(host.ip, data);
                                 if (hosts[host.ip]){
                                     $this._updateObject(host, hosts[host.ip]);
                                 }
+                                deferredCall.resolve(hosts);
                             });
                     }
                 }
 
             }
+            
+            return deferredCall.promise();
         };
 
 
@@ -64,8 +72,9 @@ define([
                     cache: false,
                     url: env.dataApiAsAnnotation,
                     data: {
-                        resources: resources,
-                        resource: resources
+                        "resources": resources,
+                        "resource": resources,
+                        "max_related" : 50
                     }
                 });
 
@@ -78,12 +87,14 @@ define([
         this._translate = function (ip, data){
             var autonomousSystem, ases, lookups;
 
-            ases = data["ases"];
-            lookups = data["lookups"];
+            // ases = data["ases"];
+            // lookups = data["lookups"];
             autonomousSystem = null;
 
-            if (lookups[ip] && ases[lookups[ip]]){
-                autonomousSystem = this._createAutonomousSystemObject(ases[lookups[ip]]);
+
+            // if (ases && lookups && lookups[ip] && ases[lookups[ip]]){
+            if (data && data.data){
+                autonomousSystem = this._createAutonomousSystemObject(data.data);
             }
 
             return autonomousSystem;
@@ -110,7 +121,34 @@ define([
         };
 
 
-        this._createAutonomousSystemObject = function(asnData){
+        this._createAutonomousSystemObjectRipestat = function(asnData){
+            var autonomousSystemObj, asn, asItem;
+
+            if (asnData && asnData.asns && asnData.asns[0]) {
+                asItem = asnData.asns[0];
+                asn = asItem["asn"];
+
+                autonomousSystemObj = this.autonomousSystemsByAs[asn]; // Check if the object was already created
+
+                if (!autonomousSystemObj) { // No, it wasn't
+                    autonomousSystemObj = new AutonomousSystem(asn); // Create a new model object
+                    autonomousSystemObj.owner = asItem["holder"];
+                    autonomousSystemObj.announced = asnData["announced"];
+                    autonomousSystemObj.extra = asnData["block"];
+                    shortNameConnector.enrichShortName(autonomousSystemObj);
+                    this.autonomousSystemsByAs[asn] = autonomousSystemObj; // Store it
+                    env.utils.observer.publish("model.as:new", autonomousSystemObj);
+                }
+            }
+            return autonomousSystemObj;
+
+        };
+
+        this._createAutonomousSystemObject = function(data){
+            return this._createAutonomousSystemObjectRipestat(data);
+        };
+
+        this._createAutonomousSystemObjectAdHoc = function(asnData){
             var autonomousSystemObj, asn;
 
             asn = asnData.number;
