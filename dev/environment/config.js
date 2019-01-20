@@ -15,14 +15,14 @@ define([], function(){
             dataApiReverseDns: "https://stat.ripe.net/data/reverse-dns-ip/data.json",
             dataApiGeolocation: "https://ipmap.ripe.net/api/v1/locate/all/",
             dataApiAsnNeighbours: "https://stat.ripe.net/data/asn-neighbours/data.json",
-            shortAsNamesApi: "https://massimo.ripe.net/tracemon/short_names.php",
+            shortAsNamesApi: "https://massimocandela.com/tracemon/short_names.php",
             persistHostApi: "https://ipmap.ripe.net/api/v1/crowdsource/0000",
             // storageLogRestApiUrl: "//massimo.ripe.net/tracemon/widget_log.php",
             // storageErrorRestApiUrl: "//massimo.ripe.net/tracemon/widget_log.php",
             ripeDatabase: {
-                // whois: "https://massimo.ripe.net/tracemon/jsonp.php?callback=?&resource=http://rest.db.ripe.net/ripe/aut-num/AS0000.json",
-                person: "https://massimo.ripe.net/tracemon/jsonp.php?callback=?&resource=http://rest.db.ripe.net/ripe/person/0000.json%3Funfiltered", //Keep it unfiltered
-                // role: "https://massimo.ripe.net/tracemon/jsonp.php?callback=?&resource=http://rest.db.ripe.net/ripe/role/0000.json%3Funfiltered" //Keep it unfiltered
+                whois: "http://rest.db.ripe.net/ripe/aut-num/AS0000.json",
+                person: "http://rest.db.ripe.net/ripe/person/0000.json%3Funfiltered", //Keep it unfiltered
+                role: "http://rest.db.ripe.net/ripe/role/0000.json%3Funfiltered" //Keep it unfiltered
             },
             abuseContactRestApi: "https://stat.ripe.net/data/abuse-contact-finder/data.json",
             peeringDb: {

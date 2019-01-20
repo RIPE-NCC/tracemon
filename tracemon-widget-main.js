@@ -61,8 +61,12 @@ function initTracemon(domElement, instanceParams, queryParams){
                     require([TRACEMON_WIDGET_URL + 'tracemon-loader.js'], function(Tracemon){
                         instances.running[instance.domElement] = Tracemon(instance);
                     });
-                } else { // Load deployed version
-                    require([TRACEMON_WIDGET_URL + 'tracemon-dist.js'], function () {
+                } else { // Load released version
+                    var distFile =  (instance.instanceParams.onlyCore)
+                        ? TRACEMON_WIDGET_URL + 'tracemon-core-dist.js'
+                        : TRACEMON_WIDGET_URL + 'tracemon-dist.js';
+                    
+                    require([distFile], function () {
                         require(['tracemon-loader'], function(Tracemon){
                             instances.running[instance.domElement] = Tracemon(instance);
                         });
