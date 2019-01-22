@@ -351,7 +351,7 @@ define([
                                 traceroute: [ { ips: [previousIp] } ] // Temp solution
                             });
 
-                            if (isAnycast){ // Otherwise is not needed to be pre-emptive... it gets displayed later
+                            if (isAnycast){ // Otherwise it's not needed immediately, it gets displayed later
                                 finalCalls.push(geolocationCall);
                             }
                         }

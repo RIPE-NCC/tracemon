@@ -52,7 +52,8 @@ define([], function(){
         maxBundledQueries: 10,
         templatesLocation: "dev/view/html/",
         defaultLabelLevel: "auto",
-        ajaxTimeout: 120000,
+        ajaxTimeout: 4000,
+        resultTimeout: 120000,
         reloadSourcesDiff: 3, // reload the dataset id the sources set changes of at least N probes
         filterRepeatedTraceroutes: true, // Filter traceroutes reporting the same results consecutively
         defaultLoadedPeriod: 10, // Multiple of measurement interval

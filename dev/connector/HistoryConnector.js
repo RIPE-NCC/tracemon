@@ -58,7 +58,7 @@ define([
                 dataType: "jsonp",
                 async: true,
                 cache: false,
-                timeout: config.ajaxTimeout,
+                timeout: config.resultTimeout,
                 url: env.dataApiResults.replace("0000", measurementId),
                 data: queryParams,
                 error: function () {
@@ -128,7 +128,10 @@ define([
                         }
                         anycastIndexed = true;
                         deferredCall.resolve(anycastIndex[ip] || false);
-                    });
+                    })
+                    .fail(function(){
+                        deferredCall.resolve(false);
+                    })
             } else {
                 deferredCall.resolve(anycastIndex[ip] || false);
             }
@@ -139,7 +142,7 @@ define([
         this.getAnycastIndex = function () {
             if (!anycastIndexQuery) {
                 anycastIndexQuery = $.ajax({
-                    dataType: "jsonp",
+                    dataType: "json",
                     cache: false,
                     async: true,
                     timeout: config.ajaxTimeout,
