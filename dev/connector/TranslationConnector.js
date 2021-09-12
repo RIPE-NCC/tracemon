@@ -275,31 +275,15 @@ define([
             return deferredCall.promise();
         }.bind(this);
 
-        /* Issue: Sometimes the same IP appears twice on the traceroute due to...(BGP conversion, traceroute anomalies)
+        /* Issue: Sometimes the same IP appears twice on the traceroute due to...(BGP convergence, traceroute anomalies)
          * this creates cycles destroying the layout.
          * Solutions:
-         * 1) prefer to return as getBestAttempts only "new" nodes for that traceroute
+         * 1) prefer to return, as getBestAttempts, only "new" nodes for that traceroute
          * 2) create a new different host for the second time the same IP appears*/
         this._enrichDump = function(data){
-            var locations, tracerouteList, asnObjs, asnTmp, asList;
+            var tracerouteList;
 
-            asnObjs = {};
-            // asList = data['asns'] || data['ases'] || [];
-            // locations = data['geolocations'];
-            // for (var asKey in asList){
-            //     asnTmp = asList[asKey];
-            //     asnObjs[asKey] = {
-            //         number: asKey,
-            //         holder: asnTmp.holder,
-            //         announced: asnTmp.announced,
-            //         block: asnTmp.block
-            //     }
-            // }
-            // $.extend(this.asList, asnObjs);
-            // $.extend(this.geolocations, locations);
             tracerouteList = data['result'] || data['traceroutes'] || data;
-
-            // console.log(tracerouteList.map(this._createHostsSupport3));
             return $.when
                 .apply($, tracerouteList.map(this._createHostsSupport3))
                 .then(function (dump) {
@@ -391,7 +375,7 @@ define([
         }.bind(this);
 
         this._recoverHostLocation = function(geoKey){
-            var id, type, out, city, data;
+            var out, data;
 
             out = null;
             data = this.geolocations[geoKey];

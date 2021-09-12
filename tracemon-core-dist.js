@@ -20263,22 +20263,7 @@ define('tracemon.model.hop',[
     };
 
     Hop.prototype.getMainAttempt = function(){
-        // var hosts, count, sorted, main;
-        //
-        // hosts = $.map(this._attempts, function(index, item){
-        //     return item.host;
-        // });
-        // hosts.forEach(function(i) { count[i] = (count[i]||0)+1;  });
-        // sorted = Object.keys(list).sort(function(a,b){return list[a]-list[b]});
-        // main = sorted[sorted.length - 1];
-        //
-        // for (var i = 0; i < this._attempts.length; i++) {
-        //     if (this._attempts[i].host == main){
-        //         return this._attempts[i];
-        //     }
-        // }
-
-        return this._attempts.sort((a, b) => b.rtt - a.rtt)[0]; // Easy for now
+        return this._attempts.sort((a, b) => b.rtt - a.rtt)[0];
     };
 
     Hop.prototype.toString = function(hopNumber){
@@ -27724,9 +27709,6 @@ define('tracemon.connector.host-helper',[
             }
         };
 
-        /* [FIXED] Bug: if the main attempts list contains a series of wildcards but the other attempts at the same
-         * hops not... the other hops will be compressed too (so some valid nodes will disappear)
-         * A possible partial fix is to prefer valid nodes when computing the mainAttempt list */
         this._combineConsecutiveNullNodes = function (traceroute) {
             var hops, hop, attempt, host, previousHop, previousAttempt, previousHost, newHops;
 
@@ -28597,31 +28579,15 @@ define('tracemon.connector.translation',[
             return deferredCall.promise();
         }.bind(this);
 
-        /* Issue: Sometimes the same IP appears twice on the traceroute due to...(BGP conversion, traceroute anomalies)
+        /* Issue: Sometimes the same IP appears twice on the traceroute due to...(BGP convergence, traceroute anomalies)
          * this creates cycles destroying the layout.
          * Solutions:
-         * 1) prefer to return as getBestAttempts only "new" nodes for that traceroute
+         * 1) prefer to return, as getBestAttempts, only "new" nodes for that traceroute
          * 2) create a new different host for the second time the same IP appears*/
         this._enrichDump = function(data){
-            var locations, tracerouteList, asnObjs, asnTmp, asList;
+            var tracerouteList;
 
-            asnObjs = {};
-            // asList = data['asns'] || data['ases'] || [];
-            // locations = data['geolocations'];
-            // for (var asKey in asList){
-            //     asnTmp = asList[asKey];
-            //     asnObjs[asKey] = {
-            //         number: asKey,
-            //         holder: asnTmp.holder,
-            //         announced: asnTmp.announced,
-            //         block: asnTmp.block
-            //     }
-            // }
-            // $.extend(this.asList, asnObjs);
-            // $.extend(this.geolocations, locations);
             tracerouteList = data['result'] || data['traceroutes'] || data;
-
-            // console.log(tracerouteList.map(this._createHostsSupport3));
             return $.when
                 .apply($, tracerouteList.map(this._createHostsSupport3))
                 .then(function (dump) {
@@ -28713,7 +28679,7 @@ define('tracemon.connector.translation',[
         }.bind(this);
 
         this._recoverHostLocation = function(geoKey){
-            var id, type, out, city, data;
+            var out, data;
 
             out = null;
             data = this.geolocations[geoKey];
