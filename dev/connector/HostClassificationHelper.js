@@ -136,7 +136,7 @@ define([
 
         };
 
-        /* During the classification of the null nodes, tt's important to keep track if we set the AS of the node
+        /* During the classification of the null nodes, it's important to keep track if we set the AS of the node
         before or after. Otherwise all the null nodes in the same AS are going to be merged creating weird loops*/
         this._combineNullNodes = function(traceroute){
             var hops, attempt, host, hostKey, hop, nextHop, nextHost, hostAs, prevHop, prevHost;

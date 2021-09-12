@@ -56,7 +56,7 @@ define([
         //     }
         // }
 
-        return this._attempts[0]; // Easy for now
+        return this._attempts.sort((a, b) => b.rtt - a.rtt)[0]; // Easy for now
     };
 
     Hop.prototype.toString = function(hopNumber){

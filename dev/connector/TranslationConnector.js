@@ -185,14 +185,14 @@ define([
             var tracerouteDate = moment.unix(item["timestamp"]).utc();
 
             if (selectedProbes.indexOf(item["prb_id"]) == -1){
-                console.log("ALERT: the API is returning more results than what requested. Preformances may be affected.");
+                console.log("ALERT: the API is returning more results than what requested. Performance may be affected.");
                 deferredCall.resolve([]);
                 return;
             }
 
             if (tracerouteDate.isAfter(env.finalQueryParams.stopDate)
                 || tracerouteDate.isBefore(env.finalQueryParams.startDate)) {
-                console.log("ALERT: the API is returning results out of the selected time range. They are skipped");
+                console.log("ALERT: the API is returning results out of the selected time range, which will be skipped");
                 deferredCall.resolve([]);
                 return;
             }
@@ -275,7 +275,7 @@ define([
             return deferredCall.promise();
         }.bind(this);
 
-        /* Issue: Sometimes the same IP appears twice on the traceroute due to...(BGP conversion, traceroute anomalities)
+        /* Issue: Sometimes the same IP appears twice on the traceroute due to...(BGP conversion, traceroute anomalies)
          * this creates cycles destroying the layout.
          * Solutions:
          * 1) prefer to return as getBestAttempts only "new" nodes for that traceroute
