@@ -41,22 +41,7 @@ define([
     };
 
     Hop.prototype.getMainAttempt = function(){
-        // var hosts, count, sorted, main;
-        //
-        // hosts = $.map(this._attempts, function(index, item){
-        //     return item.host;
-        // });
-        // hosts.forEach(function(i) { count[i] = (count[i]||0)+1;  });
-        // sorted = Object.keys(list).sort(function(a,b){return list[a]-list[b]});
-        // main = sorted[sorted.length - 1];
-        //
-        // for (var i = 0; i < this._attempts.length; i++) {
-        //     if (this._attempts[i].host == main){
-        //         return this._attempts[i];
-        //     }
-        // }
-
-        return this._attempts[0]; // Easy for now
+        return this._attempts.sort((a, b) => b.rtt - a.rtt)[0];
     };
 
     Hop.prototype.toString = function(hopNumber){

@@ -37,10 +37,12 @@ define([
 
     Traceroute.prototype.setHops = function(hops){
         this._hops = hops;
+        this._hops.sort((a, b) => a.number - b.number);
     };
 
     Traceroute.prototype.addHop = function(hop){
         this._hops.push(hop);
+        this._hops.sort((a, b) => a.number - b.number);
     };
 
     Traceroute.prototype.getHops = function(){
