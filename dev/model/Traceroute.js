@@ -36,6 +36,7 @@ define([
     };
 
     Traceroute.prototype.setHops = function(hops){
+        hops.sort(function(a, b) { return a.number - b.number });
         this._hops = hops;
     };
 

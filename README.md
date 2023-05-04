@@ -21,6 +21,14 @@ https://atlas.ripe.net/docs/tools-tracemon/
 ```
 See documentation for more info
 
+# Building
+
+Install require.js and run:
+
+npx r.js -o app.build.1.js  # generates dev/libs/jquery-libs.js
+npx r.js -o app.build.2.js  # generates tracemon-dist.js
+npx r.js -o app.build.3.js  # generates tracemon-core-dist.js
+
 # Acknowledgments
 If you are using TraceMON -or an image of the tool- on your website, include a link "About TraceMON" or "TraceMON" pointing to this url: https://labs.ripe.net/Members/massimo_candela/tracemon-traceroute-visualisation-network-debugging-tool
 
