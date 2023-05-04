@@ -29,6 +29,8 @@ npx r.js -o app.build.1.js  # generates dev/libs/jquery-libs.js
 npx r.js -o app.build.2.js  # generates tracemon-dist.js
 npx r.js -o app.build.3.js  # generates tracemon-core-dist.js
 
+Only ES5 features are supported by the optimizer, so no arrow functions, const/let etc.
+
 # Acknowledgments
 If you are using TraceMON -or an image of the tool- on your website, include a link "About TraceMON" or "TraceMON" pointing to this url: https://labs.ripe.net/Members/massimo_candela/tracemon-traceroute-visualisation-network-debugging-tool
 
